@@ -1,0 +1,35 @@
+[project]
+id = "blink-server"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+
+[auth.sms]
+enable_signup = true
+enable_confirmations = true
+
+[auth.sms.twilio]
+enabled = false
+account_sid = ""
+message_service_sid = ""
+auth_token = ""
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"

@@ -1,0 +1,29 @@
+{
+  "name": "blink-server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:init": "npx supabase init",
+    "db:start": "npx supabase start",
+    "db:stop": "npx supabase stop",
+    "db:reset": "npx supabase db reset",
+    "db:migrate": "npx supabase migration new",
+    "db:push": "npx supabase db push",
+    "db:types": "npx supabase gen types typescript --local > src/types/supabase.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.0.2",
+    "@supabase/supabase-js": "^2.105.4",
+    "dotenv": "^17.4.2",
+    "hono": "^4.12.18",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.8.0",
+    "tsx": "^4.22.0",
+    "typescript": "^6.0.3"
+  }
+}
