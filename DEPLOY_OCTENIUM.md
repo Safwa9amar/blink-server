@@ -14,19 +14,33 @@ external. This avoids the plain-`tsc` trap where extensionless imports
 ## ⚡ Deploy in one command (the standard way)
 
 ```bash
-npm run deploy            # bump PATCH version → build → upload → restart → verify
+npm run deploy            # bump PATCH → build → sync DB → upload → restart → verify
 npm run deploy minor      # bump minor instead
 npm run deploy major
 npm run deploy -- --no-bump   # redeploy current version, no bump
+npm run deploy -- --no-db     # skip the live-Supabase schema sync
 ```
 
-`scripts/deploy.mjs` does the whole flow: bumps `package.json` `version` (so the
-running API reports it at `GET /` and `GET /health`), builds the bundle with the
-new version inlined, backs up the live `index.js` → `index.js.bak`, `scp`s the new
-build up, touches `tmp/restart.txt` (Passenger graceful restart), then polls
-`https://blink.greenpedal.net/health` until the reported `version` matches —
-failing loudly if it doesn't. **Always bump the version on deploy; that's how we
-tell which build is live.**
+`scripts/deploy.mjs` does the whole flow:
+
+1. **Bumps** `package.json` `version` (so the running API reports it at `GET /`
+   and `GET /health`) — patch by default; `minor` / `major` / `--no-bump`.
+2. **Builds** the single-file bundle with the new version inlined.
+3. **Syncs the schema to the live Supabase DB** — `supabase db push` of any
+   migrations missing from the remote history (idempotent; a clean DB prints
+   "Remote database is up to date"). Runs **before** the code ships so the new
+   build always meets the new schema; if the push fails the deploy aborts before
+   touching the live app. The DDL connection is the **session pooler** (`:5432`),
+   derived from `.env`'s `DATABASE_URL` (which is the transaction pooler `:6543`,
+   unsafe for migrations). Skip with `--no-db`.
+4. Backs up the live `index.js` → `index.js.bak` and `scp`s the new build up.
+5. Touches `tmp/restart.txt` (Passenger graceful restart).
+6. Polls `https://blink.greenpedal.net/health` until the reported `version`
+   matches — failing loudly if it doesn't.
+
+**Always bump the version on deploy; that's how we tell which build is live.**
+Add new schema by writing `supabase/migrations/NNNNN_*.sql` (the Drizzle-authored
+SQL) before deploying — `npm run deploy` applies it to live as step 3.
 
 Verify any time: `curl -s https://blink.greenpedal.net/health` →
 `{"status":"ok","version":"X.Y.Z"}`.
