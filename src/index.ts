@@ -19,7 +19,16 @@ import deepLinkRoutes from "./routes/deep-links";
 import libraryRoutes from "./routes/library";
 import { startLibraryCron } from "./scrapers/cron";
 
-const app = new Hono();
+// __APP_VERSION__ is injected from package.json at build time by
+// scripts/build.mjs (esbuild --define). Under `tsx` dev it is undefined, so
+// fall back to "dev". The deploy script bumps package.json on every deploy.
+declare const __APP_VERSION__: string | undefined;
+const VERSION =
+  typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "dev";
+
+// BASE_PATH lets the same build serve at a domain root (dev) or under a
+// sub-path like greenpedal.net/blink (cPanel). Empty string = root.
+const app = new Hono().basePath(env.BASE_PATH);
 
 // ─── Global middleware ───────────────────────────────────────────────
 app.use("/*", cors());
@@ -30,12 +39,12 @@ app.onError(errorHandler);
 app.get("/", (c) =>
   c.json({
     name: "Blink API",
-    version: "1.0.0",
+    version: VERSION,
     status: "running",
   })
 );
 
-app.get("/health", (c) => c.json({ status: "ok" }));
+app.get("/health", (c) => c.json({ status: "ok", version: VERSION }));
 
 // ─── Routes ──────────────────────────────────────────────────────────
 app.route("/auth", authRoutes);
@@ -52,7 +61,17 @@ app.route("/deep-links", deepLinkRoutes);
 app.route("/library", libraryRoutes);
 
 // ─── Cron: scrape marketplaces daily at 3am ─────────────────────────
-startLibraryCron();
+// On cPanel/Passenger the app is spun down when idle, so in-process cron
+// never fires reliably — keep this OFF in production and drive scrapes from a
+// cPanel Cron Job hitting POST /library/scrape instead. Toggle with
+// ENABLE_INPROCESS_CRON=true only on an always-on host.
+if (env.ENABLE_INPROCESS_CRON) {
+  startLibraryCron();
+} else {
+  console.log(
+    "[cron] in-process scheduler disabled (set ENABLE_INPROCESS_CRON=true to enable)"
+  );
+}
 
 // ─── Start server ────────────────────────────────────────────────────
 console.log(`Blink API running on http://localhost:${env.PORT}`);
