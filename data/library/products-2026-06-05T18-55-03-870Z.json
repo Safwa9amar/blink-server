@@ -1,0 +1,268 @@
+{
+  "scrapedAt": "2026-06-05T18:55:03.870Z",
+  "summary": {
+    "totalProducts": 13,
+    "bySource": {
+      "fromalgeria": 13
+    },
+    "totalErrors": 0,
+    "totalDuration": 4191
+  },
+  "products": [
+    {
+      "sourceUrl": "https://fromalgeria.com/product/this-is-title/",
+      "price": 7,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.867Z",
+      "source": "fromalgeria",
+      "name": "this is title",
+      "originalPrice": 10,
+      "description": "some description here",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2022/10/Capture-décran-2022-05-26-à-16.28.43.png",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2022/10/Capture-décran-2022-05-26-à-16.28.43.png"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/henectus-tincidunt/",
+      "price": 429,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "Henectus tincidunt",
+      "originalPrice": 429,
+      "description": "Consequat a scelerisque suspendisse vel et eget eu vitae adipiscing nibh scelerisque semper cum adipiscing facilisis adipiscing est accumsan lorem vestibulum. Aliquet mus a aptent ullam corper metus accumsan. Habitasse a purus nec ipsum a urna ac ullamcorper varius metus blandit posuere.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-2.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/senectus-tincidunt-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/senectus-tincidunt-3.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/senectus-tincidunt-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/ornare-auctor/",
+      "price": 429,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "Ornare auctor",
+      "originalPrice": 429,
+      "description": "Consequat a scelerisque suspendisse vel et eget eu vitae adipiscing nibh scelerisque semper cum adipiscing facilisis adipiscing est accumsan lorem vestibulum. Aliquet mus a aptent ullam corper metus accumsan. Habitasse a purus nec ipsum a urna ac ullamcorper varius metus blandit posuere.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2022/04/market-headphones-6.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2022/04/market-headphones-6.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/ornare-auctor-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/ornare-auctor-3.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/ornare-auctor-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/eames-plastic-side-chair/",
+      "price": 99,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "Eames plastic side chair",
+      "originalPrice": 99,
+      "description": "Consequat a scelerisque suspendisse vel et eget eu vitae adipiscing nibh scelerisque semper cum adipiscing facilisis adipiscing est accumsan lorem vestibulum. Aliquet mus a aptent ullam corper metus accumsan. Habitasse a purus nec ipsum a urna ac ullamcorper varius metus blandit posuere.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-4.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-4.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/eames-plastic-side-chair-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/eames-plastic-side-chair-3.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/eames-plastic-side-chair-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/augue-adipiscing-euismod/",
+      "price": 199,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "Augue adipiscing euismod",
+      "originalPrice": 199,
+      "description": "Scelerisque facilisi rhoncus non faucibus parturient senectus lobortis a ullamcorper vestibulum mi nibh ultricies a parturient gravida a vestibulum leo sem in. Est cum torquent mi in scelerisque leo aptent per at vitae ante eleifend mollis adipiscing.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2022/04/market-watch-2.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2022/04/market-watch-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/variable-product-example-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/variable-product-example-3.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/variable-product-example-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/iphone-dock/",
+      "price": 349,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "iPhone dock",
+      "originalPrice": 399,
+      "description": "Consequat a scelerisque suspendisse vel et eget eu vitae adipiscing nibh scelerisque semper cum adipiscing facilisis adipiscing est accumsan lorem vestibulum.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-1.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-1.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/iphone-dock-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/iphone-dock-3.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/iphone-dock-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/wine-bottle-lantern/",
+      "price": 399,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "Wine bottle lantern",
+      "originalPrice": 399,
+      "description": "Consequat a scelerisque suspendisse vel et eget eu vitae adipiscing nibh scelerisque semper cum adipiscing facilisis adipiscing est accumsan lorem vestibulum. Aliquet mus a aptent ullam corper metus accumsan. Habitasse a purus nec ipsum a urna ac ullamcorper varius metus blandit posuere.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2022/04/market-phone-11.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2022/04/market-phone-11.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/wine-bottle-lantern-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/wine-bottle-lantern-3.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/decoration-wooden-present/",
+      "price": 89,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "Decoration wooden present",
+      "originalPrice": 89,
+      "description": "Nam gravida vulputate est venenatis eu at ullamcorper consectetur parturient suspendisse a elit lobortis ut convallis vestibulum vulputate nunc praesent mattis sem faucibus risus sociosqu.Dapibus curae a ac vestibulum a magnis ullamcorper orci a iaculis adipiscing augue a massa a torquent feugiat a. Scelerisque vestibulum.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-12.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-12.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/decoration-wooden-presen-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/decoration-wooden-presen-3.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/decoration-wooden-presen-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/panton-tunior-chair/",
+      "price": 199,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "Panton tunior chair",
+      "originalPrice": 199,
+      "description": "Placerat tempor dolor eu leo ullamcorper et magnis habitant ultrices consectetur arcu nulla mattis fermentum adipiscing a et bibendum sed platea malesuada eget vestibulum.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2022/04/market-phone-7.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2022/04/market-phone-7.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/panton-tunior-chair-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/panton-tunior-chair-3.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/panton-tunior-chair-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/smart-watches-wood-edition/",
+      "price": 599,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "Smart watches wood edition",
+      "originalPrice": 599,
+      "description": "Himenaeos parturient nam a justo placerat lorem erat pretium a fusce pharetra pretium enim sagittis ut nunc neque torquent sem a leo.Dictumst himenaeos primis torquent ridiculus porttitor turpis.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-8.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-8.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/smart-watches-wood-edition-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/smart-watches-wood-edition-3.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/smart-watches-wood-edition-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/wooden-single-drawer/",
+      "price": 89,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "Wooden single drawer",
+      "originalPrice": 89,
+      "description": "Placerat tempor dolor eu leo ullamcorper et magnis habitant ultrices consectetur arcu nulla mattis fermentum adipiscing a et bibendum sed platea malesuada eget vestibulum tempor dolor eu leo ullamcorper et magnis habitant ultrices consectetur.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2022/04/market-headphones-3.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2022/04/market-headphones-3.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/wooden-single-drawer-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/wooden-single-drawer-3.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/wooden-single-drawer-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/classic-wooden-chair/",
+      "price": 299,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "Classic wooden chair",
+      "originalPrice": 299,
+      "description": "Scelerisque facilisi rhoncus non faucibus parturient senectus lobortis a ullamcorper vestibulum mi nibh ultricies a parturient gravida a vestibulum leo sem in. Est cum torquent mi in scelerisque leo aptent per at vitae ante eleifend mollis adipiscing.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-10.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2021/10/marketplace-product-10.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/classic-wooden-chair-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/classic-wooden-chair-3.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/classic-wooden-chair-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://fromalgeria.com/product/eames-lounge-chair/",
+      "price": 399,
+      "currency": "USD",
+      "category": "Art &amp; Collectibles",
+      "scrapedAt": "2026-06-05T18:55:03.868Z",
+      "source": "fromalgeria",
+      "name": "Eames lounge chair",
+      "originalPrice": 399,
+      "description": "Scelerisque facilisi rhoncus non faucibus parturient senectus lobortis a ullamcorper vestibulum mi nibh ultricies a parturient gravida a vestibulum leo sem in. Est cum torquent mi in scelerisque leo aptent per at vitae ante eleifend mollis adipiscing.",
+      "imageUrl": "https://fromalgeria.com/wp-content/uploads/2022/04/market-watch-1.jpg",
+      "images": [
+        "https://fromalgeria.com/wp-content/uploads/2022/04/market-watch-1.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/eames-lounge-chair-2.jpg",
+        "https://fromalgeria.com/wp-content/uploads/2021/08/eames-lounge-chair-3.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    }
+  ]
+}

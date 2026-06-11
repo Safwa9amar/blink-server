@@ -1,0 +1,742 @@
+{
+  "scrapedAt": "2026-06-05T18:48:16.720Z",
+  "summary": {
+    "totalProducts": 50,
+    "bySource": {
+      "algeriemarket": 50
+    },
+    "totalErrors": 0,
+    "totalDuration": 4911
+  },
+  "products": [
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-9228l-2/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.218Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 9228L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/418_Montre-femme-IBSO-9228L.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/418_Montre-femme-IBSO-9228L.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-9228l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 9228L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/417_Montre-femme-IBSO-9228L-1.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/417_Montre-femme-IBSO-9228L-1.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-1106l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 1106L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/416-Montre-femme-IBSO-1106L.jpeg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/416-Montre-femme-IBSO-1106L.jpeg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-1172l-2/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 1172L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-1172L.png",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-1172L.png"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-8838l-2/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 8838L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-8838L.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-8838L.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-8838l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 8838L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-8838L.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-8838L.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-9318l-2/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 9318L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-9318L.jpeg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-9318L.jpeg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-1172l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 1172L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-1172L.webp",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-1172L.webp"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-1163l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 1163L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/409_Montre femme IBSO 1163L.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/409_Montre femme IBSO 1163L.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-1079l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 1079L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-1079L.webp",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-1079L.webp"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-9201l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 9201L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/407_Montre femme IBSO 9201L.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/407_Montre femme IBSO 9201L.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-9668l/",
+      "price": null,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 9668L",
+      "originalPrice": null,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-9668L.webp",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-femme-IBSO-9668L.webp"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-9318l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 9318L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/405_Montre femme IBSO 9318L.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/405_Montre femme IBSO 9318L.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-1136l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 1136L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/404_Montre femme IBSO 1136L.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/404_Montre femme IBSO 1136L.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-9202l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 9202L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/403_Montre femme IBSO 9202L.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/403_Montre femme IBSO 9202L.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-1320l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO 1320L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/402_Montre femme IBSO 1320L.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/402_Montre femme IBSO 1320L.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-decathlon-enfants-w200s/",
+      "price": 30,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre Decathlon enfants W200S",
+      "originalPrice": 30,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-Decathlon-enfants-W200S-scaled.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-Decathlon-enfants-W200S-scaled.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-decathlon-unisexe-2835332/",
+      "price": 25,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre Decathlon unisexe 2835332",
+      "originalPrice": 25,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-Decathlon-unisexe-2835332.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-Decathlon-unisexe-2835332.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-1502-2/",
+      "price": 25,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 1502",
+      "originalPrice": 25,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-homme-SKMEI-1502.jpeg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-homme-SKMEI-1502.jpeg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-1894/",
+      "price": 25,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 1894",
+      "originalPrice": 25,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-homme-SKMEI-1894.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/Montre-homme-SKMEI-1894.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-1717-cadran-blanc-argent/",
+      "price": 25,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 1717 Cadran blanc argent",
+      "originalPrice": 25,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/397_Montre homme SKMEI 1717 Cadran blanc argent.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/397_Montre homme SKMEI 1717 Cadran blanc argent.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-1717-cadran-noir-dore/",
+      "price": 25,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 1717 Cadran noir doré",
+      "originalPrice": 25,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/396_Montre homme SKMEI 1717 Cadran noir doré.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/396_Montre homme SKMEI 1717 Cadran noir doré.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-1717-cadran-noir-argent/",
+      "price": 25,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 1717 Cadran noir argent",
+      "originalPrice": 25,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/395_Montre homme SKMEI 1717 Cadran noir argent.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/395_Montre homme SKMEI 1717 Cadran noir argent.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-1502/",
+      "price": 25,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 1502",
+      "originalPrice": 25,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/394_Montre homme SKMEI 1502.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/394_Montre homme SKMEI 1502.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-2351/",
+      "price": 30,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 2351",
+      "originalPrice": 30,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/393_Montre homme SKMEI 2351.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/393_Montre homme SKMEI 2351.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-2243/",
+      "price": 39,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 2243",
+      "originalPrice": 39,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/392_Montre homme SKMEI 2243.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/392_Montre homme SKMEI 2243.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-6126/",
+      "price": 30,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 6126",
+      "originalPrice": 30,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/391_Montre homme SKMEI 6126.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/391_Montre homme SKMEI 6126.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-5126/",
+      "price": 30,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 5126",
+      "originalPrice": 30,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/390_Montre homme SKMEI 5126.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/390_Montre homme SKMEI 5126.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-2499/",
+      "price": 30,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 2499",
+      "originalPrice": 30,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/389_Montre homme SKMEI 2499.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/389_Montre homme SKMEI 2499.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-1845/",
+      "price": 25,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 1845",
+      "originalPrice": 25,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/388_Montre homme SKMEI 1845.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/388_Montre homme SKMEI 1845.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-homme-skmei-2070/",
+      "price": 25,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre homme SKMEI 2070",
+      "originalPrice": 25,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/387_Montre homme SKMEI 2070.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/387_Montre homme SKMEI 2070.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/smartwatch-mibro-lite-3/",
+      "price": 120,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Smartwatch MIBRO Lite 3",
+      "originalPrice": 120,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/386_Smartwatch MIBRO Lite 3.png",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/386_Smartwatch MIBRO Lite 3.png"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/smartwatch-mibro-lite-3-pro/",
+      "price": 150,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Smartwatch MIBRO Lite 3 Pro",
+      "originalPrice": 150,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/385_Smartwatch MIBRO Lite 3 Pro.png",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/385_Smartwatch MIBRO Lite 3 Pro.png"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/smartwatch-hoco-y22/",
+      "price": 99,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Smartwatch HOCO Y22",
+      "originalPrice": 99,
+      "images": [],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/smartwatch-hoco-y28/",
+      "price": 99,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Smartwatch HOCO Y28",
+      "originalPrice": 99,
+      "images": [],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/smartwatch-hoco-y26/",
+      "price": 59,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Smartwatch HOCO Y26",
+      "originalPrice": 59,
+      "images": [],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/smartwatch-hoco-y27/",
+      "price": 50,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Smartwatch HOCO Y27",
+      "originalPrice": 50,
+      "images": [],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/smartwatch-hoco-y31/",
+      "price": 80,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Smartwatch HOCO Y31",
+      "originalPrice": 80,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/380_Smartwatch HOCO Y31.webp",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/380_Smartwatch HOCO Y31.webp"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-sinobi-s9862g-silver-gold/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme Sinobi S9862G Silver Gold",
+      "originalPrice": 49,
+      "images": [],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-s1099-silver/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO S1099 Silver",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/378_Montre femme IBSO S1099 Silver.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/378_Montre femme IBSO S1099 Silver.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-s1172l-rose-gold/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO S1172L Rose Gold",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/377_Montre femme IBSO S1172L Rose Gold.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/377_Montre femme IBSO S1172L Rose Gold.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-mini-focus-mf0367l-rose-gold/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme Mini Focus MF0367L Rose Gold",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/376_Montre femme Mini Focus MF0367L Rose Gold.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/376_Montre femme Mini Focus MF0367L Rose Gold.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-mini-focus-mf0367l-bleu/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme Mini Focus MF0367L Bleu",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/375_Montre femme Mini Focus MF0367L Bleu.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/375_Montre femme Mini Focus MF0367L Bleu.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-naviforce-nf9198-silver-gold/",
+      "price": 55,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme Naviforce NF9198 Silver Gold",
+      "originalPrice": 55,
+      "images": [],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-ibso-s1220l/",
+      "price": 49,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme IBSO S1220L",
+      "originalPrice": 49,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/373_Montre femme IBSO S1220L.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/373_Montre femme IBSO S1220L.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-mini-focus-mf0472l/",
+      "price": 45,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme Mini Focus MF0472L",
+      "originalPrice": 45,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/372_Montre femme Mini Focus MF0472L.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/372_Montre femme Mini Focus MF0472L.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-skmei-1400-silver/",
+      "price": 40,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme SKMEI 1400 Silver",
+      "originalPrice": 40,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/371_Montre femme SKMEI 1400 Silver.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/371_Montre femme SKMEI 1400 Silver.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-skmei-1400-gold/",
+      "price": 40,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme SKMEI 1400 Gold",
+      "originalPrice": 40,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/370_Montre femme SKMEI 1400 Gold.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/370_Montre femme SKMEI 1400 Gold.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-fasla-9153l-silver/",
+      "price": 40,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme Fasla 9153L Silver",
+      "originalPrice": 40,
+      "imageUrl": "https://algeriemarket.com/wp-content/uploads/2026/05/369_Montre femme Fasla 9153L Silver.jpg",
+      "images": [
+        "https://algeriemarket.com/wp-content/uploads/2026/05/369_Montre femme Fasla 9153L Silver.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://algeriemarket.com/produit/montre-femme-fasla-9153l-silver-rose-gold/",
+      "price": 40,
+      "currency": "DZD",
+      "category": "Bijoux et montres",
+      "scrapedAt": "2026-06-05T18:48:15.219Z",
+      "source": "algeriemarket",
+      "name": "Montre femme Fasla 9153L Silver / Rose Gold",
+      "originalPrice": 40,
+      "images": [],
+      "availability": "in_stock"
+    }
+  ]
+}

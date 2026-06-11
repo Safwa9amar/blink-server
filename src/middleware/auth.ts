@@ -18,7 +18,6 @@ export const auth = createMiddleware<AuthEnv>(async (c, next) => {
   }
 
   const token = header.slice(7);
-
   const {
     data: { user: supaUser },
     error,

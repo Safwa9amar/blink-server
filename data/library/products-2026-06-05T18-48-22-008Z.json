@@ -1,0 +1,169 @@
+{
+  "scrapedAt": "2026-06-05T18:48:22.008Z",
+  "summary": {
+    "totalProducts": 8,
+    "bySource": {
+      "jibhali": 8
+    },
+    "totalErrors": 0,
+    "totalDuration": 3473
+  },
+  "products": [
+    {
+      "sourceUrl": "https://jibhali.com/2025-new-smart-watch-wireless-calling-multiple-sports-modes-music-player-health-tracking-diy-watch-faces-android-ios/",
+      "price": 58,
+      "currency": "DZD",
+      "category": "Consumer Electronics",
+      "scrapedAt": "2026-06-05T18:48:22.006Z",
+      "source": "jibhali",
+      "name": "2025 New Smart Watch Wireless Calling Multiple Sports Modes Music Player Health Tracking DIY Watch Faces Android iOS",
+      "originalPrice": 58,
+      "imageUrl": "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/26122213/kf-S90bd229dd2764186965ef1974d2eebbcq.webp",
+      "images": [
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/26122213/kf-S90bd229dd2764186965ef1974d2eebbcq.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/26122231/kf-Sad29a6c008f0436fa117441f8ccdee2cW.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/26122234/kf-S03610101614b4b75bc503ac7625afcd1H.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/26122235/kf-S1b060efb946f44cfbbc211ac47fb6610q.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/26122238/kf-S146e8c129124494386ab6c179c04d710x.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/26122239/kf-S49fdffae4f89476f8aaf8ccf97686709W.webp"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://jibhali.com/essager-usb-c-cable-for-iphone-14-13-12-11-pro-max-xs-8-plus-ipad-macbook-wire-29w-pd-fast-charging-type-c-to-lighting-data-cord/",
+      "price": 18,
+      "currency": "DZD",
+      "category": "Mobile Phone Accessories",
+      "scrapedAt": "2026-06-05T18:48:22.007Z",
+      "source": "jibhali",
+      "name": "Essager USB C Cable For iPhone 14 13 12 11 Pro Max Xs 8 Plus iPad Macbook Wire 29W PD Fast Charging Type C To Lighting Data Cord",
+      "originalPrice": 18,
+      "imageUrl": "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/25122938/kf-S7143b10d88ba48ff9c4f0bbd1ab7e56ao.webp",
+      "images": [
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/25122938/kf-S7143b10d88ba48ff9c4f0bbd1ab7e56ao.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/25122940/kf-S771b7343df8543c49334225b2eb334c5k.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/25122941/kf-Sc9a844efae154a94b5e07d939004f3f6A.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/25122942/kf-S2a8e44d927f243a989e2094fd43481b3H.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/25122943/kf-Sa6a0bfd2da9e4d059323b905980868dfx.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/12/25122943/kf-Saa7b6bf62cfa4d9c903a25ee0d1bcd2fM.webp"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://jibhali.com/mini-folding-hairdryer-750w-with-carrying-bag-hot-air-anion-hair-care-for-home-travel-hair-dryer-dormitory-blow-drier-220v-240v/",
+      "price": 62,
+      "currency": "DZD",
+      "category": "Home Appliances",
+      "scrapedAt": "2026-06-05T18:48:22.007Z",
+      "source": "jibhali",
+      "name": "MIni Folding Hairdryer 750W with Carrying Bag Hot Air Anion Hair Care for Home Travel Hair Dryer Dormitory Blow Drier 220V-240V",
+      "originalPrice": 62,
+      "imageUrl": "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/30190907/kf-Sabb03f8ce07449cb84a71fc205f96721c.webp",
+      "images": [
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/30190907/kf-Sabb03f8ce07449cb84a71fc205f96721c.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/30190904/kf-Sed90dc2f6d20424bb2cf0315d19a53c2M.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/30190905/kf-Sc068434cf07b410dbc5db36d090bff1fB.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/30190906/kf-Se06e241bad9e4d56afc8e62e89c45989X.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/30190906/kf-Sa72ceb1d977c4b4ea5190f0151a63658z.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/30190907/kf-Sabb03f8ce07449cb84a71fc205f96721c.webp"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://jibhali.com/modest-dress-2025-elegant-plain-abaya/",
+      "price": 125,
+      "currency": "DZD",
+      "category": "Muslim Fashion",
+      "scrapedAt": "2026-06-05T18:48:22.007Z",
+      "source": "jibhali",
+      "name": "Modest Dress 2025 Elegant Plain Abaya",
+      "originalPrice": 125,
+      "imageUrl": "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102452/kf-S9764518efcad4d54808a6254b9348cc5E.webp",
+      "images": [
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102452/kf-S9764518efcad4d54808a6254b9348cc5E.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102451/kf-S305e43597b4d4091a963c36e0229bb7e4.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102451/kf-S5e15203046de4f999bab3634920c83e6F.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102451/kf-Sa74a0ba4203e47e3948823e42a418498H.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102451/kf-Sec52fe8a43794e09a9dc483e9df692367.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102450/kf-Sc6ef973edb5642678e27f6d6b8241e07R.webp"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://jibhali.com/handwoven-adjustable-mobile-phone-universal-lanyard-wrist-strap-outdoor-sports-convenient-safety-anti-drop-rope/",
+      "price": 17,
+      "currency": "DZD",
+      "category": "Mobile Phone Accessories",
+      "scrapedAt": "2026-06-05T18:48:22.007Z",
+      "source": "jibhali",
+      "name": "Handwoven adjustable mobile phone universal lanyard wrist strap Outdoor sports convenient safety anti-drop rope",
+      "originalPrice": 17,
+      "imageUrl": "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102505/kf-S8ea3040a330c4db1a3077d4b38442ac03.webp",
+      "images": [
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102505/kf-S8ea3040a330c4db1a3077d4b38442ac03.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102505/kf-S4eca66203f9346f18e0ae62400cfaebcV.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102505/kf-Scbee3343596143b59221165c200b8f77g.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102505/kf-Sa7d788f404104a9a91d27f3c0ba1afe84.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102504/kf-S8999ae43cf094decb0dd11dd57469756W.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/11/20102504/kf-S3a3cdd93f7a44a3c8f1b5b8d8d41d54fW.webp"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://jibhali.com/new-led-wrist-blood-pressure-monitor-rechargeable-english-voice-broadcast-sphygmomanometer-tonometer-bp-monitor/",
+      "price": 51,
+      "currency": "DZD",
+      "category": "Beauty &amp; Health",
+      "scrapedAt": "2026-06-05T18:48:22.007Z",
+      "source": "jibhali",
+      "name": "New LED Wrist Blood Pressure Monitor Rechargeable English Voice Broadcast Sphygmomanometer Tonometer BP Monitor",
+      "originalPrice": 51,
+      "imageUrl": "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102516/kf-S83dbfab3c7cf446a8bad3726941a9d27R.webp",
+      "images": [
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102516/kf-S83dbfab3c7cf446a8bad3726941a9d27R.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102516/kf-S0cece0ab633c48e382a8da212de6896eZ.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102515/kf-S206ea06deec248b191d742f13f4897451.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102515/kf-Sba65dda220f5432b9a19bd4f284e85a53.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102515/kf-S8d408248fc2d4ae59d95f955bcb125dab.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102515/kf-S09c77f8b72054267880e99c0b0ba17c6h.webp"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://jibhali.com/algeria-tagine-test-1761684506/",
+      "price": 45,
+      "currency": "DZD",
+      "category": "uncategorized",
+      "scrapedAt": "2026-06-05T18:48:22.007Z",
+      "source": "jibhali",
+      "name": "🇩🇿 Traditional Algerian Tagine &#8211; Test Product",
+      "originalPrice": 50,
+      "description": "ABeautiful handcrafted Algerian tagine. Fast local delivery! 🇩🇿",
+      "imageUrl": "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102529/tagine.jpg",
+      "images": [
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102529/tagine.jpg"
+      ],
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://jibhali.com/translator-htc-ne20-new-bluetooth-6-0-wireless-headphones-translation-earphones-ipx4-waterproof-rating-long-battery-life/",
+      "price": 83,
+      "currency": "DZD",
+      "category": "Consumer Electronics",
+      "scrapedAt": "2026-06-05T18:48:22.007Z",
+      "source": "jibhali",
+      "name": "Translator HTC NE20 New Bluetooth 6.0 Wireless Headphones Translation Earphones IPX4 Waterproof Rating Long Battery Life",
+      "originalPrice": 83,
+      "imageUrl": "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102555/kf-Sbc1e69c9b42d4412bda285c110eaf4adl.webp",
+      "images": [
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102555/kf-Sbc1e69c9b42d4412bda285c110eaf4adl.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102554/kf-S1f27c9492a0d41e6bc6020c32312a5b2l.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102554/kf-Sea2bfd6db8f54f9ca1c26cc283a5d770w.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102554/kf-S31ecd13dba3745a58bb59adc89b28e68S.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102553/kf-S4074a2f75038481e86f308784dd2e9f3n.webp",
+        "https://jibhali-bucket.ams3.digitaloceanspaces.com/wp-content/uploads/2025/10/20102553/kf-Scb1f7cb866294b979c7c8e8b6b617399f.webp"
+      ],
+      "availability": "in_stock"
+    }
+  ]
+}

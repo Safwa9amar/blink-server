@@ -1,4 +1,13 @@
-export type UserRole = "customer" | "rider" | "merchant" | "agent";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import type { news } from "../db/schema";
+
+// `news` types are inferred straight from the Drizzle table (src/db/schema/news.ts)
+// — the schema is the single source of truth. See NewsRow/NewsInsert/NewsUpdate below.
+// Each language is its own column: content_eng / content_fr / content_ar (NewsCopy).
+export type { NewsCopy } from "../db/schema/news";
+export type NewsStatus = "published" | "scheduled" | "draft";
+
+export type UserRole = "customer" | "rider" | "merchant" | "agent" | "super_admin";
 export type Gender = "male" | "female";
 export type VehicleType = "bicycle" | "motorcycle";
 export type VehicleCategory = "standard" | "electric" | "hybrid";
@@ -82,6 +91,11 @@ export type Database = {
         Insert: AddressInsert;
         Update: AddressUpdate;
       };
+      news: {
+        Row: NewsRow;
+        Insert: NewsInsert;
+        Update: NewsUpdate;
+      };
     };
     Enums: {
       user_role: UserRole;
@@ -92,6 +106,7 @@ export type Database = {
       transaction_type: TransactionType;
       order_status: OrderStatus;
       notification_type: NotificationType;
+      news_status: NewsStatus;
     };
   };
 };
@@ -291,3 +306,11 @@ export interface AddressRow {
 }
 export type AddressInsert = Omit<AddressRow, "id" | "created_at" | "updated_at">;
 export type AddressUpdate = Partial<AddressInsert>;
+
+// ─── News ────────────────────────────────────────────────────────────
+// Inferred from the Drizzle table (src/db/schema/news.ts) — no hand-maintained
+// duplicate. `mode: "string"` timestamps + `.$type<number>()` keep these aligned
+// with what supabase-js / PostgREST return at runtime.
+export type NewsRow = InferSelectModel<typeof news>;
+export type NewsInsert = InferInsertModel<typeof news>;
+export type NewsUpdate = Partial<NewsInsert>;

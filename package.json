@@ -12,17 +12,32 @@
     "db:reset": "npx supabase db reset",
     "db:migrate": "npx supabase migration new",
     "db:push": "npx supabase db push",
-    "db:types": "npx supabase gen types typescript --local > src/types/supabase.ts"
+    "db:types": "npx supabase gen types typescript --local > src/types/supabase.ts",
+    "drizzle:generate": "drizzle-kit generate",
+    "drizzle:pull": "drizzle-kit pull",
+    "drizzle:studio": "drizzle-kit studio",
+    "apple:secret": "node scripts/gen-apple-secret.mjs",
+    "apple:proxy": "node scripts/apple-domain-proxy.mjs"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.2",
     "@supabase/supabase-js": "^2.105.4",
+    "cheerio": "^1.2.0",
     "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.44.7",
+    "expo-server-sdk": "^3.15.0",
     "hono": "^4.12.18",
+    "node-cron": "^4.2.1",
+    "ws": "^8.20.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^25.8.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.20.0",
+    "@types/ws": "^8.18.1",
+    "drizzle-kit": "^0.31.10",
+    "pg": "^8.21.0",
     "tsx": "^4.22.0",
     "typescript": "^6.0.3"
   }

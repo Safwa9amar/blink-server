@@ -1,0 +1,880 @@
+{
+  "scrapedAt": "2026-06-05T18:54:57.881Z",
+  "summary": {
+    "totalProducts": 50,
+    "bySource": {
+      "areejstore": 50
+    },
+    "totalErrors": 0,
+    "totalDuration": 5192
+  },
+  "products": [
+    {
+      "sourceUrl": "https://areej.store/produit/pull-femme-3/",
+      "price": 230000,
+      "currency": "DZD",
+      "category": "Femme",
+      "scrapedAt": "2026-06-05T18:54:56.380Z",
+      "source": "areejstore",
+      "name": "POLO FEMME",
+      "originalPrice": 230000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/POLO-FEMME.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/POLO-FEMME.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/pull-femme-2/",
+      "price": 230000,
+      "currency": "DZD",
+      "category": "Femme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "POLO FEMME",
+      "originalPrice": 230000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/POLO-FEMME2.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/POLO-FEMME2.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/pull-femme/",
+      "price": 230000,
+      "currency": "DZD",
+      "category": "Femme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "POLO FEMME",
+      "originalPrice": 230000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/POLO-FEMME1.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/POLO-FEMME1.jpg"
+      ],
+      "sku": "0197117",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/chemise-femme-3/",
+      "price": 220000,
+      "currency": "DZD",
+      "category": "Femme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CHEMISE FEMME",
+      "originalPrice": 220000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/chemises-3.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/chemises-3.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/chemise-femme-2/",
+      "price": 220000,
+      "currency": "DZD",
+      "category": "Femme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CHEMISE FEMME",
+      "originalPrice": 220000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/chemises-2.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/chemises-2.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/chemise-femme/",
+      "price": 220000,
+      "currency": "DZD",
+      "category": "Femme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CHEMISE FEMME",
+      "originalPrice": 220000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/chemises-1.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/chemises-1.jpg"
+      ],
+      "sku": "ARJ0197257",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/robe-femme-2/",
+      "price": 450000,
+      "currency": "DZD",
+      "category": "Femme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "ROBE FEMME",
+      "originalPrice": 450000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/robe-femme-2.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/robe-femme-2.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/robe-femme/",
+      "price": 450000,
+      "currency": "DZD",
+      "category": "Femme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "robe femme",
+      "originalPrice": 450000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/robe-femme-1.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/robe-femme-1.jpg"
+      ],
+      "sku": "0196924",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/mule-homme-5/",
+      "price": 360000,
+      "currency": "DZD",
+      "category": "Chaussure",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "MULE HOMME",
+      "originalPrice": 360000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/mule-homme-1.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/mule-homme-1.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/mule-homme-4/",
+      "price": 360000,
+      "currency": "DZD",
+      "category": "Chaussure",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "MULE HOMME",
+      "originalPrice": 360000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/mule-homme-2.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/mule-homme-2.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/mule-homme-3/",
+      "price": 360000,
+      "currency": "DZD",
+      "category": "Chaussure",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "MULE HOMME",
+      "originalPrice": 360000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/mule-homme-3.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/mule-homme-3.jpg"
+      ],
+      "sku": "ARJ0196760",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/ens-gar-2-5-ans-2/",
+      "price": 320000,
+      "currency": "DZD",
+      "category": "Bébé 0-3 Ans",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "ENS GAR 2-5 ANS",
+      "originalPrice": 320000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/ens-gar-5.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/ens-gar-5.jpg"
+      ],
+      "sku": "0195963",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/ens-gar-2-5-ans/",
+      "price": 320000,
+      "currency": "DZD",
+      "category": "Bébé 0-3 Ans",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "ENS GAR 2-5 ANS",
+      "originalPrice": 320000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/ens-gar-6.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/ens-gar-6.jpg"
+      ],
+      "sku": "0195968",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/ens-gar-3pcs-2-5-ans-3/",
+      "price": 210000,
+      "currency": "DZD",
+      "category": "Bébé, Puériculture",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "ENS GAR 3PCS 2-5 ANS",
+      "originalPrice": 210000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/ens-bebe-2.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/ens-bebe-2.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/ens-gar-3pcs-2-5-ans-2/",
+      "price": 210000,
+      "currency": "DZD",
+      "category": "Bébé, Puériculture",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "ENS GAR 3PCS 2-5 ANS",
+      "originalPrice": 210000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/ens-bebe-3.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/ens-bebe-3.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/ens-gar-3pcs-2-5-ans/",
+      "price": 210000,
+      "currency": "DZD",
+      "category": "Divers",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "ENS GAR 3PCS 2-5 ANS",
+      "originalPrice": 210000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/ens-bebe-1.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/ens-bebe-1.jpg"
+      ],
+      "sku": "0196167",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/ens-gar-3pcs-6-24mois-2/",
+      "price": null,
+      "currency": "DZD",
+      "category": "Bébé 0-3 Ans",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "ENS GAR 3PCS 6-24MOIS",
+      "originalPrice": null,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/ens-gar-4.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/ens-gar-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/ens-gar-3pcs-6-24mois/",
+      "price": 210000,
+      "currency": "DZD",
+      "category": "Bébé 0-3 Ans",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "ENS GAR 3PCS 6-24MOIS",
+      "originalPrice": 210000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/ens-gar-3.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/ens-gar-3.jpg"
+      ],
+      "sku": "ARJ0196184",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/ens-gar-3-pcs-2/",
+      "price": 210000,
+      "currency": "DZD",
+      "category": "Bébé 0-3 Ans",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "ENS GAR 3 PCS",
+      "originalPrice": 210000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/ens-gar-2.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/ens-gar-2.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/ens-gar-3-pcs/",
+      "price": 210000,
+      "currency": "DZD",
+      "category": "Bébé 0-3 Ans",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "ENS GAR 3 PCS",
+      "originalPrice": 210000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/ens-gar-1.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/ens-gar-1.jpg"
+      ],
+      "sku": "ARJ0195707",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/sandale-enf-5/",
+      "price": 70000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "SANDALE ENF",
+      "originalPrice": 70000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/crocs-35.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/crocs-35.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-36.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-37.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/sandale-enf-4/",
+      "price": 70000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "SANDALE ENF",
+      "originalPrice": 70000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/crocs-32.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/crocs-32.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-33.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-34.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/sandale-enf-3/",
+      "price": 70000,
+      "currency": "DZD",
+      "category": "Divers",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "SANDALE ENF",
+      "originalPrice": 70000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/crocs-29.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/crocs-29.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-30.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-31.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/sandale-enf-2/",
+      "price": 70000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "SANDALE ENF",
+      "originalPrice": 70000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/crocs-26.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/crocs-26.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-27.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-28.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/sandale-enf/",
+      "price": 70000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "SANDALE ENF",
+      "originalPrice": 70000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/crocs-23.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/crocs-23.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-24.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-25.jpg"
+      ],
+      "sku": "ARJ0195541",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/crocs-enf-6/",
+      "price": 90000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CROCS ENF",
+      "originalPrice": 90000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/crocs-20.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/crocs-20.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-21.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-22.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/crocs-enf-5/",
+      "price": 90000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CROCS ENF",
+      "originalPrice": 90000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/crocs-16.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/crocs-16.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-17.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-18.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/crocs-enf-4/",
+      "price": 90000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CROCS ENF",
+      "originalPrice": 90000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/crocs-13.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/crocs-13.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-14.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-15.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/crocs-enf-3/",
+      "price": 90000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CROCS ENF",
+      "originalPrice": 90000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/crocs-10.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/crocs-10.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-11.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-12.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/crocs-enf-2/",
+      "price": 90000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CROCS ENF",
+      "originalPrice": 90000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/crocs-7.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/crocs-7.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-8.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-9.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/crocs-enf/",
+      "price": 90000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CROCS ENF",
+      "originalPrice": 90000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/crocs-4.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/crocs-4.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-5.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/crocs-6.jpg"
+      ],
+      "sku": "ARJ0190925",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/sandale-enf-nike-5/",
+      "price": 195000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "SANDALE ENF NIKE",
+      "originalPrice": 195000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/sandale-13.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/sandale-13.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/sandale-14.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/sandale-15.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/sandale-enf-nike-4/",
+      "price": 195000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "SANDALE ENF NIKE",
+      "originalPrice": 195000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/sandale-10.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/sandale-10.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/sandale-11.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/sandale-12.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/sandale-enf-nike-3/",
+      "price": 195000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "SANDALE ENF NIKE",
+      "originalPrice": 195000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/sandale-7.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/sandale-7.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/sandale-8.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/sandale-9.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/sandale-enf-nike-2/",
+      "price": 195000,
+      "currency": "DZD",
+      "category": "CHAUSSURE ENFANT",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "SANDALE ENF NIKE",
+      "originalPrice": 195000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/sandale-4.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/sandale-4.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/sandale-6.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/sandale-5.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/sandale-enf-nike/",
+      "price": 195000,
+      "currency": "DZD",
+      "category": "Divers",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "SANDALE ENF NIKE",
+      "originalPrice": 195000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/sandale-1.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/sandale-1.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/sandale-2.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/sandale-3.jpg"
+      ],
+      "sku": "ARJ0195987",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/chaussure-homme-15/",
+      "price": 370000,
+      "currency": "DZD",
+      "category": "Chaussure",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CHAUSSURE HOMME",
+      "originalPrice": 370000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-2.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-2.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/chaussure-homme-14/",
+      "price": 370000,
+      "currency": "DZD",
+      "category": "Chaussure",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CHAUSSURE HOMME",
+      "originalPrice": 370000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-3.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-3.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/chaussure-homme-13/",
+      "price": 370000,
+      "currency": "DZD",
+      "category": "Chaussure",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CHAUSSURE HOMME",
+      "originalPrice": 370000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-6.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-6.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/chaussure-homme-12/",
+      "price": 370000,
+      "currency": "DZD",
+      "category": "Chaussure",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CHAUSSURE HOMME",
+      "originalPrice": 370000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-4.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-4.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/chaussure-homme-11/",
+      "price": 370000,
+      "currency": "DZD",
+      "category": "Chaussure",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CHAUSSURE HOMME",
+      "originalPrice": 370000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-5.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-5.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/chaussure-homme-10/",
+      "price": 370000,
+      "currency": "DZD",
+      "category": "Chaussure",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CHAUSSURE HOMME",
+      "originalPrice": 370000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-1.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/chaussure-homme-1.jpg"
+      ],
+      "sku": "0196750",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/adidas-crocs/",
+      "price": null,
+      "currency": "DZD",
+      "category": "Divers",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "adidas crocs",
+      "originalPrice": null,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/ADIDAS-7.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-7.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-8.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-9.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-10.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-11.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-12.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-13.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-14.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-4.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-5.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-6.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/ADIDAS-1.jpg"
+      ],
+      "sku": "",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/t-shirt-oversize-homme-6/",
+      "price": 150000,
+      "currency": "DZD",
+      "category": "Homme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "T-SHIRT OVERSIZE HOMME",
+      "originalPrice": 150000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-6.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-6.jpg"
+      ],
+      "sku": "ARJ0193074",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/t-shirt-oversize-homme-5/",
+      "price": 150000,
+      "currency": "DZD",
+      "category": "Homme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "T-SHIRT OVERSIZE HOMME",
+      "originalPrice": 150000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-5.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-5.jpg"
+      ],
+      "sku": "ARJ0193090",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/t-shirt-oversize-homme-4/",
+      "price": 150000,
+      "currency": "DZD",
+      "category": "Homme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "T-SHIRT OVERSIZE HOMME",
+      "originalPrice": 150000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-4.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-4.jpg"
+      ],
+      "sku": "ARJ0193078",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/t-shirt-oversize-homme-3/",
+      "price": 150000,
+      "currency": "DZD",
+      "category": "Homme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "T-SHIRT OVERSIZE HOMME",
+      "originalPrice": 150000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-3.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-3.jpg"
+      ],
+      "sku": "ARJ0193082",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/t-shirt-oversize-homme-2/",
+      "price": 150000,
+      "currency": "DZD",
+      "category": "Homme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "T-SHIRT OVERSIZE HOMME",
+      "originalPrice": 150000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-2.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-2.jpg"
+      ],
+      "sku": "ARJ0193086",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/t-shirt-oversize-homme/",
+      "price": 150000,
+      "currency": "DZD",
+      "category": "Homme",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "T-SHIRT OVERSIZE HOMME",
+      "originalPrice": 150000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-1.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-1.jpg",
+        "https://areej.store/wp-content/uploads/2026/05/t-shirt-oversize-1.jpg"
+      ],
+      "sku": "ARJ0193099",
+      "availability": "in_stock"
+    },
+    {
+      "sourceUrl": "https://areej.store/produit/chaussures-bebe-3/",
+      "price": 220000,
+      "currency": "DZD",
+      "category": "AID 2026",
+      "scrapedAt": "2026-06-05T18:54:56.381Z",
+      "source": "areejstore",
+      "name": "CHAUSSURES BEBE",
+      "originalPrice": 220000,
+      "imageUrl": "https://areej.store/wp-content/uploads/2026/02/218.jpg",
+      "images": [
+        "https://areej.store/wp-content/uploads/2026/02/218.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/217.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/215.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/214.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/213.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/212.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/211.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/208.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/207.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/206.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/205.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/203.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/202.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/201.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/200.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/199.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/198.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/196.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/195.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/194.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/192.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/191.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/190.jpg",
+        "https://areej.store/wp-content/uploads/2026/02/188.jpg"
+      ],
+      "sku": "ARJ0193116",
+      "availability": "in_stock"
+    }
+  ]
+}

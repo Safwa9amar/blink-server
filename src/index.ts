@@ -14,6 +14,10 @@ import addressRoutes from "./routes/addresses";
 import earningsRoutes from "./routes/earnings";
 import agentRoutes from "./routes/agents";
 import riderRoutes from "./routes/riders";
+import newsRoutes from "./routes/news";
+import deepLinkRoutes from "./routes/deep-links";
+import libraryRoutes from "./routes/library";
+import { startLibraryCron } from "./scrapers/cron";
 
 const app = new Hono();
 
@@ -43,6 +47,12 @@ app.route("/addresses", addressRoutes);
 app.route("/earnings", earningsRoutes);
 app.route("/agents", agentRoutes);
 app.route("/riders", riderRoutes);
+app.route("/news", newsRoutes);
+app.route("/deep-links", deepLinkRoutes);
+app.route("/library", libraryRoutes);
+
+// ─── Cron: scrape marketplaces daily at 3am ─────────────────────────
+startLibraryCron();
 
 // ─── Start server ────────────────────────────────────────────────────
 console.log(`Blink API running on http://localhost:${env.PORT}`);
