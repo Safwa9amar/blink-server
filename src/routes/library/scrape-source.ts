@@ -1,8 +1,10 @@
 import { Hono } from "hono";
 import { scrapeAll, getAvailableSources } from "../../scrapers/index.js";
-import { OUTPUT_DIR } from "./shared";
+import { OUTPUT_DIR, requireCronSecret } from "./shared";
 
 const app = new Hono();
+
+app.use("/scrape/:source", requireCronSecret);
 
 // POST /library/scrape/:source — scrape a single source
 app.post("/scrape/:source", async (c) => {

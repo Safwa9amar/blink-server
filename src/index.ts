@@ -17,7 +17,9 @@ import riderRoutes from "./routes/riders";
 import newsRoutes from "./routes/news";
 import deepLinkRoutes from "./routes/deep-links";
 import libraryRoutes from "./routes/library";
+import cronRoutes from "./routes/cron";
 import { startLibraryCron } from "./scrapers/cron";
+import { startScheduledNotificationsCron } from "./lib/scheduled-notifications";
 
 // __APP_VERSION__ is injected from package.json at build time by
 // scripts/build.mjs (esbuild --define). Under `tsx` dev it is undefined, so
@@ -59,6 +61,7 @@ app.route("/riders", riderRoutes);
 app.route("/news", newsRoutes);
 app.route("/deep-links", deepLinkRoutes);
 app.route("/library", libraryRoutes);
+app.route("/cron", cronRoutes);
 
 // ─── Cron: scrape marketplaces daily at 3am ─────────────────────────
 // On cPanel/Passenger the app is spun down when idle, so in-process cron
@@ -67,6 +70,7 @@ app.route("/library", libraryRoutes);
 // ENABLE_INPROCESS_CRON=true only on an always-on host.
 if (env.ENABLE_INPROCESS_CRON) {
   startLibraryCron();
+  startScheduledNotificationsCron();
 } else {
   console.log(
     "[cron] in-process scheduler disabled (set ENABLE_INPROCESS_CRON=true to enable)"

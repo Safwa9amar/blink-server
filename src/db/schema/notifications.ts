@@ -1,7 +1,5 @@
 import { sql } from "drizzle-orm";
 import {
-  boolean,
-  index,
   jsonb,
   pgPolicy,
   pgTable,
@@ -10,7 +8,6 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { notificationType } from "./enums";
-import { users } from "./users";
 
 // Per-language copy for a notification. `title`/`description` on the row stay the
 // canonical (English) fallback the app renders when a language block is absent;
@@ -20,38 +17,46 @@ export interface NotificationCopy {
   description: string;
 }
 
-// NOTE: notifications has only `created_at` (no updated_at) — matches 00001.
+// The notification CONTENT, stored ONCE regardless of how many users receive it.
+// Per-user delivery + read/archive state lives in notification_recipients, so a
+// broadcast is 1 row here + N recipient rows (no content duplication). The `id`
+// is the shared, canonical id used in URLs and deep links — every API endpoint
+// scopes to the caller via the recipient join, never via a per-user content row.
+//
+// NOTE: only `created_at` (no updated_at) — matches the baseline.
 export const notifications = pgTable(
   "notifications",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
     type: notificationType("type").notNull(),
     title: text("title").notNull(),
     description: text("description").notNull(),
-    isUnread: boolean("is_unread").notNull().default(true),
     payload: jsonb("payload").$type<Record<string, unknown>>(),
+    // Explicit deep-link override only. When null, the API derives the typed
+    // detail href at READ time from the requesting user's role + this id (the
+    // role segment differs per recipient, so it can't be stored on the shared row).
     href: text("href"),
     // Localized copy ({ title, description }); null falls back to title/description.
     contentEng: jsonb("content_eng").$type<NotificationCopy>(),
     contentFr: jsonb("content_fr").$type<NotificationCopy>(),
     contentAr: jsonb("content_ar").$type<NotificationCopy>(),
+    // Audit/analytics: the roles a broadcast targeted (null for 1:1 system sends).
+    targetRoles: text("target_roles").array(),
+    // Staff/sender who created it; null for system-generated notifications.
+    createdBy: uuid("created_by"),
     createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),
-    // Soft delete: dismissing a notification hides it from the user's feed but
-    // keeps the row (audit/analytics). Reads filter `deleted_at IS NULL`; the
-    // app's "delete" is an UPDATE setting this, never a row delete.
-    deletedAt: timestamp("deleted_at", { withTimezone: true, mode: "string" }),
   },
-  (t) => [
-    index("idx_notifications_user").on(t.userId),
-    index("idx_notifications_unread")
-      .on(t.userId, t.isUnread)
-      .where(sql`is_unread = true`),
-    pgPolicy("notifications_select_own", { for: "select", using: sql`auth.uid() = user_id` }),
-    pgPolicy("notifications_update_own", { for: "update", using: sql`auth.uid() = user_id` }),
+  () => [
+    // Content is read through notification_recipients (service-role on the server).
+    // Direct client reads are allowed only for notifications the caller received.
+    pgPolicy("notifications_select_recipient", {
+      for: "select",
+      using: sql`EXISTS (
+        SELECT 1 FROM notification_recipients nr
+        WHERE nr.notification_id = id AND nr.user_id = auth.uid()
+      )`,
+    }),
   ]
 );

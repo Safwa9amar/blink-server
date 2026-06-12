@@ -1,11 +1,11 @@
 import { Hono } from "hono";
 import { scrapeAll } from "../../scrapers/index.js";
-import { OUTPUT_DIR } from "./shared";
+import { OUTPUT_DIR, requireCronSecret } from "./shared";
 
 const app = new Hono();
 
 // POST /library/scrape — trigger a scrape
-app.post("/scrape", async (c) => {
+app.post("/scrape", requireCronSecret, async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const maxPages = body.maxPages ?? 5;
   const sources = body.sources ?? undefined; // undefined = all

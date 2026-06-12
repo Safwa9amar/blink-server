@@ -4,15 +4,16 @@ import type { AuthEnv } from "../../middleware/auth";
 
 const app = new Hono<AuthEnv>();
 
-// ─── Mark as read ────────────────────────────────────────────────────
-// Updates the caller's recipient row for the shared notification id.
-app.patch("/:id/read", async (c) => {
+// ─── Restore an archived notification ────────────────────────────────
+// Un-archives the caller's recipient row (clears `archived_at`), moving it back
+// into the active feed. The counterpart to DELETE /:id. Idempotent.
+app.post("/:id/restore", async (c) => {
   const user = c.get("user");
   const notifId = c.req.param("id");
 
   const { error, count } = await supabaseAdmin
     .from("notification_recipients")
-    .update({ is_unread: false }, { count: "exact" })
+    .update({ archived_at: null }, { count: "exact" })
     .eq("notification_id", notifId)
     .eq("user_id", user.id);
 
@@ -23,7 +24,7 @@ app.patch("/:id/read", async (c) => {
     return c.json({ error: "Notification not found" }, 404);
   }
 
-  return c.json({ message: "Notification marked as read" });
+  return c.json({ message: "Notification restored" });
 });
 
 export default app;

@@ -39,6 +39,20 @@ app.get("/profile", auth, async (c) => {
       .eq("user_id", user.id)
       .single();
     roleData.agent_profile = agentProfile;
+  } else if (user.role === "merchant") {
+    const { data } = await supabaseAdmin
+      .from("merchant_profiles")
+      .select("*")
+      .eq("user_id", user.id)
+      .single();
+    roleData = { merchant_profile: data };
+  } else if (user.role === "customer") {
+    const { data } = await supabaseAdmin
+      .from("customer_profiles")
+      .select("*")
+      .eq("user_id", user.id)
+      .single();
+    roleData = { customer_profile: data };
   }
 
   return c.json({ user, ...roleData });

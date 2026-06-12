@@ -6,7 +6,9 @@ import read from "./read";
 import readAll from "./read-all";
 import devices from "./devices";
 import test from "./test";
+import broadcastTest from "./broadcast-test";
 import del from "./delete";
+import restore from "./restore";
 
 const app = new Hono<AuthEnv>();
 
@@ -18,10 +20,12 @@ app.use("/*", auth);
 // PATCH /read-all aren't swallowed by the `:id` matchers.
 app.route("/", devices);
 app.route("/", test);
+app.route("/", broadcastTest);
 app.route("/", readAll);
 app.route("/", list);
 app.route("/", detail);
 app.route("/", read);
+app.route("/", restore);
 app.route("/", del);
 
 export default app;

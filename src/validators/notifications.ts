@@ -33,3 +33,13 @@ export const testNotificationSchema = z.object({
   href: z.string().optional(),
   payload: z.record(z.string(), z.unknown()).optional(),
 });
+
+// Broadcast test: same content as a self-test, but fanned out to every user in
+// the target roles (one content row + a recipient row per user + a push each).
+// `roles` defaults to all four so a bare POST exercises the full fan-out.
+export const broadcastTestNotificationSchema = testNotificationSchema.extend({
+  roles: z
+    .array(z.enum(["customer", "rider", "merchant", "agent"]))
+    .min(1)
+    .default(["customer", "rider", "merchant", "agent"]),
+});
