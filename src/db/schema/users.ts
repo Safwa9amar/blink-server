@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { date, index, pgPolicy, pgTable, text, uuid } from "drizzle-orm/pg-core";
-import { gender, userRole } from "./enums";
+import { gender, staffRole, userRole } from "./enums";
 import { timestamps } from "./_shared";
 
 export const users = pgTable(
@@ -15,6 +15,8 @@ export const users = pgTable(
     middleName: text("middle_name"),
     email: text("email"),
     role: userRole("role").notNull().default("customer"),
+    // Console / ERP authority, NULL for app users. Separate axis from `role`.
+    staffRole: staffRole("staff_role"),
     gender: gender("gender"),
     birthday: date("birthday"),
     profilePicture: text("profile_picture"),

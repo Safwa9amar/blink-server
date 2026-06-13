@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { requireCronSecret } from "../library/shared";
 import { processDueScheduledNotifications } from "../../lib/scheduled-notifications";
+import { processNewsCron } from "../../lib/news-cron";
 
 // External cron entrypoints. NOT behind `auth` (a cron caller has no JWT) —
 // guarded by CRON_SECRET via the `x-cron-secret` header instead. Driven by
@@ -14,6 +15,14 @@ const app = new Hono();
 //   * * * * * curl -sS -X POST https://blink.greenpedal.net/cron/scheduled-notifications -H "x-cron-secret: $CRON_SECRET"
 app.post("/scheduled-notifications", requireCronSecret, async (c) => {
   const result = await processDueScheduledNotifications();
+  return c.json(result);
+});
+
+// POST /cron/news — publish due scheduled posts, deliver publish-pushes, and
+// auto-unpublish expired ones. Wire a cPanel Cron Job to hit this every minute:
+//   * * * * * curl -sS -X POST https://blink.greenpedal.net/cron/news -H "x-cron-secret: $CRON_SECRET"
+app.post("/news", requireCronSecret, async (c) => {
+  const result = await processNewsCron();
   return c.json(result);
 });
 

@@ -5,6 +5,20 @@ import { pgEnum } from "drizzle-orm/pg-core";
 // The Postgres type name (first arg) must match the existing DB type.
 
 export const userRole = pgEnum("user_role", ["customer", "rider", "merchant", "agent"]);
+
+// Console / ERP authority — a SEPARATE axis from `userRole` (the mobile-app persona).
+// NULL on a user = not a console operator (the app's customers/riders/merchants/agents).
+// A non-null value grants dashboard access at the level the dashboard's
+// src/lib/auth/access.ts maps. Added in migration 00021_staff_roles.sql.
+export const staffRole = pgEnum("staff_role", [
+  "super_admin",
+  "ops_admin",
+  "finance_admin",
+  "support_admin",
+  "commerce_admin",
+  "hr_admin",
+]);
+
 export const gender = pgEnum("gender", ["male", "female"]);
 export const vehicleType = pgEnum("vehicle_type", ["bicycle", "motorcycle"]);
 export const vehicleCategory = pgEnum("vehicle_category", ["standard", "electric", "hybrid"]);

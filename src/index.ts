@@ -20,6 +20,7 @@ import libraryRoutes from "./routes/library";
 import cronRoutes from "./routes/cron";
 import { startLibraryCron } from "./scrapers/cron";
 import { startScheduledNotificationsCron } from "./lib/scheduled-notifications";
+import { startNewsCron } from "./lib/news-cron";
 
 // __APP_VERSION__ is injected from package.json at build time by
 // scripts/build.mjs (esbuild --define). Under `tsx` dev it is undefined, so
@@ -71,6 +72,7 @@ app.route("/cron", cronRoutes);
 if (env.ENABLE_INPROCESS_CRON) {
   startLibraryCron();
   startScheduledNotificationsCron();
+  startNewsCron();
 } else {
   console.log(
     "[cron] in-process scheduler disabled (set ENABLE_INPROCESS_CRON=true to enable)"

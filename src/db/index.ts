@@ -26,6 +26,7 @@ import {
   transactionType,
   tripStatus,
   userRole,
+  staffRole,
   vehicleCategory,
   vehicleType,
 } from "./schema/enums";
@@ -53,6 +54,7 @@ import type { vehicles } from "./schema/vehicles";
 
 // ─── Enum string-union types (parity with the old hand-written database.ts) ──
 export type UserRole = (typeof userRole.enumValues)[number];
+export type StaffRole = (typeof staffRole.enumValues)[number];
 export type Gender = (typeof gender.enumValues)[number];
 export type VehicleType = (typeof vehicleType.enumValues)[number];
 export type VehicleCategory = (typeof vehicleCategory.enumValues)[number];

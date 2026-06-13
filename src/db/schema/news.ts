@@ -53,6 +53,10 @@ export const news = pgTable(
     publishedAt: timestamp("published_at", { withTimezone: true, mode: "string" }),
     scheduledAt: timestamp("scheduled_at", { withTimezone: true, mode: "string" }),
     expiresAt: timestamp("expires_at", { withTimezone: true, mode: "string" }),
+    // When the publish push was actually delivered (by the news cron). NULL =
+    // not pushed yet → the cron picks it up once after publish. Keeps "Send
+    // push" idempotent so a published post is never pushed twice.
+    pushSentAt: timestamp("push_sent_at", { withTimezone: true, mode: "string" }),
     ...timestamps,
   },
   (t) => [
@@ -63,6 +67,10 @@ export const news = pgTable(
     index("idx_news_scheduled")
       .on(t.scheduledAt)
       .where(sql`status = 'scheduled'`),
+    // Pending publish-pushes: published, push on, not yet delivered.
+    index("idx_news_push_pending")
+      .on(t.status)
+      .where(sql`push = true AND push_sent_at IS NULL`),
     // App users read published posts; admin writes go through the service role
     // (bypasses RLS), same as the rest of the dashboard's mutations.
     pgPolicy("news_select_published", { for: "select", using: sql`status = 'published'` }),
