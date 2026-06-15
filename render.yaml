@@ -44,3 +44,47 @@ services:
         sync: false
       - key: SUPABASE_AUTH_GOOGLE_SECRET
         sync: false
+
+  # ── Hot spare ───────────────────────────────────────────────────────────
+  # Identical second instance. The mobile app lists both endpoints
+  # (EXPO_PUBLIC_API_BASE_URL=<primary>,<spare>) and fails over when one is
+  # unreachable. Caveat: both run on Render free + the same Supabase, so a
+  # full Render outage still takes both — this guards against a single
+  # instance dying / spin-down race, not a provider-wide outage.
+  - type: web
+    name: blink-server-spare
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ENABLE_INPROCESS_CRON
+        value: "false"
+      - key: BASE_PATH
+        value: ""
+      # --- secrets: set in the Render dashboard (same values as the primary) ---
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID
+        sync: false
+      - key: SUPABASE_AUTH_EXTERNAL_APPLE_SECRET
+        sync: false
+      - key: SUPABASE_AUTH_GOOGLE_CLIENT_ID
+        sync: false
+      - key: SUPABASE_AUTH_GOOGLE_SECRET
+        sync: false
