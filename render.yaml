@@ -1,0 +1,46 @@
+# Render Blueprint — deploys the Blink API as a free Docker web service.
+# Render builds ./Dockerfile, injects $PORT (the app's env.PORT binds to it),
+# terminates TLS, and serves at https://<name>.onrender.com.
+#
+# Secrets are marked `sync: false` so they are NEVER stored in git — Render
+# prompts for them in the dashboard on first deploy. Cron is driven externally
+# (cron-job.org -> /cron/* every minute), so the in-process scheduler stays off
+# and the per-minute pings also keep the free service warm.
+services:
+  - type: web
+    name: blink-server
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ENABLE_INPROCESS_CRON
+        value: "false"
+      - key: BASE_PATH
+        value: ""
+      # --- secrets: set in the Render dashboard (sync:false keeps them out of git) ---
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID
+        sync: false
+      - key: SUPABASE_AUTH_EXTERNAL_APPLE_SECRET
+        sync: false
+      - key: SUPABASE_AUTH_GOOGLE_CLIENT_ID
+        sync: false
+      - key: SUPABASE_AUTH_GOOGLE_SECRET
+        sync: false

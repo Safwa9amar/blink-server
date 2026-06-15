@@ -7,3 +7,4 @@ dist/
 # Apple Sign-In private key — never commit
 *.p8
 .next/
+.vercel

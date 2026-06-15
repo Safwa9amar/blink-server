@@ -1,0 +1,10 @@
+# Caddy config for the Docker Compose stack. `api` is the compose service name,
+# reachable on the internal network at port 3001. Caddy fetches a Let's Encrypt
+# cert for the domain automatically (ports 80/443 must be open in the OCI
+# security list + host firewall, and DNS must point at this host).
+#
+# Replace blink.greenpedal.net with the domain you point at the host.
+blink.greenpedal.net {
+	encode zstd gzip
+	reverse_proxy api:3001
+}

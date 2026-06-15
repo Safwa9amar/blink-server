@@ -1,0 +1,36 @@
+# Blink API + Caddy (auto-HTTPS) — runs unchanged on any Docker host.
+#
+#   docker compose up -d --build
+#
+# Requires a `.env` next to this file (PORT=3001, ENABLE_INPROCESS_CRON=true,
+# all SUPABASE_*/JWT_SECRET/CRON_SECRET/auth vars) and a DNS record ->
+# the host's public IP matching the domain in deploy/docker/Caddyfile.
+services:
+  api:
+    build: .
+    env_file: .env
+    restart: unless-stopped
+    expose:
+      - "3001" # internal only; Caddy terminates TLS and proxies in
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+volumes:
+  caddy_data:
+  caddy_config:

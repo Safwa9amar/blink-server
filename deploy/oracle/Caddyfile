@@ -1,0 +1,13 @@
+# Caddy reverse proxy + automatic HTTPS (Let's Encrypt) for the Blink API.
+# Install: sudo cp deploy/oracle/Caddyfile /etc/caddy/Caddyfile
+#          sudo systemctl reload caddy
+#
+# Requires:
+#   * A DNS A record for the domain below -> this VM's public IP
+#   * Ports 80 and 443 open in BOTH the OCI security list AND the OS firewall
+#
+# Replace blink.greenpedal.net with whatever domain you point at the VM.
+blink.greenpedal.net {
+	encode zstd gzip
+	reverse_proxy localhost:3001
+}

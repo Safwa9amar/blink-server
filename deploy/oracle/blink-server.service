@@ -1,0 +1,25 @@
+[Unit]
+# systemd unit for the always-on Blink API on an Oracle Cloud free VM.
+# Install: sudo cp deploy/oracle/blink-server.service /etc/systemd/system/
+#          sudo systemctl daemon-reload && sudo systemctl enable --now blink-server
+Description=Blink API (Hono, Node)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/blink-server
+# All secrets live in this file (KEY=VALUE per line, no quotes). NOT in git.
+EnvironmentFile=/home/ubuntu/blink-server/.env
+# Run the esbuild bundle (npm run build -> dist/index.js). A single self-
+# contained file; no tsx/ts-node needed at runtime.
+ExecStart=/usr/bin/node dist/index.js
+Restart=always
+RestartSec=3
+# Hard cap memory so a leak can never take the box down (free VM has 12 GB;
+# this app idles ~100 MB).
+MemoryMax=1G
+
+[Install]
+WantedBy=multi-user.target
