@@ -21,9 +21,15 @@ import cronRoutes from "./routes/cron";
 import supportChatRoutes from "./routes/support-chat";
 import supportContentRoutes from "./routes/support-content";
 import aiRoutes from "./routes/ai";
+import logsRoutes from "./routes/logs";
+import { installConsoleCapture } from "./lib/log-buffer";
 import { startLibraryCron } from "./scrapers/cron";
 import { startScheduledNotificationsCron } from "./lib/scheduled-notifications";
 import { startNewsCron } from "./lib/news-cron";
+
+// Mirror console output into an in-memory ring buffer (super-admin Live Logs view).
+// Installed first so it captures everything the process prints from here on.
+installConsoleCapture();
 
 // __APP_VERSION__ is injected from package.json at build time by
 // scripts/build.mjs (esbuild --define). Under `tsx` dev it is undefined, so
@@ -66,6 +72,7 @@ app.route("/news", newsRoutes);
 app.route("/support-chat", supportChatRoutes);
 app.route("/support-content", supportContentRoutes);
 app.route("/ai", aiRoutes);
+app.route("/logs", logsRoutes);
 app.route("/deep-links", deepLinkRoutes);
 app.route("/library", libraryRoutes);
 app.route("/cron", cronRoutes);
