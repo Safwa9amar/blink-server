@@ -11,5 +11,6 @@ export const aiProviderConfigs = pgTable("ai_provider_configs", {
   reasoning: boolean("reasoning").notNull().default(false),
   apiKey: text("api_key"), // openrouter key (others null)
   baseUrl: text("base_url"), // ollama / lmstudio URL (openrouter null)
+  updatedBy: uuid("updated_by"), // staff user who last edited this provider's config
   ...timestamps,
 });
