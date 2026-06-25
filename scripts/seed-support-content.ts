@@ -8,7 +8,10 @@
 import "dotenv/config";
 import { supabaseAdmin } from "../src/lib/supabase";
 import { SUPPORT_KB } from "../src/lib/ai/support-kb";
-import type { SupportCategoryInsert, SupportArticleInsert } from "../src/db";
+
+// supabase-js inserts use the DB's snake_case column names (not the Drizzle
+// camelCase Insert types), so these are typed loosely as plain row objects.
+type Row = Record<string, unknown>;
 
 // Capitalized role labels stored in target_roles / matched in RLS-free reads.
 const ROLE_LABEL: Record<string, string> = {
@@ -28,12 +31,12 @@ const ROLE_ACCOUNT_KEY: Record<string, string> = {
 
 // Common Topics tiles, per role. Role-specific tiles carry the single
 // capitalized role label; the shared "account" tile is visible to everyone.
-const CATEGORIES: SupportCategoryInsert[] = [
+const CATEGORIES: Row[] = [
   // ─── Shared ──────────────────────────────────────────────────────────
   {
     key: "account",
-    targetRoles: ["All"],
-    labelEng: "Account Issues",
+    target_roles: ["All"],
+    label_eng: "Account Issues",
     icon: "person.crop.circle",
     color: "#3B82F6",
     sort: 0,
@@ -41,24 +44,24 @@ const CATEGORIES: SupportCategoryInsert[] = [
   // ─── Customer ────────────────────────────────────────────────────────
   {
     key: "payment",
-    targetRoles: ["Customer"],
-    labelEng: "Payment & Refunds",
+    target_roles: ["Customer"],
+    label_eng: "Payment & Refunds",
     icon: "banknote",
     color: "#10B981",
     sort: 1,
   },
   {
     key: "tracking",
-    targetRoles: ["Customer"],
-    labelEng: "Order Tracking",
+    target_roles: ["Customer"],
+    label_eng: "Order Tracking",
     icon: "truck.fill",
     color: "#F59E0B",
     sort: 2,
   },
   {
     key: "promos",
-    targetRoles: ["Customer"],
-    labelEng: "Promo Codes",
+    target_roles: ["Customer"],
+    label_eng: "Promo Codes",
     icon: "tag.fill",
     color: "#8B5CF6",
     sort: 3,
@@ -66,24 +69,24 @@ const CATEGORIES: SupportCategoryInsert[] = [
   // ─── Rider ───────────────────────────────────────────────────────────
   {
     key: "trips",
-    targetRoles: ["Rider"],
-    labelEng: "Trips & Cancellations",
+    target_roles: ["Rider"],
+    label_eng: "Trips & Cancellations",
     icon: "map.fill",
     color: "#F59E0B",
     sort: 1,
   },
   {
     key: "payouts",
-    targetRoles: ["Rider"],
-    labelEng: "Earnings & Payouts",
+    target_roles: ["Rider"],
+    label_eng: "Earnings & Payouts",
     icon: "banknote",
     color: "#10B981",
     sort: 2,
   },
   {
     key: "vehicle",
-    targetRoles: ["Rider"],
-    labelEng: "Vehicle & Documents",
+    target_roles: ["Rider"],
+    label_eng: "Vehicle & Documents",
     icon: "car.fill",
     color: "#8B5CF6",
     sort: 3,
@@ -91,24 +94,24 @@ const CATEGORIES: SupportCategoryInsert[] = [
   // ─── Merchant ────────────────────────────────────────────────────────
   {
     key: "store",
-    targetRoles: ["Merchant"],
-    labelEng: "Store Management",
+    target_roles: ["Merchant"],
+    label_eng: "Store Management",
     icon: "storefront.fill",
     color: "#3B82F6",
     sort: 1,
   },
   {
     key: "earnings",
-    targetRoles: ["Merchant"],
-    labelEng: "Earnings & Payouts",
+    target_roles: ["Merchant"],
+    label_eng: "Earnings & Payouts",
     icon: "banknote",
     color: "#10B981",
     sort: 2,
   },
   {
     key: "promotions",
-    targetRoles: ["Merchant"],
-    labelEng: "Promotions",
+    target_roles: ["Merchant"],
+    label_eng: "Promotions",
     icon: "tag.fill",
     color: "#8B5CF6",
     sort: 3,
@@ -116,24 +119,24 @@ const CATEGORIES: SupportCategoryInsert[] = [
   // ─── Agent ───────────────────────────────────────────────────────────
   {
     key: "deposits",
-    targetRoles: ["Agent"],
-    labelEng: "Deposits",
+    target_roles: ["Agent"],
+    label_eng: "Deposits",
     icon: "arrow.down.circle.fill",
     color: "#10B981",
     sort: 1,
   },
   {
     key: "withdrawals",
-    targetRoles: ["Agent"],
-    labelEng: "Withdrawals",
+    target_roles: ["Agent"],
+    label_eng: "Withdrawals",
     icon: "arrow.up.circle.fill",
     color: "#F59E0B",
     sort: 2,
   },
   {
     key: "shop",
-    targetRoles: ["Agent"],
-    labelEng: "Shop Management",
+    target_roles: ["Agent"],
+    label_eng: "Shop Management",
     icon: "storefront.fill",
     color: "#3B82F6",
     sort: 3,
@@ -161,7 +164,7 @@ async function main() {
 
   // 2) FAQs from SUPPORT_KB — each role's entries map onto that role's
   //    "account" category, scoped to the role label.
-  const faqs: SupportArticleInsert[] = [];
+  const faqs: Row[] = [];
   for (const [role, entries] of Object.entries(SUPPORT_KB)) {
     const roleLabel = ROLE_LABEL[role];
     if (!roleLabel) continue; // unknown role — skip
@@ -170,9 +173,9 @@ async function main() {
       faqs.push({
         type: "faq",
         category: categoryKey,
-        targetRoles: [roleLabel],
+        target_roles: [roleLabel],
         status: "published",
-        contentEng: { title: e.q, body: e.a },
+        content_eng: { title: e.q, body: e.a },
         sort: i,
       });
     });
