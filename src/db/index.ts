@@ -13,6 +13,8 @@ export * from "./schema/library-categories";
 export * from "./schema/library-products";
 export * from "./schema/support-conversations";
 export * from "./schema/support-messages";
+export * from "./schema/support-categories";
+export * from "./schema/support-articles";
 
 import {
   addressType,
@@ -39,6 +41,7 @@ import { scheduledNotificationStatus } from "./schema/scheduled-notifications";
 import { deepLinkRole } from "./schema/deep-links";
 import { libraryCategoryStatus } from "./schema/library-categories";
 import { libraryProductStatus } from "./schema/library-products";
+import { supportArticleType, supportArticleStatus } from "./schema/support-articles";
 import type { addresses } from "./schema/addresses";
 import type { agentShops } from "./schema/agent-shops";
 import type { news } from "./schema/news";
@@ -47,6 +50,8 @@ import type { supportMessages } from "./schema/support-messages";
 import type { deepLinks } from "./schema/deep-links";
 import type { libraryCategories } from "./schema/library-categories";
 import type { libraryProducts } from "./schema/library-products";
+import type { supportCategories } from "./schema/support-categories";
+import type { supportArticles } from "./schema/support-articles";
 import type { notifications } from "./schema/notifications";
 import type { notificationRecipients } from "./schema/notification-recipients";
 import type { scheduledNotifications } from "./schema/scheduled-notifications";
@@ -82,6 +87,8 @@ export type ScheduledNotificationStatus = (typeof scheduledNotificationStatus.en
 export type DeepLinkRole = (typeof deepLinkRole.enumValues)[number];
 export type LibraryCategoryStatus = (typeof libraryCategoryStatus.enumValues)[number];
 export type LibraryProductStatus = (typeof libraryProductStatus.enumValues)[number];
+export type SupportArticleType = (typeof supportArticleType.enumValues)[number];
+export type SupportArticleStatus = (typeof supportArticleStatus.enumValues)[number];
 
 // ─── Row / Insert types, inferred from the Drizzle tables ────────────────────
 export type UserRow = InferSelectModel<typeof users>;
@@ -120,3 +127,7 @@ export type LibraryCategoryRow = InferSelectModel<typeof libraryCategories>;
 export type LibraryCategoryInsert = InferInsertModel<typeof libraryCategories>;
 export type LibraryProductRow = InferSelectModel<typeof libraryProducts>;
 export type LibraryProductInsert = InferInsertModel<typeof libraryProducts>;
+export type SupportCategoryRow = InferSelectModel<typeof supportCategories>;
+export type SupportCategoryInsert = InferInsertModel<typeof supportCategories>;
+export type SupportArticleRow = InferSelectModel<typeof supportArticles>;
+export type SupportArticleInsert = InferInsertModel<typeof supportArticles>;
