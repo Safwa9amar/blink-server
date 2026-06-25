@@ -11,6 +11,25 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const { version } = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 const esbuild = join(root, "node_modules", ".bin", "esbuild");
 
+// The Passenger host installs runtime deps in its own node_modules, so we keep
+// them EXTERNAL (resolved at runtime) rather than bundling — except `openai`,
+// which is intentionally BUNDLED so a new dependency can't break startup with
+// ERR_MODULE_NOT_FOUND when it isn't yet installed on the host. (Everything
+// below is already present in the host node_modules.)
+const HOST_EXTERNAL = [
+  "@hono/node-server",
+  "hono",
+  "hono/*",
+  "@supabase/supabase-js",
+  "cheerio",
+  "dotenv",
+  "drizzle-orm",
+  "drizzle-orm/*",
+  "node-cron",
+  "ws",
+  "zod",
+];
+
 execFileSync(
   esbuild,
   [
@@ -19,7 +38,7 @@ execFileSync(
     "--platform=node",
     "--target=node24",
     "--format=esm",
-    "--packages=external",
+    ...HOST_EXTERNAL.map((p) => `--external:${p}`),
     `--define:__APP_VERSION__="${version}"`,
     "--outfile=dist/index.js",
   ],
