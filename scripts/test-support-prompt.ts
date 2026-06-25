@@ -23,10 +23,14 @@ import { parseEscalation, buildSupportSystemPrompt } from "../src/lib/ai/support
 
 // buildSupportSystemPrompt
 {
-  const p = buildSupportSystemPrompt("customer", "fr");
+  const p = buildSupportSystemPrompt(
+    "customer",
+    "fr",
+    "Q: Order Tracking\nA: Track from Activities."
+  );
   assert.ok(p.includes("French"), "locale name injected");
   assert.ok(p.includes("<<ESCALATE"), "escalation rule present");
-  assert.ok(p.includes("Order Tracking"), "customer KB injected");
+  assert.ok(p.includes("Order Tracking"), "kbText injected");
 }
 
 console.log("OK: support-prompt tests passed");

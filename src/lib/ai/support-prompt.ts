@@ -1,5 +1,3 @@
-import { kbForRole } from "./support-kb";
-
 // The bot emits this token (optionally with a reason) when it cannot help and
 // the thread must go to a human. Matched case-insensitively; reason optional.
 export const ESCALATE_RE = /<<ESCALATE:?\s*([^>]*)>>/i;
@@ -23,7 +21,7 @@ const LOCALE_NAME: Record<string, string> = {
   ch: "Chinese",
 };
 
-export function buildSupportSystemPrompt(role: string, locale: string): string {
+export function buildSupportSystemPrompt(role: string, locale: string, kbText: string): string {
   const lang = LOCALE_NAME[locale] ?? "English";
   return `You are Blink Assistant, the in-app customer-support bot for Blink, a multi-service delivery super-app in Algeria (currency DZD, shown as "Da"). The person you are helping has the role "${role}".
 
@@ -36,5 +34,5 @@ HOW TO ANSWER — read carefully:
 - Never invent specifics (order numbers, amounts, ETAs). If the knowledge base has a general answer, give it rather than escalating.
 
 KNOWLEDGE BASE:
-${kbForRole(role)}`;
+${kbText || "(no articles available)"}`;
 }

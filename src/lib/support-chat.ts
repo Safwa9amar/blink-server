@@ -1,3 +1,4 @@
+import * as cheerio from "cheerio";
 import { supabaseAdmin } from "./supabase";
 import { getProvider } from "./ai";
 import type { ChatMessage } from "./ai";
@@ -6,6 +7,42 @@ import { tokensForUser, sendPushToTokens } from "./push";
 import type { SupportConversationRow, SupportMessageRow, SupportMessageSender } from "../db";
 
 const PREVIEW_LEN = 120;
+
+// The app user_role enum is lowercase ("rider"); support `target_roles` use the
+// dashboard's capitalized labels ("Rider"). Map one to the other for targeting.
+const ROLE_LABEL: Record<string, string> = {
+  customer: "Customer",
+  rider: "Rider",
+  merchant: "Merchant",
+  agent: "Agent",
+};
+
+/** Build the bot's KB text from all PUBLISHED articles+FAQs for this role+locale. */
+export async function fetchKbForRole(role: string, locale: string): Promise<string> {
+  const label = ROLE_LABEL[role] ?? "Customer";
+  const { data, error } = await supabaseAdmin
+    .from("support_articles")
+    .select("content_eng, content_fr, content_ar, target_roles, type")
+    .eq("status", "published")
+    .overlaps("target_roles", ["All", label])
+    .order("sort", { ascending: true });
+  if (error || !data?.length) return "";
+  const pickKey = locale === "fr" ? "content_fr" : locale === "ar" ? "content_ar" : "content_eng";
+  const entries = data
+    .map((r: any) => {
+      const c = r[pickKey] ?? r.content_eng;
+      if (!c?.title) return null;
+      const bodyText = cheerio
+        .load(String(c.body ?? ""))
+        .root()
+        .text()
+        .replace(/\s+/g, " ")
+        .trim();
+      return `Q: ${c.title}\nA: ${bodyText}`;
+    })
+    .filter(Boolean);
+  return entries.join("\n\n");
+}
 
 // Columns the clients need (snake_case — supabase-js returns DB casing).
 export const CONVERSATION_COLUMNS =
@@ -76,9 +113,14 @@ export async function runBotTurn(
   conversation: SupportConversationRow,
   history: Pick<SupportMessageRow, "sender" | "body">[]
 ): Promise<void> {
-  const systemPrompt = buildSupportSystemPrompt(
+  const kbText = await fetchKbForRole(
     (conversation as any).user_role,
     conversation.locale
+  );
+  const systemPrompt = buildSupportSystemPrompt(
+    (conversation as any).user_role,
+    conversation.locale,
+    kbText
   );
   const messages = toChatMessages(history);
   let replyText: string;
