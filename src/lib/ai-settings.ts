@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "./supabase";
+import { OpenRouterProvider, OllamaProvider, LMStudioProvider, type AIProvider } from "./ai";
 
 export interface AiConfig {
   provider: "openrouter" | "ollama" | "lmstudio";
@@ -8,6 +9,9 @@ export interface AiConfig {
   reasoning: boolean;
   botEnabled: boolean;
   systemPromptExtra: string | null;
+  openrouterApiKey: string | null;
+  ollamaUrl: string | null;
+  lmstudioUrl: string | null;
 }
 
 const DEFAULTS: AiConfig = {
@@ -18,6 +22,9 @@ const DEFAULTS: AiConfig = {
   reasoning: false,
   botEnabled: true,
   systemPromptExtra: null,
+  openrouterApiKey: null,
+  ollamaUrl: null,
+  lmstudioUrl: null,
 };
 
 let cache: { value: AiConfig; at: number } | null = null;
@@ -29,7 +36,7 @@ export async function getAiConfig(): Promise<AiConfig> {
   const { data } = await supabaseAdmin
     .from("ai_settings")
     .select(
-      "provider, model, temperature, max_tokens, reasoning, bot_enabled, system_prompt_extra"
+      "provider, model, temperature, max_tokens, reasoning, bot_enabled, system_prompt_extra, openrouter_api_key, ollama_url, lmstudio_url"
     )
     .order("created_at", { ascending: false })
     .limit(1)
@@ -43,8 +50,24 @@ export async function getAiConfig(): Promise<AiConfig> {
         reasoning: data.reasoning ?? false,
         botEnabled: data.bot_enabled ?? true,
         systemPromptExtra: data.system_prompt_extra ?? null,
+        openrouterApiKey: data.openrouter_api_key ?? null,
+        ollamaUrl: data.ollama_url ?? null,
+        lmstudioUrl: data.lmstudio_url ?? null,
       }
     : DEFAULTS;
   cache = { value, at: Date.now() };
   return value;
+}
+
+/** Build a provider instance using DB-configured key/URL (fallback: env defaults). */
+export function buildProvider(cfg: AiConfig, provider = cfg.provider): AIProvider {
+  switch (provider) {
+    case "ollama":
+      return new OllamaProvider(cfg.ollamaUrl ?? undefined);
+    case "lmstudio":
+      return new LMStudioProvider(cfg.lmstudioUrl ?? undefined);
+    case "openrouter":
+    default:
+      return new OpenRouterProvider(cfg.openrouterApiKey ?? undefined);
+  }
 }

@@ -5,7 +5,8 @@
 -- `npm run db:push` pipeline. Additive only and idempotent.
 --   ai_settings — a SINGLETON config row. The support bot reads the most
 --     recent row (see src/lib/ai-settings.ts); the dashboard upserts it via
---     the service role. API KEYS ARE NOT STORED HERE — they stay in server env.
+--     the service role. Provider API key / base URLs may be stored here (admin-
+--     editable); when null the server falls back to its env defaults.
 --     Service-role only: RLS is enabled with NO select/write policies, so
 --     neither the mobile (anon) nor authenticated clients can read or write it.
 
@@ -18,6 +19,9 @@ CREATE TABLE IF NOT EXISTS "ai_settings" (
   "reasoning"           boolean DEFAULT false NOT NULL,
   "bot_enabled"         boolean DEFAULT true NOT NULL,
   "system_prompt_extra" text,
+  "openrouter_api_key"  text,
+  "ollama_url"          text,
+  "lmstudio_url"        text,
   "updated_by"          uuid,
   "created_at"          timestamptz DEFAULT now() NOT NULL,
   "updated_at"          timestamptz DEFAULT now() NOT NULL

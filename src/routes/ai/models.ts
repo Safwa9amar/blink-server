@@ -1,5 +1,6 @@
 import { Hono } from "hono";
-import { getProvider, type ProviderName } from "../../lib/ai";
+import type { ProviderName } from "../../lib/ai";
+import { getAiConfig, buildProvider } from "../../lib/ai-settings";
 import type { AuthEnv } from "../../middleware/auth";
 
 const app = new Hono<AuthEnv>();
@@ -16,7 +17,8 @@ app.get("/models", async (c) => {
     : "openrouter";
 
   try {
-    const models = await getProvider(provider).listModels();
+    const cfg = await getAiConfig();
+    const models = await buildProvider(cfg, provider).listModels();
     return c.json({ models });
   } catch (e) {
     console.error("[ai/models] listModels failed", (e as Error).message);

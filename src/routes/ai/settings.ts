@@ -14,7 +14,25 @@ const DEFAULT_SETTINGS = {
   reasoning: false,
   bot_enabled: true,
   system_prompt_extra: null as string | null,
+  openrouter_api_key: null as string | null,
+  ollama_url: null as string | null,
+  lmstudio_url: null as string | null,
 };
+
+/**
+ * Never echo the raw OpenRouter key back to the dashboard. Replace it with a
+ * boolean `openrouter_key_set` + `openrouter_key_last4` hint. URLs aren't
+ * secret, so `ollama_url` / `lmstudio_url` pass through untouched.
+ */
+function maskSettings(row: Record<string, unknown>) {
+  const key = typeof row.openrouter_api_key === "string" ? row.openrouter_api_key : null;
+  return {
+    ...row,
+    openrouter_api_key: null,
+    openrouter_key_set: !!key,
+    openrouter_key_last4: key ? key.slice(-4) : null,
+  };
+}
 
 // ─── Current AI settings (latest singleton row, or defaults) ─────────
 app.get("/settings", async (c) => {
@@ -29,7 +47,7 @@ app.get("/settings", async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ settings: data ?? DEFAULT_SETTINGS });
+  return c.json({ settings: maskSettings(data ?? DEFAULT_SETTINGS) });
 });
 
 export default app;

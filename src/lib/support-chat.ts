@@ -1,8 +1,7 @@
 import * as cheerio from "cheerio";
 import { supabaseAdmin } from "./supabase";
-import { getProvider } from "./ai";
 import type { ChatMessage } from "./ai";
-import { getAiConfig } from "./ai-settings";
+import { getAiConfig, buildProvider } from "./ai-settings";
 import { buildSupportSystemPrompt, parseEscalation } from "./ai/support-prompt";
 import { tokensForUser, sendPushToTokens } from "./push";
 import type { SupportConversationRow, SupportMessageRow, SupportMessageSender } from "../db";
@@ -132,7 +131,7 @@ export async function runBotTurn(
   const messages = toChatMessages(history);
   let replyText: string;
   try {
-    const res = await getProvider(cfg.provider).chat(messages, {
+    const res = await buildProvider(cfg).chat(messages, {
       systemPrompt,
       model: cfg.model ?? undefined,
       temperature: cfg.temperature,
