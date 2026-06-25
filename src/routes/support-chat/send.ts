@@ -16,14 +16,14 @@ const app = new Hono<AuthEnv>();
 app.post("/conversations/:id/messages", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
-  const { body } = sendMessageSchema.parse(await c.req.json());
+  const { body } = sendMessageSchema.parse(await c.req.json().catch(() => ({})));
 
   const conversation = await getConversation(id);
   if (!conversation) return c.json({ error: "Conversation not found" }, 404);
 
   const convUserId = (conversation as any).user_id as string;
   const isOwner = convUserId === user.id;
-  const isStaff = !!(user as any).staff_role;
+  const isStaff = !!user.staff_role;
   if (!isOwner && !isStaff) return c.json({ error: "Access denied" }, 403);
 
   const sender = isOwner ? "user" : "agent";

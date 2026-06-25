@@ -125,6 +125,7 @@ export interface UserRow {
   profile_picture: string | null;
   address: string | null;
   pin_hash: string | null;
+  staff_role: "super_admin" | "ops_admin" | "finance_admin" | "support_admin" | "commerce_admin" | "hr_admin" | null;
   created_at: string;
   updated_at: string;
 }

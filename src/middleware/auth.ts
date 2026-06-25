@@ -63,7 +63,7 @@ export function requireRole(...roles: UserRole[]) {
 export function requireStaff() {
   return createMiddleware<AuthEnv>(async (c, next) => {
     const user = c.get("user");
-    const staff = (user as any).staff_role;
+    const staff = user.staff_role;
     if (!staff) {
       return c.json({ error: "Access denied. Staff only." }, 403);
     }

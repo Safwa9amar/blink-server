@@ -33,7 +33,7 @@ app.get("/conversations/:id/messages", async (c) => {
 
   const conversation = await getConversation(id);
   if (!conversation) return c.json({ error: "Conversation not found" }, 404);
-  const isStaff = !!(user as any).staff_role;
+  const isStaff = !!user.staff_role;
   if ((conversation as any).user_id !== user.id && !isStaff) {
     return c.json({ error: "Access denied" }, 403);
   }
