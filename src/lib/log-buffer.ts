@@ -48,6 +48,10 @@ function fmt(args: unknown[]): string {
     .join(" ");
 }
 
+// The dashboard polls GET /logs every few seconds; hono/logger prints a request
+// line for each. Skip those so the live tail isn't dominated by its own polling.
+const SELF_POLL_RE = /(<--|-->)\s+(GET|DELETE)\s+\/logs\b/;
+
 let installed = false;
 let capturing = false; // re-entrancy guard (formatting/push must never re-enter)
 
@@ -73,7 +77,8 @@ export function installConsoleCapture(): void {
       if (capturing) return;
       capturing = true;
       try {
-        pushLog(level, "console", fmt(args));
+        const text = fmt(args);
+        if (!SELF_POLL_RE.test(text)) pushLog(level, "console", text);
       } catch {
         /* never let logging break the app */
       } finally {
