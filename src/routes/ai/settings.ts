@@ -4,50 +4,77 @@ import type { AuthEnv } from "../../middleware/auth";
 
 const app = new Hono<AuthEnv>();
 
-// Defaults mirror the seeded row / src/lib/ai-settings.ts — returned when the
-// table is somehow empty so the dashboard always has a shape to render.
+const PROVIDERS = ["openrouter", "ollama", "lmstudio"] as const;
+type ProviderId = (typeof PROVIDERS)[number];
+
+// Bot-level defaults (active provider, enable flag, prompt addendum) — returned
+// when `ai_settings` is somehow empty so the dashboard always has a shape.
 const DEFAULT_SETTINGS = {
-  provider: "openrouter",
-  model: null as string | null,
-  temperature: 0.3,
-  max_tokens: 600,
-  reasoning: false,
+  provider: "openrouter" as ProviderId,
   bot_enabled: true,
   system_prompt_extra: null as string | null,
-  openrouter_api_key: null as string | null,
-  ollama_url: null as string | null,
-  lmstudio_url: null as string | null,
 };
 
-/**
- * Never echo the raw OpenRouter key back to the dashboard. Replace it with a
- * boolean `openrouter_key_set` + `openrouter_key_last4` hint. URLs aren't
- * secret, so `ollama_url` / `lmstudio_url` pass through untouched.
- */
-function maskSettings(row: Record<string, unknown>) {
-  const key = typeof row.openrouter_api_key === "string" ? row.openrouter_api_key : null;
+// Per-provider defaults — returned for any provider missing its config row.
+function defaultProviderConfig(provider: ProviderId) {
   return {
-    ...row,
-    openrouter_api_key: null,
-    openrouter_key_set: !!key,
-    openrouter_key_last4: key ? key.slice(-4) : null,
+    provider,
+    model: null as string | null,
+    temperature: 0.3,
+    max_tokens: 600,
+    reasoning: false,
+    base_url: null as string | null,
+    api_key: null as string | null,
   };
 }
 
-// ─── Current AI settings (latest singleton row, or defaults) ─────────
+/**
+ * Never echo a raw provider key back to the dashboard. Replace `api_key` with a
+ * boolean `api_key_set` + `api_key_last4` hint. URLs aren't secret, so
+ * `base_url` passes through untouched.
+ */
+function maskProvider(row: Record<string, unknown>) {
+  const key = typeof row.api_key === "string" ? row.api_key : null;
+  return {
+    ...row,
+    api_key: null,
+    api_key_set: !!key,
+    api_key_last4: key ? key.slice(-4) : null,
+  };
+}
+
+// ─── Current AI settings + per-provider configs ──────────────────────
 app.get("/settings", async (c) => {
-  const { data, error } = await supabaseAdmin
+  const { data: settingsRow, error: settingsErr } = await supabaseAdmin
     .from("ai_settings")
-    .select("*")
+    .select("provider, bot_enabled, system_prompt_extra")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  if (error) {
-    return c.json({ error: error.message }, 400);
+  if (settingsErr) {
+    return c.json({ error: settingsErr.message }, 400);
   }
 
-  return c.json({ settings: maskSettings(data ?? DEFAULT_SETTINGS) });
+  const { data: providerRows, error: providersErr } = await supabaseAdmin
+    .from("ai_provider_configs")
+    .select("provider, model, temperature, max_tokens, reasoning, base_url, api_key");
+
+  if (providersErr) {
+    return c.json({ error: providersErr.message }, 400);
+  }
+
+  const byProvider = new Map<string, Record<string, unknown>>();
+  for (const row of providerRows ?? []) byProvider.set(String(row.provider), row);
+
+  const providers = PROVIDERS.map((p) =>
+    maskProvider(byProvider.get(p) ?? defaultProviderConfig(p))
+  );
+
+  return c.json({
+    settings: settingsRow ?? DEFAULT_SETTINGS,
+    providers,
+  });
 });
 
 export default app;

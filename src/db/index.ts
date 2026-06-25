@@ -16,6 +16,7 @@ export * from "./schema/support-messages";
 export * from "./schema/support-categories";
 export * from "./schema/support-articles";
 export * from "./schema/ai-settings";
+export * from "./schema/ai-provider-configs";
 
 import {
   addressType,
@@ -54,6 +55,7 @@ import type { libraryProducts } from "./schema/library-products";
 import type { supportCategories } from "./schema/support-categories";
 import type { supportArticles } from "./schema/support-articles";
 import type { aiSettings } from "./schema/ai-settings";
+import type { aiProviderConfigs } from "./schema/ai-provider-configs";
 import type { notifications } from "./schema/notifications";
 import type { notificationRecipients } from "./schema/notification-recipients";
 import type { scheduledNotifications } from "./schema/scheduled-notifications";
@@ -135,3 +137,5 @@ export type SupportArticleRow = InferSelectModel<typeof supportArticles>;
 export type SupportArticleInsert = InferInsertModel<typeof supportArticles>;
 export type AiSettingsRow = InferSelectModel<typeof aiSettings>;
 export type AiSettingsInsert = InferInsertModel<typeof aiSettings>;
+export type AiProviderConfigRow = InferSelectModel<typeof aiProviderConfigs>;
+export type AiProviderConfigInsert = InferInsertModel<typeof aiProviderConfigs>;
