@@ -7,6 +7,7 @@ export interface AiConfig {
   // Bot-level / active-provider selection — from `ai_settings`.
   provider: ProviderId;
   botEnabled: boolean;
+  systemPrompt: string | null; // full base prompt (null → built-in DEFAULT_SUPPORT_PROMPT)
   systemPromptExtra: string | null;
   // Per-provider config — from the ACTIVE provider's `ai_provider_configs` row.
   model: string | null;
@@ -41,6 +42,7 @@ const PROVIDER_DEFAULTS: ProviderConfig = {
 const DEFAULTS: AiConfig = {
   provider: "openrouter",
   botEnabled: true,
+  systemPrompt: null,
   systemPromptExtra: null,
   model: null,
   temperature: 0.3,
@@ -82,8 +84,10 @@ export async function getAiConfig(): Promise<AiConfig> {
 
   const { data: settings } = await supabaseAdmin
     .from("ai_settings")
-    .select("provider, bot_enabled, system_prompt_extra")
-    .order("created_at", { ascending: false })
+    .select("provider, bot_enabled, system_prompt, system_prompt_extra")
+    // Order by updated_at to match the dashboard reader/writer (which edit the
+    // most-recently-updated row); avoids the two diverging on a stray 2nd row.
+    .order("updated_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -98,6 +102,7 @@ export async function getAiConfig(): Promise<AiConfig> {
   const value: AiConfig = {
     provider,
     botEnabled: settings.bot_enabled ?? true,
+    systemPrompt: settings.system_prompt ?? null,
     systemPromptExtra: settings.system_prompt_extra ?? null,
     model: pc.model,
     temperature: pc.temperature,

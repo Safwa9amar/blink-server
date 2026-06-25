@@ -125,7 +125,8 @@ export async function runBotTurn(
   const base = buildSupportSystemPrompt(
     (conversation as any).user_role,
     conversation.locale,
-    kbText
+    kbText,
+    cfg.systemPrompt
   );
   const systemPrompt = base + (cfg.systemPromptExtra ? "\n\n" + cfg.systemPromptExtra : "");
   const messages = toChatMessages(history);

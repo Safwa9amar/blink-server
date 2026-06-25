@@ -12,7 +12,8 @@ export const aiSettings = pgTable("ai_settings", {
   maxTokens: integer("max_tokens").notNull().default(600),
   reasoning: boolean("reasoning").notNull().default(false),
   botEnabled: boolean("bot_enabled").notNull().default(true),
-  systemPromptExtra: text("system_prompt_extra"), // appended to the support system prompt
+  systemPrompt: text("system_prompt"), // full base prompt (null → built-in DEFAULT_SUPPORT_PROMPT)
+  systemPromptExtra: text("system_prompt_extra"), // appended after the base system prompt
   // Provider credentials / endpoints — null → fall back to server env.
   openrouterApiKey: text("openrouter_api_key"),
   ollamaUrl: text("ollama_url"),
