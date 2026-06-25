@@ -11,6 +11,8 @@ export * from "./schema/news";
 export * from "./schema/deep-links";
 export * from "./schema/library-categories";
 export * from "./schema/library-products";
+export * from "./schema/support-conversations";
+export * from "./schema/support-messages";
 
 import {
   addressType,
@@ -31,6 +33,8 @@ import {
   vehicleType,
 } from "./schema/enums";
 import { newsStatus } from "./schema/news";
+import { supportConversationStatus } from "./schema/support-conversations";
+import { supportMessageSender } from "./schema/support-messages";
 import { scheduledNotificationStatus } from "./schema/scheduled-notifications";
 import { deepLinkRole } from "./schema/deep-links";
 import { libraryCategoryStatus } from "./schema/library-categories";
@@ -38,6 +42,8 @@ import { libraryProductStatus } from "./schema/library-products";
 import type { addresses } from "./schema/addresses";
 import type { agentShops } from "./schema/agent-shops";
 import type { news } from "./schema/news";
+import type { supportConversations } from "./schema/support-conversations";
+import type { supportMessages } from "./schema/support-messages";
 import type { deepLinks } from "./schema/deep-links";
 import type { libraryCategories } from "./schema/library-categories";
 import type { libraryProducts } from "./schema/library-products";
@@ -70,6 +76,8 @@ export type NotificationType = (typeof notificationType.enumValues)[number];
 export type AddressType = (typeof addressType.enumValues)[number];
 export type AgentShopStatus = (typeof agentShopStatus.enumValues)[number];
 export type NewsStatus = (typeof newsStatus.enumValues)[number];
+export type SupportConversationStatus = (typeof supportConversationStatus.enumValues)[number];
+export type SupportMessageSender = (typeof supportMessageSender.enumValues)[number];
 export type ScheduledNotificationStatus = (typeof scheduledNotificationStatus.enumValues)[number];
 export type DeepLinkRole = (typeof deepLinkRole.enumValues)[number];
 export type LibraryCategoryStatus = (typeof libraryCategoryStatus.enumValues)[number];
@@ -102,6 +110,10 @@ export type AddressRow = InferSelectModel<typeof addresses>;
 export type AddressInsert = InferInsertModel<typeof addresses>;
 export type NewsRow = InferSelectModel<typeof news>;
 export type NewsInsert = InferInsertModel<typeof news>;
+export type SupportConversationRow = InferSelectModel<typeof supportConversations>;
+export type SupportConversationInsert = InferInsertModel<typeof supportConversations>;
+export type SupportMessageRow = InferSelectModel<typeof supportMessages>;
+export type SupportMessageInsert = InferInsertModel<typeof supportMessages>;
 export type DeepLinkRow = InferSelectModel<typeof deepLinks>;
 export type DeepLinkInsert = InferInsertModel<typeof deepLinks>;
 export type LibraryCategoryRow = InferSelectModel<typeof libraryCategories>;
