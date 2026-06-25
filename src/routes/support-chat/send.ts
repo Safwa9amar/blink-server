@@ -6,7 +6,6 @@ import {
   insertMessage,
   runBotTurn,
   pushAgentReplyToUser,
-  uploadAttachment,
   escalateConversation,
 } from "../../lib/support-chat";
 import { getConversation } from "./shared";
@@ -18,7 +17,7 @@ const app = new Hono<AuthEnv>();
 app.post("/conversations/:id/messages", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
-  const { body, attachmentBase64, attachmentType } = sendMessageSchema.parse(
+  const { body, attachmentUrl } = sendMessageSchema.parse(
     await c.req.json().catch(() => ({}))
   );
 
@@ -30,14 +29,8 @@ app.post("/conversations/:id/messages", async (c) => {
   const isStaff = !!user.staff_role;
   if (!isOwner && !isStaff) return c.json({ error: "Access denied" }, 403);
 
-  let url: string | null = null;
-  if (attachmentBase64) {
-    url = await uploadAttachment(id, attachmentBase64, attachmentType ?? "image/jpeg");
-    if (!url) return c.json({ error: "Attachment upload failed" }, 400);
-  }
-
   const text = (body ?? "").trim();
-  const meta = url ? { attachmentUrl: url, attachmentType: "image" } : undefined;
+  const meta = attachmentUrl ? { attachmentUrl, attachmentType: "image" } : undefined;
 
   const sender = isOwner ? "user" : "agent";
   const message = await insertMessage(id, sender, user.id, text || "📷 Photo", meta);
@@ -56,7 +49,7 @@ app.post("/conversations/:id/messages", async (c) => {
   }
 
   // An image-only owner message can't be handled by the text model — escalate.
-  if (url && !text) {
+  if (attachmentUrl && !text) {
     await escalateConversation(conversation, "sent a photo");
     return c.json({ message }, 201);
   }

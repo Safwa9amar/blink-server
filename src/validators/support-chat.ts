@@ -3,11 +3,10 @@ import { z } from "zod";
 export const sendMessageSchema = z
   .object({
     body: z.string().max(4000).optional(),
-    attachmentBase64: z.string().optional(),
-    attachmentType: z.string().max(60).optional(),
+    attachmentUrl: z.string().url().optional(),
   })
-  .refine((v) => (v.body && v.body.trim().length > 0) || v.attachmentBase64, {
-    message: "Either body or attachmentBase64 is required",
+  .refine((v) => (v.body && v.body.trim().length > 0) || v.attachmentUrl, {
+    message: "Either body or attachmentUrl is required",
   });
 
 export const escalateSchema = z.object({
