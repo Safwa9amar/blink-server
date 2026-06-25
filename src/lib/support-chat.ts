@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import { supabaseAdmin } from "./supabase";
 import { getProvider } from "./ai";
 import type { ChatMessage } from "./ai";
+import { getAiConfig } from "./ai-settings";
 import { buildSupportSystemPrompt, parseEscalation } from "./ai/support-prompt";
 import { tokensForUser, sendPushToTokens } from "./push";
 import type { SupportConversationRow, SupportMessageRow, SupportMessageSender } from "../db";
@@ -113,23 +114,30 @@ export async function runBotTurn(
   conversation: SupportConversationRow,
   history: Pick<SupportMessageRow, "sender" | "body">[]
 ): Promise<void> {
+  const cfg = await getAiConfig();
+  if (!cfg.botEnabled) {
+    await escalateConversation(conversation, "bot disabled");
+    return;
+  }
   const kbText = await fetchKbForRole(
     (conversation as any).user_role,
     conversation.locale
   );
-  const systemPrompt = buildSupportSystemPrompt(
+  const base = buildSupportSystemPrompt(
     (conversation as any).user_role,
     conversation.locale,
     kbText
   );
+  const systemPrompt = base + (cfg.systemPromptExtra ? "\n\n" + cfg.systemPromptExtra : "");
   const messages = toChatMessages(history);
   let replyText: string;
   try {
-    const res = await getProvider().chat(messages, {
+    const res = await getProvider(cfg.provider).chat(messages, {
       systemPrompt,
-      temperature: 0.3,
-      maxTokens: 600,
-      reasoning: false,
+      model: cfg.model ?? undefined,
+      temperature: cfg.temperature,
+      maxTokens: cfg.maxTokens,
+      reasoning: cfg.reasoning,
     });
     replyText = res.content;
   } catch (e) {
