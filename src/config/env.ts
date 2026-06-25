@@ -23,6 +23,12 @@ const envSchema = z.object({
   // via the /library/scrape endpoints. Leave empty in dev to disable the check.
   CRON_SECRET: z.string().default(""),
 
+  // AI bot (support live chat). OpenRouter is the default provider; the key is
+  // optional so the server still boots without it (the bot then escalates).
+  OPENROUTER_API_KEY: z.string().optional(),
+  OPENROUTER_MODEL: z.string().optional(), // e.g. "google/gemini-2.5-flash"
+  DEFAULT_AI_PROVIDER: z.enum(["openrouter", "ollama", "lmstudio"]).default("openrouter"),
+
   // Run the in-process node-cron scheduler. Must stay OFF on cPanel/Passenger
   // (the app is spun down when idle, so in-process cron never fires) — use a
   // cPanel Cron Job hitting /library/scrape instead. Default off.
