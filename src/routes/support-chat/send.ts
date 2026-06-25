@@ -6,6 +6,8 @@ import {
   insertMessage,
   runBotTurn,
   pushAgentReplyToUser,
+  uploadAttachment,
+  escalateConversation,
 } from "../../lib/support-chat";
 import { getConversation } from "./shared";
 
@@ -16,7 +18,9 @@ const app = new Hono<AuthEnv>();
 app.post("/conversations/:id/messages", async (c) => {
   const user = c.get("user");
   const id = c.req.param("id");
-  const { body } = sendMessageSchema.parse(await c.req.json().catch(() => ({})));
+  const { body, attachmentBase64, attachmentType } = sendMessageSchema.parse(
+    await c.req.json().catch(() => ({}))
+  );
 
   const conversation = await getConversation(id);
   if (!conversation) return c.json({ error: "Conversation not found" }, 404);
@@ -26,19 +30,34 @@ app.post("/conversations/:id/messages", async (c) => {
   const isStaff = !!user.staff_role;
   if (!isOwner && !isStaff) return c.json({ error: "Access denied" }, 403);
 
+  let url: string | null = null;
+  if (attachmentBase64) {
+    url = await uploadAttachment(id, attachmentBase64, attachmentType ?? "image/jpeg");
+    if (!url) return c.json({ error: "Attachment upload failed" }, 400);
+  }
+
+  const text = (body ?? "").trim();
+  const meta = url ? { attachmentUrl: url, attachmentType: "image" } : undefined;
+
   const sender = isOwner ? "user" : "agent";
-  const message = await insertMessage(id, sender, user.id, body);
+  const message = await insertMessage(id, sender, user.id, text || "📷 Photo", meta);
   if (!message) return c.json({ error: "Failed to send" }, 400);
 
   if (isOwner && !(conversation as any).subject) {
     await supabaseAdmin
       .from("support_conversations")
-      .update({ subject: body.slice(0, 120) })
+      .update({ subject: (text || "📷 Photo").slice(0, 120) })
       .eq("id", id);
   }
 
   if (sender === "agent") {
-    await pushAgentReplyToUser(conversation, body);
+    await pushAgentReplyToUser(conversation, text || "📷 Photo");
+    return c.json({ message }, 201);
+  }
+
+  // An image-only owner message can't be handled by the text model — escalate.
+  if (url && !text) {
+    await escalateConversation(conversation, "sent a photo");
     return c.json({ message }, 201);
   }
 
@@ -55,7 +74,7 @@ app.post("/conversations/:id/messages", async (c) => {
       .order("created_at", { ascending: true });
     await runBotTurn(
       { ...conversation, status: "bot" },
-      (history ?? [{ sender: "user", body }]) as { sender: any; body: string }[]
+      (history ?? [{ sender: "user", body: text }]) as { sender: any; body: string }[]
     );
   }
 

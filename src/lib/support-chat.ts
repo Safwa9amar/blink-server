@@ -7,6 +7,30 @@ import type { SupportConversationRow, SupportMessageRow, SupportMessageSender } 
 
 const PREVIEW_LEN = 120;
 
+const ATTACHMENT_BUCKET = "support-attachments";
+
+/** Upload a base64 image to storage; returns the public URL (or null on failure). */
+export async function uploadAttachment(
+  conversationId: string,
+  base64: string,
+  contentType: string
+): Promise<string | null> {
+  const ext = contentType.includes("png") ? "png" : contentType.includes("webp") ? "webp" : "jpg";
+  // Strip a possible data: URL prefix.
+  const cleaned = base64.includes(",") ? base64.split(",").pop()! : base64;
+  const bytes = Buffer.from(cleaned, "base64");
+  const path = `${conversationId}/${Date.now()}.${ext}`;
+  const { error } = await supabaseAdmin.storage
+    .from(ATTACHMENT_BUCKET)
+    .upload(path, bytes, { contentType, upsert: false });
+  if (error) {
+    console.error("[support-chat] attachment upload failed", error.message);
+    return null;
+  }
+  const { data } = supabaseAdmin.storage.from(ATTACHMENT_BUCKET).getPublicUrl(path);
+  return data.publicUrl ?? null;
+}
+
 // Columns the clients need (snake_case — supabase-js returns DB casing).
 export const CONVERSATION_COLUMNS =
   "id, user_id, user_role, status, assigned_agent_id, subject, locale, last_message_at, last_message_preview, unread_for_staff, created_at, updated_at";
