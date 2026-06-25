@@ -21,8 +21,8 @@ export class OpenRouterProvider implements AIProvider {
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: apiKey || process.env.OPENROUTER_API_KEY!,
       defaultHeaders: {
-        "HTTP-Referer": "https://modakerati.app",
-        "X-Title": "Modakerati",
+        "HTTP-Referer": "https://blink.dz",
+        "X-Title": "blink",
       },
     });
   }
@@ -101,16 +101,22 @@ export class OpenRouterProvider implements AIProvider {
   }
 
   async listModels(): Promise<string[]> {
-    // Popular models available on OpenRouter
-    return [
-      "anthropic/claude-sonnet-4",
-      "anthropic/claude-haiku-4",
-      "openai/gpt-4o",
-      "openai/gpt-4o-mini",
-      "google/gemini-2.5-flash",
-      "meta-llama/llama-4-maverick",
-      "deepseek/deepseek-chat-v3",
-      "qwen/qwen3-235b-a22b",
-    ];
+    // Live list of REAL model ids from OpenRouter's public models API — only ids
+    // the API actually accepts (the old hardcoded list had invalid ids).
+    const fallback = ["google/gemini-2.5-flash", "openai/gpt-4o-mini"];
+    try {
+      const res = await fetch("https://openrouter.ai/api/v1/models", {
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!res.ok) return fallback;
+      const json = (await res.json()) as { data?: { id?: string }[] };
+      const ids = (json.data ?? [])
+        .map((m) => m.id)
+        .filter((id): id is string => typeof id === "string" && id.length > 0)
+        .sort();
+      return ids.length ? ids : fallback;
+    } catch {
+      return fallback;
+    }
   }
 }
