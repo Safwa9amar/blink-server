@@ -25,6 +25,18 @@ export interface AIProvider {
   resolveModel?(model?: string): Promise<string>;
 }
 
+// Optional caller context attached to a chat() call, surfaced in the AI-log
+// buffer so an entry shows who/what triggered the call. The providers themselves
+// ignore it — only instrumentProvider() in ../ai-log reads it.
+export interface AiLogContext {
+  /** Call-site tag, e.g. "support-bot". */
+  source?: string | null;
+  conversationId?: string | null;
+  userId?: string | null;
+  userRole?: string | null;
+  locale?: string | null;
+}
+
 export interface ChatOptions {
   model?: string;
   temperature?: number;
@@ -34,6 +46,8 @@ export interface ChatOptions {
   ttl?: number;
   /** Request/surface model reasoning. Omit → AI_REASONING env (defaults on). */
   reasoning?: boolean;
+  /** Caller context for the AI-log buffer (ignored by providers). */
+  logContext?: AiLogContext;
 }
 
 export function reasoningEnabled(flag?: boolean): boolean {

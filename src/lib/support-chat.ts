@@ -138,6 +138,14 @@ export async function runBotTurn(
       temperature: cfg.temperature,
       maxTokens: cfg.maxTokens,
       reasoning: cfg.reasoning,
+      // Enrich the AI-log entry (instrumentProvider) with who/what triggered it.
+      logContext: {
+        source: "support-bot",
+        conversationId: conversation.id,
+        userId: (conversation as any).user_id ?? null,
+        userRole: (conversation as any).user_role ?? null,
+        locale: conversation.locale,
+      },
     });
     replyText = res.content;
   } catch (e) {

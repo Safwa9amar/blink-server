@@ -1,0 +1,37 @@
+[
+  { "key": "getting-started", "target_roles": ["All"], "label_eng": "Getting Started", "label_fr": "Bien démarrer", "label_ar": "البدء", "icon": "sparkles", "color": "#6366F1", "sort": 0 },
+  { "key": "account", "target_roles": ["All"], "label_eng": "Account & Profile", "label_fr": "Compte et profil", "label_ar": "الحساب والملف الشخصي", "icon": "person.crop.circle", "color": "#3B82F6", "sort": 1 },
+  { "key": "security", "target_roles": ["All"], "label_eng": "Security & Privacy", "label_fr": "Sécurité et confidentialité", "label_ar": "الأمان والخصوصية", "icon": "lock.fill", "color": "#EF4444", "sort": 2 },
+  { "key": "wallet", "target_roles": ["All"], "label_eng": "Blink Cash & Wallet", "label_fr": "Blink Cash et portefeuille", "label_ar": "بلينك كاش والمحفظة", "icon": "wallet.bifold.fill", "color": "#10B981", "sort": 3 },
+  { "key": "notifications", "target_roles": ["All"], "label_eng": "Notifications", "label_fr": "Notifications", "label_ar": "الإشعارات", "icon": "bell.fill", "color": "#F59E0B", "sort": 4 },
+  { "key": "app-technical", "target_roles": ["All"], "label_eng": "App & Technical", "label_fr": "Application et technique", "label_ar": "التطبيق والمشاكل التقنية", "icon": "gearshape.fill", "color": "#64748B", "sort": 5 },
+  { "key": "contact-legal", "target_roles": ["All"], "label_eng": "Contact & Legal", "label_fr": "Contact et mentions légales", "label_ar": "التواصل والشؤون القانونية", "icon": "doc.text.fill", "color": "#8B5CF6", "sort": 6 },
+
+  { "key": "orders", "target_roles": ["Customer"], "label_eng": "Orders & Delivery", "label_fr": "Commandes et livraison", "label_ar": "الطلبات والتوصيل", "icon": "bag.fill", "color": "#F59E0B", "sort": 10 },
+  { "key": "payment", "target_roles": ["Customer"], "label_eng": "Payment & Refunds", "label_fr": "Paiement et remboursements", "label_ar": "الدفع والاسترداد", "icon": "creditcard.fill", "color": "#10B981", "sort": 11 },
+  { "key": "tracking", "target_roles": ["Customer"], "label_eng": "Order Tracking", "label_fr": "Suivi de commande", "label_ar": "تتبع الطلب", "icon": "truck.fill", "color": "#3B82F6", "sort": 12 },
+  { "key": "promos", "target_roles": ["Customer"], "label_eng": "Promo Codes & Offers", "label_fr": "Codes promo et offres", "label_ar": "رموز الخصم والعروض", "icon": "tag.fill", "color": "#8B5CF6", "sort": 13 },
+  { "key": "addresses", "target_roles": ["Customer"], "label_eng": "Addresses", "label_fr": "Adresses", "label_ar": "العناوين", "icon": "mappin.and.ellipse", "color": "#EF4444", "sort": 14 },
+  { "key": "ratings-customer", "target_roles": ["Customer"], "label_eng": "Ratings & Reviews", "label_fr": "Notes et avis", "label_ar": "التقييمات والمراجعات", "icon": "star.fill", "color": "#FBBF24", "sort": 15 },
+
+  { "key": "rider-start", "target_roles": ["Rider"], "label_eng": "Getting Started (Rider)", "label_fr": "Bien démarrer (Livreur)", "label_ar": "البدء (السائق)", "icon": "bicycle", "color": "#6366F1", "sort": 20 },
+  { "key": "trips", "target_roles": ["Rider"], "label_eng": "Trips & Cancellations", "label_fr": "Courses et annulations", "label_ar": "الرحلات والإلغاءات", "icon": "map.fill", "color": "#F59E0B", "sort": 21 },
+  { "key": "rider-earnings", "target_roles": ["Rider"], "label_eng": "Earnings & Payouts", "label_fr": "Gains et versements", "label_ar": "الأرباح والمدفوعات", "icon": "banknote.fill", "color": "#10B981", "sort": 22 },
+  { "key": "vehicle", "target_roles": ["Rider"], "label_eng": "Vehicle & Documents", "label_fr": "Véhicule et documents", "label_ar": "المركبة والوثائق", "icon": "car.fill", "color": "#8B5CF6", "sort": 23 },
+  { "key": "tiers", "target_roles": ["Rider"], "label_eng": "Tiers & Bonuses", "label_fr": "Niveaux et bonus", "label_ar": "المستويات والمكافآت", "icon": "trophy.fill", "color": "#FBBF24", "sort": 24 },
+  { "key": "rider-safety", "target_roles": ["Rider"], "label_eng": "Safety", "label_fr": "Sécurité", "label_ar": "السلامة", "icon": "medical.kit.fill", "color": "#EF4444", "sort": 25 },
+
+  { "key": "store", "target_roles": ["Merchant"], "label_eng": "Store Setup", "label_fr": "Configuration de la boutique", "label_ar": "إعداد المتجر", "icon": "storefront.fill", "color": "#3B82F6", "sort": 30 },
+  { "key": "menu", "target_roles": ["Merchant"], "label_eng": "Menu & Catalog", "label_fr": "Menu et catalogue", "label_ar": "القائمة والكتالوج", "icon": "fork.knife", "color": "#F59E0B", "sort": 31 },
+  { "key": "merchant-orders", "target_roles": ["Merchant"], "label_eng": "Orders & Fulfillment", "label_fr": "Commandes et préparation", "label_ar": "الطلبات والتجهيز", "icon": "list.bullet.clipboard.fill", "color": "#6366F1", "sort": 32 },
+  { "key": "merchant-promotions", "target_roles": ["Merchant"], "label_eng": "Promotions", "label_fr": "Promotions", "label_ar": "العروض الترويجية", "icon": "megaphone.fill", "color": "#8B5CF6", "sort": 33 },
+  { "key": "merchant-earnings", "target_roles": ["Merchant"], "label_eng": "Earnings & Payouts", "label_fr": "Gains et versements", "label_ar": "الأرباح والمدفوعات", "icon": "chart.bar.fill", "color": "#10B981", "sort": 34 },
+  { "key": "ranking", "target_roles": ["Merchant"], "label_eng": "Ratings & Ranking", "label_fr": "Notes et classement", "label_ar": "التقييمات والترتيب", "icon": "star.fill", "color": "#FBBF24", "sort": 35 },
+
+  { "key": "agent-start", "target_roles": ["Agent"], "label_eng": "Getting Started (Agent)", "label_fr": "Bien démarrer (Agent)", "label_ar": "البدء (الوكيل)", "icon": "checkmark.seal.fill", "color": "#6366F1", "sort": 40 },
+  { "key": "deposits", "target_roles": ["Agent"], "label_eng": "Deposits", "label_fr": "Dépôts", "label_ar": "الإيداعات", "icon": "qrcode", "color": "#10B981", "sort": 41 },
+  { "key": "withdrawals", "target_roles": ["Agent"], "label_eng": "Withdrawals", "label_fr": "Retraits", "label_ar": "السحوبات", "icon": "barcode.viewfinder", "color": "#F59E0B", "sort": 42 },
+  { "key": "shop", "target_roles": ["Agent"], "label_eng": "Shop Management", "label_fr": "Gestion de la boutique", "label_ar": "إدارة المحل", "icon": "storefront.fill", "color": "#3B82F6", "sort": 43 },
+  { "key": "dues", "target_roles": ["Agent"], "label_eng": "Dues & Settlement", "label_fr": "Dettes et règlement", "label_ar": "المستحقات والتسوية", "icon": "building.columns.fill", "color": "#EF4444", "sort": 44 },
+  { "key": "agent-earnings", "target_roles": ["Agent"], "label_eng": "Earnings", "label_fr": "Gains", "label_ar": "الأرباح", "icon": "dollarsign.circle.fill", "color": "#FBBF24", "sort": 45 }
+]

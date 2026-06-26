@@ -110,7 +110,9 @@ export class LMStudioProvider implements AIProvider {
       /* native API off or unreachable — fall through to the OpenAI list */
     }
     try {
-      const response = await this.client.models.list();
+      // Cap the fallback too — without it an unreachable host would block for the
+      // client's full timeout after the native probe already failed.
+      const response = await this.client.models.list({ signal: AbortSignal.timeout(5000) });
       return response.data.map((m) => ({ id: m.id }));
     } catch {
       return [];

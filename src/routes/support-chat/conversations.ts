@@ -15,14 +15,17 @@ app.post("/conversations", async (c) => {
   const { conversation, error } = await getOrCreateConversation(user.id, user.role, useLocale);
   if (error || !conversation) return c.json({ error: error ?? "failed" }, 400);
 
+  // Newest 50, then reversed to chronological order — fetching ascending+limit
+  // would return the OLDEST 50 and silently drop recent messages once a thread
+  // grows past 50, making the app look like it "lost" the conversation.
   const { data: messages } = await supabaseAdmin
     .from("support_messages")
     .select(MESSAGE_COLUMNS)
     .eq("conversation_id", conversation.id)
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
     .limit(50);
 
-  return c.json({ conversation, messages: messages ?? [] });
+  return c.json({ conversation, messages: (messages ?? []).reverse() });
 });
 
 // GET /conversations/:id/messages — paginated history (owner or staff).

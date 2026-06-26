@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "./supabase";
 import { OpenRouterProvider, OllamaProvider, LMStudioProvider, type AIProvider } from "./ai";
+import { instrumentProvider } from "./ai-log";
 
 export type ProviderId = "openrouter" | "ollama" | "lmstudio";
 
@@ -115,17 +116,16 @@ export async function getAiConfig(): Promise<AiConfig> {
   return value;
 }
 
-/** Build a provider instance from an explicit config row (fallback: env defaults). */
+/** Build a provider instance from an explicit config row (fallback: env defaults).
+ *  Wrapped in instrumentProvider so every chat/stream lands in the AI-log buffer. */
 function buildFromProviderConfig(pc: ProviderConfig): AIProvider {
-  switch (pc.provider) {
-    case "ollama":
-      return new OllamaProvider(pc.baseUrl ?? undefined);
-    case "lmstudio":
-      return new LMStudioProvider(pc.baseUrl ?? undefined);
-    case "openrouter":
-    default:
-      return new OpenRouterProvider(pc.apiKey ?? undefined);
-  }
+  const provider =
+    pc.provider === "ollama"
+      ? new OllamaProvider(pc.baseUrl ?? undefined)
+      : pc.provider === "lmstudio"
+        ? new LMStudioProvider(pc.baseUrl ?? undefined)
+        : new OpenRouterProvider(pc.apiKey ?? undefined);
+  return instrumentProvider(provider);
 }
 
 /**
@@ -150,8 +150,16 @@ export function buildProvider(cfg: AiConfig): AIProvider {
  * own `ai_provider_configs` row for its credential (fallback: env). Used by the
  * models endpoint, which may be asked for any provider regardless of which one
  * is active.
+ *
+ * `overrides.baseUrl` lets the dashboard's AI Server settings list models against
+ * the URL the operator has TYPED but not yet saved (local providers only) — so the
+ * model picker reflects the settings form live. Blank → the saved DB config wins.
  */
-export async function buildProviderFor(provider: ProviderId): Promise<AIProvider> {
+export async function buildProviderFor(
+  provider: ProviderId,
+  overrides?: { baseUrl?: string | null }
+): Promise<AIProvider> {
   const pc = await getProviderConfig(provider);
-  return buildFromProviderConfig(pc);
+  const baseUrl = overrides?.baseUrl?.trim();
+  return buildFromProviderConfig(baseUrl ? { ...pc, baseUrl } : pc);
 }

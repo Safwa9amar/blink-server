@@ -3,6 +3,7 @@ import type { AIProvider, ChatMessage, ChatOptions } from "./types";
 import { OpenRouterProvider } from "./openrouter";
 import { OllamaProvider } from "./ollama";
 import { LMStudioProvider } from "./lmstudio";
+import { instrumentProvider } from "../ai-log";
 
 export type { AIProvider, ChatMessage, ChatOptions, AIResponse, LMModel } from "./types";
 export { DEFAULT_SYSTEM_PROMPT, reasoningEnabled } from "./types";
@@ -34,6 +35,8 @@ export function getProvider(name: ProviderName = getDefaultProvider()): AIProvid
       default:
         throw new Error(`Unknown AI provider: ${name}`);
     }
+    // Wrap so every chat/stream is captured in the AI-log buffer.
+    p = instrumentProvider(p);
     providers.set(name, p);
   }
   return p;

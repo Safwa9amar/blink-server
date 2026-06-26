@@ -8,10 +8,17 @@ export class OllamaProvider implements AIProvider {
   private baseUrl: string;
 
   constructor(baseUrl?: string) {
-    this.baseUrl = baseUrl || process.env.OLLAMA_URL || "http://localhost:11434";
+    const raw = (baseUrl || process.env.OLLAMA_URL || "http://localhost:11434").trim();
+    // Tolerate a host given with a trailing slash or `/v1` (a common footgun):
+    // store the bare root for the native `/api/*` endpoints, and hand `${root}/v1`
+    // to the OpenAI-compatible client. Mirrors the LM Studio provider.
+    this.baseUrl = raw.replace(/\/+$/, "").replace(/\/v1$/, "");
     this.client = new OpenAI({
       baseURL: this.baseUrl + "/v1",
       apiKey: "ollama",
+      // Bound a stuck generation (or an unreachable host) instead of the SDK's
+      // 10-minute default — so failures surface fast and clean (matches LM Studio).
+      timeout: Number(process.env.AI_TIMEOUT_MS) || 120_000,
     });
   }
 
@@ -54,11 +61,18 @@ export class OllamaProvider implements AIProvider {
     }
   }
 
+  /** Locally available models via Ollama's documented `GET /api/tags`. Timed out
+   *  (5s) so an unreachable host fails fast instead of hanging the model picker. */
   async listModels(): Promise<string[]> {
     try {
-      const response = await fetch(this.baseUrl + "/api/tags");
-      const data = await response.json() as any;
-      return (data.models || []).map((m: any) => m.name);
+      const response = await fetch(this.baseUrl + "/api/tags", {
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!response.ok) return [];
+      const data = (await response.json()) as { models?: { name?: string }[] };
+      return (data.models ?? [])
+        .map((m) => m.name)
+        .filter((n): n is string => typeof n === "string" && n.length > 0);
     } catch {
       return [];
     }

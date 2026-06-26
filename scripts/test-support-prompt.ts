@@ -1,6 +1,9 @@
 // scripts/test-support-prompt.ts — run with: npx tsx scripts/test-support-prompt.ts
 import assert from "node:assert/strict";
-import { parseEscalation, buildSupportSystemPrompt } from "../src/lib/ai/support-prompt";
+import {
+  buildSupportSystemPrompt,
+  parseEscalation,
+} from "../src/lib/ai/support-prompt";
 
 // parseEscalation
 {
@@ -26,11 +29,21 @@ import { parseEscalation, buildSupportSystemPrompt } from "../src/lib/ai/support
   const p = buildSupportSystemPrompt(
     "customer",
     "fr",
-    "Q: Order Tracking\nA: Track from Activities."
+    "Q: Order Tracking\nA: Track from Activities.",
   );
+
   assert.ok(p.includes("French"), "locale name injected");
   assert.ok(p.includes("<<ESCALATE"), "escalation rule present");
   assert.ok(p.includes("Order Tracking"), "kbText injected");
+  assert.ok(p.includes("SCOPE"), "scope-restriction rule present");
+  assert.ok(
+    p.includes("ONLY help with Blink"),
+    "off-topic refusal rule present",
+  );
+  assert.ok(
+    p.includes("SAME language"),
+    "reply-in-user-language rule present",
+  );
 }
 
 console.log("OK: support-prompt tests passed");

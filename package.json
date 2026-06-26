@@ -1,6 +1,6 @@
 {
   "name": "blink-server",
-  "version": "1.0.9",
+  "version": "1.0.25",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",

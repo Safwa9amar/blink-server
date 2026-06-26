@@ -12,14 +12,18 @@ const PROVIDERS: ProviderName[] = ["openrouter", "ollama", "lmstudio"];
 // is built from ITS OWN `ai_provider_configs` row (key/url, fallback env),
 // independent of which provider is currently active. Local providers
 // (ollama/lmstudio) may be offline — return [] rather than erroring.
+//
+// ?baseUrl= optionally overrides the saved base URL (local providers) so the
+// dashboard's AI Server settings can list models against a typed-but-unsaved URL.
 app.get("/models", async (c) => {
   const q = c.req.query("provider");
   const provider: ProviderName = PROVIDERS.includes(q as ProviderName)
     ? (q as ProviderName)
     : "openrouter";
+  const baseUrl = c.req.query("baseUrl");
 
   try {
-    const models = await (await buildProviderFor(provider)).listModels();
+    const models = await (await buildProviderFor(provider, { baseUrl })).listModels();
     return c.json({ models });
   } catch (e) {
     console.error("[ai/models] listModels failed", (e as Error).message);
