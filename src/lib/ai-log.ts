@@ -83,6 +83,160 @@ export function clearAiLogs(): void {
   buffer.length = 0;
 }
 
+// ─── AI metrics (Blink Server → AI Insights, Phase 5) ────────────────────────
+// Rollups over the buffered AI calls (the last MAX entries). Approximate public list
+// prices, USD per 1M tokens (input/output) — ESTIMATES only; providers change pricing
+// and local models are free, so unknown/local models contribute 0 cost.
+// First match wins, so list more specific patterns before broader ones. Includes
+// google/gemini-2.5-flash — the default production model (src/lib/ai/openrouter.ts).
+const AI_PRICES: { match: RegExp; in: number; out: number }[] = [
+  { match: /opus/i, in: 15, out: 75 },
+  { match: /sonnet/i, in: 3, out: 15 },
+  { match: /haiku/i, in: 0.8, out: 4 },
+  { match: /gpt-4o-mini/i, in: 0.15, out: 0.6 },
+  { match: /gpt-4o/i, in: 2.5, out: 10 },
+  { match: /gpt-4/i, in: 30, out: 60 },
+  { match: /gpt-3\.5/i, in: 0.5, out: 1.5 },
+  { match: /gemini[-.]?2\.5[-.]?flash/i, in: 0.3, out: 2.5 },
+  { match: /gemini[-.]?1\.5[-.]?flash/i, in: 0.075, out: 0.3 },
+  { match: /gemini/i, in: 1.25, out: 5 }, // other Gemini (Pro-tier) — rough estimate
+  { match: /deepseek/i, in: 0.14, out: 0.28 },
+  { match: /llama|mistral|qwen|gemma|mixtral/i, in: 0.2, out: 0.2 },
+];
+function priceFor(model: string): { in: number; out: number } {
+  for (const p of AI_PRICES) if (p.match.test(model)) return { in: p.in, out: p.out };
+  return { in: 0, out: 0 };
+}
+
+export interface AiModelStat {
+  model: string;
+  provider: string | null;
+  calls: number;
+  limitHits: number;
+  errPct: number;
+  avgMs: number;
+  promptTokens: number;
+  completionTokens: number;
+  costUsd: number;
+  status: "ok" | "degraded";
+}
+
+export interface AiMetricsSnapshot {
+  totalCalls: number;
+  replies: number;
+  failures: number;
+  limitHits: number;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  estCostUsd: number;
+  avgLatencyMs: number;
+  models: AiModelStat[]; // sorted by calls desc
+}
+
+interface ModelAcc {
+  provider: string | null;
+  calls: number;
+  errors: number;
+  limitHits: number;
+  latMs: number;
+  latN: number;
+  prompt: number;
+  completion: number;
+}
+
+export function getAiMetrics(): AiMetricsSnapshot {
+  let replies = 0;
+  let failures = 0;
+  let limitHits = 0;
+  let promptTokens = 0;
+  let completionTokens = 0;
+  let latMs = 0;
+  let latN = 0;
+  const byModel = new Map<string, ModelAcc>();
+
+  for (const e of buffer) {
+    const isReply = e.kind === "reply";
+    const isLimit = e.kind === "rate_limit" || e.kind === "quota";
+    if (isReply) replies++;
+    else failures++;
+    if (isLimit) limitHits++;
+
+    const p = e.tokens?.prompt ?? 0;
+    const comp = e.tokens?.completion ?? 0;
+    promptTokens += p;
+    completionTokens += comp;
+    // Latency over successful replies only — failures/timeouts are the slow tail and
+    // would inflate what reads as "avg response time".
+    if (isReply && typeof e.latencyMs === "number") {
+      latMs += e.latencyMs;
+      latN++;
+    }
+
+    const model = e.model ?? "unknown";
+    let acc = byModel.get(model);
+    if (!acc) {
+      acc = {
+        provider: e.provider ?? null,
+        calls: 0,
+        errors: 0,
+        limitHits: 0,
+        latMs: 0,
+        latN: 0,
+        prompt: 0,
+        completion: 0,
+      };
+      byModel.set(model, acc);
+    }
+    acc.calls++;
+    if (!isReply) acc.errors++;
+    if (isLimit) acc.limitHits++;
+    acc.prompt += p;
+    acc.completion += comp;
+    if (isReply && typeof e.latencyMs === "number") {
+      acc.latMs += e.latencyMs;
+      acc.latN++;
+    }
+  }
+
+  let rawCostTotal = 0;
+  const models: AiModelStat[] = [...byModel.entries()]
+    .map(([model, a]): AiModelStat => {
+      const price = priceFor(model);
+      const rawCost = (a.prompt / 1e6) * price.in + (a.completion / 1e6) * price.out;
+      rawCostTotal += rawCost; // sum raw; round the total once below (no compounded rounding)
+      const errPct = a.calls ? Math.round((a.errors / a.calls) * 1000) / 10 : 0;
+      return {
+        model,
+        provider: a.provider,
+        calls: a.calls,
+        limitHits: a.limitHits,
+        errPct,
+        avgMs: a.latN ? Math.round(a.latMs / a.latN) : 0,
+        promptTokens: a.prompt,
+        completionTokens: a.completion,
+        costUsd: Math.round(rawCost * 100) / 100,
+        status: a.limitHits > 0 || errPct >= 20 ? "degraded" : "ok",
+      };
+    })
+    .sort((a, b) => b.calls - a.calls);
+
+  const estCostUsd = Math.round(rawCostTotal * 100) / 100;
+
+  return {
+    totalCalls: replies + failures,
+    replies,
+    failures,
+    limitHits,
+    promptTokens,
+    completionTokens,
+    totalTokens: promptTokens + completionTokens,
+    estCostUsd,
+    avgLatencyMs: latN ? Math.round(latMs / latN) : 0,
+    models,
+  };
+}
+
 // ─── Error classification ────────────────────────────────────────────────────
 
 export interface AiErrorInfo {

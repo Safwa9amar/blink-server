@@ -1,0 +1,705 @@
+[
+  {
+    "type": "article",
+    "category": "agent-start",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Becoming a Blink agent: what the role involves",
+      "body": "<p>A Blink agent is a partner shop or kiosk that handles cash for riders and customers. Instead of using a bank, people come to your counter to put cash into their Blink Cash wallet (a deposit) or take cash out of it (a withdrawal). Every transaction runs through a QR code, so it is fast and traceable.</p><h2>What an agent does</h2><ul><li>Accepts cash and credits a customer's wallet (a <strong>deposit</strong>).</li><li>Hands out cash from a customer's wallet (a <strong>withdrawal</strong>).</li><li>Settles the money owed to Blink, called <strong>dues</strong>, before a weekly cutoff.</li></ul><h2>What you earn</h2><p>You earn a <strong>commission</strong> on the total volume you process. The more deposits and withdrawals you handle, the more you earn.</p><h2>What you need</h2><ul><li>A physical shop with a fixed address and opening hours.</li><li>Valid shop documents and a national ID for verification.</li><li>Enough cash on hand to serve withdrawals.</li></ul><blockquote>Think of yourself as a trusted neighbourhood cash point for the Blink community.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Devenir agent Blink : en quoi consiste ce rôle",
+      "body": "<p>Un agent Blink est une boutique ou un kiosque partenaire qui gère les espèces pour les livreurs et les clients. Au lieu d'aller à la banque, les gens viennent à votre comptoir pour mettre de l'argent dans leur portefeuille Blink Cash (un dépôt) ou en retirer (un retrait). Chaque transaction passe par un code QR : c'est rapide et traçable.</p><h2>Ce que fait un agent</h2><ul><li>Accepter des espèces et créditer le portefeuille d'un client (un <strong>dépôt</strong>).</li><li>Remettre des espèces issues du portefeuille d'un client (un <strong>retrait</strong>).</li><li>Régler les sommes dues à Blink, appelées <strong>dettes</strong>, avant une échéance hebdomadaire.</li></ul><h2>Ce que vous gagnez</h2><p>Vous percevez une <strong>commission</strong> sur le volume total que vous traitez. Plus vous gérez de dépôts et de retraits, plus vous gagnez.</p><h2>Ce qu'il vous faut</h2><ul><li>Une boutique physique avec une adresse fixe et des horaires d'ouverture.</li><li>Des documents de boutique valides et une carte d'identité nationale pour la vérification.</li><li>Suffisamment d'espèces en caisse pour servir les retraits.</li></ul><blockquote>Voyez-vous comme un point cash de confiance du quartier pour la communauté Blink.</blockquote>"
+    },
+    "content_ar": {
+      "title": "أن تصبح وكيلاً في بلينك: ماذا يتضمّن هذا الدور",
+      "body": "<p>وكيل بلينك هو محل أو كشك شريك يتولّى التعامل النقدي للسائقين والعملاء. فبدلاً من الذهاب إلى البنك، يأتي الناس إلى منضدتك لإيداع النقود في محفظة بلينك كاش الخاصة بهم (إيداع) أو لسحب النقود منها (سحب). تمرّ كل عملية عبر رمز QR، ما يجعلها سريعة وقابلة للتتبّع.</p><h2>ماذا يفعل الوكيل</h2><ul><li>يقبل النقود ويضيف رصيداً إلى محفظة العميل (<strong>إيداع</strong>).</li><li>يسلّم النقود من محفظة العميل (<strong>سحب</strong>).</li><li>يسوّي المبالغ المستحقة لبلينك، والمسمّاة <strong>المستحقات</strong>، قبل موعد أسبوعي محدّد.</li></ul><h2>ماذا تربح</h2><p>تحصل على <strong>عمولة</strong> على إجمالي الحجم الذي تعالجه. وكلّما عالجت إيداعات وسحوبات أكثر، ربحت أكثر.</p><h2>ما الذي تحتاجه</h2><ul><li>محل فعلي بعنوان ثابت وساعات عمل محدّدة.</li><li>وثائق محل سارية وبطاقة هوية وطنية للتحقّق.</li><li>سيولة نقدية كافية لتغطية عمليات السحب.</li></ul><blockquote>اعتبر نفسك نقطة نقدية موثوقة في الحيّ لمجتمع بلينك.</blockquote>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "agent-start",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How agent verification works (documents & ID)",
+      "body": "<p>Before you can process any cash, your shop must be verified. This protects both you and the customers who trust their money to your counter. Verification usually takes up to <strong>48 hours</strong>.</p><h2>What you submit</h2><ul><li>Your shop's commercial registration or trade documents.</li><li>A clear photo of your national ID (front and back).</li><li>Your shop address, contact number, and opening hours.</li></ul><h2>The review steps</h2><ol><li>Upload your documents during sign-up.</li><li>Our team checks that the ID matches the shop owner and that documents are valid.</li><li>You receive a notification when your shop is approved or if something needs fixing.</li></ol><h2>If something is missing</h2><p>If a document is blurry or expired, you will be asked to re-upload it. Verification only restarts the part that failed, so fixing one item is quick.</p><blockquote>Use good lighting and a flat surface when photographing documents — clear images approve faster.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comment fonctionne la vérification de l'agent (documents et pièce d'identité)",
+      "body": "<p>Avant de pouvoir traiter des espèces, votre boutique doit être vérifiée. Cela vous protège, vous et les clients qui confient leur argent à votre comptoir. La vérification prend généralement jusqu'à <strong>48 heures</strong>.</p><h2>Ce que vous soumettez</h2><ul><li>Le registre du commerce ou les documents commerciaux de votre boutique.</li><li>Une photo nette de votre carte d'identité nationale (recto et verso).</li><li>L'adresse de votre boutique, un numéro de contact et les horaires d'ouverture.</li></ul><h2>Les étapes de vérification</h2><ol><li>Téléversez vos documents lors de l'inscription.</li><li>Notre équipe vérifie que la pièce d'identité correspond au propriétaire et que les documents sont valides.</li><li>Vous recevez une notification dès que votre boutique est approuvée ou si une correction est nécessaire.</li></ol><h2>S'il manque quelque chose</h2><p>Si un document est flou ou expiré, on vous demandera de le téléverser à nouveau. Seule la partie refusée est reprise, la correction est donc rapide.</p><blockquote>Utilisez un bon éclairage et une surface plane pour photographier les documents : des images nettes sont approuvées plus vite.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كيف يعمل التحقّق من الوكيل (الوثائق والهوية)",
+      "body": "<p>قبل أن تتمكّن من معالجة أي نقود، يجب التحقّق من محلّك. وهذا يحمي كلاً منك ومن العملاء الذين يأتمنونك على أموالهم. يستغرق التحقّق عادةً حتى <strong>48 ساعة</strong>.</p><h2>ما الذي تقدّمه</h2><ul><li>السجل التجاري لمحلّك أو وثائقه التجارية.</li><li>صورة واضحة لبطاقة هويتك الوطنية (الوجه والظهر).</li><li>عنوان محلّك ورقم تواصل وساعات العمل.</li></ul><h2>خطوات المراجعة</h2><ol><li>ارفع وثائقك أثناء التسجيل.</li><li>يتحقّق فريقنا من تطابق الهوية مع صاحب المحل وصلاحية الوثائق.</li><li>تصلك رسالة إشعار عند الموافقة على محلّك أو عند الحاجة إلى تصحيح شيء ما.</li></ol><h2>إذا كان هناك نقص</h2><p>إذا كانت الوثيقة غير واضحة أو منتهية الصلاحية، سيُطلب منك رفعها من جديد. لا يُعاد سوى الجزء المرفوض فقط، لذا فإن التصحيح سريع.</p><blockquote>استخدم إضاءة جيدة وسطحاً مستوياً عند تصوير الوثائق — الصور الواضحة تُعتمد أسرع.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "agent-start",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "What is the difference between a deposit and a withdrawal?",
+      "body": "<p>A <strong>deposit</strong> is when a customer gives you cash and you add that amount to their Blink Cash wallet. The cash stays with you and becomes a <strong>due</strong> you owe to Blink.</p><p>A <strong>withdrawal</strong> is the opposite: the customer takes cash out of their wallet, you hand them the money, and the amount is credited to your dues balance.</p><p>In both cases your dues balance moves — deposits and withdrawals are settled together at the weekly cutoff.</p>"
+    },
+    "content_fr": {
+      "title": "Quelle est la différence entre un dépôt et un retrait ?",
+      "body": "<p>Un <strong>dépôt</strong>, c'est lorsqu'un client vous remet des espèces et que vous ajoutez ce montant à son portefeuille Blink Cash. L'argent reste chez vous et devient une <strong>dette</strong> que vous devez à Blink.</p><p>Un <strong>retrait</strong>, c'est l'inverse : le client sort de l'argent de son portefeuille, vous lui remettez les espèces, et le montant est crédité à votre solde de dettes.</p><p>Dans les deux cas, votre solde de dettes évolue : dépôts et retraits sont réglés ensemble à l'échéance hebdomadaire.</p>"
+    },
+    "content_ar": {
+      "title": "ما الفرق بين الإيداع والسحب؟",
+      "body": "<p>الإيداع هو عندما يعطيك العميل نقوداً وتضيف ذلك المبلغ إلى محفظة بلينك كاش الخاصة به. تبقى النقود لديك وتصبح <strong>مستحقاً</strong> تدين به لبلينك.</p><p>أما <strong>السحب</strong> فهو العكس: يسحب العميل نقوداً من محفظته، وتسلّمه أنت المال، ويُضاف المبلغ إلى رصيد مستحقاتك.</p><p>في كلتا الحالتين يتحرّك رصيد مستحقاتك — وتُسوّى الإيداعات والسحوبات معاً عند الموعد الأسبوعي.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "agent-start",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "A tour of your agent dashboard",
+      "body": "<p>Once your shop is verified, the agent dashboard is your control centre. Everything you need to serve customers and track your money is a tap away.</p><h2>Main sections</h2><ul><li><strong>Deposit</strong> — show your deposit QR so customers can top up their wallet.</li><li><strong>Withdraw</strong> — start a withdrawal and generate the one-time QR.</li><li><strong>Blink Cash</strong> — see your dues balance and pay what you owe before the weekly cutoff.</li><li><strong>Earnings</strong> — track the commission you have earned.</li><li><strong>Profile</strong> — manage your shop info, opening hours, and staff.</li></ul><h2>The home screen</h2><p>Your home screen greets you by name and shows your current dues balance and recent activity. A warning banner appears if a dues payment is approaching its cutoff.</p><blockquote>Check your Blink Cash tab daily so you are never surprised by the weekly cutoff.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Visite guidée de votre tableau de bord agent",
+      "body": "<p>Une fois votre boutique vérifiée, le tableau de bord agent devient votre centre de contrôle. Tout ce dont vous avez besoin pour servir les clients et suivre votre argent est à portée de clic.</p><h2>Sections principales</h2><ul><li><strong>Dépôt</strong> — affichez votre code QR de dépôt pour que les clients rechargent leur portefeuille.</li><li><strong>Retrait</strong> — lancez un retrait et générez le code QR à usage unique.</li><li><strong>Blink Cash</strong> — consultez votre solde de dettes et payez ce que vous devez avant l'échéance hebdomadaire.</li><li><strong>Gains</strong> — suivez la commission que vous avez gagnée.</li><li><strong>Profil</strong> — gérez les infos de votre boutique, les horaires et le personnel.</li></ul><h2>L'écran d'accueil</h2><p>Votre écran d'accueil vous salue par votre nom et affiche votre solde de dettes actuel et l'activité récente. Une bannière d'avertissement apparaît si un paiement de dettes approche de son échéance.</p><blockquote>Consultez votre onglet Blink Cash chaque jour pour ne jamais être surpris par l'échéance hebdomadaire.</blockquote>"
+    },
+    "content_ar": {
+      "title": "جولة في لوحة تحكّم الوكيل",
+      "body": "<p>بمجرّد التحقّق من محلّك، تصبح لوحة تحكّم الوكيل مركز قيادتك. كل ما تحتاجه لخدمة العملاء وتتبّع أموالك على بُعد نقرة واحدة.</p><h2>الأقسام الرئيسية</h2><ul><li><strong>إيداع</strong> — اعرض رمز QR الخاص بالإيداع ليتمكّن العملاء من شحن محفظتهم.</li><li><strong>سحب</strong> — ابدأ عملية سحب وأنشئ رمز QR لمرة واحدة.</li><li><strong>بلينك كاش</strong> — اطّلع على رصيد مستحقاتك وادفع ما عليك قبل الموعد الأسبوعي.</li><li><strong>الأرباح</strong> — تتبّع العمولة التي ربحتها.</li><li><strong>الملف الشخصي</strong> — أدِر معلومات محلّك وساعات العمل والموظفين.</li></ul><h2>الشاشة الرئيسية</h2><p>ترحّب بك الشاشة الرئيسية باسمك وتعرض رصيد مستحقاتك الحالي ونشاطك الأخير. ويظهر شريط تحذيري إذا اقترب موعد دفع المستحقات.</p><blockquote>راجع تبويب بلينك كاش يومياً حتى لا يفاجئك الموعد الأسبوعي أبداً.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "agent-start",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "How long does agent approval take?",
+      "body": "<p>Verification of your shop documents and ID usually takes up to <strong>48 hours</strong>. You will get a notification the moment your shop is approved.</p><p>If we need a clearer document or more information, the timer pauses until you re-upload. Submitting clean, valid documents the first time keeps approval fast.</p>"
+    },
+    "content_fr": {
+      "title": "Combien de temps prend l'approbation de l'agent ?",
+      "body": "<p>La vérification des documents de votre boutique et de votre pièce d'identité prend généralement jusqu'à <strong>48 heures</strong>. Vous recevrez une notification dès que votre boutique sera approuvée.</p><p>Si nous avons besoin d'un document plus net ou de plus d'informations, le délai est suspendu jusqu'à ce que vous téléversiez à nouveau. Soumettre des documents nets et valides du premier coup accélère l'approbation.</p>"
+    },
+    "content_ar": {
+      "title": "كم يستغرق اعتماد الوكيل؟",
+      "body": "<p>يستغرق التحقّق من وثائق محلّك وهويتك عادةً حتى <strong>48 ساعة</strong>. وستصلك رسالة إشعار في اللحظة التي يُعتمد فيها محلّك.</p><p>إذا احتجنا إلى وثيقة أوضح أو معلومات إضافية، يتوقّف العدّ حتى تعيد الرفع. تقديم وثائق واضحة وسارية من المرّة الأولى يُبقي الاعتماد سريعاً.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "agent-start",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Do I need cash in the till before I start?",
+      "body": "<p>You can begin accepting <strong>deposits</strong> right away — for those, the customer hands cash to you, so no float is needed.</p><p>For <strong>withdrawals</strong> you must have enough physical cash on hand to give the customer. Keep a working float that matches the withdrawal demand in your area, and top it up regularly.</p>"
+    },
+    "content_fr": {
+      "title": "Dois-je avoir des espèces en caisse avant de commencer ?",
+      "body": "<p>Vous pouvez accepter des <strong>dépôts</strong> immédiatement : pour cela, le client vous remet des espèces, aucun fonds de caisse n'est nécessaire.</p><p>Pour les <strong>retraits</strong>, vous devez disposer de suffisamment d'espèces pour remettre l'argent au client. Conservez un fonds de caisse adapté à la demande de retraits de votre secteur et réapprovisionnez-le régulièrement.</p>"
+    },
+    "content_ar": {
+      "title": "هل أحتاج إلى نقود في الصندوق قبل أن أبدأ؟",
+      "body": "<p>يمكنك البدء في قبول <strong>الإيداعات</strong> فوراً — ففيها يسلّمك العميل النقود، لذا لا حاجة إلى رصيد ابتدائي.</p><p>أما <strong>السحوبات</strong> فيجب أن تتوفّر لديك سيولة نقدية كافية لتسليمها للعميل. احتفظ برصيد تشغيلي يتناسب مع الطلب على السحب في منطقتك، وأعِد تعبئته بانتظام.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "deposits",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How to process a deposit step by step",
+      "body": "<p>A deposit lets a customer add cash to their Blink Cash wallet through your shop. The flow is simple and takes under a minute.</p><h2>Steps</h2><ol><li>Open the <strong>Deposit</strong> tab on your dashboard and show your deposit QR to the customer.</li><li>The customer scans it and enters the amount they want to add.</li><li>They hand you the matching cash in person.</li><li>Confirm the amount on your screen and approve the transaction.</li><li>The customer's wallet is credited instantly, and the same amount is added to the dues you owe Blink.</li></ol><h2>Before you approve</h2><ul><li>Count the cash and make sure it matches the amount on screen.</li><li>Only approve once you physically hold the full amount.</li></ul><blockquote>Never approve a deposit before the cash is in your hand — once approved, the customer's wallet is credited immediately.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comment traiter un dépôt étape par étape",
+      "body": "<p>Un dépôt permet à un client d'ajouter des espèces à son portefeuille Blink Cash via votre boutique. La procédure est simple et prend moins d'une minute.</p><h2>Étapes</h2><ol><li>Ouvrez l'onglet <strong>Dépôt</strong> de votre tableau de bord et présentez votre code QR de dépôt au client.</li><li>Le client le scanne et saisit le montant qu'il souhaite ajouter.</li><li>Il vous remet les espèces correspondantes en main propre.</li><li>Confirmez le montant à l'écran et approuvez la transaction.</li><li>Le portefeuille du client est crédité instantanément, et le même montant s'ajoute aux dettes que vous devez à Blink.</li></ol><h2>Avant d'approuver</h2><ul><li>Comptez les espèces et vérifiez qu'elles correspondent au montant affiché.</li><li>N'approuvez qu'une fois le montant complet entre vos mains.</li></ul><blockquote>N'approuvez jamais un dépôt avant d'avoir les espèces en main : une fois approuvé, le portefeuille du client est crédité immédiatement.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كيفية معالجة إيداع خطوة بخطوة",
+      "body": "<p>يتيح الإيداع للعميل إضافة نقود إلى محفظة بلينك كاش الخاصة به عبر محلّك. العملية بسيطة وتستغرق أقل من دقيقة.</p><h2>الخطوات</h2><ol><li>افتح تبويب <strong>إيداع</strong> في لوحة تحكّمك واعرض رمز QR الخاص بالإيداع على العميل.</li><li>يمسح العميل الرمز ويُدخل المبلغ الذي يريد إضافته.</li><li>يسلّمك المبلغ النقدي المطابق يداً بيد.</li><li>أكّد المبلغ على شاشتك ووافق على العملية.</li><li>يُضاف الرصيد إلى محفظة العميل فوراً، ويُضاف المبلغ نفسه إلى المستحقات التي تدين بها لبلينك.</li></ol><h2>قبل الموافقة</h2><ul><li>عُدّ النقود وتأكّد من مطابقتها للمبلغ الظاهر على الشاشة.</li><li>لا توافق إلا بعد أن يكون المبلغ كاملاً في يدك.</li></ul><blockquote>لا توافق أبداً على إيداع قبل أن تكون النقود في يدك — فبمجرّد الموافقة يُضاف الرصيد إلى محفظة العميل فوراً.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "deposits",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "Where do I find my deposit QR code?",
+      "body": "<p>Your deposit QR lives in the <strong>Deposit</strong> tab of your dashboard. Tap it and the QR fills the screen so the customer can scan it easily.</p><p>This QR is tied to your shop and can be reused for every deposit — you do not generate a new one each time. Keep it clean and visible at your counter.</p>"
+    },
+    "content_fr": {
+      "title": "Où trouver mon code QR de dépôt ?",
+      "body": "<p>Votre code QR de dépôt se trouve dans l'onglet <strong>Dépôt</strong> de votre tableau de bord. Touchez-le et le QR s'affiche en plein écran pour que le client le scanne facilement.</p><p>Ce QR est lié à votre boutique et peut être réutilisé pour chaque dépôt : vous n'en générez pas un nouveau à chaque fois. Gardez-le propre et visible à votre comptoir.</p>"
+    },
+    "content_ar": {
+      "title": "أين أجد رمز QR الخاص بالإيداع؟",
+      "body": "<p>يوجد رمز QR الخاص بالإيداع في تبويب <strong>إيداع</strong> ضمن لوحة تحكّمك. انقر عليه ليملأ الرمز الشاشة كي يتمكّن العميل من مسحه بسهولة.</p><p>هذا الرمز مرتبط بمحلّك ويمكن إعادة استخدامه في كل إيداع — فأنت لا تُنشئ رمزاً جديداً في كل مرّة. حافظ عليه نظيفاً وظاهراً عند منضدتك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "deposits",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "The customer entered the wrong deposit amount — what do I do?",
+      "body": "<p>Do not approve the transaction. Ask the customer to cancel and re-enter the correct amount, then re-scan your QR.</p><p>Always check that the amount on your confirmation screen matches the cash you are holding before you approve. Once approved, a deposit cannot be edited.</p>"
+    },
+    "content_fr": {
+      "title": "Le client a saisi un mauvais montant de dépôt — que faire ?",
+      "body": "<p>N'approuvez pas la transaction. Demandez au client d'annuler et de saisir à nouveau le bon montant, puis de rescanner votre QR.</p><p>Vérifiez toujours que le montant sur votre écran de confirmation correspond aux espèces que vous tenez avant d'approuver. Une fois approuvé, un dépôt ne peut plus être modifié.</p>"
+    },
+    "content_ar": {
+      "title": "أدخل العميل مبلغ إيداع خاطئاً — ماذا أفعل؟",
+      "body": "<p>لا توافق على العملية. اطلب من العميل الإلغاء وإعادة إدخال المبلغ الصحيح، ثم مسح رمز QR من جديد.</p><p>تحقّق دائماً من أن المبلغ الظاهر على شاشة التأكيد يطابق النقود التي بحوزتك قبل الموافقة. وبمجرّد الموافقة لا يمكن تعديل الإيداع.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "deposits",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "A deposit failed or the screen froze — was the customer charged?",
+      "body": "<p>If a deposit fails before you approve it, nothing moves: the customer's wallet is not credited and your dues do not change.</p><p>Check the <strong>Deposit</strong> history on your dashboard to confirm the status. If you see no completed entry, simply start the deposit again. If money seems to have moved but the screen failed, contact Blink support with the transaction time and amount.</p>"
+    },
+    "content_fr": {
+      "title": "Un dépôt a échoué ou l'écran a planté — le client a-t-il été débité ?",
+      "body": "<p>Si un dépôt échoue avant votre approbation, rien ne bouge : le portefeuille du client n'est pas crédité et vos dettes ne changent pas.</p><p>Consultez l'historique des <strong>Dépôts</strong> sur votre tableau de bord pour confirmer le statut. Si vous ne voyez aucune entrée terminée, relancez simplement le dépôt. Si de l'argent semble avoir bougé alors que l'écran a planté, contactez le support Blink avec l'heure et le montant de la transaction.</p>"
+    },
+    "content_ar": {
+      "title": "فشل إيداع أو تجمّدت الشاشة — هل خُصم من العميل؟",
+      "body": "<p>إذا فشل الإيداع قبل أن توافق عليه، فلا شيء يتحرّك: لا يُضاف رصيد لمحفظة العميل ولا تتغيّر مستحقاتك.</p><p>راجع سجل <strong>الإيداعات</strong> في لوحة تحكّمك للتأكّد من الحالة. إذا لم تجد عملية مكتملة، فابدأ الإيداع من جديد ببساطة. وإذا بدا أن المال قد تحرّك بينما فشلت الشاشة، فتواصل مع دعم بلينك مع ذكر وقت العملية والمبلغ.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "deposits",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Are there limits on how much I can take as a deposit?",
+      "body": "<p>Deposit limits depend on the customer's wallet status and on your shop's processing capacity. Most everyday deposits go through without any issue.</p><p>For unusually large amounts, the app may ask the customer to verify their identity first. If a deposit is blocked by a limit, the customer is told why on their own screen.</p>"
+    },
+    "content_fr": {
+      "title": "Y a-t-il des limites au montant que je peux accepter en dépôt ?",
+      "body": "<p>Les limites de dépôt dépendent du statut du portefeuille du client et de la capacité de traitement de votre boutique. La plupart des dépôts courants passent sans problème.</p><p>Pour des montants inhabituellement élevés, l'application peut demander au client de vérifier d'abord son identité. Si un dépôt est bloqué par une limite, le client en voit la raison sur son propre écran.</p>"
+    },
+    "content_ar": {
+      "title": "هل هناك حدود لقيمة ما يمكنني قبوله كإيداع؟",
+      "body": "<p>تعتمد حدود الإيداع على حالة محفظة العميل وعلى قدرة محلّك على المعالجة. ومعظم الإيداعات اليومية تمرّ دون أي مشكلة.</p><p>وبالنسبة للمبالغ الكبيرة بشكل غير معتاد، قد يطلب التطبيق من العميل التحقّق من هويته أولاً. وإذا مُنع إيداع بسبب حدّ معيّن، يُبلَّغ العميل بالسبب على شاشته الخاصة.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "deposits",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Confirming amounts safely at the counter",
+      "body": "<p>The single most important habit for an agent is matching the cash in hand to the amount on screen, every single time. A careful confirmation routine prevents almost all deposit disputes.</p><h2>Your confirmation routine</h2><ol><li>Read the amount aloud to the customer before approving.</li><li>Count the notes once, then a second time.</li><li>Match the counted total to the figure on your screen.</li><li>Only then tap approve.</li></ol><h2>Common slip-ups to avoid</h2><ul><li>Approving while still counting — wait until counting is finished.</li><li>Trusting a quick glance instead of a real count.</li><li>Letting a queue rush you into skipping the check.</li></ul><blockquote>If anything feels off, pause and recount. A few extra seconds is cheaper than a wrong transaction.</blockquote><p>Every approved deposit appears in your <strong>Deposit</strong> history with its time and amount, so you always have a record to refer back to.</p>"
+    },
+    "content_fr": {
+      "title": "Confirmer les montants en toute sécurité au comptoir",
+      "body": "<p>L'habitude la plus importante pour un agent est de faire correspondre les espèces en main au montant affiché, à chaque fois. Une routine de confirmation rigoureuse évite presque tous les litiges de dépôt.</p><h2>Votre routine de confirmation</h2><ol><li>Lisez le montant à voix haute au client avant d'approuver.</li><li>Comptez les billets une fois, puis une seconde fois.</li><li>Faites correspondre le total compté au chiffre affiché à l'écran.</li><li>Ce n'est qu'ensuite que vous touchez approuver.</li></ol><h2>Erreurs courantes à éviter</h2><ul><li>Approuver tout en comptant encore : attendez la fin du comptage.</li><li>Se fier à un coup d'œil rapide plutôt qu'à un vrai comptage.</li><li>Laisser la file d'attente vous pousser à sauter la vérification.</li></ul><blockquote>Si quelque chose vous semble anormal, faites une pause et recomptez. Quelques secondes de plus coûtent moins cher qu'une transaction erronée.</blockquote><p>Chaque dépôt approuvé apparaît dans votre historique des <strong>Dépôts</strong> avec son heure et son montant, vous avez donc toujours une trace à consulter.</p>"
+    },
+    "content_ar": {
+      "title": "تأكيد المبالغ بأمان عند المنضدة",
+      "body": "<p>أهمّ عادة لدى الوكيل هي مطابقة النقود التي في يدك مع المبلغ الظاهر على الشاشة في كل مرّة. روتين تأكيد دقيق يمنع تقريباً كل نزاعات الإيداع.</p><h2>روتين التأكيد لديك</h2><ol><li>اقرأ المبلغ بصوت مسموع للعميل قبل الموافقة.</li><li>عُدّ الأوراق مرّة، ثم مرّة ثانية.</li><li>طابِق الإجمالي المعدود مع الرقم الظاهر على شاشتك.</li><li>عند ذلك فقط انقر على الموافقة.</li></ol><h2>أخطاء شائعة يجب تجنّبها</h2><ul><li>الموافقة أثناء العدّ بعد — انتظر حتى ينتهي العدّ.</li><li>الاعتماد على نظرة سريعة بدلاً من عدّ حقيقي.</li><li>السماح للزحام بدفعك إلى تخطّي التحقّق.</li></ul><blockquote>إذا شعرت بأن شيئاً غير صحيح، توقّف وأعِد العدّ. بضع ثوانٍ إضافية أرخص من عملية خاطئة.</blockquote><p>يظهر كل إيداع تمّت الموافقة عليه في سجل <strong>الإيداعات</strong> مع وقته ومبلغه، فيكون لديك دائماً سجل تعود إليه.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "withdrawals",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How to process a withdrawal step by step",
+      "body": "<p>A withdrawal lets a customer take cash out of their Blink Cash wallet at your shop. The amount leaves their wallet and is credited to your dues balance, and you hand them the cash.</p><h2>Steps</h2><ol><li>The customer opens their app and starts a withdrawal, entering the amount.</li><li>Their app generates a <strong>one-time QR</strong> for that exact amount.</li><li>Open the <strong>Withdraw</strong> tab and scan the customer's one-time QR.</li><li>Confirm the amount shown on your screen.</li><li>Hand the customer the matching cash and approve.</li></ol><h2>What happens to the money</h2><ul><li>The amount is deducted from the customer's wallet.</li><li>The same amount is credited to your dues balance with Blink.</li></ul><blockquote>Only hand over cash after your screen confirms the withdrawal — the one-time QR cannot be reused.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comment traiter un retrait étape par étape",
+      "body": "<p>Un retrait permet à un client de sortir des espèces de son portefeuille Blink Cash dans votre boutique. Le montant quitte son portefeuille et est crédité à votre solde de dettes, et vous lui remettez les espèces.</p><h2>Étapes</h2><ol><li>Le client ouvre son application et lance un retrait en saisissant le montant.</li><li>Son application génère un <strong>QR à usage unique</strong> pour ce montant précis.</li><li>Ouvrez l'onglet <strong>Retrait</strong> et scannez le QR à usage unique du client.</li><li>Confirmez le montant affiché à l'écran.</li><li>Remettez au client les espèces correspondantes et approuvez.</li></ol><h2>Ce qu'il advient de l'argent</h2><ul><li>Le montant est déduit du portefeuille du client.</li><li>Le même montant est crédité à votre solde de dettes auprès de Blink.</li></ul><blockquote>Ne remettez les espèces qu'après confirmation du retrait à l'écran : le QR à usage unique ne peut pas être réutilisé.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كيفية معالجة سحب خطوة بخطوة",
+      "body": "<p>يتيح السحب للعميل سحب نقود من محفظة بلينك كاش الخاصة به في محلّك. يخرج المبلغ من محفظته ويُضاف إلى رصيد مستحقاتك، وتسلّمه أنت النقود.</p><h2>الخطوات</h2><ol><li>يفتح العميل تطبيقه ويبدأ عملية سحب ويُدخل المبلغ.</li><li>يُنشئ تطبيقه <strong>رمز QR لمرة واحدة</strong> لهذا المبلغ بالتحديد.</li><li>افتح تبويب <strong>سحب</strong> وامسح رمز العميل ذا الاستخدام الواحد.</li><li>أكّد المبلغ الظاهر على شاشتك.</li><li>سلّم العميل المبلغ النقدي المطابق ووافق.</li></ol><h2>ماذا يحدث للمال</h2><ul><li>يُخصم المبلغ من محفظة العميل.</li><li>ويُضاف المبلغ نفسه إلى رصيد مستحقاتك لدى بلينك.</li></ul><blockquote>لا تسلّم النقود إلا بعد أن تؤكّد شاشتك السحب — فرمز الاستخدام الواحد لا يمكن إعادة استخدامه.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "withdrawals",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "What is the one-time withdrawal QR?",
+      "body": "<p>The one-time QR is generated by the customer's app for a single withdrawal of a specific amount. You scan it from the <strong>Withdraw</strong> tab.</p><p>It expires after use and after a short time, so it cannot be scanned twice or reused later. This protects both you and the customer from accidental double withdrawals.</p>"
+    },
+    "content_fr": {
+      "title": "Qu'est-ce que le QR de retrait à usage unique ?",
+      "body": "<p>Le QR à usage unique est généré par l'application du client pour un seul retrait d'un montant précis. Vous le scannez depuis l'onglet <strong>Retrait</strong>.</p><p>Il expire après usage et après un court délai, il ne peut donc pas être scanné deux fois ni réutilisé plus tard. Cela vous protège, vous et le client, des doubles retraits accidentels.</p>"
+    },
+    "content_ar": {
+      "title": "ما هو رمز QR للسحب لمرة واحدة؟",
+      "body": "<p>يُنشئ تطبيق العميل رمز الاستخدام الواحد من أجل عملية سحب واحدة بمبلغ محدّد. وتمسحه أنت من تبويب <strong>سحب</strong>.</p><p>ينتهي الرمز بعد استخدامه وبعد فترة قصيرة، لذا لا يمكن مسحه مرّتين أو إعادة استخدامه لاحقاً. وهذا يحميك أنت والعميل من السحب المزدوج غير المقصود.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "withdrawals",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How do I verify the right rider or customer for a withdrawal?",
+      "body": "<p>The one-time QR already ties the withdrawal to that specific customer's wallet, so scanning it is your main check. The amount on your screen must match what they requested.</p><p>For larger amounts, confirm the person's name on screen and, if needed, ask to see their ID before handing over cash.</p>"
+    },
+    "content_fr": {
+      "title": "Comment vérifier le bon livreur ou client pour un retrait ?",
+      "body": "<p>Le QR à usage unique lie déjà le retrait au portefeuille de ce client précis, le scanner est donc votre vérification principale. Le montant affiché à l'écran doit correspondre à ce qu'il a demandé.</p><p>Pour les montants plus élevés, confirmez le nom de la personne à l'écran et, si nécessaire, demandez à voir sa pièce d'identité avant de remettre les espèces.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أتحقّق من السائق أو العميل الصحيح لعملية السحب؟",
+      "body": "<p>يربط رمز الاستخدام الواحد عملية السحب بمحفظة ذلك العميل تحديداً، لذا فإن مسحه هو تحقّقك الأساسي. ويجب أن يطابق المبلغ الظاهر على شاشتك ما طلبه.</p><p>وبالنسبة للمبالغ الأكبر، أكّد اسم الشخص على الشاشة، وإن لزم الأمر اطلب رؤية بطاقة هويته قبل تسليم النقود.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "withdrawals",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "I do not have enough cash for a withdrawal — what now?",
+      "body": "<p>Only approve a withdrawal you can fully pay in cash. If you are short, politely explain you cannot serve that amount right now and do not approve the QR.</p><p>The customer can withdraw a smaller amount, come back later, or use another agent. To avoid this, keep a float that matches typical withdrawal demand and top it up regularly.</p>"
+    },
+    "content_fr": {
+      "title": "Je n'ai pas assez d'espèces pour un retrait — que faire ?",
+      "body": "<p>N'approuvez qu'un retrait que vous pouvez payer entièrement en espèces. Si vous êtes à court, expliquez poliment que vous ne pouvez pas servir ce montant pour l'instant et n'approuvez pas le QR.</p><p>Le client peut retirer un montant plus petit, revenir plus tard, ou utiliser un autre agent. Pour éviter cela, conservez un fonds de caisse adapté à la demande habituelle et réapprovisionnez-le régulièrement.</p>"
+    },
+    "content_ar": {
+      "title": "ليس لديّ نقود كافية لعملية سحب — ماذا أفعل الآن؟",
+      "body": "<p>لا توافق إلا على سحب يمكنك دفعه نقداً بالكامل. وإذا كان رصيدك ناقصاً، اشرح بلطف أنك لا تستطيع تغطية هذا المبلغ الآن ولا توافق على الرمز.</p><p>يمكن للعميل سحب مبلغ أصغر، أو العودة لاحقاً، أو استخدام وكيل آخر. ولتجنّب ذلك، احتفظ برصيد يتناسب مع الطلب المعتاد على السحب وأعِد تعبئته بانتظام.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "withdrawals",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "A withdrawal failed after I scanned the QR — was money deducted?",
+      "body": "<p>If the withdrawal did not reach approval, the customer's wallet is not touched and your dues do not change. Do not hand over cash until your screen clearly confirms the withdrawal.</p><p>Check your <strong>Withdraw</strong> history to see the status. If it shows nothing completed, ask the customer to generate a fresh one-time QR and try again.</p>"
+    },
+    "content_fr": {
+      "title": "Un retrait a échoué après avoir scanné le QR — de l'argent a-t-il été déduit ?",
+      "body": "<p>Si le retrait n'a pas atteint l'approbation, le portefeuille du client n'est pas touché et vos dettes ne changent pas. Ne remettez pas d'espèces tant que votre écran ne confirme pas clairement le retrait.</p><p>Vérifiez votre historique des <strong>Retraits</strong> pour voir le statut. S'il n'indique rien de terminé, demandez au client de générer un nouveau QR à usage unique et réessayez.</p>"
+    },
+    "content_ar": {
+      "title": "فشل سحب بعد أن مسحت الرمز — هل خُصم مال؟",
+      "body": "<p>إذا لم تصل عملية السحب إلى مرحلة الموافقة، فلا تُمسّ محفظة العميل ولا تتغيّر مستحقاتك. لا تسلّم النقود حتى تؤكّد شاشتك السحب بوضوح.</p><p>راجع سجل <strong>السحوبات</strong> لرؤية الحالة. إذا لم يُظهر أي عملية مكتملة، فاطلب من العميل إنشاء رمز جديد لمرة واحدة وحاول مجدداً.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "withdrawals",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Managing your cash float for withdrawals",
+      "body": "<p>Withdrawals depend on you having physical cash ready. A well-managed float means you rarely have to turn customers away, which protects your commission and your reputation.</p><h2>Sizing your float</h2><ul><li>Track your busiest hours and the typical withdrawal sizes you see.</li><li>Keep a mix of denominations so you can pay exact amounts.</li><li>Hold a little extra for end-of-day or payday surges.</li></ul><h2>Where the cash comes from</h2><p>Deposits naturally bring cash into your till, since customers hand you money to top up. On busy deposit days, that cash can fund your withdrawals. When deposits and withdrawals are balanced, your float stays healthy on its own.</p><h2>When demand outpaces your float</h2><ol><li>Offer the customer a partial withdrawal up to what you can pay.</li><li>Ask them to return at a quieter time.</li><li>Replenish your float before peak hours return.</li></ol><blockquote>A reliable agent who can always pay out becomes the first choice in the neighbourhood — and processes more volume.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Gérer votre fonds de caisse pour les retraits",
+      "body": "<p>Les retraits dépendent de votre disponibilité en espèces. Un fonds de caisse bien géré signifie que vous refusez rarement des clients, ce qui protège votre commission et votre réputation.</p><h2>Dimensionner votre fonds de caisse</h2><ul><li>Suivez vos heures de pointe et les montants de retrait habituels.</li><li>Conservez un assortiment de coupures pour payer des montants exacts.</li><li>Gardez un peu de marge pour les pics de fin de journée ou de jour de paie.</li></ul><h2>D'où vient l'argent</h2><p>Les dépôts apportent naturellement des espèces dans votre caisse, puisque les clients vous remettent de l'argent pour recharger. Les jours de forte affluence de dépôts, ces espèces peuvent financer vos retraits. Quand dépôts et retraits s'équilibrent, votre fonds de caisse reste sain de lui-même.</p><h2>Quand la demande dépasse votre caisse</h2><ol><li>Proposez au client un retrait partiel jusqu'à ce que vous pouvez payer.</li><li>Demandez-lui de revenir à une heure plus calme.</li><li>Réapprovisionnez votre caisse avant le retour des heures de pointe.</li></ol><blockquote>Un agent fiable, toujours capable de payer, devient le premier choix du quartier — et traite plus de volume.</blockquote>"
+    },
+    "content_ar": {
+      "title": "إدارة رصيدك النقدي لعمليات السحب",
+      "body": "<p>تعتمد عمليات السحب على وجود نقد جاهز لديك. والرصيد المُدار جيداً يعني أنك نادراً ما تضطرّ إلى ردّ العملاء، ما يحمي عمولتك وسمعتك.</p><h2>تحديد حجم رصيدك</h2><ul><li>راقب أكثر ساعاتك ازدحاماً وأحجام السحب المعتادة لديك.</li><li>احتفظ بمزيج من الفئات النقدية لتتمكّن من دفع مبالغ دقيقة.</li><li>أبقِ قدراً إضافياً بسيطاً لذُرى نهاية اليوم أو يوم الراتب.</li></ul><h2>من أين يأتي النقد</h2><p>تجلب الإيداعات النقد إلى صندوقك بشكل طبيعي، إذ يسلّمك العملاء المال للشحن. وفي أيام الإيداع المزدحمة، يمكن لذلك النقد أن يموّل سحوباتك. وعندما تتوازن الإيداعات والسحوبات، يبقى رصيدك صحياً من تلقاء نفسه.</p><h2>عندما يتجاوز الطلب رصيدك</h2><ol><li>اعرض على العميل سحباً جزئياً بقدر ما تستطيع دفعه.</li><li>اطلب منه العودة في وقت أهدأ.</li><li>أعِد تعبئة رصيدك قبل عودة ساعات الذروة.</li></ol><blockquote>الوكيل الموثوق الذي يستطيع الدفع دائماً يصبح الخيار الأول في الحيّ — ويعالج حجماً أكبر.</blockquote>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "shop",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Editing your shop information",
+      "body": "<p>Your shop details tell customers where to find you and when you are open. Keep them accurate so people arrive at the right place at the right time. All shop edits are made in <strong>Profile → My Shop</strong>.</p><h2>What you can edit</h2><ul><li>Shop name and address.</li><li>Opening hours for each day.</li><li>Contact number.</li><li>Shop photo and description.</li></ul><h2>How edits are published</h2><ol><li>Open <strong>Profile → My Shop</strong> and update the field you want to change.</li><li>Save your changes.</li><li>The update goes for review and is published within <strong>24 hours</strong>.</li></ol><blockquote>Because changes are reviewed, plan address or hours updates a day ahead of when you need them live.</blockquote><p>Until a change is published, customers continue to see your previous details.</p>"
+    },
+    "content_fr": {
+      "title": "Modifier les informations de votre boutique",
+      "body": "<p>Les coordonnées de votre boutique indiquent aux clients où vous trouver et quand vous êtes ouvert. Gardez-les exactes pour que les gens arrivent au bon endroit au bon moment. Toutes les modifications se font dans <strong>Profil → Ma boutique</strong>.</p><h2>Ce que vous pouvez modifier</h2><ul><li>Le nom et l'adresse de la boutique.</li><li>Les horaires d'ouverture de chaque jour.</li><li>Le numéro de contact.</li><li>La photo et la description de la boutique.</li></ul><h2>Comment les modifications sont publiées</h2><ol><li>Ouvrez <strong>Profil → Ma boutique</strong> et mettez à jour le champ à modifier.</li><li>Enregistrez vos modifications.</li><li>La mise à jour passe en révision et est publiée sous <strong>24 heures</strong>.</li></ol><blockquote>Comme les changements sont révisés, planifiez les mises à jour d'adresse ou d'horaires un jour avant la date souhaitée de mise en ligne.</blockquote><p>Tant qu'une modification n'est pas publiée, les clients continuent de voir vos anciennes coordonnées.</p>"
+    },
+    "content_ar": {
+      "title": "تعديل معلومات محلّك",
+      "body": "<p>تُخبر تفاصيل محلّك العملاء بمكان عثورهم عليك ومواعيد عملك. حافظ على دقّتها كي يصل الناس إلى المكان الصحيح في الوقت الصحيح. تُجرى جميع التعديلات في <strong>الملف الشخصي ← محلّي</strong>.</p><h2>ما الذي يمكنك تعديله</h2><ul><li>اسم المحل وعنوانه.</li><li>ساعات العمل لكل يوم.</li><li>رقم التواصل.</li><li>صورة المحل ووصفه.</li></ul><h2>كيف تُنشر التعديلات</h2><ol><li>افتح <strong>الملف الشخصي ← محلّي</strong> وحدّث الحقل الذي تريد تغييره.</li><li>احفظ تغييراتك.</li><li>يخضع التحديث للمراجعة ويُنشر خلال <strong>24 ساعة</strong>.</li></ol><blockquote>بما أن التغييرات تخضع للمراجعة، خطّط لتحديثات العنوان أو الساعات قبل يوم من الموعد الذي تريد ظهورها فيه.</blockquote><p>وإلى أن يُنشر التغيير، يستمرّ العملاء في رؤية تفاصيلك السابقة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "shop",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How long do shop info changes take to appear?",
+      "body": "<p>Edits made in <strong>Profile → My Shop</strong> are reviewed and published within <strong>24 hours</strong>. Until then, customers see your previous details.</p><p>If a change is urgent, such as a wrong address, save it as early as possible so it goes live in time.</p>"
+    },
+    "content_fr": {
+      "title": "Combien de temps faut-il pour que les changements d'infos apparaissent ?",
+      "body": "<p>Les modifications faites dans <strong>Profil → Ma boutique</strong> sont révisées et publiées sous <strong>24 heures</strong>. D'ici là, les clients voient vos anciennes coordonnées.</p><p>Si un changement est urgent, comme une adresse erronée, enregistrez-le le plus tôt possible pour qu'il soit mis en ligne à temps.</p>"
+    },
+    "content_ar": {
+      "title": "كم تستغرق تغييرات معلومات المحل حتى تظهر؟",
+      "body": "<p>تُراجَع التعديلات المُجراة في <strong>الملف الشخصي ← محلّي</strong> وتُنشر خلال <strong>24 ساعة</strong>. وإلى ذلك الحين يرى العملاء تفاصيلك السابقة.</p><p>إذا كان التغيير عاجلاً، مثل عنوان خاطئ، فاحفظه في أقرب وقت ممكن كي يُنشر في الوقت المناسب.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "shop",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How do I set or change my opening hours?",
+      "body": "<p>Go to <strong>Profile → My Shop</strong> and set opening and closing times for each day of the week. You can mark a day as closed if you do not operate that day.</p><p>Like other shop edits, new hours are reviewed and go live within 24 hours. Accurate hours stop customers arriving when you are shut.</p>"
+    },
+    "content_fr": {
+      "title": "Comment définir ou modifier mes horaires d'ouverture ?",
+      "body": "<p>Allez dans <strong>Profil → Ma boutique</strong> et définissez les heures d'ouverture et de fermeture pour chaque jour de la semaine. Vous pouvez marquer un jour comme fermé si vous n'ouvrez pas ce jour-là.</p><p>Comme les autres modifications, les nouveaux horaires sont révisés et mis en ligne sous 24 heures. Des horaires exacts évitent que des clients arrivent quand vous êtes fermé.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أضبط ساعات عملي أو أغيّرها؟",
+      "body": "<p>اذهب إلى <strong>الملف الشخصي ← محلّي</strong> واضبط أوقات الفتح والإغلاق لكل يوم من أيام الأسبوع. ويمكنك تعليم يوم كمغلق إذا كنت لا تعمل فيه.</p><p>كباقي تعديلات المحل، تُراجَع الساعات الجديدة وتُنشر خلال 24 ساعة. والساعات الدقيقة تمنع وصول العملاء حين يكون محلّك مغلقاً.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "shop",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "How do I pause my shop temporarily?",
+      "body": "<p>You can pause your shop from <strong>Profile → My Shop</strong> when you need a break, are travelling, or have run low on cash. While paused, your shop stops appearing for new deposit and withdrawal traffic.</p><p>Turn it back on whenever you are ready. Pausing is your own choice and is different from a shop being paused by Blink for unpaid dues.</p>"
+    },
+    "content_fr": {
+      "title": "Comment mettre ma boutique en pause temporairement ?",
+      "body": "<p>Vous pouvez mettre votre boutique en pause depuis <strong>Profil → Ma boutique</strong> quand vous avez besoin d'une pause, êtes en déplacement ou manquez d'espèces. En pause, votre boutique cesse d'apparaître pour les nouveaux dépôts et retraits.</p><p>Réactivez-la dès que vous êtes prêt. Cette pause est votre choix et diffère d'une boutique mise en pause par Blink pour dettes impayées.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أوقف محلّي مؤقتاً؟",
+      "body": "<p>يمكنك إيقاف محلّك مؤقتاً من <strong>الملف الشخصي ← محلّي</strong> عندما تحتاج إلى استراحة أو تكون مسافراً أو نفد لديك النقد. وأثناء الإيقاف يتوقّف محلّك عن الظهور لحركة الإيداع والسحب الجديدة.</p><p>أعِد تشغيله متى كنت جاهزاً. هذا الإيقاف خيارك أنت ويختلف عن إيقاف بلينك للمحل بسبب مستحقات غير مدفوعة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "shop",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Can more than one person work the agent counter?",
+      "body": "<p>Yes. A shop can have more than one staff member serving the counter, so you can cover busy hours and days off without closing.</p><p>Every transaction is still recorded under your shop and contributes to one dues balance and one commission total. Manage staff access from <strong>Profile → My Shop</strong>.</p>"
+    },
+    "content_fr": {
+      "title": "Plusieurs personnes peuvent-elles tenir le comptoir agent ?",
+      "body": "<p>Oui. Une boutique peut avoir plusieurs employés au comptoir, ce qui vous permet de couvrir les heures de pointe et les jours de congé sans fermer.</p><p>Chaque transaction reste enregistrée sous votre boutique et alimente un seul solde de dettes et un seul total de commission. Gérez l'accès du personnel depuis <strong>Profil → Ma boutique</strong>.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكن لأكثر من شخص العمل على منضدة الوكيل؟",
+      "body": "<p>نعم. يمكن للمحل أن يضمّ أكثر من موظف على المنضدة، فتغطّي ساعات الذروة وأيام الراحة دون إغلاق.</p><p>وتبقى كل عملية مسجّلة باسم محلّك وتُضاف إلى رصيد مستحقات واحد وإجمالي عمولة واحد. أدِر صلاحيات الموظفين من <strong>الملف الشخصي ← محلّي</strong>.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "shop",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "My shop location on the map is wrong — how do I fix it?",
+      "body": "<p>Open <strong>Profile → My Shop</strong>, update your address and adjust the map pin to your exact storefront, then save.</p><p>The change is reviewed and published within 24 hours. A precise pin helps riders and customers find you quickly, which means more transactions.</p>"
+    },
+    "content_fr": {
+      "title": "L'emplacement de ma boutique sur la carte est erroné — comment le corriger ?",
+      "body": "<p>Ouvrez <strong>Profil → Ma boutique</strong>, mettez à jour votre adresse et ajustez le repère sur la carte à votre vitrine exacte, puis enregistrez.</p><p>La modification est révisée et publiée sous 24 heures. Un repère précis aide les livreurs et les clients à vous trouver vite, ce qui signifie plus de transactions.</p>"
+    },
+    "content_ar": {
+      "title": "موقع محلّي على الخريطة غير صحيح — كيف أصحّحه؟",
+      "body": "<p>افتح <strong>الملف الشخصي ← محلّي</strong>، وحدّث عنوانك واضبط دبّوس الخريطة على واجهة محلّك بالضبط، ثم احفظ.</p><p>يُراجَع التغيير ويُنشر خلال 24 ساعة. والدبّوس الدقيق يساعد السائقين والعملاء على إيجادك بسرعة، ما يعني عمليات أكثر.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "shop",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "Keeping your shop profile attractive to customers",
+      "body": "<p>Customers choose agents they trust and can reach easily. A complete, polished shop profile turns first-time visitors into regulars and boosts the volume you process.</p><h2>The essentials</h2><ul><li>A clear shop photo of your storefront.</li><li>An accurate address with the map pin on your door.</li><li>Up-to-date opening hours, including any breaks.</li><li>A reachable contact number.</li></ul><h2>Small touches that help</h2><ul><li>A short, friendly description of what you offer.</li><li>Hours that reflect reality — never list hours you cannot keep.</li><li>Pausing the shop rather than leaving customers to arrive at a closed counter.</li></ul><blockquote>A profile that always matches reality builds the trust that makes customers return — and recommend you to others.</blockquote><p>All of this is managed in <strong>Profile → My Shop</strong>, and edits go live within 24 hours after review.</p>"
+    },
+    "content_fr": {
+      "title": "Garder un profil de boutique attrayant pour les clients",
+      "body": "<p>Les clients choisissent des agents en qui ils ont confiance et qu'ils peuvent atteindre facilement. Un profil de boutique complet et soigné transforme les premiers visiteurs en habitués et augmente le volume que vous traitez.</p><h2>L'essentiel</h2><ul><li>Une photo nette de votre vitrine.</li><li>Une adresse exacte avec le repère sur votre porte.</li><li>Des horaires à jour, y compris les pauses.</li><li>Un numéro de contact joignable.</li></ul><h2>Les petits plus</h2><ul><li>Une description courte et conviviale de ce que vous proposez.</li><li>Des horaires qui reflètent la réalité — n'indiquez jamais des horaires que vous ne pouvez pas tenir.</li><li>Mettre la boutique en pause plutôt que de laisser les clients arriver à un comptoir fermé.</li></ul><blockquote>Un profil toujours conforme à la réalité bâtit la confiance qui fait revenir les clients — et vous recommander.</blockquote><p>Tout cela se gère dans <strong>Profil → Ma boutique</strong>, et les modifications sont mises en ligne sous 24 heures après révision.</p>"
+    },
+    "content_ar": {
+      "title": "إبقاء ملف محلّك جذّاباً للعملاء",
+      "body": "<p>يختار العملاء الوكلاء الذين يثقون بهم ويسهل الوصول إليهم. والملف الكامل والمتقَن للمحل يحوّل الزائرين لأول مرّة إلى زبائن دائمين ويزيد الحجم الذي تعالجه.</p><h2>الأساسيات</h2><ul><li>صورة واضحة لواجهة محلّك.</li><li>عنوان دقيق مع دبّوس الخريطة على بابك.</li><li>ساعات عمل محدّثة، بما فيها أي فترات راحة.</li><li>رقم تواصل يمكن الوصول إليه.</li></ul><h2>لمسات صغيرة تفيد</h2><ul><li>وصف قصير وودود لما تقدّمه.</li><li>ساعات تعكس الواقع — لا تذكر أبداً ساعات لا تستطيع الالتزام بها.</li><li>إيقاف المحل مؤقتاً بدلاً من ترك العملاء يصلون إلى منضدة مغلقة.</li></ul><blockquote>الملف الذي يطابق الواقع دائماً يبني الثقة التي تُعيد العملاء — وتجعلهم يوصون بك لغيرهم.</blockquote><p>تُدار كل هذه الأمور في <strong>الملف الشخصي ← محلّي</strong>، وتُنشر التعديلات خلال 24 ساعة بعد المراجعة.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "dues",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Understanding dues: the money you owe Blink",
+      "body": "<p>Every deposit and withdrawal you process changes how much money sits between you and Blink. The net amount you owe is called your <strong>dues</strong>, and you settle it on a weekly schedule.</p><h2>How dues build up</h2><ul><li>A <strong>deposit</strong>: the customer's cash stays in your till, so you owe that amount to Blink — your dues go up.</li><li>A <strong>withdrawal</strong>: you pay out your own cash, so that amount is credited to you — your dues go down.</li></ul><h2>Why dues exist</h2><p>When you take a deposit, the customer's wallet is funded instantly even though the cash is still with you. Dues are simply Blink's record of that cash, kept straight until you settle.</p><h2>Where to see your balance</h2><p>Your live dues balance is on the <strong>Blink Cash</strong> tab of your dashboard, along with the date of the next weekly cutoff.</p><blockquote>Think of dues as a running tab between you and Blink — keep it settled and your shop stays fully active.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comprendre les dettes : l'argent que vous devez à Blink",
+      "body": "<p>Chaque dépôt et retrait que vous traitez modifie le montant qui circule entre vous et Blink. Le montant net que vous devez s'appelle vos <strong>dettes</strong>, et vous le réglez selon un calendrier hebdomadaire.</p><h2>Comment les dettes s'accumulent</h2><ul><li>Un <strong>dépôt</strong> : les espèces du client restent dans votre caisse, vous devez donc ce montant à Blink — vos dettes augmentent.</li><li>Un <strong>retrait</strong> : vous versez vos propres espèces, ce montant vous est donc crédité — vos dettes diminuent.</li></ul><h2>Pourquoi les dettes existent</h2><p>Quand vous prenez un dépôt, le portefeuille du client est crédité instantanément alors que l'argent est encore chez vous. Les dettes sont simplement le relevé que Blink tient de cet argent, jusqu'à votre règlement.</p><h2>Où voir votre solde</h2><p>Votre solde de dettes en temps réel se trouve dans l'onglet <strong>Blink Cash</strong> de votre tableau de bord, avec la date de la prochaine échéance hebdomadaire.</p><blockquote>Voyez les dettes comme une ardoise courante entre vous et Blink — gardez-la réglée et votre boutique reste pleinement active.</blockquote>"
+    },
+    "content_ar": {
+      "title": "فهم المستحقات: المال الذي تدين به لبلينك",
+      "body": "<p>يغيّر كل إيداع وسحب تعالجه مقدار المال القائم بينك وبين بلينك. ويُسمّى صافي ما تدين به <strong>مستحقاتك</strong>، وتسوّيه وفق جدول أسبوعي.</p><h2>كيف تتراكم المستحقات</h2><ul><li><strong>الإيداع</strong>: تبقى نقود العميل في صندوقك، فتدين بذلك المبلغ لبلينك — وترتفع مستحقاتك.</li><li><strong>السحب</strong>: تدفع نقودك الخاصة، فيُضاف ذلك المبلغ لرصيدك — وتنخفض مستحقاتك.</li></ul><h2>لماذا توجد المستحقات</h2><p>عندما تستقبل إيداعاً، تُموَّل محفظة العميل فوراً رغم أن النقد ما زال لديك. والمستحقات هي ببساطة سجل بلينك لذلك النقد، يُحفظ منضبطاً حتى تسوّيه.</p><h2>أين ترى رصيدك</h2><p>يوجد رصيد مستحقاتك المباشر في تبويب <strong>بلينك كاش</strong> بلوحة تحكّمك، إلى جانب موعد الاستحقاق الأسبوعي القادم.</p><blockquote>اعتبر المستحقات حساباً جارياً بينك وبين بلينك — أبقِه مسوّى يبقَ محلّك فعّالاً بالكامل.</blockquote>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "dues",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How to pay your dues before the weekly cutoff",
+      "body": "<p>Dues are settled once a week. Paying before the cutoff keeps your shop fully active and avoids late fees. You pay directly from the <strong>Blink Cash</strong> tab.</p><h2>Steps</h2><ol><li>Open the <strong>Blink Cash</strong> tab and review your current dues balance.</li><li>Check the date and time of the next weekly cutoff shown there.</li><li>Tap to settle your dues and confirm the payment.</li><li>Your balance updates and you receive a confirmation.</li></ol><h2>Plan ahead</h2><ul><li>Settle a day or two early so a busy weekend never makes you miss the cutoff.</li><li>Watch the warning banner on your home screen as the cutoff approaches.</li></ul><blockquote>Set yourself a weekly reminder to check the Blink Cash tab — paying on time is the single best way to avoid disruption.</blockquote><p>Once settled, your dues reset and start counting again from the new week's transactions.</p>"
+    },
+    "content_fr": {
+      "title": "Comment payer vos dettes avant l'échéance hebdomadaire",
+      "body": "<p>Les dettes sont réglées une fois par semaine. Payer avant l'échéance garde votre boutique pleinement active et évite les frais de retard. Vous payez directement depuis l'onglet <strong>Blink Cash</strong>.</p><h2>Étapes</h2><ol><li>Ouvrez l'onglet <strong>Blink Cash</strong> et examinez votre solde de dettes actuel.</li><li>Vérifiez la date et l'heure de la prochaine échéance hebdomadaire qui y est indiquée.</li><li>Touchez pour régler vos dettes et confirmez le paiement.</li><li>Votre solde se met à jour et vous recevez une confirmation.</li></ol><h2>Anticipez</h2><ul><li>Réglez un jour ou deux à l'avance pour qu'un week-end chargé ne vous fasse jamais manquer l'échéance.</li><li>Surveillez la bannière d'avertissement sur votre écran d'accueil à l'approche de l'échéance.</li></ul><blockquote>Programmez un rappel hebdomadaire pour consulter l'onglet Blink Cash : payer à temps est le meilleur moyen d'éviter toute interruption.</blockquote><p>Une fois réglées, vos dettes sont remises à zéro et recommencent à compter à partir des transactions de la nouvelle semaine.</p>"
+    },
+    "content_ar": {
+      "title": "كيف تدفع مستحقاتك قبل الموعد الأسبوعي",
+      "body": "<p>تُسوّى المستحقات مرّة في الأسبوع. والدفع قبل الموعد يُبقي محلّك فعّالاً بالكامل ويتجنّب رسوم التأخير. تدفع مباشرة من تبويب <strong>بلينك كاش</strong>.</p><h2>الخطوات</h2><ol><li>افتح تبويب <strong>بلينك كاش</strong> وراجع رصيد مستحقاتك الحالي.</li><li>تحقّق من تاريخ ووقت الموعد الأسبوعي القادم المعروض هناك.</li><li>انقر لتسوية مستحقاتك وأكّد الدفع.</li><li>يُحدَّث رصيدك وتصلك رسالة تأكيد.</li></ol><h2>خطّط مسبقاً</h2><ul><li>سوِّ قبل يوم أو يومين كي لا تجعلك عطلة نهاية أسبوع مزدحمة تفوّت الموعد أبداً.</li><li>راقب الشريط التحذيري على شاشتك الرئيسية مع اقتراب الموعد.</li></ul><blockquote>اضبط لنفسك تذكيراً أسبوعياً لمراجعة تبويب بلينك كاش — الدفع في الوقت هو أفضل وسيلة لتجنّب أي تعطّل.</blockquote><p>بمجرّد التسوية، تُصفّر مستحقاتك وتبدأ في العدّ من جديد بدءاً من عمليات الأسبوع الجديد.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "dues",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "When exactly is the weekly cutoff?",
+      "body": "<p>Your dues must be settled before the weekly cutoff shown on the <strong>Blink Cash</strong> tab. The exact date and time appear next to your balance and update each week.</p><p>A warning banner on your home screen reminds you as the cutoff gets close, so you have time to pay.</p>"
+    },
+    "content_fr": {
+      "title": "Quand a lieu exactement l'échéance hebdomadaire ?",
+      "body": "<p>Vos dettes doivent être réglées avant l'échéance hebdomadaire indiquée dans l'onglet <strong>Blink Cash</strong>. La date et l'heure exactes apparaissent à côté de votre solde et se mettent à jour chaque semaine.</p><p>Une bannière d'avertissement sur votre écran d'accueil vous rappelle l'échéance lorsqu'elle approche, vous laissant le temps de payer.</p>"
+    },
+    "content_ar": {
+      "title": "متى يكون الموعد الأسبوعي بالضبط؟",
+      "body": "<p>يجب تسوية مستحقاتك قبل الموعد الأسبوعي المعروض في تبويب <strong>بلينك كاش</strong>. ويظهر التاريخ والوقت الدقيقان بجوار رصيدك ويُحدَّثان كل أسبوع.</p><p>ويذكّرك شريط تحذيري على شاشتك الرئيسية عند اقتراب الموعد، فيتيح لك وقتاً للدفع.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "dues",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "What happens if I miss a dues payment?",
+      "body": "<p>If you do not settle before the cutoff, your shop is <strong>paused for new deposit and withdrawal traffic</strong> until you pay. Customers will not be sent to a shop with unpaid dues.</p><p><strong>Late fees may also apply.</strong> As soon as you settle from the Blink Cash tab, your shop is reactivated and can process transactions again.</p>"
+    },
+    "content_fr": {
+      "title": "Que se passe-t-il si je manque un paiement de dettes ?",
+      "body": "<p>Si vous ne réglez pas avant l'échéance, votre boutique est <strong>mise en pause pour les nouveaux dépôts et retraits</strong> jusqu'au paiement. Les clients ne seront pas dirigés vers une boutique aux dettes impayées.</p><p><strong>Des frais de retard peuvent aussi s'appliquer.</strong> Dès que vous réglez depuis l'onglet Blink Cash, votre boutique est réactivée et peut de nouveau traiter des transactions.</p>"
+    },
+    "content_ar": {
+      "title": "ماذا يحدث إذا فوّتُّ دفع المستحقات؟",
+      "body": "<p>إذا لم تسوِّ قبل الموعد، يُوقَف محلّك <strong>عن حركة الإيداع والسحب الجديدة</strong> حتى تدفع. ولن يُوجَّه العملاء إلى محل عليه مستحقات غير مدفوعة.</p><p><strong>وقد تُطبَّق أيضاً رسوم تأخير.</strong> وبمجرّد التسوية من تبويب بلينك كاش، يُعاد تنشيط محلّك ويستطيع معالجة العمليات من جديد.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "dues",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "My shop was paused for unpaid dues — how do I reactivate it?",
+      "body": "<p>Open the <strong>Blink Cash</strong> tab and settle your outstanding dues, including any late fees shown. Once the payment is confirmed, your shop reactivates and can process deposits and withdrawals again.</p><p>If your balance still looks wrong after paying, see the article on reconciling your dues balance or contact Blink support.</p>"
+    },
+    "content_fr": {
+      "title": "Ma boutique a été mise en pause pour dettes impayées — comment la réactiver ?",
+      "body": "<p>Ouvrez l'onglet <strong>Blink Cash</strong> et réglez vos dettes en souffrance, y compris les frais de retard indiqués. Une fois le paiement confirmé, votre boutique se réactive et peut à nouveau traiter dépôts et retraits.</p><p>Si votre solde semble toujours incorrect après paiement, consultez l'article sur la réconciliation de votre solde de dettes ou contactez le support Blink.</p>"
+    },
+    "content_ar": {
+      "title": "أُوقف محلّي بسبب مستحقات غير مدفوعة — كيف أعيد تنشيطه؟",
+      "body": "<p>افتح تبويب <strong>بلينك كاش</strong> وسوِّ مستحقاتك المعلّقة، بما في ذلك أي رسوم تأخير معروضة. وبمجرّد تأكيد الدفع، يُعاد تنشيط محلّك ويستطيع معالجة الإيداعات والسحوبات من جديد.</p><p>إذا ظلّ رصيدك يبدو خاطئاً بعد الدفع، فراجع المقال حول مطابقة رصيد مستحقاتك أو تواصل مع دعم بلينك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "dues",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Reconciling your dues balance",
+      "body": "<p>Reconciling means checking that your dues balance matches the deposits and withdrawals you actually processed. Doing this regularly keeps surprises away at cutoff time.</p><h2>How the balance is calculated</h2><table><thead><tr><th>Action</th><th>Effect on dues</th></tr></thead><tbody><tr><td>Deposit</td><td>Increases dues</td></tr><tr><td>Withdrawal</td><td>Decreases dues</td></tr><tr><td>Settlement</td><td>Resets dues to zero</td></tr></tbody></table><h2>Your reconciling routine</h2><ol><li>Open the <strong>Blink Cash</strong> tab and note your current balance.</li><li>Compare it against your deposit and withdrawal history for the week.</li><li>Confirm your physical cash position lines up with what you expect.</li></ol><h2>If something does not add up</h2><ul><li>Re-check for any transaction you may have missed counting.</li><li>Look for a withdrawal you paid out but did not approve on screen.</li><li>If the figures still disagree, contact Blink support with the dates and amounts.</li></ul><blockquote>A quick daily reconcile is far easier than untangling a whole week at the cutoff.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Réconcilier votre solde de dettes",
+      "body": "<p>Réconcilier signifie vérifier que votre solde de dettes correspond aux dépôts et retraits que vous avez réellement traités. Le faire régulièrement évite les surprises à l'échéance.</p><h2>Comment le solde est calculé</h2><table><thead><tr><th>Action</th><th>Effet sur les dettes</th></tr></thead><tbody><tr><td>Dépôt</td><td>Augmente les dettes</td></tr><tr><td>Retrait</td><td>Diminue les dettes</td></tr><tr><td>Règlement</td><td>Remet les dettes à zéro</td></tr></tbody></table><h2>Votre routine de réconciliation</h2><ol><li>Ouvrez l'onglet <strong>Blink Cash</strong> et notez votre solde actuel.</li><li>Comparez-le à votre historique de dépôts et de retraits de la semaine.</li><li>Vérifiez que votre position de caisse physique correspond à vos attentes.</li></ol><h2>Si quelque chose ne colle pas</h2><ul><li>Revérifiez toute transaction que vous auriez pu oublier de compter.</li><li>Cherchez un retrait que vous avez payé mais pas approuvé à l'écran.</li><li>Si les chiffres divergent encore, contactez le support Blink avec les dates et montants.</li></ul><blockquote>Une réconciliation quotidienne rapide est bien plus facile que de démêler toute une semaine à l'échéance.</blockquote>"
+    },
+    "content_ar": {
+      "title": "مطابقة رصيد مستحقاتك",
+      "body": "<p>المطابقة تعني التحقّق من أن رصيد مستحقاتك يوافق الإيداعات والسحوبات التي عالجتها فعلاً. والقيام بذلك بانتظام يُبعد المفاجآت وقت الاستحقاق.</p><h2>كيف يُحسَب الرصيد</h2><table><thead><tr><th>الإجراء</th><th>الأثر على المستحقات</th></tr></thead><tbody><tr><td>إيداع</td><td>يزيد المستحقات</td></tr><tr><td>سحب</td><td>ينقص المستحقات</td></tr><tr><td>تسوية</td><td>تُصفّر المستحقات</td></tr></tbody></table><h2>روتين المطابقة لديك</h2><ol><li>افتح تبويب <strong>بلينك كاش</strong> ودوّن رصيدك الحالي.</li><li>قارنه بسجل إيداعاتك وسحوباتك لهذا الأسبوع.</li><li>تأكّد من أن وضع نقدك الفعلي يتوافق مع ما تتوقّعه.</li></ol><h2>إذا لم تتطابق الأرقام</h2><ul><li>أعِد التحقّق من أي عملية ربّما نسيت احتسابها.</li><li>ابحث عن سحب دفعته لكنك لم توافق عليه على الشاشة.</li><li>إذا ظلّت الأرقام مختلفة، فتواصل مع دعم بلينك مع ذكر التواريخ والمبالغ.</li></ul><blockquote>مطابقة يومية سريعة أسهل بكثير من فكّ تشابك أسبوع كامل عند الاستحقاق.</blockquote>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "agent-earnings",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How agents earn commission",
+      "body": "<p>As an agent, you earn a <strong>commission</strong> on the volume you process. Every deposit and withdrawal you complete contributes to that volume, so steady activity steadily grows your earnings.</p><h2>What counts toward earnings</h2><ul><li>Completed deposits — cash customers add to their wallets through you.</li><li>Completed withdrawals — cash you pay out from customers' wallets.</li></ul><h2>Earnings vs dues — keep them separate</h2><p>It is important not to confuse the two:</p><ul><li><strong>Dues</strong> are money you owe Blink and must settle weekly.</li><li><strong>Commission</strong> is money Blink owes you for the service you provide.</li></ul><h2>Where to track it</h2><p>Your commission is shown on the <strong>Earnings</strong> tab, broken down so you can see how much each period brought in.</p><blockquote>More processed volume means more commission — being reliable and well-stocked with cash is the surest way to grow it.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comment les agents gagnent une commission",
+      "body": "<p>En tant qu'agent, vous gagnez une <strong>commission</strong> sur le volume que vous traitez. Chaque dépôt et retrait que vous réalisez alimente ce volume, une activité régulière fait donc croître vos gains de manière régulière.</p><h2>Ce qui compte pour les gains</h2><ul><li>Les dépôts réalisés — les espèces que les clients ajoutent à leur portefeuille via vous.</li><li>Les retraits réalisés — les espèces que vous versez depuis les portefeuilles des clients.</li></ul><h2>Gains et dettes — à ne pas confondre</h2><p>Il est important de ne pas confondre les deux :</p><ul><li>Les <strong>dettes</strong> sont l'argent que vous devez à Blink et que vous réglez chaque semaine.</li><li>La <strong>commission</strong> est l'argent que Blink vous doit pour le service rendu.</li></ul><h2>Où la suivre</h2><p>Votre commission s'affiche dans l'onglet <strong>Gains</strong>, détaillée pour que vous voyiez combien chaque période a rapporté.</p><blockquote>Plus de volume traité signifie plus de commission — être fiable et bien approvisionné en espèces est le moyen le plus sûr de la faire croître.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كيف يربح الوكلاء العمولة",
+      "body": "<p>بصفتك وكيلاً، تربح <strong>عمولة</strong> على الحجم الذي تعالجه. وكل إيداع وسحب تنجزه يُضاف إلى ذلك الحجم، لذا فإن النشاط المنتظم ينمّي أرباحك باطّراد.</p><h2>ما الذي يُحتسَب ضمن الأرباح</h2><ul><li>الإيداعات المكتملة — النقود التي يضيفها العملاء إلى محافظهم عبرك.</li><li>السحوبات المكتملة — النقود التي تدفعها من محافظ العملاء.</li></ul><h2>الأرباح مقابل المستحقات — افصل بينهما</h2><p>من المهم عدم الخلط بين الاثنين:</p><ul><li><strong>المستحقات</strong> هي مال تدين به لبلينك ويجب تسويته أسبوعياً.</li><li><strong>العمولة</strong> هي مال تدين به بلينك لك مقابل الخدمة التي تقدّمها.</li></ul><h2>أين تتتبّعها</h2><p>تظهر عمولتك في تبويب <strong>الأرباح</strong>، مفصّلة لترى كم حقّقت كل فترة.</p><blockquote>الحجم الأكبر المعالَج يعني عمولة أكبر — وكونك موثوقاً ومزوَّداً بالنقد جيداً هو أضمن طريق لتنميتها.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "agent-earnings",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "Where do I see my earnings?",
+      "body": "<p>Your commission is shown on the <strong>Earnings</strong> tab of your dashboard. There you can see your total earned and a breakdown by period.</p><p>Earnings are separate from your dues balance: dues are what you owe Blink, earnings are what Blink owes you.</p>"
+    },
+    "content_fr": {
+      "title": "Où puis-je voir mes gains ?",
+      "body": "<p>Votre commission s'affiche dans l'onglet <strong>Gains</strong> de votre tableau de bord. Vous y voyez votre total gagné et un détail par période.</p><p>Les gains sont distincts de votre solde de dettes : les dettes sont ce que vous devez à Blink, les gains sont ce que Blink vous doit.</p>"
+    },
+    "content_ar": {
+      "title": "أين أرى أرباحي؟",
+      "body": "<p>تظهر عمولتك في تبويب <strong>الأرباح</strong> بلوحة تحكّمك. هناك ترى إجمالي ما ربحته وتفصيلاً حسب الفترة.</p><p>الأرباح منفصلة عن رصيد مستحقاتك: المستحقات هي ما تدين به لبلينك، والأرباح هي ما تدين به بلينك لك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "agent-earnings",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How and when is my commission paid out?",
+      "body": "<p>Your earned commission accumulates on the <strong>Earnings</strong> tab and is paid out on a regular schedule. The amount and the payout date are shown there.</p><p>Because dues and commission are tracked separately, settling your dues on time never reduces the commission you have earned.</p>"
+    },
+    "content_fr": {
+      "title": "Comment et quand ma commission est-elle versée ?",
+      "body": "<p>Votre commission acquise s'accumule dans l'onglet <strong>Gains</strong> et est versée selon un calendrier régulier. Le montant et la date de versement y sont indiqués.</p><p>Comme les dettes et la commission sont suivies séparément, régler vos dettes à temps ne réduit jamais la commission que vous avez gagnée.</p>"
+    },
+    "content_ar": {
+      "title": "كيف ومتى تُدفع عمولتي؟",
+      "body": "<p>تتراكم عمولتك المكتسَبة في تبويب <strong>الأرباح</strong> وتُدفع وفق جدول منتظم. ويظهر المبلغ وتاريخ الدفع هناك.</p><p>وبما أن المستحقات والعمولة تُتتبَّعان بشكل منفصل، فإن تسوية مستحقاتك في الوقت لا تُنقص أبداً العمولة التي ربحتها.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "agent-earnings",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Can I see a report of my activity?",
+      "body": "<p>Yes. The <strong>Earnings</strong> tab breaks down your processed volume and commission by period, and your <strong>Deposit</strong> and <strong>Withdraw</strong> histories list every individual transaction with its amount and time.</p><p>Together these give you a clear report for your own bookkeeping and for reconciling against your cash.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je consulter un rapport de mon activité ?",
+      "body": "<p>Oui. L'onglet <strong>Gains</strong> détaille votre volume traité et votre commission par période, et vos historiques de <strong>Dépôt</strong> et de <strong>Retrait</strong> listent chaque transaction avec son montant et son heure.</p><p>Ensemble, ils vous donnent un rapport clair pour votre propre comptabilité et pour la réconciliation avec vos espèces.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني رؤية تقرير عن نشاطي؟",
+      "body": "<p>نعم. يفصّل تبويب <strong>الأرباح</strong> حجمك المعالَج وعمولتك حسب الفترة، ويسرد سجلّا <strong>الإيداع</strong> و<strong>السحب</strong> كل عملية على حدة مع مبلغها ووقتها.</p><p>وتمنحك هذه معاً تقريراً واضحاً لمحاسبتك الخاصة وللمطابقة مع نقدك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "agent-earnings",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Tips to increase your processed volume",
+      "body": "<p>Your commission grows with the volume you process, so the goal is simple: be the agent customers can always count on. A few habits make a big difference.</p><h2>Be reliable</h2><ul><li>Keep accurate opening hours and stick to them.</li><li>Hold a healthy cash float so you rarely refuse a withdrawal.</li><li>Pause the shop instead of leaving customers at a closed counter.</li></ul><h2>Be easy to find and trust</h2><ul><li>Keep your map pin and address exact in <strong>Profile → My Shop</strong>.</li><li>Add a clear storefront photo and a friendly description.</li><li>Serve quickly and confirm amounts out loud — good service brings repeat customers.</li></ul><h2>Stay active</h2><ul><li>Always settle dues on time so your shop is never paused.</li><li>Cover busy periods by adding staff to the counter.</li></ul><blockquote>Reliability compounds: every smooth transaction makes a customer more likely to come back and bring others.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Conseils pour augmenter votre volume traité",
+      "body": "<p>Votre commission croît avec le volume que vous traitez, l'objectif est donc simple : être l'agent sur qui les clients peuvent toujours compter. Quelques habitudes font une grande différence.</p><h2>Soyez fiable</h2><ul><li>Tenez des horaires d'ouverture exacts et respectez-les.</li><li>Conservez un fonds de caisse sain pour refuser rarement un retrait.</li><li>Mettez la boutique en pause plutôt que de laisser les clients à un comptoir fermé.</li></ul><h2>Soyez facile à trouver et digne de confiance</h2><ul><li>Gardez votre repère sur la carte et votre adresse exacts dans <strong>Profil → Ma boutique</strong>.</li><li>Ajoutez une photo nette de la vitrine et une description conviviale.</li><li>Servez vite et confirmez les montants à voix haute : un bon service ramène les clients.</li></ul><h2>Restez actif</h2><ul><li>Réglez toujours vos dettes à temps pour que votre boutique ne soit jamais en pause.</li><li>Couvrez les périodes chargées en ajoutant du personnel au comptoir.</li></ul><blockquote>La fiabilité se cumule : chaque transaction fluide rend un client plus enclin à revenir et à en amener d'autres.</blockquote>"
+    },
+    "content_ar": {
+      "title": "نصائح لزيادة حجمك المعالَج",
+      "body": "<p>تنمو عمولتك مع الحجم الذي تعالجه، فالهدف بسيط: كن الوكيل الذي يستطيع العملاء الاعتماد عليه دائماً. وبضع عادات تُحدث فرقاً كبيراً.</p><h2>كن موثوقاً</h2><ul><li>التزم بساعات عمل دقيقة وحافظ عليها.</li><li>احتفظ برصيد نقدي صحي كي لا تردّ عملية سحب إلا نادراً.</li><li>أوقف المحل مؤقتاً بدلاً من ترك العملاء عند منضدة مغلقة.</li></ul><h2>كن سهل العثور عليه وجديراً بالثقة</h2><ul><li>أبقِ دبّوس خريطتك وعنوانك دقيقين في <strong>الملف الشخصي ← محلّي</strong>.</li><li>أضِف صورة واضحة للواجهة ووصفاً ودوداً.</li><li>اخدِم بسرعة وأكّد المبالغ بصوت مسموع — الخدمة الجيدة تُعيد العملاء.</li></ul><h2>ابقَ فعّالاً</h2><ul><li>سوِّ المستحقات دائماً في وقتها كي لا يُوقَف محلّك أبداً.</li><li>غطِّ فترات الازدحام بإضافة موظفين إلى المنضدة.</li></ul><blockquote>الموثوقية تتراكم: كل عملية سلسة تجعل العميل أكثر ميلاً للعودة وإحضار غيره.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "agent-earnings",
+    "target_roles": ["Agent"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "My earnings look lower than expected — what should I check?",
+      "body": "<p>First, make sure you are reading the <strong>Earnings</strong> tab and not your dues balance — they are different numbers.</p><p>Then confirm the period selected matches what you expect, and that all your transactions were actually completed and approved on screen. If something still seems off, contact Blink support with the dates and amounts in question.</p>"
+    },
+    "content_fr": {
+      "title": "Mes gains semblent plus faibles que prévu — que vérifier ?",
+      "body": "<p>D'abord, assurez-vous de bien consulter l'onglet <strong>Gains</strong> et non votre solde de dettes : ce sont des chiffres différents.</p><p>Ensuite, vérifiez que la période sélectionnée correspond à vos attentes et que toutes vos transactions ont bien été réalisées et approuvées à l'écran. Si quelque chose cloche toujours, contactez le support Blink avec les dates et montants concernés.</p>"
+    },
+    "content_ar": {
+      "title": "تبدو أرباحي أقل من المتوقّع — ماذا ينبغي أن أتحقّق منه؟",
+      "body": "<p>أولاً، تأكّد من أنك تقرأ تبويب <strong>الأرباح</strong> وليس رصيد مستحقاتك — فهما رقمان مختلفان.</p><p>ثم تأكّد من أن الفترة المختارة تطابق ما تتوقّعه، ومن أن جميع عملياتك اكتملت وتمّت الموافقة عليها فعلاً على الشاشة. وإذا ظلّ هناك خلل، فتواصل مع دعم بلينك مع ذكر التواريخ والمبالغ المعنيّة.</p>"
+    }
+  }
+]

@@ -17,6 +17,10 @@ export * from "./schema/support-categories";
 export * from "./schema/support-articles";
 export * from "./schema/ai-settings";
 export * from "./schema/ai-provider-configs";
+export * from "./schema/alert-rules";
+export * from "./schema/alert-events";
+export * from "./schema/email-threads";
+export * from "./schema/email-messages";
 
 import {
   addressType,
@@ -44,6 +48,13 @@ import { deepLinkRole } from "./schema/deep-links";
 import { libraryCategoryStatus } from "./schema/library-categories";
 import { libraryProductStatus } from "./schema/library-products";
 import { supportArticleType, supportArticleStatus } from "./schema/support-articles";
+import { alertMetric, alertComparator, alertSeverity } from "./schema/alert-rules";
+import { alertEventStatus } from "./schema/alert-events";
+import { emailThreadStatus, emailDirection } from "./schema/email-threads";
+import type { alertRules } from "./schema/alert-rules";
+import type { alertEvents } from "./schema/alert-events";
+import type { emailThreads } from "./schema/email-threads";
+import type { emailMessages } from "./schema/email-messages";
 import type { addresses } from "./schema/addresses";
 import type { agentShops } from "./schema/agent-shops";
 import type { news } from "./schema/news";
@@ -93,6 +104,12 @@ export type LibraryCategoryStatus = (typeof libraryCategoryStatus.enumValues)[nu
 export type LibraryProductStatus = (typeof libraryProductStatus.enumValues)[number];
 export type SupportArticleType = (typeof supportArticleType.enumValues)[number];
 export type SupportArticleStatus = (typeof supportArticleStatus.enumValues)[number];
+export type AlertMetric = (typeof alertMetric.enumValues)[number];
+export type AlertComparator = (typeof alertComparator.enumValues)[number];
+export type AlertSeverity = (typeof alertSeverity.enumValues)[number];
+export type AlertEventStatus = (typeof alertEventStatus.enumValues)[number];
+export type EmailThreadStatus = (typeof emailThreadStatus.enumValues)[number];
+export type EmailDirection = (typeof emailDirection.enumValues)[number];
 
 // ─── Row / Insert types, inferred from the Drizzle tables ────────────────────
 export type UserRow = InferSelectModel<typeof users>;
@@ -139,3 +156,11 @@ export type AiSettingsRow = InferSelectModel<typeof aiSettings>;
 export type AiSettingsInsert = InferInsertModel<typeof aiSettings>;
 export type AiProviderConfigRow = InferSelectModel<typeof aiProviderConfigs>;
 export type AiProviderConfigInsert = InferInsertModel<typeof aiProviderConfigs>;
+export type AlertRuleRow = InferSelectModel<typeof alertRules>;
+export type AlertRuleInsert = InferInsertModel<typeof alertRules>;
+export type AlertEventRow = InferSelectModel<typeof alertEvents>;
+export type AlertEventInsert = InferInsertModel<typeof alertEvents>;
+export type EmailThreadRow = InferSelectModel<typeof emailThreads>;
+export type EmailThreadInsert = InferInsertModel<typeof emailThreads>;
+export type EmailMessageRow = InferSelectModel<typeof emailMessages>;
+export type EmailMessageInsert = InferInsertModel<typeof emailMessages>;

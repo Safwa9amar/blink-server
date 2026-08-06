@@ -17,9 +17,18 @@ const MAX = 500;
 const buffer: LogEntry[] = [];
 let seq = 0;
 
+// hono/logger colorizes the status code (e.g. ESC[32m200ESC[0m). The real console
+// keeps its colors, but the buffered copy is consumed as plain text by the
+// dashboard, so strip the SGR escape sequences before storing — otherwise the
+// raw codes render as literal "[32m200[0m" in the Live Logs tail.
+const ANSI_SGR = /\u001B\[[0-9;]*m/g;
+export function stripAnsi(s: string): string {
+  return s.replace(ANSI_SGR, "");
+}
+
 export function pushLog(level: LogLevel, source: string, msg: string): void {
   seq += 1;
-  buffer.push({ id: seq, ts: new Date().toISOString(), level, source, msg });
+  buffer.push({ id: seq, ts: new Date().toISOString(), level, source, msg: stripAnsi(msg) });
   if (buffer.length > MAX) buffer.splice(0, buffer.length - MAX);
 }
 

@@ -1,0 +1,762 @@
+[
+  {
+    "type": "faq",
+    "category": "orders",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How do I place an order on Blink?",
+      "body": "<p>Open Blink, choose a store or restaurant near you, add items to your cart, then tap <strong>Cart → Checkout</strong>. Confirm your delivery address, pick a payment method, and place the order.</p><p>Once the store accepts it, you can follow your rider in real time from the <strong>Activities</strong> tab.</p>"
+    },
+    "content_fr": {
+      "title": "Comment passer une commande sur Blink ?",
+      "body": "<p>Ouvrez Blink, choisissez un magasin ou un restaurant près de chez vous, ajoutez des articles à votre panier, puis appuyez sur <strong>Panier → Commander</strong>. Confirmez votre adresse de livraison, choisissez un mode de paiement et validez la commande.</p><p>Une fois la commande acceptée par le magasin, vous pouvez suivre votre livreur en temps réel depuis l'onglet <strong>Activités</strong>.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أقوم بطلب على بلينك؟",
+      "body": "<p>افتح بلينك، اختر متجراً أو مطعماً قريباً منك، أضف المنتجات إلى سلتك، ثم اضغط على <strong>السلة ← إتمام الطلب</strong>. أكّد عنوان التوصيل، اختر طريقة الدفع، وقم بتأكيد الطلب.</p><p>بمجرد قبول المتجر للطلب، يمكنك متابعة السائق مباشرةً من تبويب <strong>النشاطات</strong>.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "orders",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "Is there a minimum order amount?",
+      "body": "<p>Yes. Each store sets its own minimum order value, shown on the store page and in your cart. If your cart is below the minimum, you'll see how much more you need to add before you can check out.</p><p>The minimum applies to the items total only, not to the delivery fee.</p>"
+    },
+    "content_fr": {
+      "title": "Y a-t-il un montant minimum de commande ?",
+      "body": "<p>Oui. Chaque magasin fixe son propre montant minimum, affiché sur la page du magasin et dans votre panier. Si votre panier est en dessous du minimum, vous verrez combien il vous reste à ajouter avant de pouvoir commander.</p><p>Le minimum s'applique uniquement au total des articles, pas aux frais de livraison.</p>"
+    },
+    "content_ar": {
+      "title": "هل هناك حد أدنى للطلب؟",
+      "body": "<p>نعم. يحدد كل متجر الحد الأدنى الخاص به للطلب، ويظهر ذلك في صفحة المتجر وفي سلتك. إذا كانت قيمة سلتك أقل من الحد الأدنى، فسترى المبلغ المتبقي الذي يجب إضافته قبل أن تتمكن من إتمام الطلب.</p><p>ينطبق الحد الأدنى على إجمالي المنتجات فقط، وليس على رسوم التوصيل.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "orders",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "Can I cancel or edit my order after placing it?",
+      "body": "<p>You can cancel for free in the first moments, while the order is still <strong>Pending</strong> and the store has not started preparing it. Open the order from <strong>Activities</strong> and tap <strong>Cancel order</strong>.</p><p>Once the store accepts and starts preparing, the order can no longer be edited, and a cancellation may not be possible or may be non-refundable. To add or change items, it's best to cancel early and place a new order.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je annuler ou modifier ma commande après l'avoir passée ?",
+      "body": "<p>Vous pouvez annuler gratuitement dans les premiers instants, tant que la commande est encore <strong>En attente</strong> et que le magasin n'a pas commencé la préparation. Ouvrez la commande depuis <strong>Activités</strong> et appuyez sur <strong>Annuler la commande</strong>.</p><p>Une fois que le magasin a accepté et commencé la préparation, la commande ne peut plus être modifiée, et l'annulation peut être impossible ou non remboursable. Pour ajouter ou changer des articles, il vaut mieux annuler tôt et passer une nouvelle commande.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني إلغاء طلبي أو تعديله بعد تأكيده؟",
+      "body": "<p>يمكنك الإلغاء مجاناً في اللحظات الأولى، طالما أن الطلب لا يزال <strong>قيد الانتظار</strong> ولم يبدأ المتجر بتحضيره. افتح الطلب من <strong>النشاطات</strong> واضغط على <strong>إلغاء الطلب</strong>.</p><p>بمجرد أن يقبل المتجر ويبدأ بالتحضير، لا يمكن تعديل الطلب، وقد يتعذّر إلغاؤه أو يكون غير قابل للاسترداد. لإضافة منتجات أو تغييرها، يُفضّل الإلغاء مبكراً وإنشاء طلب جديد.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "orders",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Can I order from more than one store in a single order?",
+      "body": "<p>No. Each order is delivered from a single store so your rider can pick it up and bring it straight to you. Items from different stores go into separate carts and separate orders.</p><p>You can still place several orders one after another, each with its own delivery and tracking.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je commander dans plusieurs magasins en une seule commande ?",
+      "body": "<p>Non. Chaque commande est livrée depuis un seul magasin afin que votre livreur puisse la récupérer et vous l'apporter directement. Les articles de magasins différents vont dans des paniers et des commandes distincts.</p><p>Vous pouvez tout de même passer plusieurs commandes l'une après l'autre, chacune avec sa propre livraison et son propre suivi.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني الطلب من أكثر من متجر في طلب واحد؟",
+      "body": "<p>لا. يتم توصيل كل طلب من متجر واحد حتى يتمكن السائق من استلامه وإحضاره إليك مباشرةً. المنتجات من متاجر مختلفة توضع في سلال وطلبات منفصلة.</p><p>يمكنك مع ذلك إنشاء عدة طلبات واحداً تلو الآخر، لكل منها توصيل وتتبّع خاص به.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "orders",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Scheduling an order for later",
+      "body": "<p>Don't need your order right now? Blink lets you schedule a delivery for a time that suits you, as long as the store is open during that window.</p><h2>How to schedule</h2><ol><li>Build your cart as usual and tap <strong>Checkout</strong>.</li><li>Near the delivery time, switch from <strong>Deliver now</strong> to <strong>Schedule for later</strong>.</li><li>Pick a date and a time slot, then place the order.</li></ol><h2>Good to know</h2><ul><li>The store starts preparing close to your chosen slot so the food arrives fresh.</li><li>You'll get a notification when your rider is assigned and on the way.</li><li>Available slots depend on the store's opening hours.</li></ul><blockquote>Tip: For busy times like lunch or dinner, scheduling ahead helps your order arrive on time.</blockquote><p>You can review or cancel a scheduled order from the <strong>Activities</strong> tab before preparation begins.</p>"
+    },
+    "content_fr": {
+      "title": "Programmer une commande pour plus tard",
+      "body": "<p>Vous n'avez pas besoin de votre commande tout de suite ? Blink vous permet de programmer une livraison à l'heure qui vous convient, tant que le magasin est ouvert pendant ce créneau.</p><h2>Comment programmer</h2><ol><li>Composez votre panier comme d'habitude et appuyez sur <strong>Commander</strong>.</li><li>À côté de l'heure de livraison, passez de <strong>Livrer maintenant</strong> à <strong>Programmer pour plus tard</strong>.</li><li>Choisissez une date et un créneau horaire, puis validez la commande.</li></ol><h2>Bon à savoir</h2><ul><li>Le magasin commence la préparation à l'approche du créneau choisi pour que les plats arrivent frais.</li><li>Vous recevrez une notification dès qu'un livreur est assigné et en route.</li><li>Les créneaux disponibles dépendent des horaires d'ouverture du magasin.</li></ul><blockquote>Astuce : pour les heures de pointe comme le déjeuner ou le dîner, programmer à l'avance aide votre commande à arriver à temps.</blockquote><p>Vous pouvez consulter ou annuler une commande programmée depuis l'onglet <strong>Activités</strong> avant le début de la préparation.</p>"
+    },
+    "content_ar": {
+      "title": "جدولة طلب لوقت لاحق",
+      "body": "<p>لا تحتاج طلبك الآن؟ يتيح لك بلينك جدولة التوصيل في الوقت الذي يناسبك، طالما أن المتجر مفتوح خلال تلك الفترة.</p><h2>كيفية الجدولة</h2><ol><li>جهّز سلتك كالمعتاد واضغط على <strong>إتمام الطلب</strong>.</li><li>بجانب وقت التوصيل، انتقل من <strong>توصيل الآن</strong> إلى <strong>الجدولة لوقت لاحق</strong>.</li><li>اختر التاريخ والفترة الزمنية، ثم أكّد الطلب.</li></ol><h2>معلومات مفيدة</h2><ul><li>يبدأ المتجر بالتحضير قرب الفترة التي اخترتها حتى يصل الطعام طازجاً.</li><li>ستتلقى إشعاراً عند تعيين السائق وانطلاقه إليك.</li><li>تعتمد الفترات المتاحة على ساعات عمل المتجر.</li></ul><blockquote>نصيحة: في أوقات الذروة مثل الغداء أو العشاء، تساعد الجدولة المسبقة على وصول طلبك في الوقت المحدد.</blockquote><p>يمكنك مراجعة الطلب المجدول أو إلغاؤه من تبويب <strong>النشاطات</strong> قبل بدء التحضير.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "orders",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Missing or wrong items in your delivery",
+      "body": "<p>If something is missing from your bag or you received the wrong item, you can report it in a couple of taps and we'll make it right.</p><h2>Report the problem</h2><ol><li>Go to <strong>Activities</strong> and open the delivered order.</li><li>Tap <strong>Report a problem</strong> and choose <strong>Missing item</strong> or <strong>Wrong item</strong>.</li><li>Select the affected items and add a short note or photo if you can.</li></ol><h2>What happens next</h2><ul><li>Our team reviews the report, usually within a short time.</li><li>If confirmed, you're refunded for the missing or incorrect items to your original payment method or as Blink Cash.</li><li>Refunds to a card take <strong>3–5 business days</strong> to appear; Blink Cash is usually instant.</li></ul><blockquote>Tip: Reporting on the same day, with a photo of the items and the receipt, helps us resolve it faster.</blockquote><p>You can also use in-app <strong>Live Chat</strong> if you'd rather talk it through with support.</p>"
+    },
+    "content_fr": {
+      "title": "Articles manquants ou erronés dans votre livraison",
+      "body": "<p>S'il manque quelque chose dans votre sac ou si vous avez reçu le mauvais article, vous pouvez le signaler en quelques appuis et nous arrangerons cela.</p><h2>Signaler le problème</h2><ol><li>Allez dans <strong>Activités</strong> et ouvrez la commande livrée.</li><li>Appuyez sur <strong>Signaler un problème</strong> et choisissez <strong>Article manquant</strong> ou <strong>Article erroné</strong>.</li><li>Sélectionnez les articles concernés et ajoutez une courte note ou une photo si possible.</li></ol><h2>Ce qui se passe ensuite</h2><ul><li>Notre équipe examine le signalement, généralement rapidement.</li><li>Si c'est confirmé, vous êtes remboursé des articles manquants ou erronés sur votre moyen de paiement initial ou en Blink Cash.</li><li>Les remboursements sur carte mettent <strong>3 à 5 jours ouvrés</strong> à apparaître ; le Blink Cash est généralement instantané.</li></ul><blockquote>Astuce : signaler le jour même, avec une photo des articles et du reçu, nous aide à résoudre cela plus vite.</blockquote><p>Vous pouvez aussi utiliser le <strong>Chat en direct</strong> dans l'application si vous préférez en parler avec le support.</p>"
+    },
+    "content_ar": {
+      "title": "منتجات ناقصة أو خاطئة في توصيلتك",
+      "body": "<p>إذا كان هناك منتج ناقص في طلبك أو استلمت منتجاً خاطئاً، يمكنك الإبلاغ عن ذلك بضغطتين وسنصحّح الأمر.</p><h2>الإبلاغ عن المشكلة</h2><ol><li>اذهب إلى <strong>النشاطات</strong> وافتح الطلب الذي تم توصيله.</li><li>اضغط على <strong>الإبلاغ عن مشكلة</strong> واختر <strong>منتج ناقص</strong> أو <strong>منتج خاطئ</strong>.</li><li>حدّد المنتجات المعنية وأضف ملاحظة قصيرة أو صورة إن أمكن.</li></ol><h2>ماذا يحدث بعد ذلك</h2><ul><li>يراجع فريقنا البلاغ، عادةً خلال وقت قصير.</li><li>عند التأكيد، تُسترد قيمة المنتجات الناقصة أو الخاطئة إلى طريقة الدفع الأصلية أو كرصيد بلينك كاش.</li><li>يستغرق الاسترداد إلى البطاقة <strong>3 إلى 5 أيام عمل</strong> للظهور؛ أما بلينك كاش فعادةً ما يكون فورياً.</li></ul><blockquote>نصيحة: الإبلاغ في نفس اليوم، مع صورة للمنتجات والإيصال، يساعدنا على حل المشكلة بشكل أسرع.</blockquote><p>يمكنك أيضاً استخدام <strong>الدردشة المباشرة</strong> داخل التطبيق إذا كنت تفضّل التحدث مع الدعم.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "orders",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "How is the delivery fee calculated?",
+      "body": "<p>The delivery fee mainly depends on the distance between the store and your address, and can vary at peak times. The exact amount is always shown in your cart and on the checkout screen before you pay.</p><p>Some stores or promotions may offer reduced or free delivery; this is shown on the store page when available.</p>"
+    },
+    "content_fr": {
+      "title": "Comment les frais de livraison sont-ils calculés ?",
+      "body": "<p>Les frais de livraison dépendent principalement de la distance entre le magasin et votre adresse, et peuvent varier aux heures de pointe. Le montant exact est toujours affiché dans votre panier et sur l'écran de paiement avant de payer.</p><p>Certains magasins ou promotions peuvent proposer une livraison réduite ou gratuite ; cela est indiqué sur la page du magasin lorsque c'est disponible.</p>"
+    },
+    "content_ar": {
+      "title": "كيف يتم احتساب رسوم التوصيل؟",
+      "body": "<p>تعتمد رسوم التوصيل بشكل أساسي على المسافة بين المتجر وعنوانك، وقد تتغيّر في أوقات الذروة. يظهر المبلغ الدقيق دائماً في سلتك وفي شاشة الدفع قبل أن تدفع.</p><p>قد تقدّم بعض المتاجر أو العروض توصيلاً مخفّضاً أو مجانياً؛ ويظهر ذلك في صفحة المتجر عند توفّره.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "payment",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "What payment methods can I use?",
+      "body": "<p>At checkout you can pay with:</p><ul><li><strong>Card</strong> — pay securely in the app.</li><li><strong>Blink Cash</strong> — your in-app wallet balance.</li><li><strong>Cash on delivery</strong> — pay the rider when your order arrives.</li></ul><p>Available methods can vary by store and order. All prices are shown in Algerian Dinar (Da).</p>"
+    },
+    "content_fr": {
+      "title": "Quels moyens de paiement puis-je utiliser ?",
+      "body": "<p>Au paiement, vous pouvez régler avec :</p><ul><li><strong>Carte</strong> — paiement sécurisé dans l'application.</li><li><strong>Blink Cash</strong> — le solde de votre portefeuille intégré.</li><li><strong>Paiement à la livraison</strong> — payez le livreur à l'arrivée de votre commande.</li></ul><p>Les moyens disponibles peuvent varier selon le magasin et la commande. Tous les prix sont affichés en dinar algérien (Da).</p>"
+    },
+    "content_ar": {
+      "title": "ما طرق الدفع التي يمكنني استخدامها؟",
+      "body": "<p>عند إتمام الطلب يمكنك الدفع عبر:</p><ul><li><strong>البطاقة</strong> — ادفع بأمان داخل التطبيق.</li><li><strong>بلينك كاش</strong> — رصيد محفظتك داخل التطبيق.</li><li><strong>الدفع عند الاستلام</strong> — ادفع للسائق عند وصول طلبك.</li></ul><p>قد تختلف الطرق المتاحة حسب المتجر والطلب. تُعرض جميع الأسعار بالدينار الجزائري (دج).</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "payment",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "My payment failed but I think I was charged. What should I do?",
+      "body": "<p>If a payment fails, the order is not placed and any amount you see is usually a temporary hold from your bank, not a real charge. It is normally released within a few business days.</p><p>If a charge still appears after <strong>5 business days</strong> with no order created, contact us through in-app <strong>Live Chat</strong> with the date, amount, and order details so we can investigate.</p>"
+    },
+    "content_fr": {
+      "title": "Mon paiement a échoué mais je pense avoir été débité. Que faire ?",
+      "body": "<p>Si un paiement échoue, la commande n'est pas créée et le montant que vous voyez est généralement une autorisation temporaire de votre banque, pas un vrai débit. Il est normalement libéré sous quelques jours ouvrés.</p><p>Si un débit apparaît toujours après <strong>5 jours ouvrés</strong> sans commande créée, contactez-nous via le <strong>Chat en direct</strong> dans l'application avec la date, le montant et les détails afin que nous puissions enquêter.</p>"
+    },
+    "content_ar": {
+      "title": "فشل الدفع لكنني أعتقد أنه تم خصم المبلغ. ماذا أفعل؟",
+      "body": "<p>إذا فشل الدفع، فلن يُنشأ الطلب، والمبلغ الذي تراه عادةً ما يكون حجزاً مؤقتاً من بنكك وليس خصماً فعلياً، ويُحرَّر عادةً خلال أيام عمل قليلة.</p><p>إذا استمر ظهور الخصم بعد <strong>5 أيام عمل</strong> دون إنشاء طلب، تواصل معنا عبر <strong>الدردشة المباشرة</strong> داخل التطبيق مع ذكر التاريخ والمبلغ وتفاصيل الطلب حتى نتمكن من المتابعة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "payment",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How long do refunds take?",
+      "body": "<p>Refunds to <strong>Blink Cash</strong> are usually instant and can be used on your next order right away.</p><p>Refunds to a <strong>card</strong> take <strong>3–5 business days</strong> to appear on your statement, depending on your bank. Cash-on-delivery orders are normally refunded as Blink Cash.</p>"
+    },
+    "content_fr": {
+      "title": "Combien de temps prennent les remboursements ?",
+      "body": "<p>Les remboursements en <strong>Blink Cash</strong> sont généralement instantanés et utilisables dès votre prochaine commande.</p><p>Les remboursements sur <strong>carte</strong> mettent <strong>3 à 5 jours ouvrés</strong> à apparaître sur votre relevé, selon votre banque. Les commandes payées à la livraison sont normalement remboursées en Blink Cash.</p>"
+    },
+    "content_ar": {
+      "title": "كم تستغرق عمليات الاسترداد؟",
+      "body": "<p>عمليات الاسترداد إلى <strong>بلينك كاش</strong> تكون عادةً فورية ويمكن استخدامها في طلبك التالي مباشرةً.</p><p>أما الاسترداد إلى <strong>البطاقة</strong> فيستغرق <strong>3 إلى 5 أيام عمل</strong> للظهور في كشف حسابك، حسب بنكك. الطلبات المدفوعة عند الاستلام يُعاد مبلغها عادةً كرصيد بلينك كاش.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "payment",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Where can I find my receipt or invoice?",
+      "body": "<p>Every completed order has a receipt. Open <strong>Activities</strong>, tap the order, then scroll to <strong>Order details</strong> to see the itemized breakdown, delivery fee, any promo discount, and the total paid.</p><p>You can review past orders here at any time to check what you were charged.</p>"
+    },
+    "content_fr": {
+      "title": "Où puis-je trouver mon reçu ou ma facture ?",
+      "body": "<p>Chaque commande terminée a un reçu. Ouvrez <strong>Activités</strong>, appuyez sur la commande, puis faites défiler jusqu'à <strong>Détails de la commande</strong> pour voir le détail des articles, les frais de livraison, toute réduction promo et le total payé.</p><p>Vous pouvez consulter vos commandes passées ici à tout moment pour vérifier ce qui vous a été facturé.</p>"
+    },
+    "content_ar": {
+      "title": "أين أجد إيصالي أو فاتورتي؟",
+      "body": "<p>لكل طلب مكتمل إيصال. افتح <strong>النشاطات</strong>، اضغط على الطلب، ثم انزل إلى <strong>تفاصيل الطلب</strong> لرؤية تفصيل المنتجات ورسوم التوصيل وأي خصم وإجمالي المبلغ المدفوع.</p><p>يمكنك مراجعة طلباتك السابقة هنا في أي وقت للتحقق مما تم خصمه.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "payment",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "What currency are prices shown in?",
+      "body": "<p>All prices, fees, and totals on Blink are in Algerian Dinar, shown as <strong>Da</strong> in English and French and as <strong>دج</strong> in Arabic.</p><p>There are no hidden currency conversions; the total you see at checkout is exactly what you pay.</p>"
+    },
+    "content_fr": {
+      "title": "Dans quelle devise les prix sont-ils affichés ?",
+      "body": "<p>Tous les prix, frais et totaux sur Blink sont en dinar algérien, affichés <strong>Da</strong> en anglais et en français et <strong>دج</strong> en arabe.</p><p>Il n'y a aucune conversion de devise cachée ; le total affiché au paiement est exactement ce que vous payez.</p>"
+    },
+    "content_ar": {
+      "title": "بأي عملة تُعرض الأسعار؟",
+      "body": "<p>جميع الأسعار والرسوم والمجاميع في بلينك بالدينار الجزائري، وتُعرض <strong>Da</strong> بالإنجليزية والفرنسية و<strong>دج</strong> بالعربية.</p><p>لا توجد أي تحويلات عملة خفية؛ فالمبلغ الإجمالي الذي تراه عند الدفع هو بالضبط ما تدفعه.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "payment",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Paying with Blink Cash",
+      "body": "<p>Blink Cash is your in-app wallet. It's the fastest way to pay and the place where refunds and rewards land instantly.</p><h2>How to pay with Blink Cash</h2><ol><li>At <strong>Checkout</strong>, select <strong>Blink Cash</strong> as your payment method.</li><li>If your balance covers the total, the order is paid in one tap.</li><li>If your balance is short, pay the difference with another method or top up first.</li></ol><h2>Why use it</h2><ul><li>Refunds for cancelled orders or missing items arrive instantly as Blink Cash.</li><li>Referral and promo rewards are added straight to your balance.</li><li>No need to re-enter card details each time.</li></ul><blockquote>Tip: Check your balance any time under <strong>Blink Cash</strong> in your wallet before checkout so you know what's available.</blockquote><p>Your balance and every transaction are listed in the wallet, so you can always see where your Blink Cash came from and how it was spent.</p>"
+    },
+    "content_fr": {
+      "title": "Payer avec Blink Cash",
+      "body": "<p>Blink Cash est votre portefeuille intégré. C'est le moyen le plus rapide de payer et l'endroit où les remboursements et récompenses arrivent instantanément.</p><h2>Comment payer avec Blink Cash</h2><ol><li>Au <strong>paiement</strong>, sélectionnez <strong>Blink Cash</strong> comme moyen de paiement.</li><li>Si votre solde couvre le total, la commande est payée en un appui.</li><li>Si votre solde est insuffisant, payez la différence avec un autre moyen ou rechargez d'abord.</li></ol><h2>Pourquoi l'utiliser</h2><ul><li>Les remboursements de commandes annulées ou d'articles manquants arrivent instantanément en Blink Cash.</li><li>Les récompenses de parrainage et de promo sont ajoutées directement à votre solde.</li><li>Pas besoin de ressaisir les détails de votre carte à chaque fois.</li></ul><blockquote>Astuce : vérifiez votre solde à tout moment dans <strong>Blink Cash</strong> de votre portefeuille avant de payer pour savoir ce qui est disponible.</blockquote><p>Votre solde et chaque transaction sont listés dans le portefeuille, vous voyez donc toujours d'où vient votre Blink Cash et comment il a été dépensé.</p>"
+    },
+    "content_ar": {
+      "title": "الدفع باستخدام بلينك كاش",
+      "body": "<p>بلينك كاش هو محفظتك داخل التطبيق. إنه أسرع طريقة للدفع، وهو المكان الذي تصل إليه المبالغ المستردة والمكافآت فوراً.</p><h2>كيفية الدفع ببلينك كاش</h2><ol><li>عند <strong>إتمام الطلب</strong>، اختر <strong>بلينك كاش</strong> كطريقة دفع.</li><li>إذا كان رصيدك يغطي المبلغ الإجمالي، يُدفع الطلب بضغطة واحدة.</li><li>إذا كان رصيدك غير كافٍ، ادفع الفرق بطريقة أخرى أو اشحن أولاً.</li></ol><h2>لماذا تستخدمه</h2><ul><li>تصل المبالغ المستردة عن الطلبات الملغاة أو المنتجات الناقصة فوراً كرصيد بلينك كاش.</li><li>تُضاف مكافآت الإحالة والعروض مباشرةً إلى رصيدك.</li><li>لا حاجة لإعادة إدخال بيانات البطاقة في كل مرة.</li></ul><blockquote>نصيحة: تحقق من رصيدك في أي وقت ضمن <strong>بلينك كاش</strong> في محفظتك قبل الدفع لتعرف المتاح لديك.</blockquote><p>رصيدك وكل عملية مدرجة في المحفظة، لذا يمكنك دائماً معرفة مصدر بلينك كاش الخاص بك وكيف أُنفق.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "payment",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "Understanding double charges and holds",
+      "body": "<p>Sometimes a card statement shows what looks like two charges for one order. In almost all cases this is a temporary authorization, not real money taken twice.</p><h2>Authorization vs. charge</h2><p>When you pay, your bank may place a temporary <strong>hold</strong> to confirm the funds exist. The actual <strong>charge</strong> settles afterwards. For a short period both can appear, which looks like a double charge.</p><h2>What to check</h2><ul><li>Look at <strong>Activities → Order details</strong> — you should see only one completed order and one final total.</li><li>Compare it with your statement: the pending hold usually drops off within a few business days.</li><li>If you retried a failed payment, the first attempt may show as a hold that will be released.</li></ul><h2>Still seeing two charges?</h2><ol><li>Wait up to <strong>5 business days</strong> for holds to clear.</li><li>If two real charges remain for the same order, contact <strong>Live Chat</strong> with the dates and amounts.</li></ol><blockquote>Tip: Keep your order number ready — it lets support match the payment instantly.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comprendre les doubles débits et les autorisations",
+      "body": "<p>Parfois, un relevé de carte affiche ce qui ressemble à deux débits pour une seule commande. Dans la quasi-totalité des cas, il s'agit d'une autorisation temporaire, pas d'argent prélevé deux fois.</p><h2>Autorisation et débit</h2><p>Lorsque vous payez, votre banque peut placer une <strong>autorisation</strong> temporaire pour confirmer que les fonds existent. Le <strong>débit</strong> réel se règle ensuite. Pendant un court moment, les deux peuvent apparaître, ce qui ressemble à un double débit.</p><h2>Ce qu'il faut vérifier</h2><ul><li>Regardez <strong>Activités → Détails de la commande</strong> — vous ne devriez voir qu'une seule commande terminée et un seul total final.</li><li>Comparez avec votre relevé : l'autorisation en attente disparaît généralement sous quelques jours ouvrés.</li><li>Si vous avez réessayé un paiement échoué, la première tentative peut apparaître comme une autorisation qui sera libérée.</li></ul><h2>Toujours deux débits ?</h2><ol><li>Attendez jusqu'à <strong>5 jours ouvrés</strong> que les autorisations se libèrent.</li><li>Si deux vrais débits subsistent pour la même commande, contactez le <strong>Chat en direct</strong> avec les dates et montants.</li></ol><blockquote>Astuce : gardez votre numéro de commande à portée de main — il permet au support de retrouver le paiement instantanément.</blockquote>"
+    },
+    "content_ar": {
+      "title": "فهم الخصم المزدوج والحجوزات المؤقتة",
+      "body": "<p>أحياناً يُظهر كشف البطاقة ما يبدو وكأنه خصمان لطلب واحد. في معظم الحالات يكون ذلك حجزاً مؤقتاً، وليس خصماً للمال مرتين.</p><h2>الحجز مقابل الخصم</h2><p>عند الدفع، قد يضع بنكك <strong>حجزاً</strong> مؤقتاً للتأكد من توفر المبلغ. أما <strong>الخصم</strong> الفعلي فيُسوّى لاحقاً. ولفترة قصيرة قد يظهر الاثنان معاً، فيبدو الأمر وكأنه خصم مزدوج.</p><h2>ما الذي يجب التحقق منه</h2><ul><li>انظر إلى <strong>النشاطات ← تفاصيل الطلب</strong> — يجب أن ترى طلباً واحداً مكتملاً ومبلغاً نهائياً واحداً.</li><li>قارن ذلك بكشف حسابك: عادةً ما يختفي الحجز المعلّق خلال أيام عمل قليلة.</li><li>إذا أعدت محاولة دفع فاشل، فقد تظهر المحاولة الأولى كحجز سيتم تحريره.</li></ul><h2>ما زلت ترى خصمين؟</h2><ol><li>انتظر حتى <strong>5 أيام عمل</strong> لتحرير الحجوزات.</li><li>إذا بقي خصمان فعليان لنفس الطلب، تواصل عبر <strong>الدردشة المباشرة</strong> مع ذكر التواريخ والمبالغ.</li></ol><blockquote>نصيحة: احتفظ برقم طلبك جاهزاً — فهو يتيح للدعم مطابقة الدفعة فوراً.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "tracking",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How do I track my active order?",
+      "body": "<p>Once your order is accepted, a live tracking card appears on your <strong>Home</strong> screen and in the <strong>Activities</strong> tab. Tap it to open the map and follow each step: preparing, picked up, and on the way.</p><p>You'll see your rider's live location and an estimated time of arrival (ETA) that updates as they get closer.</p>"
+    },
+    "content_fr": {
+      "title": "Comment suivre ma commande en cours ?",
+      "body": "<p>Une fois votre commande acceptée, une carte de suivi en direct apparaît sur votre écran <strong>Accueil</strong> et dans l'onglet <strong>Activités</strong>. Appuyez dessus pour ouvrir la carte et suivre chaque étape : en préparation, récupérée et en route.</p><p>Vous verrez la position en direct de votre livreur et une heure d'arrivée estimée (ETA) qui se met à jour à mesure qu'il approche.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أتتبّع طلبي النشط؟",
+      "body": "<p>بمجرد قبول طلبك، تظهر بطاقة تتبّع مباشر في شاشة <strong>الرئيسية</strong> وفي تبويب <strong>النشاطات</strong>. اضغط عليها لفتح الخريطة ومتابعة كل مرحلة: قيد التحضير، تم الاستلام، وفي الطريق.</p><p>سترى الموقع المباشر للسائق والوقت المتوقع للوصول (ETA) الذي يتحدّث كلما اقترب منك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "tracking",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How do I contact my rider?",
+      "body": "<p>Open the order from <strong>Activities</strong> and tap <strong>Chat</strong> or <strong>Call</strong> to reach your rider directly once they're assigned.</p><p>Use this to share gate codes, building details, or to let them know where to meet you. Your number stays private through the in-app connection.</p>"
+    },
+    "content_fr": {
+      "title": "Comment contacter mon livreur ?",
+      "body": "<p>Ouvrez la commande depuis <strong>Activités</strong> et appuyez sur <strong>Chat</strong> ou <strong>Appeler</strong> pour joindre directement votre livreur une fois qu'il est assigné.</p><p>Utilisez cela pour partager des codes de portail, des détails du bâtiment ou indiquer où vous retrouver. Votre numéro reste privé grâce à la connexion intégrée à l'application.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أتواصل مع السائق؟",
+      "body": "<p>افتح الطلب من <strong>النشاطات</strong> واضغط على <strong>الدردشة</strong> أو <strong>الاتصال</strong> للتواصل مباشرةً مع السائق بعد تعيينه.</p><p>استخدم ذلك لمشاركة رموز البوابة أو تفاصيل المبنى أو لإخباره بمكان لقائك. يبقى رقمك خاصاً عبر الاتصال داخل التطبيق.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "tracking",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "Why is the ETA changing?",
+      "body": "<p>The estimated time of arrival is a live estimate. It can shift because of traffic, weather, how busy the store is, or the rider's exact route.</p><p>The map and ETA update automatically as your rider moves, so the closer they get, the more accurate the time becomes.</p>"
+    },
+    "content_fr": {
+      "title": "Pourquoi l'heure d'arrivée estimée change-t-elle ?",
+      "body": "<p>L'heure d'arrivée estimée est une estimation en direct. Elle peut varier en raison du trafic, de la météo, de l'affluence du magasin ou de l'itinéraire exact du livreur.</p><p>La carte et l'ETA se mettent à jour automatiquement à mesure que votre livreur se déplace, donc plus il approche, plus l'heure devient précise.</p>"
+    },
+    "content_ar": {
+      "title": "لماذا يتغيّر الوقت المتوقع للوصول؟",
+      "body": "<p>الوقت المتوقع للوصول هو تقدير مباشر. وقد يتغيّر بسبب حركة المرور أو الطقس أو ازدحام المتجر أو مسار السائق الدقيق.</p><p>تتحدّث الخريطة والوقت المتوقع تلقائياً مع تحرّك السائق، فكلما اقترب أصبح الوقت أكثر دقة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "tracking",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "When does my order get marked as delivered?",
+      "body": "<p>Your order is marked <strong>Delivered</strong> when the rider hands it over and completes the drop-off in their app. You'll get a notification, and the order moves to your past orders in <strong>Activities</strong>.</p><p>If it's marked delivered but you didn't receive it, tap <strong>Report a problem</strong> on the order right away so we can help.</p>"
+    },
+    "content_fr": {
+      "title": "Quand ma commande est-elle marquée comme livrée ?",
+      "body": "<p>Votre commande est marquée <strong>Livrée</strong> lorsque le livreur vous la remet et finalise la livraison dans son application. Vous recevrez une notification, et la commande passe dans vos commandes passées dans <strong>Activités</strong>.</p><p>Si elle est marquée livrée mais que vous ne l'avez pas reçue, appuyez immédiatement sur <strong>Signaler un problème</strong> sur la commande pour que nous puissions vous aider.</p>"
+    },
+    "content_ar": {
+      "title": "متى يُعتبر طلبي قد تم توصيله؟",
+      "body": "<p>يُعلَّم طلبك بأنه <strong>تم التوصيل</strong> عندما يسلّمه السائق ويُكمل التسليم في تطبيقه. ستتلقى إشعاراً، وينتقل الطلب إلى طلباتك السابقة في <strong>النشاطات</strong>.</p><p>إذا ظهر أنه تم التوصيل لكنك لم تستلمه، اضغط فوراً على <strong>الإبلاغ عن مشكلة</strong> في الطلب حتى نتمكن من مساعدتك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "tracking",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "What to do if your order is late",
+      "body": "<p>Most orders arrive within the estimated window, but traffic and busy kitchens can cause delays. Here's how to check what's happening and get help.</p><h2>First, check the live status</h2><ol><li>Open the order from the <strong>Activities</strong> tab.</li><li>Look at the status: is it still <strong>preparing</strong> at the store, or already <strong>on the way</strong>?</li><li>Watch the rider on the map and the updated ETA.</li></ol><h2>Reach out</h2><ul><li>If the rider is on the way, tap <strong>Chat</strong> or <strong>Call</strong> for a quick update.</li><li>If the order is stuck or the ETA keeps slipping well past the estimate, open in-app <strong>Live Chat</strong> with support.</li></ul><blockquote>Tip: Keep notifications on so you're alerted the moment your rider picks up and sets off.</blockquote><p>If a long delay means the order can't be delivered, we'll help cancel it and arrange a refund — instantly as Blink Cash, or 3–5 business days back to a card.</p>"
+    },
+    "content_fr": {
+      "title": "Que faire si votre commande est en retard",
+      "body": "<p>La plupart des commandes arrivent dans le créneau estimé, mais le trafic et les cuisines très occupées peuvent causer des retards. Voici comment vérifier la situation et obtenir de l'aide.</p><h2>D'abord, vérifiez le statut en direct</h2><ol><li>Ouvrez la commande depuis l'onglet <strong>Activités</strong>.</li><li>Regardez le statut : est-elle encore <strong>en préparation</strong> au magasin, ou déjà <strong>en route</strong> ?</li><li>Suivez le livreur sur la carte et l'ETA mise à jour.</li></ol><h2>Contactez</h2><ul><li>Si le livreur est en route, appuyez sur <strong>Chat</strong> ou <strong>Appeler</strong> pour une mise à jour rapide.</li><li>Si la commande est bloquée ou que l'ETA dépasse largement l'estimation, ouvrez le <strong>Chat en direct</strong> avec le support.</li></ul><blockquote>Astuce : gardez les notifications activées pour être averti dès que votre livreur récupère la commande et part.</blockquote><p>Si un long retard empêche la livraison, nous vous aiderons à l'annuler et à organiser un remboursement — instantané en Blink Cash, ou sous 3 à 5 jours ouvrés sur une carte.</p>"
+    },
+    "content_ar": {
+      "title": "ماذا تفعل إذا تأخّر طلبك",
+      "body": "<p>تصل معظم الطلبات ضمن الوقت المتوقع، لكن حركة المرور وانشغال المطابخ قد يسبّبان تأخيراً. إليك كيف تتحقق مما يجري وتحصل على المساعدة.</p><h2>أولاً، تحقق من الحالة المباشرة</h2><ol><li>افتح الطلب من تبويب <strong>النشاطات</strong>.</li><li>انظر إلى الحالة: هل لا يزال <strong>قيد التحضير</strong> في المتجر، أم <strong>في الطريق</strong> بالفعل؟</li><li>تابع السائق على الخريطة والوقت المتوقع المحدّث.</li></ol><h2>تواصل</h2><ul><li>إذا كان السائق في الطريق، اضغط على <strong>الدردشة</strong> أو <strong>الاتصال</strong> للحصول على تحديث سريع.</li><li>إذا توقّف الطلب أو استمر الوقت المتوقع بالتجاوز كثيراً، افتح <strong>الدردشة المباشرة</strong> مع الدعم.</li></ul><blockquote>نصيحة: أبقِ الإشعارات مفعّلة لتُنبَّه لحظة استلام السائق وانطلاقه.</blockquote><p>إذا تسبّب تأخير طويل في تعذّر التوصيل، سنساعدك على إلغائه وترتيب الاسترداد — فوراً كرصيد بلينك كاش، أو خلال 3 إلى 5 أيام عمل إلى البطاقة.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "tracking",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Helping your rider find you",
+      "body": "<p>A precise location and a quick message make handover fast and smooth. A little preparation helps your food arrive hot.</p><h2>Set yourself up</h2><ul><li>Make sure your <strong>map pin</strong> sits exactly on your building entrance, not the middle of the street.</li><li>Add <strong>delivery instructions</strong> such as floor, building color, or \"call on arrival\".</li><li>Keep your phone nearby so you can answer the rider's chat or call.</li></ul><h2>If the rider can't find you</h2><ol><li>Open the order and tap <strong>Chat</strong> or <strong>Call</strong>.</li><li>Share a clear landmark and your exact spot.</li><li>If needed, offer to meet at a visible point like a shop or main gate.</li></ol><blockquote>Tip: For apartments and gated areas, the note field is the single most useful thing you can fill in — it saves minutes at the door.</blockquote><p>You can update your pin and instructions any time before the rider arrives from the order screen.</p>"
+    },
+    "content_fr": {
+      "title": "Aider votre livreur à vous trouver",
+      "body": "<p>Une localisation précise et un message rapide rendent la remise rapide et fluide. Un peu de préparation aide votre repas à arriver chaud.</p><h2>Préparez-vous</h2><ul><li>Assurez-vous que votre <strong>point sur la carte</strong> se trouve exactement à l'entrée de votre bâtiment, pas au milieu de la rue.</li><li>Ajoutez des <strong>instructions de livraison</strong> comme l'étage, la couleur du bâtiment, ou « appeler à l'arrivée ».</li><li>Gardez votre téléphone à proximité pour répondre au chat ou à l'appel du livreur.</li></ul><h2>Si le livreur ne vous trouve pas</h2><ol><li>Ouvrez la commande et appuyez sur <strong>Chat</strong> ou <strong>Appeler</strong>.</li><li>Partagez un point de repère clair et votre emplacement exact.</li><li>Si besoin, proposez de vous retrouver à un endroit visible comme un magasin ou un portail principal.</li></ol><blockquote>Astuce : pour les appartements et les zones fermées, le champ de note est la chose la plus utile à remplir — il fait gagner de précieuses minutes à la porte.</blockquote><p>Vous pouvez mettre à jour votre point et vos instructions à tout moment avant l'arrivée du livreur depuis l'écran de la commande.</p>"
+    },
+    "content_ar": {
+      "title": "ساعد السائق على إيجادك",
+      "body": "<p>الموقع الدقيق والرسالة السريعة يجعلان التسليم سهلاً وسريعاً. القليل من التحضير يساعد طعامك على الوصول ساخناً.</p><h2>جهّز نفسك</h2><ul><li>تأكد من أن <strong>دبوس الخريطة</strong> موضوع تماماً عند مدخل مبناك، وليس في منتصف الشارع.</li><li>أضف <strong>تعليمات التوصيل</strong> مثل الطابق أو لون المبنى أو «اتصل عند الوصول».</li><li>أبقِ هاتفك قريباً لترد على دردشة السائق أو اتصاله.</li></ul><h2>إذا لم يستطع السائق إيجادك</h2><ol><li>افتح الطلب واضغط على <strong>الدردشة</strong> أو <strong>الاتصال</strong>.</li><li>شارك معلَماً واضحاً وموقعك الدقيق.</li><li>عند الحاجة، اقترح اللقاء عند نقطة واضحة مثل متجر أو بوابة رئيسية.</li></ol><blockquote>نصيحة: للشقق والمناطق المسوّرة، حقل الملاحظة هو أكثر ما يفيد ملؤه — فهو يوفّر دقائق عند الباب.</blockquote><p>يمكنك تحديث الدبوس والتعليمات في أي وقت قبل وصول السائق من شاشة الطلب.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "tracking",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "Why can't I see the rider on the map yet?",
+      "body": "<p>The live map appears once a rider is assigned and has picked up your order. While the store is still preparing it, you'll see the preparation status instead of a moving rider.</p><p>As soon as the rider starts heading to you, their location and ETA show up automatically.</p>"
+    },
+    "content_fr": {
+      "title": "Pourquoi je ne vois pas encore le livreur sur la carte ?",
+      "body": "<p>La carte en direct apparaît une fois qu'un livreur est assigné et a récupéré votre commande. Tant que le magasin la prépare, vous verrez le statut de préparation au lieu d'un livreur en mouvement.</p><p>Dès que le livreur se met en route vers vous, sa position et son ETA s'affichent automatiquement.</p>"
+    },
+    "content_ar": {
+      "title": "لماذا لا أرى السائق على الخريطة بعد؟",
+      "body": "<p>تظهر الخريطة المباشرة بمجرد تعيين سائق واستلامه لطلبك. وبينما لا يزال المتجر يحضّره، سترى حالة التحضير بدلاً من سائق متحرّك.</p><p>وبمجرد أن يتجه السائق إليك، يظهر موقعه والوقت المتوقع تلقائياً.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "promos",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How do I apply a promo code?",
+      "body": "<p>Add your items, go to <strong>Checkout</strong>, and find the <strong>Promo code</strong> field. Type or paste the code and tap <strong>Apply</strong>. If it's valid, the discount appears in your order summary before you pay.</p><p>Make sure your cart meets any minimum amount and store conditions tied to the code.</p>"
+    },
+    "content_fr": {
+      "title": "Comment appliquer un code promo ?",
+      "body": "<p>Ajoutez vos articles, allez au <strong>paiement</strong> et trouvez le champ <strong>Code promo</strong>. Saisissez ou collez le code et appuyez sur <strong>Appliquer</strong>. S'il est valide, la réduction apparaît dans le récapitulatif de votre commande avant le paiement.</p><p>Assurez-vous que votre panier respecte le montant minimum et les conditions de magasin liés au code.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أطبّق رمز الخصم؟",
+      "body": "<p>أضف منتجاتك، اذهب إلى <strong>إتمام الطلب</strong>، وابحث عن حقل <strong>رمز الخصم</strong>. اكتب الرمز أو الصقه واضغط على <strong>تطبيق</strong>. إذا كان صالحاً، يظهر الخصم في ملخص طلبك قبل أن تدفع.</p><p>تأكد من أن سلتك تستوفي الحد الأدنى للمبلغ وشروط المتجر المرتبطة بالرمز.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "promos",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "Why did my promo code fail?",
+      "body": "<p>A code can be rejected for a few common reasons:</p><ul><li>Your cart is below the required <strong>minimum order value</strong>.</li><li>The code only works at certain restaurants or stores.</li><li>It's a <strong>first-order only</strong> offer and you've ordered before.</li><li>The code has <strong>expired</strong> or reached its usage limit.</li></ul><p>Check the offer's terms, adjust your cart if needed, and try again.</p>"
+    },
+    "content_fr": {
+      "title": "Pourquoi mon code promo a-t-il échoué ?",
+      "body": "<p>Un code peut être refusé pour plusieurs raisons courantes :</p><ul><li>Votre panier est en dessous du <strong>montant minimum</strong> requis.</li><li>Le code ne fonctionne que dans certains restaurants ou magasins.</li><li>C'est une offre <strong>réservée à la première commande</strong> et vous avez déjà commandé.</li><li>Le code a <strong>expiré</strong> ou atteint sa limite d'utilisation.</li></ul><p>Vérifiez les conditions de l'offre, ajustez votre panier si nécessaire, puis réessayez.</p>"
+    },
+    "content_ar": {
+      "title": "لماذا فشل رمز الخصم الخاص بي؟",
+      "body": "<p>قد يُرفض الرمز لعدة أسباب شائعة:</p><ul><li>سلتك أقل من <strong>الحد الأدنى لقيمة الطلب</strong> المطلوب.</li><li>الرمز يعمل فقط في مطاعم أو متاجر معيّنة.</li><li>إنه عرض <strong>للطلب الأول فقط</strong> وقد طلبت من قبل.</li><li>الرمز <strong>منتهي الصلاحية</strong> أو وصل إلى حدّ الاستخدام.</li></ul><p>تحقق من شروط العرض، عدّل سلتك إن لزم الأمر، ثم حاول مجدداً.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "promos",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "Can I use more than one promo code per order?",
+      "body": "<p>No. Only one promo code can be applied per order — codes can't be stacked or combined. If you have several, use the one that gives you the best discount for that cart.</p><p>A code can also usually be combined with store-level offers shown on the store page, but not with another promo code.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je utiliser plusieurs codes promo par commande ?",
+      "body": "<p>Non. Un seul code promo peut être appliqué par commande — les codes ne peuvent pas être cumulés ni combinés. Si vous en avez plusieurs, utilisez celui qui offre la meilleure réduction pour ce panier.</p><p>Un code peut généralement aussi se combiner avec les offres du magasin affichées sur sa page, mais pas avec un autre code promo.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني استخدام أكثر من رمز خصم في الطلب الواحد؟",
+      "body": "<p>لا. يمكن تطبيق رمز خصم واحد فقط لكل طلب — لا يمكن جمع الرموز أو دمجها. إذا كان لديك عدة رموز، استخدم الرمز الذي يمنحك أفضل خصم لتلك السلة.</p><p>عادةً ما يمكن دمج الرمز مع عروض المتجر الظاهرة في صفحته، لكن ليس مع رمز خصم آخر.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "promos",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Do promo codes expire?",
+      "body": "<p>Yes. Most codes have an expiry date and may also have a usage limit. After the expiry date, or once the limit is reached, the code can no longer be applied at checkout.</p><p>The validity and conditions are shown wherever the offer is presented, so check before saving a code for later.</p>"
+    },
+    "content_fr": {
+      "title": "Les codes promo expirent-ils ?",
+      "body": "<p>Oui. La plupart des codes ont une date d'expiration et peuvent aussi avoir une limite d'utilisation. Après la date d'expiration, ou une fois la limite atteinte, le code ne peut plus être appliqué au paiement.</p><p>La validité et les conditions sont indiquées partout où l'offre est présentée, alors vérifiez avant de garder un code pour plus tard.</p>"
+    },
+    "content_ar": {
+      "title": "هل تنتهي صلاحية رموز الخصم؟",
+      "body": "<p>نعم. لمعظم الرموز تاريخ انتهاء، وقد يكون لها أيضاً حدّ للاستخدام. بعد تاريخ الانتهاء، أو عند الوصول إلى الحد، لا يمكن تطبيق الرمز عند الدفع.</p><p>تظهر مدة الصلاحية والشروط في كل مكان يُعرض فيه العرض، لذا تحقق قبل الاحتفاظ برمز لوقت لاحق.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "promos",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "First-order offers explained",
+      "body": "<p>New to Blink? Look out for a first-order offer — a special discount for your very first delivery.</p><h2>How it works</h2><ul><li>The discount applies only to your <strong>first completed order</strong> on the account.</li><li>You'll usually need to enter a specific code at checkout, or it may apply automatically.</li><li>A <strong>minimum cart value</strong> often applies, and the offer may be limited to certain stores.</li></ul><h2>Claiming it</h2><ol><li>Add items until you meet the minimum.</li><li>At <strong>Checkout</strong>, enter the first-order code in the <strong>Promo code</strong> field and tap <strong>Apply</strong>.</li><li>Confirm the discount appears in your summary, then place the order.</li></ol><blockquote>Tip: One first-order offer is allowed per customer. Creating extra accounts to reuse it isn't permitted and can lead to the discount being removed.</blockquote><p>If the code won't apply, double-check it hasn't expired and that this is genuinely your first order.</p>"
+    },
+    "content_fr": {
+      "title": "Les offres de première commande expliquées",
+      "body": "<p>Nouveau sur Blink ? Guettez une offre de première commande — une réduction spéciale pour votre toute première livraison.</p><h2>Comment ça marche</h2><ul><li>La réduction s'applique uniquement à votre <strong>première commande terminée</strong> sur le compte.</li><li>Vous devrez généralement saisir un code précis au paiement, ou il peut s'appliquer automatiquement.</li><li>Un <strong>montant minimum de panier</strong> s'applique souvent, et l'offre peut être limitée à certains magasins.</li></ul><h2>En profiter</h2><ol><li>Ajoutez des articles jusqu'à atteindre le minimum.</li><li>Au <strong>paiement</strong>, saisissez le code de première commande dans le champ <strong>Code promo</strong> et appuyez sur <strong>Appliquer</strong>.</li><li>Vérifiez que la réduction apparaît dans votre récapitulatif, puis validez la commande.</li></ol><blockquote>Astuce : une seule offre de première commande est autorisée par client. Créer des comptes supplémentaires pour la réutiliser n'est pas permis et peut entraîner le retrait de la réduction.</blockquote><p>Si le code ne s'applique pas, vérifiez qu'il n'a pas expiré et qu'il s'agit bien de votre première commande.</p>"
+    },
+    "content_ar": {
+      "title": "شرح عروض الطلب الأول",
+      "body": "<p>جديد على بلينك؟ ابحث عن عرض الطلب الأول — خصم خاص لأول توصيلة لك.</p><h2>كيف يعمل</h2><ul><li>يُطبَّق الخصم فقط على <strong>أول طلب مكتمل</strong> على الحساب.</li><li>ستحتاج عادةً إلى إدخال رمز محدّد عند الدفع، أو قد يُطبَّق تلقائياً.</li><li>غالباً ما ينطبق <strong>حد أدنى لقيمة السلة</strong>، وقد يقتصر العرض على متاجر معيّنة.</li></ul><h2>كيفية الحصول عليه</h2><ol><li>أضف منتجات حتى تبلغ الحد الأدنى.</li><li>عند <strong>إتمام الطلب</strong>، أدخل رمز الطلب الأول في حقل <strong>رمز الخصم</strong> واضغط على <strong>تطبيق</strong>.</li><li>تأكد من ظهور الخصم في ملخصك، ثم أكّد الطلب.</li></ol><blockquote>نصيحة: يُسمح بعرض طلب أول واحد لكل عميل. إنشاء حسابات إضافية لإعادة استخدامه غير مسموح وقد يؤدي إلى إزالة الخصم.</blockquote><p>إذا لم يُطبَّق الرمز، تأكد من أنه لم تنتهِ صلاحيته وأن هذا فعلاً طلبك الأول.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "promos",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Earning referral rewards",
+      "body": "<p>Love Blink? Invite friends and earn rewards when they order. Your referral credit lands in Blink Cash, ready to spend.</p><h2>Share your code</h2><ol><li>Find your personal referral code or link in the app.</li><li>Share it with friends who haven't used Blink before.</li><li>They enter your code when they sign up or at checkout on their first order.</li></ol><h2>Getting your reward</h2><ul><li>Your friend usually gets a discount on their first order.</li><li>You receive your referral reward as <strong>Blink Cash</strong> once their qualifying order is completed.</li><li>A minimum order value may apply for the reward to count.</li></ul><blockquote>Tip: Rewards are paid only for genuine new customers. Referring yourself or fake accounts isn't allowed and rewards may be reversed.</blockquote><p>Track your earned referral credit any time in your <strong>Blink Cash</strong> wallet.</p>"
+    },
+    "content_fr": {
+      "title": "Gagner des récompenses de parrainage",
+      "body": "<p>Vous aimez Blink ? Invitez des amis et gagnez des récompenses lorsqu'ils commandent. Votre crédit de parrainage arrive en Blink Cash, prêt à être dépensé.</p><h2>Partagez votre code</h2><ol><li>Trouvez votre code ou lien de parrainage personnel dans l'application.</li><li>Partagez-le avec des amis qui n'ont jamais utilisé Blink.</li><li>Ils saisissent votre code à l'inscription ou au paiement de leur première commande.</li></ol><h2>Recevoir votre récompense</h2><ul><li>Votre ami obtient généralement une réduction sur sa première commande.</li><li>Vous recevez votre récompense de parrainage en <strong>Blink Cash</strong> une fois sa commande éligible terminée.</li><li>Un montant minimum de commande peut s'appliquer pour que la récompense compte.</li></ul><blockquote>Astuce : les récompenses sont versées uniquement pour de vrais nouveaux clients. Se parrainer soi-même ou utiliser de faux comptes n'est pas autorisé et les récompenses peuvent être annulées.</blockquote><p>Suivez votre crédit de parrainage gagné à tout moment dans votre portefeuille <strong>Blink Cash</strong>.</p>"
+    },
+    "content_ar": {
+      "title": "كسب مكافآت الإحالة",
+      "body": "<p>تحب بلينك؟ ادعُ أصدقاءك واكسب مكافآت عندما يطلبون. يصل رصيد الإحالة إلى بلينك كاش جاهزاً للإنفاق.</p><h2>شارك رمزك</h2><ol><li>اعثر على رمز أو رابط الإحالة الشخصي في التطبيق.</li><li>شاركه مع أصدقاء لم يستخدموا بلينك من قبل.</li><li>يُدخلون رمزك عند التسجيل أو عند الدفع في طلبهم الأول.</li></ol><h2>الحصول على مكافأتك</h2><ul><li>عادةً ما يحصل صديقك على خصم في طلبه الأول.</li><li>تحصل على مكافأة الإحالة كرصيد <strong>بلينك كاش</strong> بمجرد اكتمال طلبه المؤهَّل.</li><li>قد ينطبق حد أدنى لقيمة الطلب حتى تُحتسب المكافأة.</li></ul><blockquote>نصيحة: تُدفع المكافآت فقط للعملاء الجدد الحقيقيين. إحالة نفسك أو استخدام حسابات وهمية غير مسموح، وقد تُلغى المكافآت.</blockquote><p>تابع رصيد الإحالة الذي كسبته في أي وقت ضمن محفظة <strong>بلينك كاش</strong>.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "promos",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "Why is a promo only valid at some restaurants?",
+      "body": "<p>Some offers are funded by a specific restaurant or store as part of their own promotion, so the code only works on orders from those places.</p><p>The eligible stores are listed with the offer. If your cart is from a different store, the code won't apply — switch to a participating store or pick a different code.</p>"
+    },
+    "content_fr": {
+      "title": "Pourquoi une promo n'est-elle valable que dans certains restaurants ?",
+      "body": "<p>Certaines offres sont financées par un restaurant ou un magasin précis dans le cadre de sa propre promotion, donc le code ne fonctionne que sur les commandes de ces établissements.</p><p>Les magasins éligibles sont indiqués avec l'offre. Si votre panier provient d'un autre magasin, le code ne s'appliquera pas — choisissez un magasin participant ou un autre code.</p>"
+    },
+    "content_ar": {
+      "title": "لماذا يكون عرض ما صالحاً في بعض المطاعم فقط؟",
+      "body": "<p>بعض العروض يموّلها مطعم أو متجر محدّد ضمن حملته الخاصة، لذا يعمل الرمز فقط على الطلبات من تلك الأماكن.</p><p>المتاجر المؤهَّلة مذكورة مع العرض. إذا كانت سلتك من متجر آخر، فلن يُطبَّق الرمز — انتقل إلى متجر مشارك أو اختر رمزاً آخر.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "addresses",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How do I add a new delivery address?",
+      "body": "<p>Go to your <strong>Profile → Addresses</strong> and tap <strong>Add address</strong>. Move the map pin to your exact spot, then fill in details like building, floor, and a name such as Home or Work.</p><p>You can also add a new address directly at checkout when choosing where to deliver.</p>"
+    },
+    "content_fr": {
+      "title": "Comment ajouter une nouvelle adresse de livraison ?",
+      "body": "<p>Allez dans <strong>Profil → Adresses</strong> et appuyez sur <strong>Ajouter une adresse</strong>. Déplacez le point sur la carte vers votre emplacement exact, puis renseignez les détails comme le bâtiment, l'étage et un nom tel que Domicile ou Travail.</p><p>Vous pouvez aussi ajouter une nouvelle adresse directement au paiement en choisissant où livrer.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أضيف عنوان توصيل جديداً؟",
+      "body": "<p>اذهب إلى <strong>الملف الشخصي ← العناوين</strong> واضغط على <strong>إضافة عنوان</strong>. حرّك دبوس الخريطة إلى موقعك الدقيق، ثم أدخل التفاصيل مثل المبنى والطابق واسم مثل المنزل أو العمل.</p><p>يمكنك أيضاً إضافة عنوان جديد مباشرةً عند الدفع أثناء اختيار مكان التوصيل.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "addresses",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How do I edit or delete an address?",
+      "body": "<p>Open <strong>Profile → Addresses</strong>, tap the address you want to change, then update the pin or details and save. To remove one, choose <strong>Delete</strong>.</p><p>You can't delete an address that's being used for an order currently in progress; wait until that order is delivered.</p>"
+    },
+    "content_fr": {
+      "title": "Comment modifier ou supprimer une adresse ?",
+      "body": "<p>Ouvrez <strong>Profil → Adresses</strong>, appuyez sur l'adresse à modifier, puis mettez à jour le point ou les détails et enregistrez. Pour en supprimer une, choisissez <strong>Supprimer</strong>.</p><p>Vous ne pouvez pas supprimer une adresse utilisée pour une commande en cours ; attendez que cette commande soit livrée.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أعدّل عنواناً أو أحذفه؟",
+      "body": "<p>افتح <strong>الملف الشخصي ← العناوين</strong>، اضغط على العنوان الذي تريد تغييره، ثم حدّث الدبوس أو التفاصيل واحفظ. لحذف عنوان، اختر <strong>حذف</strong>.</p><p>لا يمكنك حذف عنوان مستخدَم في طلب قيد التنفيذ حالياً؛ انتظر حتى يتم توصيل ذلك الطلب.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "addresses",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How do I set a default address?",
+      "body": "<p>In <strong>Profile → Addresses</strong>, open the address you use most and mark it as <strong>Default</strong>. It will then be pre-selected at checkout to save you time.</p><p>You can still switch to any other saved address on the checkout screen for a one-off delivery.</p>"
+    },
+    "content_fr": {
+      "title": "Comment définir une adresse par défaut ?",
+      "body": "<p>Dans <strong>Profil → Adresses</strong>, ouvrez l'adresse que vous utilisez le plus et marquez-la comme <strong>Par défaut</strong>. Elle sera alors présélectionnée au paiement pour vous faire gagner du temps.</p><p>Vous pouvez toujours basculer vers une autre adresse enregistrée sur l'écran de paiement pour une livraison ponctuelle.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أعيّن عنواناً افتراضياً؟",
+      "body": "<p>في <strong>الملف الشخصي ← العناوين</strong>، افتح العنوان الذي تستخدمه أكثر وحدّده كـ<strong>افتراضي</strong>. عندها سيُحدَّد مسبقاً عند الدفع لتوفير وقتك.</p><p>يمكنك دائماً التبديل إلى أي عنوان محفوظ آخر في شاشة الدفع لتوصيلة لمرة واحدة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "addresses",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Where do I add delivery instructions or notes?",
+      "body": "<p>When adding or editing an address, use the <strong>delivery instructions</strong> or notes field. Add details like floor number, gate code, building color, or \"leave at reception\".</p><p>These notes are shared with your rider so they can find you quickly and hand over the order without delay.</p>"
+    },
+    "content_fr": {
+      "title": "Où ajouter des instructions de livraison ou des notes ?",
+      "body": "<p>Lors de l'ajout ou de la modification d'une adresse, utilisez le champ <strong>instructions de livraison</strong> ou notes. Ajoutez des détails comme le numéro d'étage, le code du portail, la couleur du bâtiment, ou « laisser à la réception ».</p><p>Ces notes sont partagées avec votre livreur pour qu'il vous trouve rapidement et remette la commande sans retard.</p>"
+    },
+    "content_ar": {
+      "title": "أين أضيف تعليمات التوصيل أو الملاحظات؟",
+      "body": "<p>عند إضافة عنوان أو تعديله، استخدم حقل <strong>تعليمات التوصيل</strong> أو الملاحظات. أضف تفاصيل مثل رقم الطابق أو رمز البوابة أو لون المبنى أو «اترك عند الاستقبال».</p><p>تُشارَك هذه الملاحظات مع السائق ليجدك بسرعة ويسلّم الطلب دون تأخير.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "addresses",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Getting your map pin right",
+      "body": "<p>An accurate map pin is the single best thing you can do to make sure your order reaches you fast. The pin tells your rider exactly where to go.</p><h2>Why pin accuracy matters</h2><p>Delivery fees and ETAs are based on the distance to your pin, and the rider navigates straight to it. A pin in the wrong place can mean a longer wait or a confused rider at the wrong door.</p><h2>Set it precisely</h2><ol><li>When adding an address, drag the map until the pin sits on your <strong>building entrance</strong>.</li><li>Zoom in to fine-tune — aim for the doorway, not the street center.</li><li>Add a note for the part a map can't show: floor, gate code, or a landmark.</li></ol><blockquote>Tip: Allow location permission so the app can suggest your current position as a starting point — then nudge the pin to be exact.</blockquote><p>Re-check the pin if you move or if a recent order had trouble finding you. You can adjust it any time from <strong>Profile → Addresses</strong>.</p>"
+    },
+    "content_fr": {
+      "title": "Bien placer votre point sur la carte",
+      "body": "<p>Un point précis sur la carte est la meilleure chose à faire pour que votre commande vous parvienne vite. Le point indique à votre livreur exactement où aller.</p><h2>Pourquoi la précision compte</h2><p>Les frais de livraison et les ETA reposent sur la distance jusqu'à votre point, et le livreur s'y dirige directement. Un point au mauvais endroit peut signifier une attente plus longue ou un livreur perdu à la mauvaise porte.</p><h2>Placez-le précisément</h2><ol><li>En ajoutant une adresse, déplacez la carte jusqu'à ce que le point soit sur l'<strong>entrée de votre bâtiment</strong>.</li><li>Zoomez pour ajuster — visez la porte, pas le milieu de la rue.</li><li>Ajoutez une note pour ce qu'une carte ne montre pas : étage, code de portail ou point de repère.</li></ol><blockquote>Astuce : autorisez la localisation pour que l'application propose votre position actuelle comme point de départ — puis ajustez le point pour qu'il soit exact.</blockquote><p>Revérifiez le point si vous déménagez ou si une commande récente a eu du mal à vous trouver. Vous pouvez l'ajuster à tout moment depuis <strong>Profil → Adresses</strong>.</p>"
+    },
+    "content_ar": {
+      "title": "ضبط دبوس الخريطة بدقة",
+      "body": "<p>دقة دبوس الخريطة هي أفضل ما يمكنك فعله لضمان وصول طلبك إليك بسرعة. فالدبوس يخبر السائق بالمكان الدقيق الذي يجب أن يذهب إليه.</p><h2>لماذا تهمّ دقة الدبوس</h2><p>تعتمد رسوم التوصيل والأوقات المتوقعة على المسافة إلى دبوسك، والسائق يتجه إليه مباشرةً. الدبوس في المكان الخطأ قد يعني انتظاراً أطول أو سائقاً حائراً عند الباب الخطأ.</p><h2>اضبطه بدقة</h2><ol><li>عند إضافة عنوان، حرّك الخريطة حتى يستقر الدبوس على <strong>مدخل مبناك</strong>.</li><li>كبّر الصورة للضبط الدقيق — استهدف المدخل، وليس منتصف الشارع.</li><li>أضف ملاحظة لما لا تُظهره الخريطة: الطابق أو رمز البوابة أو معلَماً قريباً.</li></ol><blockquote>نصيحة: اسمح بإذن الموقع ليقترح التطبيق موقعك الحالي كنقطة بداية — ثم اضبط الدبوس ليكون دقيقاً.</blockquote><p>أعد فحص الدبوس إذا انتقلت أو إذا واجه طلب حديث صعوبة في إيجادك. يمكنك تعديله في أي وقت من <strong>الملف الشخصي ← العناوين</strong>.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "addresses",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "My address isn't found on the map. What can I do?",
+      "body": "<p>If search can't find your street, you can still place a pin manually. Drag the map to your area and drop the pin on your building entrance, then add clear notes like a nearby landmark, gate, or shop.</p><p>The pin location plus good delivery instructions are what really guide your rider, even when the address text is incomplete.</p>"
+    },
+    "content_fr": {
+      "title": "Mon adresse est introuvable sur la carte. Que puis-je faire ?",
+      "body": "<p>Si la recherche ne trouve pas votre rue, vous pouvez tout de même placer un point manuellement. Déplacez la carte vers votre quartier et posez le point sur l'entrée de votre bâtiment, puis ajoutez des notes claires comme un point de repère proche, un portail ou un magasin.</p><p>L'emplacement du point et de bonnes instructions de livraison sont ce qui guide vraiment votre livreur, même quand le texte de l'adresse est incomplet.</p>"
+    },
+    "content_ar": {
+      "title": "لم يُعثر على عنواني على الخريطة. ماذا أفعل؟",
+      "body": "<p>إذا لم يجد البحث شارعك، لا يزال بإمكانك وضع الدبوس يدوياً. حرّك الخريطة إلى منطقتك وضع الدبوس على مدخل مبناك، ثم أضف ملاحظات واضحة مثل معلَم قريب أو بوابة أو متجر.</p><p>موقع الدبوس مع تعليمات توصيل جيدة هما ما يرشد سائقك فعلاً، حتى عندما يكون نص العنوان ناقصاً.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "ratings-customer",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How do I rate my order and rider?",
+      "body": "<p>After your order is delivered, a rating prompt appears, or you can open the order from <strong>Activities</strong> and tap <strong>Rate</strong>. Give stars for the food/store and for the rider, and add an optional comment.</p><p>Your feedback helps stores and riders improve and helps other customers choose.</p>"
+    },
+    "content_fr": {
+      "title": "Comment noter ma commande et mon livreur ?",
+      "body": "<p>Après la livraison, une invitation à noter apparaît, ou vous pouvez ouvrir la commande depuis <strong>Activités</strong> et appuyer sur <strong>Noter</strong>. Attribuez des étoiles pour les plats/le magasin et pour le livreur, et ajoutez un commentaire facultatif.</p><p>Vos retours aident les magasins et les livreurs à s'améliorer et aident les autres clients à choisir.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أقيّم طلبي والسائق؟",
+      "body": "<p>بعد توصيل طلبك، تظهر دعوة للتقييم، أو يمكنك فتح الطلب من <strong>النشاطات</strong> والضغط على <strong>تقييم</strong>. امنح نجوماً للطعام/المتجر وللسائق، وأضف تعليقاً اختيارياً.</p><p>تساعد ملاحظاتك المتاجر والسائقين على التحسّن، وتساعد العملاء الآخرين على الاختيار.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "ratings-customer",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "Can I edit or remove a review I left?",
+      "body": "<p>Yes, within a short window after posting. Open the order in <strong>Activities</strong>, tap your rating, and update the stars or comment, or choose to remove it.</p><p>If editing is no longer available and a review needs correcting, contact us through in-app <strong>Live Chat</strong>.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je modifier ou supprimer un avis que j'ai laissé ?",
+      "body": "<p>Oui, dans un court délai après publication. Ouvrez la commande dans <strong>Activités</strong>, appuyez sur votre note, et modifiez les étoiles ou le commentaire, ou choisissez de le supprimer.</p><p>Si la modification n'est plus disponible et qu'un avis doit être corrigé, contactez-nous via le <strong>Chat en direct</strong> dans l'application.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني تعديل مراجعة تركتها أو حذفها؟",
+      "body": "<p>نعم، خلال فترة قصيرة بعد النشر. افتح الطلب في <strong>النشاطات</strong>، اضغط على تقييمك، وحدّث النجوم أو التعليق، أو اختر حذفه.</p><p>إذا لم يعد التعديل متاحاً وكانت المراجعة بحاجة إلى تصحيح، تواصل معنا عبر <strong>الدردشة المباشرة</strong> داخل التطبيق.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "ratings-customer",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How are my ratings used?",
+      "body": "<p>Star ratings build the average score you see for each store and rider, helping everyone choose with confidence. Comments give stores and riders specific feedback to improve.</p><p>Serious issues, like a missing order, are best raised through <strong>Report a problem</strong> rather than only a low star rating, so we can act on them.</p>"
+    },
+    "content_fr": {
+      "title": "Comment mes notes sont-elles utilisées ?",
+      "body": "<p>Les notes en étoiles construisent la moyenne affichée pour chaque magasin et livreur, aidant chacun à choisir en confiance. Les commentaires donnent aux magasins et livreurs un retour précis pour s'améliorer.</p><p>Les problèmes sérieux, comme une commande manquante, valent mieux d'être signalés via <strong>Signaler un problème</strong> plutôt qu'avec une simple note basse, pour que nous puissions agir.</p>"
+    },
+    "content_ar": {
+      "title": "كيف تُستخدم تقييماتي؟",
+      "body": "<p>تشكّل تقييمات النجوم متوسط الدرجة الذي تراه لكل متجر وسائق، مما يساعد الجميع على الاختيار بثقة. وتمنح التعليقات المتاجر والسائقين ملاحظات محدّدة للتحسّن.</p><p>المشكلات الجدية، مثل طلب مفقود، يُفضَّل الإبلاغ عنها عبر <strong>الإبلاغ عن مشكلة</strong> وليس بتقييم منخفض فقط، حتى نتمكن من معالجتها.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "ratings-customer",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Can I tip my rider?",
+      "body": "<p>If tipping is available on your order, you'll see a <strong>Tip</strong> option at checkout or after delivery when you rate. Any tip goes entirely to your rider on top of their earnings.</p><p>Tipping is always optional and never required to get your order delivered.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je donner un pourboire à mon livreur ?",
+      "body": "<p>Si le pourboire est disponible pour votre commande, vous verrez une option <strong>Pourboire</strong> au paiement ou après la livraison lors de la notation. Tout pourboire revient entièrement à votre livreur en plus de ses gains.</p><p>Le pourboire est toujours facultatif et jamais obligatoire pour faire livrer votre commande.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني إعطاء إكرامية للسائق؟",
+      "body": "<p>إذا كانت الإكرامية متاحة في طلبك، فسترى خيار <strong>إكرامية</strong> عند الدفع أو بعد التوصيل عند التقييم. تذهب أي إكرامية بالكامل إلى سائقك إضافةً إلى أرباحه.</p><p>الإكرامية اختيارية دائماً وليست مطلوبة أبداً لتوصيل طلبك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "ratings-customer",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Reporting a problem with an order",
+      "body": "<p>Ratings tell us how things went; <strong>Report a problem</strong> is how we fix something that went wrong, like a missing item, a quality issue, or an order marked delivered that never arrived.</p><h2>How to report</h2><ol><li>Open the order from the <strong>Activities</strong> tab.</li><li>Tap <strong>Report a problem</strong> and pick the issue type.</li><li>Add a short description and a photo if it helps explain.</li><li>Submit — you'll get updates on the resolution.</li></ol><h2>What you can expect</h2><ul><li>For confirmed issues, a refund to your original payment method or to Blink Cash.</li><li>Card refunds take <strong>3–5 business days</strong>; Blink Cash is usually instant.</li><li>For anything urgent or complex, in-app <strong>Live Chat</strong> connects you to support.</li></ul><blockquote>Tip: Report on the same day with clear details — it's the fastest path to a fair resolution.</blockquote><p>Use a low rating for general feedback, but always use Report a problem when you need us to take action.</p>"
+    },
+    "content_fr": {
+      "title": "Signaler un problème avec une commande",
+      "body": "<p>Les notes nous disent comment cela s'est passé ; <strong>Signaler un problème</strong> est la façon de corriger ce qui a mal tourné, comme un article manquant, un souci de qualité, ou une commande marquée livrée qui n'est jamais arrivée.</p><h2>Comment signaler</h2><ol><li>Ouvrez la commande depuis l'onglet <strong>Activités</strong>.</li><li>Appuyez sur <strong>Signaler un problème</strong> et choisissez le type de souci.</li><li>Ajoutez une courte description et une photo si cela aide à expliquer.</li><li>Envoyez — vous recevrez des mises à jour sur la résolution.</li></ol><h2>Ce à quoi vous attendre</h2><ul><li>Pour les problèmes confirmés, un remboursement sur votre moyen de paiement initial ou en Blink Cash.</li><li>Les remboursements sur carte prennent <strong>3 à 5 jours ouvrés</strong> ; le Blink Cash est généralement instantané.</li><li>Pour tout cas urgent ou complexe, le <strong>Chat en direct</strong> dans l'application vous met en relation avec le support.</li></ul><blockquote>Astuce : signalez le jour même avec des détails clairs — c'est le chemin le plus rapide vers une résolution juste.</blockquote><p>Utilisez une note basse pour un retour général, mais utilisez toujours Signaler un problème quand vous avez besoin que nous agissions.</p>"
+    },
+    "content_ar": {
+      "title": "الإبلاغ عن مشكلة في الطلب",
+      "body": "<p>التقييمات تخبرنا كيف سارت الأمور؛ أما <strong>الإبلاغ عن مشكلة</strong> فهو الطريقة التي نصلح بها ما حدث خطأ، مثل منتج ناقص أو مشكلة في الجودة أو طلب مُعلَّم بأنه تم توصيله لكنه لم يصل أبداً.</p><h2>كيفية الإبلاغ</h2><ol><li>افتح الطلب من تبويب <strong>النشاطات</strong>.</li><li>اضغط على <strong>الإبلاغ عن مشكلة</strong> واختر نوع المشكلة.</li><li>أضف وصفاً قصيراً وصورة إن ساعدت في التوضيح.</li><li>أرسل — وستتلقى تحديثات حول الحل.</li></ol><h2>ما يمكن توقّعه</h2><ul><li>للمشكلات المؤكَّدة، استرداد إلى طريقة الدفع الأصلية أو إلى بلينك كاش.</li><li>الاسترداد إلى البطاقة يستغرق <strong>3 إلى 5 أيام عمل</strong>؛ وبلينك كاش عادةً فوري.</li><li>لأي أمر عاجل أو معقّد، تربطك <strong>الدردشة المباشرة</strong> داخل التطبيق بالدعم.</li></ul><blockquote>نصيحة: أبلغ في نفس اليوم بتفاصيل واضحة — فهو أسرع طريق إلى حل عادل.</blockquote><p>استخدم التقييم المنخفض للملاحظات العامة، لكن استخدم دائماً الإبلاغ عن مشكلة عندما تحتاج منا اتخاذ إجراء.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "ratings-customer",
+    "target_roles": ["Customer"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Will my rider see my rating or comment?",
+      "body": "<p>Riders and stores see their overall scores and general feedback, but individual ratings are not tied to you personally in a way that affects your service.</p><p>You can rate honestly. If something needs to be addressed directly, use <strong>Report a problem</strong> or <strong>Live Chat</strong> instead of relying on the comment alone.</p>"
+    },
+    "content_fr": {
+      "title": "Mon livreur verra-t-il ma note ou mon commentaire ?",
+      "body": "<p>Les livreurs et les magasins voient leurs scores globaux et les retours généraux, mais les notes individuelles ne vous sont pas associées personnellement d'une manière qui affecte votre service.</p><p>Vous pouvez noter en toute honnêteté. Si quelque chose doit être traité directement, utilisez <strong>Signaler un problème</strong> ou le <strong>Chat en direct</strong> plutôt que de compter sur le seul commentaire.</p>"
+    },
+    "content_ar": {
+      "title": "هل سيرى السائق تقييمي أو تعليقي؟",
+      "body": "<p>يرى السائقون والمتاجر درجاتهم الإجمالية والملاحظات العامة، لكن التقييمات الفردية لا تُربط بك شخصياً بطريقة تؤثر على خدمتك.</p><p>يمكنك التقييم بصدق. وإذا كان هناك ما يحتاج إلى معالجة مباشرة، استخدم <strong>الإبلاغ عن مشكلة</strong> أو <strong>الدردشة المباشرة</strong> بدلاً من الاعتماد على التعليق وحده.</p>"
+    }
+  }
+]

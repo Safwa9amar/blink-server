@@ -1,6 +1,6 @@
 {
   "name": "blink-server",
-  "version": "1.0.26",
+  "version": "1.0.29",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -29,15 +29,20 @@
     "drizzle-orm": "^0.44.7",
     "expo-server-sdk": "^3.15.0",
     "hono": "^4.12.18",
+    "imapflow": "^1.4.6",
+    "mailparser": "^3.9.14",
     "node-cron": "^4.2.1",
+    "nodemailer": "^9.0.3",
     "openai": "^6.45.0",
     "tsx": "^4.22.0",
     "ws": "^8.20.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/mailparser": "^3.4.6",
     "@types/node": "^25.8.0",
     "@types/node-cron": "^3.0.11",
+    "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.20.0",
     "@types/ws": "^8.18.1",
     "drizzle-kit": "^0.31.10",

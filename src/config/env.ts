@@ -36,6 +36,28 @@ const envSchema = z.object({
     .enum(["true", "false"])
     .default("false")
     .transform((v) => v === "true"),
+
+  // ─── Customer email inbox (SMTP send + IMAP intake) ──────────────────
+  // All optional so the server still boots without email configured — the
+  // inbox then degrades gracefully: POST /cron/email-poll reports "disabled"
+  // and the reply route returns an error instead of throwing. Point these at
+  // the cPanel mailbox (e.g. support@blink.dz). SECURE=true means TLS on
+  // connect (SMTP 465 / IMAP 993); false uses STARTTLS (SMTP 587).
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_SECURE: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  // From address on outbound replies. Defaults to SMTP_USER when unset.
+  SMTP_FROM: z.string().optional(),
+
+  IMAP_HOST: z.string().optional(),
+  IMAP_PORT: z.coerce.number().default(993),
+  IMAP_SECURE: z.enum(["true", "false"]).default("true").transform((v) => v === "true"),
+  IMAP_USER: z.string().optional(),
+  IMAP_PASS: z.string().optional(),
+  // Mailbox to poll for new customer mail.
+  IMAP_MAILBOX: z.string().default("INBOX"),
 });
 
 export const env = envSchema.parse(process.env);

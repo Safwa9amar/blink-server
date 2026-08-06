@@ -17,20 +17,28 @@ import riderRoutes from "./routes/riders";
 import newsRoutes from "./routes/news";
 import deepLinkRoutes from "./routes/deep-links";
 import libraryRoutes from "./routes/library";
+import emailRoutes from "./routes/email";
 import cronRoutes from "./routes/cron";
 import supportChatRoutes from "./routes/support-chat";
 import supportContentRoutes from "./routes/support-content";
 import aiRoutes from "./routes/ai";
 import logsRoutes from "./routes/logs";
 import aiLogsRoutes from "./routes/ai-logs";
+import metricsRoutes from "./routes/metrics";
 import { installConsoleCapture } from "./lib/log-buffer";
+import { metricsMiddleware } from "./middleware/metrics";
+import { startMetrics } from "./lib/metrics";
 import { startLibraryCron } from "./scrapers/cron";
 import { startScheduledNotificationsCron } from "./lib/scheduled-notifications";
 import { startNewsCron } from "./lib/news-cron";
+import { startAlertsEvaluator } from "./lib/alerts";
 
 // Mirror console output into an in-memory ring buffer (super-admin Live Logs view).
 // Installed first so it captures everything the process prints from here on.
 installConsoleCapture();
+
+// Start the 1s vitals sampler (event-loop lag, CPU) for the super-admin Health view.
+startMetrics();
 
 // __APP_VERSION__ is injected from package.json at build time by
 // scripts/build.mjs (esbuild --define). Under `tsx` dev it is undefined, so
@@ -46,6 +54,8 @@ const app = new Hono().basePath(env.BASE_PATH);
 // ─── Global middleware ───────────────────────────────────────────────
 app.use("/*", cors());
 app.use("/*", logger());
+// Time every request into the rolling metrics window (Blink Server → Health).
+app.use("/*", metricsMiddleware);
 app.onError(errorHandler);
 
 // ─── Health check ────────────────────────────────────────────────────
@@ -75,8 +85,10 @@ app.route("/support-content", supportContentRoutes);
 app.route("/ai", aiRoutes);
 app.route("/logs", logsRoutes);
 app.route("/ai-logs", aiLogsRoutes);
+app.route("/metrics", metricsRoutes);
 app.route("/deep-links", deepLinkRoutes);
 app.route("/library", libraryRoutes);
+app.route("/email", emailRoutes);
 app.route("/cron", cronRoutes);
 
 // ─── Cron: scrape marketplaces daily at 3am ─────────────────────────
@@ -88,6 +100,7 @@ if (env.ENABLE_INPROCESS_CRON) {
   startLibraryCron();
   startScheduledNotificationsCron();
   startNewsCron();
+  startAlertsEvaluator();
 } else {
   console.log(
     "[cron] in-process scheduler disabled (set ENABLE_INPROCESS_CRON=true to enable)"

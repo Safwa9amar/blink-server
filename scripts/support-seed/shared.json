@@ -1,0 +1,800 @@
+[
+  {
+    "type": "article",
+    "category": "getting-started",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Welcome to Blink: your all-in-one delivery app",
+      "body": "<p>Blink is Algeria's multi-service super-app. From a single account you can order food, get groceries delivered, send parcels, and manage your money with the Blink Cash wallet.</p><h2>What you can do with Blink</h2><ul><li><strong>Order &amp; deliver</strong> — food, groceries, and parcels across your city.</li><li><strong>Track in real time</strong> — follow your rider on the map with a live ETA.</li><li><strong>Pay your way</strong> — cash on delivery or the Blink Cash wallet.</li><li><strong>Get help fast</strong> — in-app Live Chat and a helpline are always one tap away.</li></ul><h2>Getting around the app</h2><p>Two tabs do most of the work: the <strong>Activities</strong> tab shows everything you have in progress, and the <strong>Profile</strong> tab is where you manage your account, language, and settings.</p><blockquote>Tip: You only need a phone number to start. There are no passwords to remember — we sign you in with a one-time code (OTP).</blockquote>"
+    },
+    "content_fr": {
+      "title": "Bienvenue sur Blink : votre application de livraison tout-en-un",
+      "body": "<p>Blink est la super-app multiservice de l'Algérie. Depuis un seul compte, vous pouvez commander des repas, vous faire livrer vos courses, envoyer des colis et gérer votre argent avec le portefeuille Blink Cash.</p><h2>Ce que vous pouvez faire avec Blink</h2><ul><li><strong>Commander et livrer</strong> — repas, courses et colis dans votre ville.</li><li><strong>Suivre en temps réel</strong> — suivez votre livreur sur la carte avec un délai estimé en direct.</li><li><strong>Payer comme vous voulez</strong> — paiement à la livraison ou portefeuille Blink Cash.</li><li><strong>Obtenir de l'aide vite</strong> — le chat en direct et une ligne d'assistance sont toujours à portée de main.</li></ul><h2>Se repérer dans l'application</h2><p>Deux onglets font l'essentiel : l'onglet <strong>Activités</strong> affiche tout ce qui est en cours, et l'onglet <strong>Profil</strong> vous permet de gérer votre compte, votre langue et vos réglages.</p><blockquote>Astuce : un simple numéro de téléphone suffit pour démarrer. Aucun mot de passe à retenir — nous vous connectons avec un code à usage unique (OTP).</blockquote>"
+    },
+    "content_ar": {
+      "title": "مرحبًا بك في بلينك: تطبيق التوصيل الشامل",
+      "body": "<p>بلينك هو التطبيق الجزائري الشامل متعدد الخدمات. من حساب واحد يمكنك طلب الطعام وتوصيل البقالة وإرسال الطرود وإدارة أموالك عبر محفظة بلينك كاش.</p><h2>ماذا يمكنك أن تفعل عبر بلينك</h2><ul><li><strong>الطلب والتوصيل</strong> — الطعام والبقالة والطرود داخل مدينتك.</li><li><strong>التتبع المباشر</strong> — تابع السائق على الخريطة مع وقت وصول متوقع مباشر.</li><li><strong>ادفع بالطريقة التي تناسبك</strong> — الدفع عند الاستلام أو محفظة بلينك كاش.</li><li><strong>احصل على المساعدة بسرعة</strong> — الدردشة المباشرة وخط المساعدة على بُعد نقرة واحدة دائمًا.</li></ul><h2>التنقل داخل التطبيق</h2><p>هناك علامتان تبويبيتان تقومان بمعظم العمل: علامة <strong>الأنشطة</strong> تعرض كل ما هو قيد التنفيذ، وعلامة <strong>الملف الشخصي</strong> حيث تدير حسابك ولغتك وإعداداتك.</p><blockquote>نصيحة: يكفي رقم هاتف للبدء. لا توجد كلمات مرور للحفظ — نسجّل دخولك عبر رمز لمرة واحدة (OTP).</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "getting-started",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How do I download and install Blink?",
+      "body": "<p>Blink is available for both Android and iPhone. Search for <strong>Blink</strong> on the Google Play Store or the Apple App Store and tap install.</p><p>Make sure your device meets the minimum requirements and that you have a stable internet connection during the first launch so the app can finish setting up.</p>"
+    },
+    "content_fr": {
+      "title": "Comment télécharger et installer Blink ?",
+      "body": "<p>Blink est disponible pour Android et iPhone. Recherchez <strong>Blink</strong> sur le Google Play Store ou l'App Store d'Apple, puis appuyez sur installer.</p><p>Vérifiez que votre appareil respecte la configuration minimale et que vous disposez d'une connexion stable au premier lancement pour que l'application termine son installation.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أحمّل تطبيق بلينك وأثبّته؟",
+      "body": "<p>يتوفر بلينك على أجهزة أندرويد وآيفون. ابحث عن <strong>بلينك</strong> في متجر جوجل بلاي أو متجر تطبيقات آبل ثم اضغط على تثبيت.</p><p>تأكد من أن جهازك يستوفي الحد الأدنى من المتطلبات وأن لديك اتصال إنترنت مستقر عند التشغيل الأول حتى يُكمل التطبيق إعداده.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "getting-started",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "Creating your account with phone number and OTP",
+      "body": "<p>Blink uses a simple, password-free sign-in. You confirm your identity with a one-time code (OTP) sent to your phone by SMS.</p><h2>Step by step</h2><ol><li>Open Blink and tap <strong>Get started</strong> or <strong>Log in</strong>.</li><li>Enter your Algerian mobile number and continue.</li><li>Wait for the 6-digit code to arrive by SMS, then type it in.</li><li>Choose your role and fill in your basic details to finish.</li></ol><h2>If the code doesn't arrive</h2><ul><li>Check your signal and confirm the number you entered is correct.</li><li>Wait for the timer, then tap <strong>Resend code</strong>.</li><li>Make sure your SMS inbox isn't full.</li></ul><blockquote>Never share your OTP with anyone. Blink staff will never ask you for it.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Créer votre compte avec numéro de téléphone et OTP",
+      "body": "<p>Blink utilise une connexion simple, sans mot de passe. Vous confirmez votre identité avec un code à usage unique (OTP) envoyé par SMS sur votre téléphone.</p><h2>Étape par étape</h2><ol><li>Ouvrez Blink et appuyez sur <strong>Commencer</strong> ou <strong>Se connecter</strong>.</li><li>Saisissez votre numéro de mobile algérien et continuez.</li><li>Attendez le code à 6 chiffres reçu par SMS, puis saisissez-le.</li><li>Choisissez votre rôle et renseignez vos informations de base pour terminer.</li></ol><h2>Si le code n'arrive pas</h2><ul><li>Vérifiez votre réseau et que le numéro saisi est correct.</li><li>Attendez la fin du minuteur puis appuyez sur <strong>Renvoyer le code</strong>.</li><li>Assurez-vous que votre boîte SMS n'est pas pleine.</li></ul><blockquote>Ne partagez jamais votre OTP. Le personnel de Blink ne vous le demandera jamais.</blockquote>"
+    },
+    "content_ar": {
+      "title": "إنشاء حسابك برقم الهاتف ورمز التحقق (OTP)",
+      "body": "<p>يستخدم بلينك تسجيل دخول بسيطًا دون كلمة مرور. تؤكد هويتك عبر رمز لمرة واحدة (OTP) يُرسَل إلى هاتفك عبر رسالة نصية.</p><h2>خطوة بخطوة</h2><ol><li>افتح بلينك واضغط على <strong>ابدأ</strong> أو <strong>تسجيل الدخول</strong>.</li><li>أدخل رقم هاتفك الجزائري ثم تابع.</li><li>انتظر الرمز المكوّن من 6 أرقام عبر الرسالة النصية ثم اكتبه.</li><li>اختر دورك واملأ بياناتك الأساسية للإنهاء.</li></ol><h2>إذا لم يصل الرمز</h2><ul><li>تحقق من إشارة الشبكة وصحة الرقم الذي أدخلته.</li><li>انتظر انتهاء المؤقّت ثم اضغط على <strong>إعادة إرسال الرمز</strong>.</li><li>تأكد من أن صندوق الرسائل النصية غير ممتلئ.</li></ul><blockquote>لا تشارك رمز التحقق مع أي شخص أبدًا. لن يطلبه منك موظفو بلينك مطلقًا.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "getting-started",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "What is a role and how do I choose one?",
+      "body": "<p>Your role decides what the app does for you. Blink has four roles:</p><ul><li><strong>Customer</strong> — order food, groceries, and parcels.</li><li><strong>Rider</strong> — deliver orders and earn.</li><li><strong>Merchant</strong> — sell from your store.</li><li><strong>Agent</strong> — handle cash deposits and withdrawals at your shop.</li></ul><p>You pick your role during sign-up. If you need a different role later, contact support through Live Chat.</p>"
+    },
+    "content_fr": {
+      "title": "Qu'est-ce qu'un rôle et comment le choisir ?",
+      "body": "<p>Votre rôle détermine ce que l'application fait pour vous. Blink propose quatre rôles :</p><ul><li><strong>Client</strong> — commander repas, courses et colis.</li><li><strong>Livreur</strong> — livrer des commandes et gagner de l'argent.</li><li><strong>Commerçant</strong> — vendre depuis votre boutique.</li><li><strong>Agent</strong> — gérer dépôts et retraits d'espèces dans votre local.</li></ul><p>Vous choisissez votre rôle lors de l'inscription. Pour en changer plus tard, contactez le support via le chat en direct.</p>"
+    },
+    "content_ar": {
+      "title": "ما هو الدور وكيف أختاره؟",
+      "body": "<p>يحدّد دورك ما يقدّمه لك التطبيق. يضم بلينك أربعة أدوار:</p><ul><li><strong>العميل</strong> — طلب الطعام والبقالة والطرود.</li><li><strong>السائق</strong> — توصيل الطلبات وكسب المال.</li><li><strong>التاجر</strong> — البيع من متجرك.</li><li><strong>الوكيل</strong> — إدارة إيداعات وسحوبات النقود في محلك.</li></ul><p>تختار دورك أثناء التسجيل. إذا احتجت إلى دور مختلف لاحقًا، تواصل مع الدعم عبر الدردشة المباشرة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "getting-started",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Is Blink free to use?",
+      "body": "<p>Yes, downloading and creating a Blink account is completely free. You only pay for the items you order plus any delivery or service fees shown clearly before you confirm.</p><p>There are no hidden charges — every fee appears on the order summary at checkout.</p>"
+    },
+    "content_fr": {
+      "title": "Blink est-il gratuit ?",
+      "body": "<p>Oui, télécharger et créer un compte Blink est entièrement gratuit. Vous ne payez que les articles commandés, plus les éventuels frais de livraison ou de service affichés clairement avant de confirmer.</p><p>Aucun frais caché — chaque montant apparaît dans le récapitulatif de la commande au paiement.</p>"
+    },
+    "content_ar": {
+      "title": "هل استخدام بلينك مجاني؟",
+      "body": "<p>نعم، تنزيل بلينك وإنشاء حساب مجاني تمامًا. تدفع فقط ثمن ما تطلبه إضافةً إلى أي رسوم توصيل أو خدمة تظهر بوضوح قبل التأكيد.</p><p>لا توجد رسوم خفية — يظهر كل مبلغ في ملخص الطلب عند الدفع.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "getting-started",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Can I use one phone number for more than one account?",
+      "body": "<p>Each phone number is tied to a single Blink account, since we use it to sign you in by OTP. You can't register two accounts on the same number.</p><p>If you share a phone with family, only one person can be signed in at a time. To use a separate account, register with a different mobile number.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je utiliser un numéro pour plusieurs comptes ?",
+      "body": "<p>Chaque numéro de téléphone est lié à un seul compte Blink, car nous l'utilisons pour vous connecter par OTP. Vous ne pouvez pas créer deux comptes avec le même numéro.</p><p>Si vous partagez un téléphone, une seule personne peut être connectée à la fois. Pour un compte distinct, inscrivez-vous avec un autre numéro de mobile.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني استخدام رقم هاتف واحد لأكثر من حساب؟",
+      "body": "<p>يرتبط كل رقم هاتف بحساب بلينك واحد فقط، لأننا نستخدمه لتسجيل دخولك عبر رمز التحقق. لا يمكنك تسجيل حسابين بالرقم نفسه.</p><p>إذا كنت تشارك الهاتف مع العائلة، يمكن لشخص واحد فقط أن يكون مسجّل الدخول في كل مرة. لاستخدام حساب منفصل، سجّل برقم هاتف آخر.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "account",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Editing your profile: name, photo, and details",
+      "body": "<p>Keeping your profile up to date helps riders, merchants, and support recognize you. You can update most details yourself in a few taps.</p><h2>Where to find it</h2><p>Go to the <strong>Profile</strong> tab, then open <strong>Edit profile</strong> (or your name at the top of the screen).</p><h2>What you can change</h2><ul><li><strong>Full name</strong> — shown on your orders and to support.</li><li><strong>Profile photo</strong> — tap the picture, then pick a new image from your gallery or camera.</li><li><strong>Email</strong> — used for receipts and account notices.</li></ul><h2>Saving changes</h2><ol><li>Make your edits.</li><li>Tap <strong>Save</strong>.</li><li>Look for the confirmation message.</li></ol><blockquote>Your phone number is your login, so changing it follows a separate, verified process — see the dedicated guide.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Modifier votre profil : nom, photo et informations",
+      "body": "<p>Garder votre profil à jour aide les livreurs, commerçants et le support à vous reconnaître. Vous pouvez modifier la plupart des informations vous-même en quelques appuis.</p><h2>Où le trouver</h2><p>Allez dans l'onglet <strong>Profil</strong>, puis ouvrez <strong>Modifier le profil</strong> (ou votre nom en haut de l'écran).</p><h2>Ce que vous pouvez changer</h2><ul><li><strong>Nom complet</strong> — affiché sur vos commandes et au support.</li><li><strong>Photo de profil</strong> — appuyez sur l'image, puis choisissez une nouvelle photo depuis votre galerie ou l'appareil photo.</li><li><strong>E-mail</strong> — utilisé pour les reçus et les avis de compte.</li></ul><h2>Enregistrer les modifications</h2><ol><li>Effectuez vos modifications.</li><li>Appuyez sur <strong>Enregistrer</strong>.</li><li>Recherchez le message de confirmation.</li></ol><blockquote>Votre numéro de téléphone est votre identifiant : le changer suit une procédure vérifiée distincte — voir le guide dédié.</blockquote>"
+    },
+    "content_ar": {
+      "title": "تعديل ملفك الشخصي: الاسم والصورة والبيانات",
+      "body": "<p>إبقاء ملفك الشخصي محدّثًا يساعد السائقين والتجار والدعم على التعرّف عليك. يمكنك تحديث معظم البيانات بنفسك بنقرات قليلة.</p><h2>أين تجده</h2><p>اذهب إلى علامة <strong>الملف الشخصي</strong> ثم افتح <strong>تعديل الملف الشخصي</strong> (أو اسمك في أعلى الشاشة).</p><h2>ما يمكنك تغييره</h2><ul><li><strong>الاسم الكامل</strong> — يظهر على طلباتك وللدعم.</li><li><strong>صورة الملف الشخصي</strong> — اضغط على الصورة ثم اختر صورة جديدة من معرض الصور أو الكاميرا.</li><li><strong>البريد الإلكتروني</strong> — يُستخدَم للإيصالات وإشعارات الحساب.</li></ul><h2>حفظ التغييرات</h2><ol><li>أجرِ تعديلاتك.</li><li>اضغط على <strong>حفظ</strong>.</li><li>انتظر ظهور رسالة التأكيد.</li></ol><blockquote>رقم هاتفك هو وسيلة دخولك، لذا فإن تغييره يتبع إجراءً منفصلًا موثّقًا — راجع الدليل المخصّص.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "account",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How do I change my phone number?",
+      "body": "<p>Because your number is your login, changing it needs verification. Open <strong>Profile → Account</strong> and choose to update your phone number, then confirm the new number with the OTP we send to it.</p><p>If you no longer have access to your old number, contact support through Live Chat so we can verify your identity safely.</p>"
+    },
+    "content_fr": {
+      "title": "Comment changer mon numéro de téléphone ?",
+      "body": "<p>Comme votre numéro est votre identifiant, le changer nécessite une vérification. Ouvrez <strong>Profil → Compte</strong> et choisissez de mettre à jour votre numéro, puis confirmez le nouveau numéro avec l'OTP que nous y envoyons.</p><p>Si vous n'avez plus accès à votre ancien numéro, contactez le support via le chat en direct pour vérifier votre identité en toute sécurité.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أغيّر رقم هاتفي؟",
+      "body": "<p>بما أن رقمك هو وسيلة دخولك، فإن تغييره يتطلب تحققًا. افتح <strong>الملف الشخصي ← الحساب</strong> واختر تحديث رقم هاتفك، ثم أكّد الرقم الجديد عبر رمز التحقق الذي نرسله إليه.</p><p>إذا لم يعد بإمكانك الوصول إلى رقمك القديم، تواصل مع الدعم عبر الدردشة المباشرة لنتحقق من هويتك بأمان.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "account",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How do I switch the app language?",
+      "body": "<p>Blink supports English, French, and Arabic. Open <strong>Profile → Settings</strong> and choose <strong>Language</strong>, then pick the one you want.</p><p>When you switch to Arabic the whole app flips to right-to-left automatically. Your choice is saved for next time.</p>"
+    },
+    "content_fr": {
+      "title": "Comment changer la langue de l'application ?",
+      "body": "<p>Blink prend en charge l'anglais, le français et l'arabe. Ouvrez <strong>Profil → Paramètres</strong> et choisissez <strong>Langue</strong>, puis sélectionnez celle que vous voulez.</p><p>En passant à l'arabe, toute l'application bascule automatiquement de droite à gauche. Votre choix est conservé.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أغيّر لغة التطبيق؟",
+      "body": "<p>يدعم بلينك الإنجليزية والفرنسية والعربية. افتح <strong>الملف الشخصي ← الإعدادات</strong> واختر <strong>اللغة</strong>، ثم حدّد اللغة التي تريدها.</p><p>عند الانتقال إلى العربية يتحوّل التطبيق بالكامل إلى الاتجاه من اليمين إلى اليسار تلقائيًا. ويُحفظ اختيارك للمرة القادمة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "account",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "How do I log out?",
+      "body": "<p>Open the <strong>Profile</strong> tab, scroll to the bottom, and tap <strong>Log out</strong>. You'll be returned to the welcome screen.</p><p>To use the app again, just sign back in with your phone number and the OTP we send you. Logging out does not delete any of your data.</p>"
+    },
+    "content_fr": {
+      "title": "Comment me déconnecter ?",
+      "body": "<p>Ouvrez l'onglet <strong>Profil</strong>, faites défiler jusqu'en bas, puis appuyez sur <strong>Se déconnecter</strong>. Vous reviendrez à l'écran d'accueil.</p><p>Pour réutiliser l'application, reconnectez-vous simplement avec votre numéro et l'OTP que nous vous envoyons. La déconnexion ne supprime aucune de vos données.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أسجّل الخروج؟",
+      "body": "<p>افتح علامة <strong>الملف الشخصي</strong>، ومرّر إلى الأسفل، ثم اضغط على <strong>تسجيل الخروج</strong>. ستعود إلى شاشة الترحيب.</p><p>لاستخدام التطبيق مجددًا، سجّل الدخول من جديد برقم هاتفك ورمز التحقق الذي نرسله إليك. لا يحذف تسجيل الخروج أيًّا من بياناتك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "account",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "How to delete your Blink account",
+      "body": "<p>You can ask to permanently delete your account at any time. Deletion removes your profile and personal data, and it cannot be undone.</p><h2>Before you delete</h2><ul><li>Spend or withdraw any remaining <strong>Blink Cash</strong> balance — it can't be recovered afterwards.</li><li>Make sure you have no active orders, trips, or unsettled dues.</li></ul><h2>How to request deletion</h2><ol><li>Open <strong>Profile → Settings</strong>.</li><li>Tap <strong>Delete account</strong>.</li><li>Confirm with the OTP we send to verify it's really you.</li></ol><h2>What happens next</h2><p>We process the request and remove your personal data, keeping only what the law requires us to retain (for example, transaction records). If you change your mind, contact support immediately — once processing is complete the account cannot be restored.</p>"
+    },
+    "content_fr": {
+      "title": "Comment supprimer votre compte Blink",
+      "body": "<p>Vous pouvez demander la suppression définitive de votre compte à tout moment. La suppression efface votre profil et vos données personnelles, et elle est irréversible.</p><h2>Avant de supprimer</h2><ul><li>Dépensez ou retirez votre solde <strong>Blink Cash</strong> restant — il sera irrécupérable.</li><li>Vérifiez que vous n'avez aucune commande, course ou dette en cours.</li></ul><h2>Comment demander la suppression</h2><ol><li>Ouvrez <strong>Profil → Paramètres</strong>.</li><li>Appuyez sur <strong>Supprimer le compte</strong>.</li><li>Confirmez avec l'OTP que nous envoyons pour vérifier que c'est bien vous.</li></ol><h2>Que se passe-t-il ensuite</h2><p>Nous traitons la demande et supprimons vos données personnelles, en ne conservant que ce que la loi nous oblige à garder (par exemple, les relevés de transactions). Si vous changez d'avis, contactez vite le support — une fois le traitement terminé, le compte ne peut plus être restauré.</p>"
+    },
+    "content_ar": {
+      "title": "كيفية حذف حسابك في بلينك",
+      "body": "<p>يمكنك طلب حذف حسابك نهائيًا في أي وقت. يزيل الحذف ملفك الشخصي وبياناتك الشخصية، ولا يمكن التراجع عنه.</p><h2>قبل الحذف</h2><ul><li>أنفق أو اسحب أي رصيد متبقٍّ في <strong>بلينك كاش</strong> — لا يمكن استرجاعه بعد ذلك.</li><li>تأكد من عدم وجود طلبات أو رحلات نشطة أو مستحقات غير مسوّاة.</li></ul><h2>كيفية طلب الحذف</h2><ol><li>افتح <strong>الملف الشخصي ← الإعدادات</strong>.</li><li>اضغط على <strong>حذف الحساب</strong>.</li><li>أكّد عبر رمز التحقق الذي نرسله للتأكد من أنك أنت فعلًا.</li></ol><h2>ماذا يحدث بعد ذلك</h2><p>نعالج الطلب ونحذف بياناتك الشخصية، مع الاحتفاظ فقط بما يلزمنا القانون بالاحتفاظ به (مثل سجلات المعاملات). إذا غيّرت رأيك، تواصل مع الدعم فورًا — فبمجرد اكتمال المعالجة لا يمكن استعادة الحساب.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "account",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Why can't I edit some of my details?",
+      "body": "<p>Some fields are locked because they were verified during sign-up or are tied to your identity, such as a verified phone number or a name on an official document.</p><p>If you need to correct a locked field, contact support through Live Chat. We may ask for verification before making the change.</p>"
+    },
+    "content_fr": {
+      "title": "Pourquoi ne puis-je pas modifier certaines informations ?",
+      "body": "<p>Certains champs sont verrouillés car ils ont été vérifiés lors de l'inscription ou sont liés à votre identité, comme un numéro vérifié ou un nom figurant sur un document officiel.</p><p>Pour corriger un champ verrouillé, contactez le support via le chat en direct. Une vérification peut être demandée avant la modification.</p>"
+    },
+    "content_ar": {
+      "title": "لماذا لا أستطيع تعديل بعض بياناتي؟",
+      "body": "<p>بعض الحقول مقفلة لأنها جرى التحقق منها عند التسجيل أو لأنها مرتبطة بهويتك، مثل رقم هاتف موثّق أو اسم على وثيقة رسمية.</p><p>إذا احتجت إلى تصحيح حقل مقفل، تواصل مع الدعم عبر الدردشة المباشرة. قد نطلب تحققًا قبل إجراء التغيير.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "security",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Keeping your account safe: OTP and login security",
+      "body": "<p>Blink signs you in with a one-time code (OTP) instead of a password. This is secure as long as you protect that code. Treat your OTP like the key to your account.</p><h2>Golden rules</h2><ul><li><strong>Never share your OTP</strong> — not with friends, not with anyone claiming to be Blink.</li><li><strong>Blink will never call or message you to ask for your code.</strong></li><li>Only enter your OTP inside the Blink app, never on a website or to a person.</li></ul><h2>If someone asks for your code</h2><p>It's a scam. Do not share it, end the conversation, and report the contact to support.</p><h2>Extra protection</h2><ul><li>Lock your phone with a PIN, fingerprint, or face unlock.</li><li>Log out on shared devices.</li><li>Keep the app updated so you have the latest security fixes.</li></ul><blockquote>An OTP is valid only for a short time and for a single login. If a code arrives that you didn't request, ignore it and consider it a sign someone has your number.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Protéger votre compte : sécurité de l'OTP et de la connexion",
+      "body": "<p>Blink vous connecte avec un code à usage unique (OTP) au lieu d'un mot de passe. C'est sûr tant que vous protégez ce code. Traitez votre OTP comme la clé de votre compte.</p><h2>Règles d'or</h2><ul><li><strong>Ne partagez jamais votre OTP</strong> — ni avec des proches, ni avec quiconque se présentant comme Blink.</li><li><strong>Blink ne vous appellera ni ne vous écrira jamais pour demander votre code.</strong></li><li>Saisissez votre OTP uniquement dans l'application Blink, jamais sur un site ni auprès d'une personne.</li></ul><h2>Si on vous demande votre code</h2><p>C'est une arnaque. Ne le communiquez pas, mettez fin à la conversation et signalez le contact au support.</p><h2>Protection supplémentaire</h2><ul><li>Verrouillez votre téléphone avec un code, une empreinte ou la reconnaissance faciale.</li><li>Déconnectez-vous sur les appareils partagés.</li><li>Gardez l'application à jour pour bénéficier des derniers correctifs de sécurité.</li></ul><blockquote>Un OTP n'est valide que peu de temps et pour une seule connexion. Si un code arrive sans que vous l'ayez demandé, ignorez-le : c'est peut-être le signe que quelqu'un a votre numéro.</blockquote>"
+    },
+    "content_ar": {
+      "title": "الحفاظ على أمان حسابك: رمز التحقق وأمان الدخول",
+      "body": "<p>يسجّل بلينك دخولك عبر رمز لمرة واحدة (OTP) بدلًا من كلمة المرور. وهذا آمن طالما حميت هذا الرمز. تعامل مع رمز التحقق كأنه مفتاح حسابك.</p><h2>قواعد ذهبية</h2><ul><li><strong>لا تشارك رمز التحقق أبدًا</strong> — لا مع الأصدقاء ولا مع أي شخص يدّعي أنه من بلينك.</li><li><strong>لن يتصل بك بلينك أو يراسلك أبدًا لطلب رمزك.</strong></li><li>أدخل رمز التحقق داخل تطبيق بلينك فقط، وليس على موقع إلكتروني أو لأي شخص.</li></ul><h2>إذا طلب أحدهم رمزك</h2><p>هذا احتيال. لا تشاركه، أنهِ المحادثة، وأبلغ الدعم عن جهة الاتصال.</p><h2>حماية إضافية</h2><ul><li>اقفل هاتفك برمز أو ببصمة الإصبع أو بصمة الوجه.</li><li>سجّل الخروج على الأجهزة المشتركة.</li><li>أبقِ التطبيق محدّثًا للحصول على أحدث إصلاحات الأمان.</li></ul><blockquote>صلاحية رمز التحقق قصيرة ولمرة دخول واحدة. إذا وصلك رمز لم تطلبه، تجاهله واعتبره علامة على أن أحدهم يملك رقمك.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "security",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "Why doesn't Blink use a password?",
+      "body": "<p>Instead of a password you can forget or reuse, Blink verifies you with a fresh one-time code (OTP) each time you sign in. There's nothing to remember and nothing for an attacker to steal and reuse.</p><p>The code is short-lived and works only once, which makes it a strong, simple way to protect your account.</p>"
+    },
+    "content_fr": {
+      "title": "Pourquoi Blink n'utilise-t-il pas de mot de passe ?",
+      "body": "<p>Au lieu d'un mot de passe que l'on peut oublier ou réutiliser, Blink vous vérifie avec un nouveau code à usage unique (OTP) à chaque connexion. Rien à retenir et rien à voler et réutiliser pour un pirate.</p><p>Le code est éphémère et ne fonctionne qu'une fois, ce qui en fait une protection simple et solide pour votre compte.</p>"
+    },
+    "content_ar": {
+      "title": "لماذا لا يستخدم بلينك كلمة مرور؟",
+      "body": "<p>بدلًا من كلمة مرور قد تنساها أو تعيد استخدامها، يتحقق منك بلينك برمز جديد لمرة واحدة (OTP) في كل مرة تسجّل فيها الدخول. لا شيء لتتذكره ولا شيء يمكن للمهاجم سرقته وإعادة استخدامه.</p><p>الرمز قصير الصلاحية ويعمل مرة واحدة فقط، مما يجعله وسيلة بسيطة وقوية لحماية حسابك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "security",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "I think someone accessed my account. What do I do?",
+      "body": "<p>Act quickly to secure your account:</p><ul><li>Log out from <strong>Profile</strong> and sign back in to refresh your session.</li><li>Check your recent orders and Blink Cash transactions for anything you didn't do.</li><li>Contact support through Live Chat right away and tell us what you noticed.</li></ul><p>Never share your OTP — if you suspect someone has it, report it so we can help protect your account.</p>"
+    },
+    "content_fr": {
+      "title": "Je pense que quelqu'un a accédé à mon compte. Que faire ?",
+      "body": "<p>Agissez vite pour sécuriser votre compte :</p><ul><li>Déconnectez-vous depuis <strong>Profil</strong> puis reconnectez-vous pour rafraîchir votre session.</li><li>Vérifiez vos commandes récentes et vos transactions Blink Cash pour repérer toute activité suspecte.</li><li>Contactez immédiatement le support via le chat en direct et décrivez ce que vous avez constaté.</li></ul><p>Ne partagez jamais votre OTP — si vous pensez que quelqu'un le détient, signalez-le pour que nous protégions votre compte.</p>"
+    },
+    "content_ar": {
+      "title": "أظن أن أحدهم دخل إلى حسابي. ماذا أفعل؟",
+      "body": "<p>تصرّف بسرعة لتأمين حسابك:</p><ul><li>سجّل الخروج من <strong>الملف الشخصي</strong> ثم سجّل الدخول مجددًا لتحديث جلستك.</li><li>راجع طلباتك الأخيرة ومعاملات بلينك كاش بحثًا عن أي نشاط لم تقم به.</li><li>تواصل مع الدعم عبر الدردشة المباشرة فورًا وأخبرنا بما لاحظته.</li></ul><p>لا تشارك رمز التحقق أبدًا — إذا شككت أن أحدهم يملكه، أبلغ عن ذلك لنساعدك في حماية حسابك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "security",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "How does Blink protect my data?",
+      "body": "<p>Your personal information and transactions are encrypted, both when stored and while moving between your phone and our servers. Access is limited to what's needed to run the service.</p><p>We never sell your personal data. For full details, see our Privacy Policy in <strong>Profile → Settings → Legal</strong>.</p>"
+    },
+    "content_fr": {
+      "title": "Comment Blink protège-t-il mes données ?",
+      "body": "<p>Vos informations personnelles et vos transactions sont chiffrées, aussi bien lors du stockage que pendant les échanges entre votre téléphone et nos serveurs. L'accès est limité au strict nécessaire au fonctionnement du service.</p><p>Nous ne vendons jamais vos données personnelles. Pour tous les détails, consultez notre politique de confidentialité dans <strong>Profil → Paramètres → Mentions légales</strong>.</p>"
+    },
+    "content_ar": {
+      "title": "كيف يحمي بلينك بياناتي؟",
+      "body": "<p>معلوماتك الشخصية ومعاملاتك مشفّرة، سواء أثناء التخزين أو أثناء انتقالها بين هاتفك وخوادمنا. والوصول محصور بما يلزم لتشغيل الخدمة فقط.</p><p>لا نبيع بياناتك الشخصية مطلقًا. لمزيد من التفاصيل، راجع سياسة الخصوصية في <strong>الملف الشخصي ← الإعدادات ← الشؤون القانونية</strong>.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "security",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Spotting and avoiding scams",
+      "body": "<p>Scammers may pretend to be Blink to trick you into sharing codes or money. Knowing the warning signs keeps you safe.</p><h2>Red flags</h2><ul><li>Anyone asking for your <strong>OTP</strong> or login code — Blink never does this.</li><li>Calls or messages pressuring you to pay outside the app to \"release\" an order or refund.</li><li>Links to unofficial sites asking you to \"verify\" your account.</li><li>Offers that sound too good to be true.</li></ul><h2>Stay protected</h2><ol><li>Keep all payments and chats inside the Blink app.</li><li>Never enter your code anywhere but the app's login screen.</li><li>Ignore and delete suspicious SMS or WhatsApp messages.</li></ol><h2>Report it</h2><p>If you receive a suspicious message, report it through in-app Live Chat. Sharing details helps us protect the whole Blink community.</p><blockquote>When in doubt, stop. A real refund or order update will always be visible inside the app itself.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Repérer et éviter les arnaques",
+      "body": "<p>Des escrocs peuvent se faire passer pour Blink afin de vous soutirer des codes ou de l'argent. Connaître les signaux d'alerte vous protège.</p><h2>Signaux d'alerte</h2><ul><li>Quiconque demande votre <strong>OTP</strong> ou votre code de connexion — Blink ne le fait jamais.</li><li>Appels ou messages vous pressant de payer hors de l'application pour « débloquer » une commande ou un remboursement.</li><li>Liens vers des sites non officiels vous demandant de « vérifier » votre compte.</li><li>Offres trop belles pour être vraies.</li></ul><h2>Restez protégé</h2><ol><li>Gardez tous les paiements et discussions dans l'application Blink.</li><li>Ne saisissez votre code nulle part ailleurs que sur l'écran de connexion de l'app.</li><li>Ignorez et supprimez les SMS ou messages WhatsApp suspects.</li></ol><h2>Signalez-le</h2><p>Si vous recevez un message suspect, signalez-le via le chat en direct. Partager les détails nous aide à protéger toute la communauté Blink.</p><blockquote>En cas de doute, arrêtez-vous. Un vrai remboursement ou suivi de commande sera toujours visible dans l'application elle-même.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كشف عمليات الاحتيال وتجنّبها",
+      "body": "<p>قد ينتحل المحتالون صفة بلينك لخداعك ودفعك إلى مشاركة الرموز أو المال. ومعرفة علامات التحذير تحفظ سلامتك.</p><h2>علامات تحذيرية</h2><ul><li>أي شخص يطلب <strong>رمز التحقق</strong> أو رمز الدخول — بلينك لا يفعل ذلك أبدًا.</li><li>مكالمات أو رسائل تضغط عليك للدفع خارج التطبيق لـ«تحرير» طلب أو استرداد.</li><li>روابط لمواقع غير رسمية تطلب منك «التحقق» من حسابك.</li><li>عروض تبدو أفضل من أن تكون حقيقية.</li></ul><h2>ابقَ محميًّا</h2><ol><li>أبقِ جميع المدفوعات والمحادثات داخل تطبيق بلينك.</li><li>لا تدخل رمزك في أي مكان سوى شاشة الدخول في التطبيق.</li><li>تجاهل واحذف الرسائل النصية أو رسائل واتساب المشبوهة.</li></ol><h2>أبلغ عنها</h2><p>إذا تلقيت رسالة مشبوهة، أبلغ عنها عبر الدردشة المباشرة. مشاركة التفاصيل تساعدنا على حماية مجتمع بلينك بأكمله.</p><blockquote>عند الشك، توقّف. أي استرداد حقيقي أو تحديث للطلب سيكون دائمًا ظاهرًا داخل التطبيق نفسه.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "security",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Can I stay logged in on more than one device?",
+      "body": "<p>For your security, Blink keeps your account active on the device you signed in on. If you sign in on a new phone, you may be signed out elsewhere.</p><p>Always log out of devices you no longer use, especially shared or borrowed phones, to keep your account secure.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je rester connecté sur plusieurs appareils ?",
+      "body": "<p>Pour votre sécurité, Blink garde votre compte actif sur l'appareil avec lequel vous vous êtes connecté. Si vous vous connectez sur un nouveau téléphone, vous pourriez être déconnecté ailleurs.</p><p>Déconnectez-vous toujours des appareils que vous n'utilisez plus, surtout les téléphones partagés ou empruntés, pour garder votre compte sécurisé.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني البقاء مسجّلًا على أكثر من جهاز؟",
+      "body": "<p>لأمانك، يُبقي بلينك حسابك نشطًا على الجهاز الذي سجّلت دخولك منه. إذا سجّلت الدخول على هاتف جديد، فقد يتم تسجيل خروجك من مكان آخر.</p><p>سجّل الخروج دائمًا من الأجهزة التي لم تعد تستخدمها، خاصةً الهواتف المشتركة أو المستعارة، للحفاظ على أمان حسابك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "wallet",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Blink Cash explained: your in-app wallet",
+      "body": "<p>Blink Cash is the wallet built into the app. It lets you pay quickly, receive refunds, and keep a balance ready for your next order — all in Algerian Dinar (Da).</p><h2>What you can do</h2><ul><li><strong>Pay</strong> for orders and services without handling cash.</li><li><strong>Top up</strong> your balance at a partner agent shop using a QR code.</li><li><strong>Withdraw</strong> cash back at an agent shop when you need it.</li><li><strong>Receive refunds</strong> straight to your wallet, which is the fastest option.</li></ul><h2>Where to find your wallet</h2><p>Open the <strong>Profile</strong> tab and tap <strong>Blink Cash</strong> to see your balance and full transaction history.</p><h2>Why use it</h2><p>It's faster than cash at checkout, your balance is safe and encrypted, and every top-up, payment, and refund is logged so you always know where your money went.</p><blockquote>Your Blink Cash balance never expires, so you can keep it for whenever you need it.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Blink Cash expliqué : votre portefeuille intégré",
+      "body": "<p>Blink Cash est le portefeuille intégré à l'application. Il vous permet de payer rapidement, de recevoir des remboursements et de garder un solde prêt pour votre prochaine commande — le tout en dinar algérien (Da).</p><h2>Ce que vous pouvez faire</h2><ul><li><strong>Payer</strong> commandes et services sans manipuler d'espèces.</li><li><strong>Recharger</strong> votre solde chez un agent partenaire via un code QR.</li><li><strong>Retirer</strong> des espèces chez un agent quand vous en avez besoin.</li><li><strong>Recevoir des remboursements</strong> directement sur votre portefeuille, l'option la plus rapide.</li></ul><h2>Où trouver votre portefeuille</h2><p>Ouvrez l'onglet <strong>Profil</strong> et appuyez sur <strong>Blink Cash</strong> pour voir votre solde et tout votre historique de transactions.</p><h2>Pourquoi l'utiliser</h2><p>C'est plus rapide que les espèces au paiement, votre solde est sécurisé et chiffré, et chaque recharge, paiement et remboursement est enregistré pour que vous sachiez toujours où va votre argent.</p><blockquote>Votre solde Blink Cash n'expire jamais : conservez-le pour le moment où vous en aurez besoin.</blockquote>"
+    },
+    "content_ar": {
+      "title": "شرح بلينك كاش: محفظتك داخل التطبيق",
+      "body": "<p>بلينك كاش هو المحفظة المدمجة في التطبيق. تتيح لك الدفع بسرعة واستلام المبالغ المستردّة والاحتفاظ برصيد جاهز لطلبك القادم — كل ذلك بالدينار الجزائري (دج).</p><h2>ماذا يمكنك أن تفعل</h2><ul><li><strong>ادفع</strong> ثمن الطلبات والخدمات دون التعامل بالنقد.</li><li><strong>اشحن</strong> رصيدك لدى محل وكيل شريك عبر رمز الاستجابة السريعة (QR).</li><li><strong>اسحب</strong> النقود لدى محل وكيل عند الحاجة.</li><li><strong>استلم المبالغ المستردّة</strong> مباشرةً إلى محفظتك، وهو الخيار الأسرع.</li></ul><h2>أين تجد محفظتك</h2><p>افتح علامة <strong>الملف الشخصي</strong> واضغط على <strong>بلينك كاش</strong> لرؤية رصيدك وسجل معاملاتك الكامل.</p><h2>لماذا تستخدمها</h2><p>أسرع من النقد عند الدفع، ورصيدك آمن ومشفّر، وكل شحن ودفع واسترداد مسجّل لتعرف دائمًا أين ذهبت أموالك.</p><blockquote>رصيد بلينك كاش لا تنتهي صلاحيته، فيمكنك الاحتفاظ به متى احتجته.</blockquote>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "wallet",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How to top up Blink Cash at an agent shop",
+      "body": "<p>You add money to Blink Cash by paying cash at a partner agent shop. The QR code links the cash you hand over to your wallet instantly and securely.</p><h2>Steps</h2><ol><li>Open <strong>Profile → Blink Cash</strong> and tap <strong>Top up</strong> (deposit).</li><li>Visit any partner agent shop and tell the agent the amount.</li><li>Show your QR code, or scan the agent's code as prompted.</li><li>Hand over the cash in Algerian Dinar.</li><li>Wait for the in-app confirmation that your balance has gone up.</li></ol><h2>Good to know</h2><ul><li>The deposit appears in your <strong>transaction history</strong> right away.</li><li>Only confirm if the amount on screen matches the cash you paid.</li><li>Keep any receipt the agent gives you until you see the balance update.</li></ul><blockquote>If the balance doesn't update within a few minutes, show the agent your screen and contact support through Live Chat with the transaction time.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comment recharger Blink Cash chez un agent",
+      "body": "<p>Vous ajoutez de l'argent à Blink Cash en payant en espèces chez un agent partenaire. Le code QR relie l'argent remis à votre portefeuille, instantanément et en toute sécurité.</p><h2>Étapes</h2><ol><li>Ouvrez <strong>Profil → Blink Cash</strong> et appuyez sur <strong>Recharger</strong> (dépôt).</li><li>Rendez-vous chez un agent partenaire et indiquez-lui le montant.</li><li>Montrez votre code QR, ou scannez celui de l'agent comme demandé.</li><li>Remettez les espèces en dinar algérien.</li><li>Attendez la confirmation dans l'application que votre solde a augmenté.</li></ol><h2>Bon à savoir</h2><ul><li>Le dépôt apparaît aussitôt dans votre <strong>historique de transactions</strong>.</li><li>Ne confirmez que si le montant à l'écran correspond aux espèces versées.</li><li>Conservez tout reçu remis par l'agent jusqu'à la mise à jour du solde.</li></ul><blockquote>Si le solde ne se met pas à jour en quelques minutes, montrez votre écran à l'agent et contactez le support via le chat en direct avec l'heure de la transaction.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كيفية شحن بلينك كاش لدى محل وكيل",
+      "body": "<p>تضيف الأموال إلى بلينك كاش بدفع النقود في محل وكيل شريك. ويربط رمز الاستجابة السريعة النقود التي تسلّمها بمحفظتك فورًا وبأمان.</p><h2>الخطوات</h2><ol><li>افتح <strong>الملف الشخصي ← بلينك كاش</strong> واضغط على <strong>شحن</strong> (إيداع).</li><li>توجّه إلى أي محل وكيل شريك وأخبره بالمبلغ.</li><li>اعرض رمز QR الخاص بك، أو امسح رمز الوكيل حسب التعليمات.</li><li>سلّم النقود بالدينار الجزائري.</li><li>انتظر تأكيد التطبيق بأن رصيدك قد ارتفع.</li></ol><h2>معلومات مفيدة</h2><ul><li>يظهر الإيداع في <strong>سجل المعاملات</strong> على الفور.</li><li>لا تؤكّد إلا إذا تطابق المبلغ على الشاشة مع النقود التي دفعتها.</li><li>احتفظ بأي إيصال يعطيك إياه الوكيل حتى ترى تحديث الرصيد.</li></ul><blockquote>إذا لم يتحدّث الرصيد خلال بضع دقائق، أرِ الوكيل شاشتك وتواصل مع الدعم عبر الدردشة المباشرة مع ذكر وقت المعاملة.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "wallet",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How do I check my balance and transaction history?",
+      "body": "<p>Open <strong>Profile → Blink Cash</strong>. Your current balance is shown at the top, and the list below it is your full transaction history.</p><p>Each entry shows the date, the amount in Da, and whether it was a top-up, payment, withdrawal, or refund. Tap any entry for more details.</p>"
+    },
+    "content_fr": {
+      "title": "Comment consulter mon solde et mon historique ?",
+      "body": "<p>Ouvrez <strong>Profil → Blink Cash</strong>. Votre solde actuel est affiché en haut, et la liste en dessous correspond à tout votre historique de transactions.</p><p>Chaque ligne indique la date, le montant en Da et s'il s'agit d'une recharge, d'un paiement, d'un retrait ou d'un remboursement. Appuyez sur une ligne pour plus de détails.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أتحقق من رصيدي وسجل معاملاتي؟",
+      "body": "<p>افتح <strong>الملف الشخصي ← بلينك كاش</strong>. يظهر رصيدك الحالي في الأعلى، والقائمة أسفله هي سجل معاملاتك الكامل.</p><p>يعرض كل سطر التاريخ والمبلغ بالدينار (دج) وما إذا كان شحنًا أو دفعًا أو سحبًا أو استردادًا. اضغط على أي سطر لمزيد من التفاصيل.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "wallet",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "How long do refunds to Blink Cash take?",
+      "body": "<p>Refunds sent to your Blink Cash wallet are the fastest and usually appear shortly after they're approved. You'll see them in your transaction history with a refund label.</p><p>Refunds back to an original cash or external payment method take <strong>3–5 business days</strong>. If a refund hasn't arrived after that window, contact support.</p>"
+    },
+    "content_fr": {
+      "title": "Combien de temps prennent les remboursements sur Blink Cash ?",
+      "body": "<p>Les remboursements envoyés sur votre portefeuille Blink Cash sont les plus rapides et apparaissent généralement peu après leur approbation. Vous les verrez dans votre historique avec une mention de remboursement.</p><p>Les remboursements vers un moyen de paiement d'origine en espèces ou externe prennent <strong>3 à 5 jours ouvrables</strong>. Passé ce délai, contactez le support.</p>"
+    },
+    "content_ar": {
+      "title": "كم يستغرق الاسترداد إلى بلينك كاش؟",
+      "body": "<p>المبالغ المستردّة إلى محفظة بلينك كاش هي الأسرع وتظهر عادةً بعد الموافقة عليها بفترة قصيرة. وستراها في سجل معاملاتك بعلامة استرداد.</p><p>أما الاسترداد إلى وسيلة دفع نقدية أو خارجية أصلية فيستغرق <strong>من 3 إلى 5 أيام عمل</strong>. إذا لم يصل الاسترداد بعد هذه المدة، تواصل مع الدعم.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "wallet",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Can I withdraw my Blink Cash as cash?",
+      "body": "<p>Yes. Go to <strong>Profile → Blink Cash</strong> and choose <strong>Withdraw</strong>, then visit a partner agent shop. Use the QR code to confirm the amount and the agent will hand you cash in Da.</p><p>Make sure your balance covers the amount you want, and only confirm once you've received the cash.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je retirer mon Blink Cash en espèces ?",
+      "body": "<p>Oui. Allez dans <strong>Profil → Blink Cash</strong> et choisissez <strong>Retirer</strong>, puis rendez-vous chez un agent partenaire. Utilisez le code QR pour confirmer le montant et l'agent vous remettra des espèces en Da.</p><p>Vérifiez que votre solde couvre le montant souhaité, et ne confirmez qu'une fois les espèces reçues.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني سحب بلينك كاش نقدًا؟",
+      "body": "<p>نعم. اذهب إلى <strong>الملف الشخصي ← بلينك كاش</strong> واختر <strong>سحب</strong>، ثم توجّه إلى محل وكيل شريك. استخدم رمز QR لتأكيد المبلغ وسيسلّمك الوكيل النقود بالدينار (دج).</p><p>تأكد من أن رصيدك يغطّي المبلغ المطلوب، ولا تؤكّد إلا بعد استلام النقود.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "wallet",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "My top-up didn't appear in my balance. What now?",
+      "body": "<p>Top-ups usually appear within a minute. If yours hasn't:</p><ul><li>Check your internet connection and pull to refresh the Blink Cash screen.</li><li>Confirm the transaction shows in your history — it may already be there.</li><li>Show the agent your screen so they can confirm on their side.</li></ul><p>If it still doesn't show, contact support through Live Chat with the date, time, and amount.</p>"
+    },
+    "content_fr": {
+      "title": "Ma recharge n'apparaît pas dans mon solde. Que faire ?",
+      "body": "<p>Les recharges apparaissent généralement en moins d'une minute. Si la vôtre n'apparaît pas :</p><ul><li>Vérifiez votre connexion et rafraîchissez l'écran Blink Cash en tirant vers le bas.</li><li>Confirmez que la transaction figure dans votre historique — elle y est peut-être déjà.</li><li>Montrez votre écran à l'agent pour qu'il confirme de son côté.</li></ul><p>Si elle n'apparaît toujours pas, contactez le support via le chat en direct avec la date, l'heure et le montant.</p>"
+    },
+    "content_ar": {
+      "title": "لم يظهر الشحن في رصيدي. ماذا أفعل؟",
+      "body": "<p>تظهر عمليات الشحن عادةً خلال دقيقة. إذا لم يظهر شحنك:</p><ul><li>تحقق من اتصالك بالإنترنت واسحب لأسفل لتحديث شاشة بلينك كاش.</li><li>تأكد من ظهور المعاملة في سجلك — قد تكون موجودة بالفعل.</li><li>أرِ الوكيل شاشتك ليؤكّد من جهته.</li></ul><p>إذا لم تظهر بعد ذلك، تواصل مع الدعم عبر الدردشة المباشرة مع ذكر التاريخ والوقت والمبلغ.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "notifications",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Managing your Blink notifications",
+      "body": "<p>Notifications keep you informed about orders, deliveries, payments, and offers in real time. You're in control of which ones you receive.</p><h2>Turning notifications on or off</h2><ol><li>Open <strong>Profile → Settings → Notifications</strong>.</li><li>Toggle the categories you want, such as order updates, promotions, or account alerts.</li><li>Your choices save automatically.</li></ol><h2>Push, SMS, and email</h2><ul><li><strong>Push</strong> notifications appear instantly on your phone — best for live order and delivery updates.</li><li><strong>SMS</strong> is used for important items like your login code (OTP).</li><li><strong>Email</strong> is used for receipts and account notices.</li></ul><h2>Phone-level permission</h2><p>Even with categories enabled in Blink, your phone must allow notifications for the app. Check your device <strong>Settings → Apps → Blink → Notifications</strong> if nothing is coming through.</p><blockquote>Tip: keep order and security alerts on, even if you mute promotions, so you never miss a delivery or login alert.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Gérer vos notifications Blink",
+      "body": "<p>Les notifications vous tiennent informé en temps réel des commandes, livraisons, paiements et offres. Vous décidez de celles que vous recevez.</p><h2>Activer ou désactiver les notifications</h2><ol><li>Ouvrez <strong>Profil → Paramètres → Notifications</strong>.</li><li>Activez les catégories voulues, comme les mises à jour de commande, les promotions ou les alertes de compte.</li><li>Vos choix sont enregistrés automatiquement.</li></ol><h2>Push, SMS et e-mail</h2><ul><li>Les notifications <strong>push</strong> apparaissent instantanément sur votre téléphone — idéales pour le suivi en direct des commandes et livraisons.</li><li>Le <strong>SMS</strong> sert aux éléments importants comme votre code de connexion (OTP).</li><li>L'<strong>e-mail</strong> sert aux reçus et aux avis de compte.</li></ul><h2>Autorisation au niveau du téléphone</h2><p>Même avec les catégories activées dans Blink, votre téléphone doit autoriser les notifications de l'app. Vérifiez <strong>Paramètres → Applications → Blink → Notifications</strong> de votre appareil si rien n'arrive.</p><blockquote>Astuce : gardez les alertes de commande et de sécurité activées, même si vous coupez les promotions, pour ne jamais manquer une livraison ou une alerte de connexion.</blockquote>"
+    },
+    "content_ar": {
+      "title": "إدارة إشعارات بلينك",
+      "body": "<p>تبقيك الإشعارات على اطّلاع بالطلبات والتوصيل والمدفوعات والعروض في الوقت الفعلي. وأنت من يتحكم بما يصلك منها.</p><h2>تشغيل الإشعارات أو إيقافها</h2><ol><li>افتح <strong>الملف الشخصي ← الإعدادات ← الإشعارات</strong>.</li><li>فعّل الفئات التي تريدها، مثل تحديثات الطلب أو العروض أو تنبيهات الحساب.</li><li>تُحفظ اختياراتك تلقائيًا.</li></ol><h2>الإشعارات الفورية والرسائل النصية والبريد</h2><ul><li>تظهر الإشعارات <strong>الفورية</strong> على هاتفك مباشرةً — وهي الأفضل لتحديثات الطلب والتوصيل المباشرة.</li><li>تُستخدَم <strong>الرسائل النصية</strong> للأمور المهمة مثل رمز الدخول (OTP).</li><li>يُستخدَم <strong>البريد الإلكتروني</strong> للإيصالات وإشعارات الحساب.</li></ul><h2>الإذن على مستوى الهاتف</h2><p>حتى مع تفعيل الفئات داخل بلينك، يجب أن يسمح هاتفك بإشعارات التطبيق. تحقق من <strong>إعدادات الجهاز ← التطبيقات ← بلينك ← الإشعارات</strong> إذا لم يصلك شيء.</p><blockquote>نصيحة: أبقِ تنبيهات الطلبات والأمان مفعّلة حتى لو أوقفت العروض، كي لا تفوتك أي عملية توصيل أو تنبيه دخول.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "notifications",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "I'm not receiving any notifications. How do I fix it?",
+      "body": "<p>Most missing-notification issues come down to a permission or connection problem. Try these in order:</p><ul><li>Check that notifications are enabled in <strong>Profile → Settings → Notifications</strong>.</li><li>Allow notifications for Blink in your phone's own settings.</li><li>Turn off battery saver or \"Do not disturb\".</li><li>Confirm you have internet, then fully close and reopen the app.</li></ul><p>If they're still missing, update Blink to the latest version.</p>"
+    },
+    "content_fr": {
+      "title": "Je ne reçois aucune notification. Comment résoudre ?",
+      "body": "<p>La plupart des problèmes de notifications manquantes viennent d'une autorisation ou d'une connexion. Essayez dans l'ordre :</p><ul><li>Vérifiez que les notifications sont activées dans <strong>Profil → Paramètres → Notifications</strong>.</li><li>Autorisez les notifications de Blink dans les réglages de votre téléphone.</li><li>Désactivez l'économiseur de batterie ou le mode « Ne pas déranger ».</li><li>Vérifiez votre connexion, puis fermez complètement et rouvrez l'application.</li></ul><p>Si elles manquent toujours, mettez Blink à jour vers la dernière version.</p>"
+    },
+    "content_ar": {
+      "title": "لا تصلني أي إشعارات. كيف أصلح ذلك؟",
+      "body": "<p>معظم مشكلات الإشعارات المفقودة سببها إذن أو اتصال. جرّب ما يلي بالترتيب:</p><ul><li>تأكد من تفعيل الإشعارات في <strong>الملف الشخصي ← الإعدادات ← الإشعارات</strong>.</li><li>اسمح بإشعارات بلينك في إعدادات هاتفك نفسه.</li><li>أوقف موفّر البطارية أو وضع «عدم الإزعاج».</li><li>تأكد من وجود إنترنت، ثم أغلق التطبيق تمامًا وأعد فتحه.</li></ul><p>إذا ظلّت مفقودة، حدّث بلينك إلى أحدث إصدار.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "notifications",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "What kinds of notifications does Blink send?",
+      "body": "<p>Blink groups notifications so you can choose what matters to you:</p><ul><li><strong>Order &amp; delivery updates</strong> — status changes and rider progress.</li><li><strong>Payments &amp; wallet</strong> — top-ups, refunds, and Blink Cash activity.</li><li><strong>Account &amp; security</strong> — login alerts and important notices.</li><li><strong>Promotions &amp; offers</strong> — deals and promo codes.</li></ul><p>You can turn each group on or off in <strong>Profile → Settings → Notifications</strong>.</p>"
+    },
+    "content_fr": {
+      "title": "Quels types de notifications Blink envoie-t-il ?",
+      "body": "<p>Blink regroupe les notifications pour que vous choisissiez ce qui compte :</p><ul><li><strong>Mises à jour de commande et livraison</strong> — changements de statut et progression du livreur.</li><li><strong>Paiements et portefeuille</strong> — recharges, remboursements et activité Blink Cash.</li><li><strong>Compte et sécurité</strong> — alertes de connexion et avis importants.</li><li><strong>Promotions et offres</strong> — bons plans et codes promo.</li></ul><p>Vous pouvez activer ou désactiver chaque groupe dans <strong>Profil → Paramètres → Notifications</strong>.</p>"
+    },
+    "content_ar": {
+      "title": "ما أنواع الإشعارات التي يرسلها بلينك؟",
+      "body": "<p>يصنّف بلينك الإشعارات لتختار ما يهمّك:</p><ul><li><strong>تحديثات الطلب والتوصيل</strong> — تغيّرات الحالة وتقدّم السائق.</li><li><strong>المدفوعات والمحفظة</strong> — عمليات الشحن والاسترداد ونشاط بلينك كاش.</li><li><strong>الحساب والأمان</strong> — تنبيهات الدخول والإشعارات المهمة.</li><li><strong>العروض والترويج</strong> — العروض ورموز الخصم.</li></ul><p>يمكنك تشغيل كل مجموعة أو إيقافها من <strong>الملف الشخصي ← الإعدادات ← الإشعارات</strong>.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "notifications",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Can I stop promotional notifications but keep order updates?",
+      "body": "<p>Yes. Notification categories are independent, so you can mute promotions while keeping order, delivery, and security alerts on.</p><p>Open <strong>Profile → Settings → Notifications</strong> and turn off only the <strong>Promotions &amp; offers</strong> toggle.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je couper les promotions tout en gardant le suivi des commandes ?",
+      "body": "<p>Oui. Les catégories de notifications sont indépendantes : vous pouvez couper les promotions tout en gardant les alertes de commande, de livraison et de sécurité.</p><p>Ouvrez <strong>Profil → Paramètres → Notifications</strong> et désactivez uniquement le bouton <strong>Promotions et offres</strong>.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني إيقاف الإشعارات الترويجية مع إبقاء تحديثات الطلب؟",
+      "body": "<p>نعم. فئات الإشعارات مستقلة، فيمكنك كتم العروض مع إبقاء تنبيهات الطلب والتوصيل والأمان مفعّلة.</p><p>افتح <strong>الملف الشخصي ← الإعدادات ← الإشعارات</strong> وأوقف فقط مفتاح <strong>العروض والترويج</strong>.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "notifications",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Why your notifications arrive late, and how to fix it",
+      "body": "<p>If Blink alerts show up minutes after they should, the cause is almost always your phone holding the app back in the background rather than a problem with Blink itself.</p><h2>Common causes</h2><ul><li><strong>Battery savers</strong> pause background apps to save power.</li><li><strong>\"Do not disturb\"</strong> silences or delays alerts.</li><li>A <strong>weak or unstable connection</strong> slows delivery.</li></ul><h2>How to fix it</h2><ol><li>Allow Blink to run in the background in your phone settings.</li><li>Exclude Blink from battery optimization.</li><li>Turn off \"Do not disturb\", or add Blink as an exception.</li><li>Stay on a stable Wi-Fi or mobile connection.</li></ol><blockquote>After changing these settings, send yourself a test by placing a small order or checking your wallet, and confirm the alert arrives promptly.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Pourquoi vos notifications arrivent en retard et comment y remédier",
+      "body": "<p>Si les alertes Blink apparaissent plusieurs minutes trop tard, la cause vient presque toujours du téléphone qui bride l'app en arrière-plan, et non de Blink lui-même.</p><h2>Causes fréquentes</h2><ul><li>Les <strong>économiseurs de batterie</strong> suspendent les apps en arrière-plan.</li><li>Le mode <strong>« Ne pas déranger »</strong> coupe ou retarde les alertes.</li><li>Une <strong>connexion faible ou instable</strong> ralentit la réception.</li></ul><h2>Comment y remédier</h2><ol><li>Autorisez Blink à fonctionner en arrière-plan dans les réglages.</li><li>Excluez Blink de l'optimisation de batterie.</li><li>Désactivez « Ne pas déranger » ou ajoutez Blink en exception.</li><li>Restez sur une connexion Wi-Fi ou mobile stable.</li></ol><blockquote>Après ces réglages, faites un test en passant une petite commande ou en consultant votre portefeuille, et vérifiez que l'alerte arrive vite.</blockquote>"
+    },
+    "content_ar": {
+      "title": "لماذا تصل إشعاراتك متأخرة وكيفية إصلاح ذلك",
+      "body": "<p>إذا ظهرت تنبيهات بلينك متأخرة بدقائق، فالسبب غالبًا هو تقييد هاتفك للتطبيق في الخلفية، وليس مشكلة في بلينك نفسه.</p><h2>الأسباب الشائعة</h2><ul><li><strong>موفّرات البطارية</strong> توقف التطبيقات في الخلفية.</li><li>وضع <strong>«عدم الإزعاج»</strong> يكتم التنبيهات أو يؤخّرها.</li><li>الاتصال <strong>الضعيف أو غير المستقر</strong> يبطّئ الوصول.</li></ul><h2>كيفية الإصلاح</h2><ol><li>اسمح لبلينك بالعمل في الخلفية من إعدادات هاتفك.</li><li>استثنِ بلينك من تحسين البطارية.</li><li>أوقف وضع «عدم الإزعاج» أو أضف بلينك كاستثناء.</li><li>ابقَ على اتصال واي فاي أو هاتف مستقر.</li></ol><blockquote>بعد تغيير هذه الإعدادات، جرّب باختبار بسيط عبر طلب صغير أو فتح محفظتك، وتأكد من وصول التنبيه بسرعة.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "notifications",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Do I get charged for SMS notifications?",
+      "body": "<p>Blink does not charge you for the SMS messages it sends, such as your login code (OTP). However, standard carrier rates may apply on your mobile plan for receiving messages, depending on your operator.</p><p>Push notifications in the app use your internet connection and are free of any messaging charge.</p>"
+    },
+    "content_fr": {
+      "title": "Suis-je facturé pour les notifications SMS ?",
+      "body": "<p>Blink ne vous facture pas les SMS qu'il envoie, comme votre code de connexion (OTP). Toutefois, les tarifs standard de votre opérateur peuvent s'appliquer à la réception de messages, selon votre forfait.</p><p>Les notifications push dans l'application utilisent votre connexion internet et n'entraînent aucun frais de messagerie.</p>"
+    },
+    "content_ar": {
+      "title": "هل تُفرَض عليّ رسوم مقابل الإشعارات النصية؟",
+      "body": "<p>لا يفرض عليك بلينك رسومًا مقابل الرسائل النصية التي يرسلها، مثل رمز الدخول (OTP). لكن قد تنطبق أسعار المشغّل المعتادة على استقبال الرسائل بحسب باقتك.</p><p>أما الإشعارات الفورية داخل التطبيق فتستخدم اتصالك بالإنترنت ولا تترتب عليها أي رسوم رسائل.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "app-technical",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Fixing common app problems",
+      "body": "<p>If Blink is slow, freezes, or shows an error, a few quick steps solve most issues. Try them in order before contacting support.</p><h2>Quick fixes</h2><ol><li><strong>Check your internet</strong> — switch between Wi-Fi and mobile data to test.</li><li><strong>Close and reopen</strong> the app fully.</li><li><strong>Restart your phone</strong> to clear temporary glitches.</li><li><strong>Update Blink</strong> to the latest version from your app store.</li></ol><h2>If the app keeps crashing</h2><ul><li>Make sure your phone has enough free storage.</li><li>Clear the app's cache in your phone settings (this doesn't delete your account).</li><li>As a last resort, uninstall and reinstall — you stay signed in by your phone number.</li></ul><h2>Still stuck?</h2><p>Contact support through in-app Live Chat. Tell us your phone model, what you were doing, and any error message you saw — it helps us fix it faster.</p><blockquote>Keeping the app updated prevents most crashes, since each update includes stability and security improvements.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Résoudre les problèmes courants de l'application",
+      "body": "<p>Si Blink est lent, se fige ou affiche une erreur, quelques étapes rapides résolvent la plupart des cas. Essayez-les dans l'ordre avant de contacter le support.</p><h2>Solutions rapides</h2><ol><li><strong>Vérifiez votre connexion</strong> — basculez entre Wi-Fi et données mobiles pour tester.</li><li><strong>Fermez puis rouvrez</strong> complètement l'application.</li><li><strong>Redémarrez votre téléphone</strong> pour effacer les anomalies temporaires.</li><li><strong>Mettez Blink à jour</strong> vers la dernière version depuis votre store.</li></ol><h2>Si l'application continue de planter</h2><ul><li>Vérifiez que votre téléphone dispose de stockage libre.</li><li>Videz le cache de l'app dans les réglages du téléphone (cela ne supprime pas votre compte).</li><li>En dernier recours, désinstallez puis réinstallez — vous restez connecté via votre numéro.</li></ul><h2>Toujours bloqué ?</h2><p>Contactez le support via le chat en direct. Indiquez votre modèle de téléphone, ce que vous faisiez et tout message d'erreur vu — cela accélère la résolution.</p><blockquote>Garder l'application à jour évite la plupart des plantages, chaque mise à jour apportant des améliorations de stabilité et de sécurité.</blockquote>"
+    },
+    "content_ar": {
+      "title": "حل مشكلات التطبيق الشائعة",
+      "body": "<p>إذا كان بلينك بطيئًا أو متجمّدًا أو يُظهر خطأً، فإن بضع خطوات سريعة تحل معظم الحالات. جرّبها بالترتيب قبل التواصل مع الدعم.</p><h2>حلول سريعة</h2><ol><li><strong>تحقق من الإنترنت</strong> — بدّل بين الواي فاي وبيانات الهاتف للاختبار.</li><li><strong>أغلق التطبيق وأعد فتحه</strong> بالكامل.</li><li><strong>أعد تشغيل هاتفك</strong> لإزالة الأعطال المؤقتة.</li><li><strong>حدّث بلينك</strong> إلى أحدث إصدار من متجر التطبيقات.</li></ol><h2>إذا استمر التطبيق في التوقف</h2><ul><li>تأكد من وجود مساحة تخزين كافية في هاتفك.</li><li>امسح ذاكرة التطبيق المؤقتة من إعدادات الهاتف (لن يحذف ذلك حسابك).</li><li>كحل أخير، أزل التطبيق وأعد تثبيته — يبقى دخولك محفوظًا برقم هاتفك.</li></ul><h2>ما زلت عالقًا؟</h2><p>تواصل مع الدعم عبر الدردشة المباشرة. أخبرنا بطراز هاتفك وما كنت تفعله وأي رسالة خطأ ظهرت — يساعدنا ذلك على الإصلاح أسرع.</p><blockquote>إبقاء التطبيق محدّثًا يمنع معظم الأعطال، إذ يتضمن كل تحديث تحسينات في الاستقرار والأمان.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "app-technical",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How do I update the Blink app?",
+      "body": "<p>Open the Google Play Store or Apple App Store, search for <strong>Blink</strong>, and tap <strong>Update</strong> if it's available.</p><p>To never miss an update, turn on automatic updates in your store settings. Running the latest version keeps the app fast, stable, and secure.</p>"
+    },
+    "content_fr": {
+      "title": "Comment mettre à jour l'application Blink ?",
+      "body": "<p>Ouvrez le Google Play Store ou l'App Store d'Apple, recherchez <strong>Blink</strong>, puis appuyez sur <strong>Mettre à jour</strong> si disponible.</p><p>Pour ne jamais manquer de mise à jour, activez les mises à jour automatiques dans les réglages de votre store. La dernière version garde l'app rapide, stable et sécurisée.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أحدّث تطبيق بلينك؟",
+      "body": "<p>افتح متجر جوجل بلاي أو متجر تطبيقات آبل، وابحث عن <strong>بلينك</strong>، ثم اضغط على <strong>تحديث</strong> إن كان متاحًا.</p><p>كي لا يفوتك أي تحديث، فعّل التحديثات التلقائية في إعدادات المتجر. أحدث إصدار يُبقي التطبيق سريعًا ومستقرًا وآمنًا.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "app-technical",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "Location, camera, and other app permissions",
+      "body": "<p>Blink asks for a few phone permissions so key features work. You're always in control and can change them in your phone settings.</p><h2>Why each permission is used</h2><ul><li><strong>Location</strong> — to set your address, match you with nearby riders, and power live order tracking with an accurate ETA.</li><li><strong>Camera</strong> — to scan the QR code for Blink Cash deposits and withdrawals, and to add a profile photo.</li><li><strong>Notifications</strong> — to send order, delivery, and account alerts.</li><li><strong>Photos</strong> — to upload images such as a profile picture or a delivery photo.</li></ul><h2>Granting or changing a permission</h2><ol><li>Open your phone <strong>Settings → Apps → Blink → Permissions</strong>.</li><li>Tap the permission you want to allow or revoke.</li><li>Reopen Blink for the change to take effect.</li></ol><blockquote>If a feature isn't working, a denied permission is the most common cause. For example, QR scanning needs camera access, and live tracking needs location set to \"Allow\".</blockquote>"
+    },
+    "content_fr": {
+      "title": "Localisation, caméra et autres autorisations",
+      "body": "<p>Blink demande quelques autorisations pour que les fonctions clés marchent. Vous gardez le contrôle et pouvez les modifier dans les réglages du téléphone.</p><h2>Pourquoi chaque autorisation</h2><ul><li><strong>Localisation</strong> — pour définir votre adresse, vous associer aux livreurs proches et alimenter le suivi en direct avec un délai estimé précis.</li><li><strong>Caméra</strong> — pour scanner le code QR des dépôts et retraits Blink Cash, et ajouter une photo de profil.</li><li><strong>Notifications</strong> — pour envoyer les alertes de commande, livraison et compte.</li><li><strong>Photos</strong> — pour téléverser des images comme une photo de profil ou de livraison.</li></ul><h2>Accorder ou modifier une autorisation</h2><ol><li>Ouvrez <strong>Réglages → Applications → Blink → Autorisations</strong> de votre téléphone.</li><li>Appuyez sur l'autorisation à accorder ou retirer.</li><li>Rouvrez Blink pour appliquer le changement.</li></ol><blockquote>Si une fonction ne marche pas, une autorisation refusée en est la cause la plus fréquente. Par exemple, le scan QR nécessite la caméra, et le suivi en direct nécessite la localisation sur « Autoriser ».</blockquote>"
+    },
+    "content_ar": {
+      "title": "الموقع والكاميرا وأذونات التطبيق الأخرى",
+      "body": "<p>يطلب بلينك بعض أذونات الهاتف كي تعمل الميزات الأساسية. وأنت دائمًا المتحكم ويمكنك تغييرها من إعدادات هاتفك.</p><h2>سبب استخدام كل إذن</h2><ul><li><strong>الموقع</strong> — لتحديد عنوانك، ومطابقتك مع السائقين القريبين، وتشغيل التتبع المباشر للطلب مع وقت وصول دقيق.</li><li><strong>الكاميرا</strong> — لمسح رمز QR لإيداعات وسحوبات بلينك كاش، ولإضافة صورة الملف الشخصي.</li><li><strong>الإشعارات</strong> — لإرسال تنبيهات الطلب والتوصيل والحساب.</li><li><strong>الصور</strong> — لرفع صور مثل صورة الملف الشخصي أو صورة التوصيل.</li></ul><h2>منح إذن أو تغييره</h2><ol><li>افتح <strong>إعدادات الهاتف ← التطبيقات ← بلينك ← الأذونات</strong>.</li><li>اضغط على الإذن الذي تريد السماح به أو إلغاءه.</li><li>أعد فتح بلينك ليُطبَّق التغيير.</li></ol><blockquote>إذا لم تعمل ميزة ما، فالسبب الأشيع هو إذن مرفوض. مثلًا، يحتاج مسح QR إلى الكاميرا، ويحتاج التتبع المباشر إلى ضبط الموقع على «السماح».</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "app-technical",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Does Blink work without internet?",
+      "body": "<p>Blink needs an internet connection for most things — placing orders, live tracking, payments, and chat all require it.</p><p>You may still see previously loaded screens for a moment, but actions won't go through until you're back online. A stable connection gives you the best experience.</p>"
+    },
+    "content_fr": {
+      "title": "Blink fonctionne-t-il sans internet ?",
+      "body": "<p>Blink a besoin d'une connexion internet pour l'essentiel — passer des commandes, le suivi en direct, les paiements et le chat l'exigent.</p><p>Vous pouvez encore voir un instant des écrans déjà chargés, mais les actions n'aboutiront pas tant que vous n'êtes pas reconnecté. Une connexion stable offre la meilleure expérience.</p>"
+    },
+    "content_ar": {
+      "title": "هل يعمل بلينك بدون إنترنت؟",
+      "body": "<p>يحتاج بلينك إلى اتصال بالإنترنت لمعظم المهام — فالطلب والتتبع المباشر والمدفوعات والدردشة كلها تتطلبه.</p><p>قد ترى للحظة شاشات حُمّلت سابقًا، لكن الإجراءات لن تتم حتى تعود إلى الاتصال. والاتصال المستقر يمنحك أفضل تجربة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "app-technical",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Which devices and versions does Blink support?",
+      "body": "<p>Blink runs on most modern Android phones and on iPhones running a recent version of iOS. Very old operating systems may not be supported.</p><p>For the best experience, keep both your phone's operating system and the Blink app updated to the latest versions.</p>"
+    },
+    "content_fr": {
+      "title": "Quels appareils et versions Blink prend-il en charge ?",
+      "body": "<p>Blink fonctionne sur la plupart des téléphones Android récents et sur les iPhone disposant d'une version récente d'iOS. Les systèmes très anciens peuvent ne pas être pris en charge.</p><p>Pour une expérience optimale, gardez le système de votre téléphone et l'application Blink à jour.</p>"
+    },
+    "content_ar": {
+      "title": "ما الأجهزة والإصدارات التي يدعمها بلينك؟",
+      "body": "<p>يعمل بلينك على معظم هواتف أندرويد الحديثة وعلى أجهزة آيفون التي تعمل بإصدار حديث من iOS. قد لا تُدعَم أنظمة التشغيل القديمة جدًا.</p><p>للحصول على أفضل تجربة، أبقِ نظام تشغيل هاتفك وتطبيق بلينك محدّثَين إلى أحدث الإصدارات.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "app-technical",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "How do I clear the app cache?",
+      "body": "<p>Clearing the cache can fix display glitches and free up space without touching your account or data. On Android, open <strong>Settings → Apps → Blink → Storage → Clear cache</strong>.</p><p>On iPhone there's no separate cache button; instead, fully close the app, or uninstall and reinstall it. You'll stay signed in by your phone number.</p>"
+    },
+    "content_fr": {
+      "title": "Comment vider le cache de l'application ?",
+      "body": "<p>Vider le cache peut corriger des problèmes d'affichage et libérer de l'espace sans toucher à votre compte ni à vos données. Sur Android, ouvrez <strong>Réglages → Applications → Blink → Stockage → Vider le cache</strong>.</p><p>Sur iPhone, il n'y a pas de bouton de cache dédié ; fermez plutôt complètement l'app, ou désinstallez puis réinstallez-la. Vous resterez connecté via votre numéro.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أمسح ذاكرة التطبيق المؤقتة؟",
+      "body": "<p>مسح الذاكرة المؤقتة قد يصلح مشكلات العرض ويوفّر مساحة دون المساس بحسابك أو بياناتك. على أندرويد، افتح <strong>الإعدادات ← التطبيقات ← بلينك ← التخزين ← مسح الذاكرة المؤقتة</strong>.</p><p>على آيفون لا يوجد زر مخصّص للذاكرة المؤقتة؛ بدلًا من ذلك أغلق التطبيق تمامًا، أو أزله وأعد تثبيته. وسيبقى دخولك محفوظًا برقم هاتفك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "contact-legal",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How to reach Blink support",
+      "body": "<p>We're here to help. Blink offers more than one way to get support, so you can pick whatever suits your situation.</p><h2>Your options</h2><ul><li><strong>Live Chat</strong> — the fastest way. Open the app and start a chat with our support team in real time.</li><li><strong>Helpline</strong> — call us when you'd rather speak to someone, especially for urgent issues.</li><li><strong>Help Center</strong> — browse these articles and FAQs to solve common questions instantly.</li></ul><h2>How to start a Live Chat</h2><ol><li>Go to <strong>Profile → Support</strong> (or Help Center).</li><li>Tap <strong>Live Chat</strong>.</li><li>Describe your issue — you can even attach a photo.</li></ol><h2>What to include</h2><p>To help us resolve things faster, mention the order or transaction in question, what you expected, and what actually happened. Screenshots are very helpful.</p><blockquote>For anything involving money or your account, always use the in-app Live Chat or helpline so we can verify it's really you.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comment contacter le support Blink",
+      "body": "<p>Nous sommes là pour vous aider. Blink propose plusieurs moyens d'obtenir de l'aide, à vous de choisir celui qui convient.</p><h2>Vos options</h2><ul><li><strong>Chat en direct</strong> — le plus rapide. Ouvrez l'app et discutez en temps réel avec notre équipe.</li><li><strong>Ligne d'assistance</strong> — appelez-nous si vous préférez parler à quelqu'un, surtout en cas d'urgence.</li><li><strong>Centre d'aide</strong> — parcourez ces articles et FAQ pour résoudre les questions courantes instantanément.</li></ul><h2>Comment démarrer un chat en direct</h2><ol><li>Allez dans <strong>Profil → Support</strong> (ou Centre d'aide).</li><li>Appuyez sur <strong>Chat en direct</strong>.</li><li>Décrivez votre problème — vous pouvez même joindre une photo.</li></ol><h2>Quoi inclure</h2><p>Pour une résolution plus rapide, mentionnez la commande ou la transaction concernée, ce que vous attendiez et ce qui s'est passé. Les captures d'écran sont très utiles.</p><blockquote>Pour tout ce qui touche à l'argent ou à votre compte, utilisez toujours le chat en direct ou la ligne d'assistance afin que nous puissions vérifier votre identité.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كيفية التواصل مع دعم بلينك",
+      "body": "<p>نحن هنا لمساعدتك. يوفّر بلينك أكثر من طريقة للحصول على الدعم، فاختر ما يناسب حالتك.</p><h2>خياراتك</h2><ul><li><strong>الدردشة المباشرة</strong> — الأسرع. افتح التطبيق وابدأ محادثة فورية مع فريق الدعم.</li><li><strong>خط المساعدة</strong> — اتصل بنا إن كنت تفضّل التحدث إلى شخص، خاصةً في الحالات العاجلة.</li><li><strong>مركز المساعدة</strong> — تصفّح هذه المقالات والأسئلة الشائعة لحل الأسئلة المعتادة فورًا.</li></ul><h2>كيفية بدء دردشة مباشرة</h2><ol><li>اذهب إلى <strong>الملف الشخصي ← الدعم</strong> (أو مركز المساعدة).</li><li>اضغط على <strong>الدردشة المباشرة</strong>.</li><li>صِف مشكلتك — ويمكنك حتى إرفاق صورة.</li></ol><h2>ماذا تذكر</h2><p>لحل الأمور أسرع، اذكر الطلب أو المعاملة المعنية، وما كنت تتوقعه، وما حدث فعلًا. ولقطات الشاشة مفيدة جدًا.</p><blockquote>في أي أمر يخص المال أو حسابك، استخدم دائمًا الدردشة المباشرة أو خط المساعدة داخل التطبيق لنتحقق من أنك أنت فعلًا.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "contact-legal",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How quickly will support reply?",
+      "body": "<p>Live Chat usually connects you with the support team within a few minutes during operating hours. Urgent issues like an active order or a payment problem are prioritized.</p><p>For requests sent outside busy hours, we reply as soon as an agent is available. You'll be notified in the app when there's a response.</p>"
+    },
+    "content_fr": {
+      "title": "Sous quel délai le support répond-il ?",
+      "body": "<p>Le chat en direct vous met généralement en relation avec l'équipe en quelques minutes pendant les heures d'ouverture. Les urgences comme une commande en cours ou un problème de paiement sont prioritaires.</p><p>Pour les demandes envoyées en dehors des heures de pointe, nous répondons dès qu'un agent est disponible. Vous serez notifié dans l'app dès qu'une réponse arrive.</p>"
+    },
+    "content_ar": {
+      "title": "كم تستغرق ردود الدعم؟",
+      "body": "<p>تربطك الدردشة المباشرة عادةً بفريق الدعم خلال دقائق قليلة في ساعات العمل. وتُعطى الأولوية للحالات العاجلة مثل طلب نشط أو مشكلة دفع.</p><p>أما الطلبات المُرسَلة خارج أوقات الذروة فنردّ عليها فور توفّر أحد الموظفين. وسيصلك إشعار في التطبيق عند ورود الرد.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "contact-legal",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "Where can I read the Terms of Service and Privacy Policy?",
+      "body": "<p>Both documents are available in the app under <strong>Profile → Settings → Legal</strong>. They explain your rights, how the service works, and how we handle your data.</p><p>We recommend reading them when you join and whenever we notify you of an update.</p>"
+    },
+    "content_fr": {
+      "title": "Où lire les conditions d'utilisation et la politique de confidentialité ?",
+      "body": "<p>Les deux documents sont disponibles dans l'app sous <strong>Profil → Paramètres → Mentions légales</strong>. Ils expliquent vos droits, le fonctionnement du service et la gestion de vos données.</p><p>Nous vous conseillons de les lire à l'inscription et à chaque notification de mise à jour.</p>"
+    },
+    "content_ar": {
+      "title": "أين أقرأ شروط الخدمة وسياسة الخصوصية؟",
+      "body": "<p>كلا المستندين متاحان في التطبيق ضمن <strong>الملف الشخصي ← الإعدادات ← الشؤون القانونية</strong>. وهما يشرحان حقوقك وكيفية عمل الخدمة وكيفية تعاملنا مع بياناتك.</p><p>ننصح بقراءتهما عند انضمامك وكلما أشعرناك بوجود تحديث.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "contact-legal",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "How to report a problem or a bad experience",
+      "body": "<p>If something goes wrong, reporting it helps us put it right and keeps the Blink community safe. The fastest way is in-app Live Chat.</p><h2>How to report</h2><ol><li>Open <strong>Profile → Support</strong> and tap <strong>Live Chat</strong>.</li><li>Choose the order, delivery, or topic the report is about.</li><li>Describe clearly what happened and when.</li><li>Attach a photo as evidence if you have one.</li></ol><h2>What makes a strong report</h2><ul><li>The order or transaction reference.</li><li>The date and time it happened.</li><li>What you expected versus what actually occurred.</li><li>If it involves a person, who they were and any details you remember.</li></ul><h2>After you report</h2><p>We review every report seriously and may follow up for more information. For anything involving your money or account, we may verify your identity before acting.</p><blockquote>If you ever feel unsafe, use the helpline for urgent help rather than waiting on chat.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comment signaler un problème ou une mauvaise expérience",
+      "body": "<p>Si quelque chose ne va pas, le signaler nous aide à corriger la situation et à garder la communauté Blink en sécurité. Le moyen le plus rapide est le chat en direct dans l'app.</p><h2>Comment signaler</h2><ol><li>Ouvrez <strong>Profil → Support</strong> et appuyez sur <strong>Chat en direct</strong>.</li><li>Choisissez la commande, la livraison ou le sujet concerné.</li><li>Décrivez clairement ce qui s'est passé et quand.</li><li>Joignez une photo comme preuve si vous en avez une.</li></ol><h2>Ce qui fait un bon signalement</h2><ul><li>La référence de la commande ou de la transaction.</li><li>La date et l'heure des faits.</li><li>Ce que vous attendiez par rapport à ce qui s'est produit.</li><li>S'il s'agit d'une personne, qui elle était et tout détail dont vous vous souvenez.</li></ul><h2>Après votre signalement</h2><p>Nous examinons sérieusement chaque signalement et pouvons vous recontacter pour plus d'informations. Pour tout ce qui touche à votre argent ou compte, nous pouvons vérifier votre identité avant d'agir.</p><blockquote>Si vous vous sentez en danger, utilisez la ligne d'assistance pour une aide urgente plutôt que d'attendre sur le chat.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كيفية الإبلاغ عن مشكلة أو تجربة سيئة",
+      "body": "<p>إذا حدث خطأ ما، فإن الإبلاغ عنه يساعدنا على تصحيحه ويحافظ على سلامة مجتمع بلينك. وأسرع طريقة هي الدردشة المباشرة داخل التطبيق.</p><h2>كيفية الإبلاغ</h2><ol><li>افتح <strong>الملف الشخصي ← الدعم</strong> واضغط على <strong>الدردشة المباشرة</strong>.</li><li>اختر الطلب أو التوصيل أو الموضوع المعني بالبلاغ.</li><li>صِف بوضوح ما حدث ومتى.</li><li>أرفق صورة كدليل إن وُجدت.</li></ol><h2>ما الذي يجعل البلاغ قويًا</h2><ul><li>مرجع الطلب أو المعاملة.</li><li>تاريخ ووقت الحادثة.</li><li>ما كنت تتوقعه مقابل ما حدث فعلًا.</li><li>إذا تعلّق الأمر بشخص، من هو وأي تفاصيل تتذكرها.</li></ul><h2>بعد الإبلاغ</h2><p>نراجع كل بلاغ بجدية وقد نتواصل معك لمزيد من المعلومات. وفي أي أمر يخص أموالك أو حسابك، قد نتحقق من هويتك قبل التصرف.</p><blockquote>إذا شعرت يومًا بعدم الأمان، استخدم خط المساعدة للحصول على مساعدة عاجلة بدلًا من الانتظار على الدردشة.</blockquote>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "contact-legal",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Requesting a copy of your data or deleting it",
+      "body": "<p>You have the right to ask for a copy of the personal data Blink holds about you, or to ask us to delete it. We handle these requests securely and confirm your identity first.</p><h2>How to make a request</h2><ol><li>Open in-app <strong>Live Chat</strong> or use the helpline.</li><li>Tell us whether you want a <strong>copy</strong> of your data or a <strong>deletion</strong>.</li><li>Confirm your identity when prompted, usually with an OTP.</li></ol><h2>What to expect</h2><ul><li>We'll acknowledge your request and process it within a reasonable time.</li><li>Some records, such as transaction history, may be kept where the law requires it.</li><li>Deletion is permanent — make sure to use or withdraw any Blink Cash balance first.</li></ul><blockquote>For full details on what we collect and why, read the Privacy Policy in <strong>Profile → Settings → Legal</strong>.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Demander une copie de vos données ou leur suppression",
+      "body": "<p>Vous avez le droit de demander une copie des données personnelles que Blink détient sur vous, ou leur suppression. Nous traitons ces demandes de façon sécurisée et vérifions d'abord votre identité.</p><h2>Comment faire une demande</h2><ol><li>Ouvrez le <strong>chat en direct</strong> dans l'app ou utilisez la ligne d'assistance.</li><li>Indiquez si vous voulez une <strong>copie</strong> de vos données ou une <strong>suppression</strong>.</li><li>Confirmez votre identité quand demandé, généralement par OTP.</li></ol><h2>À quoi s'attendre</h2><ul><li>Nous accuserons réception et traiterons la demande dans un délai raisonnable.</li><li>Certains enregistrements, comme l'historique des transactions, peuvent être conservés si la loi l'exige.</li><li>La suppression est définitive — pensez à utiliser ou retirer votre solde Blink Cash avant.</li></ul><blockquote>Pour tous les détails sur ce que nous collectons et pourquoi, lisez la politique de confidentialité dans <strong>Profil → Paramètres → Mentions légales</strong>.</blockquote>"
+    },
+    "content_ar": {
+      "title": "طلب نسخة من بياناتك أو حذفها",
+      "body": "<p>لك الحق في طلب نسخة من البيانات الشخصية التي يحتفظ بها بلينك عنك، أو طلب حذفها. نتعامل مع هذه الطلبات بأمان ونتحقق من هويتك أولًا.</p><h2>كيفية تقديم الطلب</h2><ol><li>افتح <strong>الدردشة المباشرة</strong> في التطبيق أو استخدم خط المساعدة.</li><li>أخبرنا إن كنت تريد <strong>نسخة</strong> من بياناتك أو <strong>حذفها</strong>.</li><li>أكّد هويتك عند الطلب، عادةً عبر رمز التحقق.</li></ol><h2>ماذا تتوقّع</h2><ul><li>سنؤكّد استلام طلبك ونعالجه خلال مدة معقولة.</li><li>قد تُحفَظ بعض السجلات، مثل سجل المعاملات، حيث يقتضي القانون ذلك.</li><li>الحذف نهائي — احرص على استخدام رصيد بلينك كاش أو سحبه أولًا.</li></ul><blockquote>لكل التفاصيل حول ما نجمعه ولماذا، اقرأ سياسة الخصوصية في <strong>الملف الشخصي ← الإعدادات ← الشؤون القانونية</strong>.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "contact-legal",
+    "target_roles": ["All"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "How long does account or document verification take?",
+      "body": "<p>Verification of your account or uploaded documents can take <strong>up to 48 hours</strong>. You'll get a notification once it's complete.</p><p>To avoid delays, make sure any document you upload is clear, valid, and shows all four corners. If verification is taking longer than 48 hours, contact support.</p>"
+    },
+    "content_fr": {
+      "title": "Combien de temps prend la vérification du compte ou des documents ?",
+      "body": "<p>La vérification de votre compte ou des documents envoyés peut prendre <strong>jusqu'à 48 heures</strong>. Vous recevrez une notification une fois terminée.</p><p>Pour éviter les retards, assurez-vous que chaque document envoyé est net, valide et montre ses quatre coins. Si la vérification dépasse 48 heures, contactez le support.</p>"
+    },
+    "content_ar": {
+      "title": "كم يستغرق التحقق من الحساب أو الوثائق؟",
+      "body": "<p>قد يستغرق التحقق من حسابك أو الوثائق المرفوعة <strong>حتى 48 ساعة</strong>. وستصلك إشعار عند اكتماله.</p><p>لتفادي التأخير، تأكد من أن أي وثيقة ترفعها واضحة وسارية وتُظهر زواياها الأربع. وإذا تجاوز التحقق 48 ساعة، تواصل مع الدعم.</p>"
+    }
+  }
+]

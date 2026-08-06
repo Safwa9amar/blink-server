@@ -1,0 +1,743 @@
+[
+  {
+    "type": "article",
+    "category": "rider-start",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How to sign up as a Blink rider",
+      "body": "<p>Becoming a Blink delivery rider takes only a few minutes to apply. You ride a bicycle or motorcycle, deliver orders in your city, and get paid for every completed trip. Here is how to get started.</p><h2>Before you apply</h2><p>Make sure you have a working bicycle or motorcycle. Blink does not accept cars for delivery. You also need a smartphone, a valid phone number, and your identity and vehicle documents ready to photograph.</p><h2>Steps to apply</h2><ol><li>Open the app and choose <strong>Become a rider</strong> during sign-up.</li><li>Enter your personal details and verify your phone number.</li><li>Select your vehicle type: <strong>bicycle</strong> or <strong>motorcycle</strong>.</li><li>Upload your required documents under <strong>Profile → Documents</strong>.</li><li>Submit and wait for our team to review your file.</li></ol><h2>What happens next</h2><p>Our team reviews every application, usually within <strong>48 hours</strong>. You will get a notification once you are approved and can start going online.</p><blockquote>Tip: Use clear, well-lit photos of your documents. Blurry images are the most common reason a review is delayed.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comment devenir livreur Blink",
+      "body": "<p>Devenir livreur Blink ne prend que quelques minutes. Vous roulez en vélo ou en moto, vous livrez des commandes dans votre ville et vous êtes payé pour chaque course terminée. Voici comment commencer.</p><h2>Avant de postuler</h2><p>Assurez-vous d'avoir un vélo ou une moto en bon état. Blink n'accepte pas les voitures pour la livraison. Il vous faut aussi un smartphone, un numéro de téléphone valide et vos documents d'identité et de véhicule prêts à être photographiés.</p><h2>Étapes pour postuler</h2><ol><li>Ouvrez l'application et choisissez <strong>Devenir livreur</strong> lors de l'inscription.</li><li>Saisissez vos informations personnelles et vérifiez votre numéro de téléphone.</li><li>Choisissez votre type de véhicule : <strong>vélo</strong> ou <strong>moto</strong>.</li><li>Téléversez vos documents requis sous <strong>Profil → Documents</strong>.</li><li>Validez et attendez l'examen de votre dossier par notre équipe.</li></ol><h2>Et ensuite ?</h2><p>Notre équipe examine chaque candidature, généralement sous <strong>48 heures</strong>. Vous recevrez une notification dès votre approbation et pourrez vous mettre en ligne.</p><blockquote>Astuce : utilisez des photos nettes et bien éclairées de vos documents. Les images floues sont la première cause de retard d'examen.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كيف تسجّل كسائق توصيل في بلينك",
+      "body": "<p>لا يستغرق التقديم لتصبح سائق توصيل في بلينك سوى بضع دقائق. تستخدم دراجة هوائية أو دراجة نارية، وتوصّل الطلبات في مدينتك، وتتقاضى أجراً عن كل رحلة مكتملة. إليك كيفية البدء.</p><h2>قبل التقديم</h2><p>تأكّد من امتلاكك دراجة هوائية أو دراجة نارية صالحة للعمل. لا يقبل بلينك السيارات للتوصيل. كما تحتاج إلى هاتف ذكي ورقم هاتف صالح، وأن تكون وثائق هويتك ومركبتك جاهزة للتصوير.</p><h2>خطوات التقديم</h2><ol><li>افتح التطبيق واختر <strong>كن سائقاً</strong> أثناء التسجيل.</li><li>أدخل بياناتك الشخصية وتحقّق من رقم هاتفك.</li><li>اختر نوع مركبتك: <strong>دراجة هوائية</strong> أو <strong>دراجة نارية</strong>.</li><li>ارفع الوثائق المطلوبة من <strong>الملف الشخصي ← الوثائق</strong>.</li><li>أرسل الطلب وانتظر مراجعة فريقنا لملفّك.</li></ol><h2>ماذا بعد ذلك</h2><p>يراجع فريقنا كل طلب، عادةً خلال <strong>48 ساعة</strong>. ستصلك إشعار فور الموافقة عليك وعندها يمكنك الاتصال بالعمل.</p><blockquote>نصيحة: استخدم صوراً واضحة وجيدة الإضاءة لوثائقك. الصور غير الواضحة هي السبب الأكثر شيوعاً لتأخير المراجعة.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-start",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How long does rider verification take?",
+      "body": "<p>Our team reviews every rider application and the documents you upload, usually within <strong>48 hours</strong>.</p><p>You will receive a notification once your file is approved. If something is unclear or a photo is unreadable, we may ask you to re-upload a document, which can add a little time.</p>"
+    },
+    "content_fr": {
+      "title": "Combien de temps prend la vérification du livreur ?",
+      "body": "<p>Notre équipe examine chaque candidature et les documents que vous téléversez, généralement sous <strong>48 heures</strong>.</p><p>Vous recevrez une notification dès l'approbation de votre dossier. Si un élément n'est pas clair ou qu'une photo est illisible, nous pourrons vous demander de téléverser à nouveau un document, ce qui peut allonger le délai.</p>"
+    },
+    "content_ar": {
+      "title": "كم يستغرق التحقّق من السائق؟",
+      "body": "<p>يراجع فريقنا كل طلب سائق والوثائق التي ترفعها، عادةً خلال <strong>48 ساعة</strong>.</p><p>ستصلك إشعار فور الموافقة على ملفّك. وإذا كان هناك أمر غير واضح أو صورة غير مقروءة، فقد نطلب منك إعادة رفع وثيقة ما، وهو ما قد يضيف بعض الوقت.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-start",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "Which vehicles can I use to deliver with Blink?",
+      "body": "<p>Blink riders deliver using a <strong>bicycle</strong> or a <strong>motorcycle</strong> only. Cars are not accepted for delivery.</p><p>You choose your vehicle type during sign-up, and you must upload the documents that match it. You can change your vehicle later from <strong>Profile → Vehicle</strong>.</p>"
+    },
+    "content_fr": {
+      "title": "Quels véhicules puis-je utiliser pour livrer avec Blink ?",
+      "body": "<p>Les livreurs Blink livrent uniquement à <strong>vélo</strong> ou à <strong>moto</strong>. Les voitures ne sont pas acceptées pour la livraison.</p><p>Vous choisissez votre type de véhicule lors de l'inscription et devez téléverser les documents correspondants. Vous pourrez changer de véhicule plus tard depuis <strong>Profil → Véhicule</strong>.</p>"
+    },
+    "content_ar": {
+      "title": "ما المركبات التي يمكنني استخدامها للتوصيل مع بلينك؟",
+      "body": "<p>يقوم سائقو بلينك بالتوصيل باستخدام <strong>دراجة هوائية</strong> أو <strong>دراجة نارية</strong> فقط. لا تُقبل السيارات للتوصيل.</p><p>تختار نوع مركبتك أثناء التسجيل، ويجب أن ترفع الوثائق المطابقة لها. يمكنك تغيير مركبتك لاحقاً من <strong>الملف الشخصي ← المركبة</strong>.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-start",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "How do I go online and offline?",
+      "body": "<p>Open the rider home screen and tap the <strong>Go online</strong> toggle at the top. Once you are online, you become available to receive trip requests.</p><p>To stop receiving requests, tap the toggle again to go <strong>offline</strong>. You can go offline any time, but finish any trip you have already accepted first.</p>"
+    },
+    "content_fr": {
+      "title": "Comment me mettre en ligne et hors ligne ?",
+      "body": "<p>Ouvrez l'écran d'accueil du livreur et appuyez sur le bouton <strong>Se mettre en ligne</strong> en haut. Une fois en ligne, vous pouvez recevoir des demandes de course.</p><p>Pour ne plus recevoir de demandes, appuyez de nouveau sur le bouton pour passer <strong>hors ligne</strong>. Vous pouvez vous mettre hors ligne à tout moment, mais terminez d'abord toute course déjà acceptée.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أتصل بالعمل وأقطع الاتصال؟",
+      "body": "<p>افتح الشاشة الرئيسية للسائق واضغط على زر <strong>الاتصال بالعمل</strong> في الأعلى. بمجرد اتصالك، تصبح متاحاً لاستقبال طلبات الرحلات.</p><p>لإيقاف استقبال الطلبات، اضغط على الزر مرة أخرى لتصبح <strong>غير متصل</strong>. يمكنك قطع الاتصال في أي وقت، لكن أنهِ أولاً أي رحلة قبلتها بالفعل.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "rider-start",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Accepting and completing your first trip",
+      "body": "<p>Your first delivery is the easiest way to learn how Blink works. Follow these steps and you will be confident after one or two trips.</p><h2>Receiving a request</h2><p>When you are online, a trip request appears with the pickup point, drop-off area, and estimated pay. You have a few seconds to tap <strong>Accept</strong>.</p><h2>Picking up the order</h2><ol><li>Navigate to the merchant using the in-app map.</li><li>Confirm the order number with the merchant.</li><li>Check the items, then tap <strong>Picked up</strong>.</li></ol><h2>Delivering to the customer</h2><ol><li>Follow the route to the customer's address.</li><li>Hand over the order and confirm any handover code if requested.</li><li>Tap <strong>Complete delivery</strong> to finish and record your earnings.</li></ol><blockquote>Tip: Keep your phone mounted and charged so you can read navigation safely without stopping to check it.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Accepter et terminer votre première course",
+      "body": "<p>Votre première livraison est la meilleure façon d'apprendre le fonctionnement de Blink. Suivez ces étapes et vous serez à l'aise après une ou deux courses.</p><h2>Recevoir une demande</h2><p>Lorsque vous êtes en ligne, une demande de course s'affiche avec le point de retrait, la zone de dépôt et la rémunération estimée. Vous avez quelques secondes pour appuyer sur <strong>Accepter</strong>.</p><h2>Récupérer la commande</h2><ol><li>Rendez-vous chez le commerçant grâce à la carte intégrée.</li><li>Confirmez le numéro de commande avec le commerçant.</li><li>Vérifiez les articles, puis appuyez sur <strong>Récupéré</strong>.</li></ol><h2>Livrer au client</h2><ol><li>Suivez l'itinéraire jusqu'à l'adresse du client.</li><li>Remettez la commande et confirmez tout code de remise si demandé.</li><li>Appuyez sur <strong>Terminer la livraison</strong> pour finaliser et enregistrer vos gains.</li></ol><blockquote>Astuce : gardez votre téléphone fixé et chargé pour lire la navigation en toute sécurité sans vous arrêter.</blockquote>"
+    },
+    "content_ar": {
+      "title": "قبول أول رحلة لك وإتمامها",
+      "body": "<p>أول عملية توصيل هي أسهل طريقة لتتعلّم كيفية عمل بلينك. اتبع هذه الخطوات وستشعر بالثقة بعد رحلة أو رحلتين.</p><h2>استقبال طلب</h2><p>عندما تكون متصلاً، يظهر طلب رحلة مع نقطة الاستلام ومنطقة التسليم والأجر المتوقّع. لديك بضع ثوانٍ للضغط على <strong>قبول</strong>.</p><h2>استلام الطلب</h2><ol><li>توجّه إلى التاجر باستخدام الخريطة داخل التطبيق.</li><li>أكّد رقم الطلب مع التاجر.</li><li>تحقّق من العناصر، ثم اضغط على <strong>تم الاستلام</strong>.</li></ol><h2>التسليم إلى العميل</h2><ol><li>اتبع المسار إلى عنوان العميل.</li><li>سلّم الطلب وأكّد أي رمز تسليم إذا طُلب منك ذلك.</li><li>اضغط على <strong>إتمام التوصيل</strong> للإنهاء وتسجيل أرباحك.</li></ol><blockquote>نصيحة: ثبّت هاتفك واحرص على شحنه لتتمكّن من قراءة الملاحة بأمان دون التوقّف لفحصه.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-start",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Why am I not receiving any trip requests?",
+      "body": "<p>If you are online but no requests arrive, check the following:</p><ul><li>You are <strong>online</strong> and your status toggle is green.</li><li>None of your documents are expired, which can lock new trips.</li><li>You have a stable internet connection and location is enabled.</li><li>You are inside an active delivery zone during busy hours.</li></ul><p>Demand changes throughout the day, so quiet periods are normal. Staying near restaurants and shops during meal times improves your chances.</p>"
+    },
+    "content_fr": {
+      "title": "Pourquoi ne reçois-je aucune demande de course ?",
+      "body": "<p>Si vous êtes en ligne mais qu'aucune demande n'arrive, vérifiez ceci :</p><ul><li>Vous êtes <strong>en ligne</strong> et votre bouton de statut est vert.</li><li>Aucun de vos documents n'est expiré, ce qui peut bloquer les nouvelles courses.</li><li>Votre connexion internet est stable et la localisation est activée.</li><li>Vous êtes dans une zone de livraison active pendant les heures de pointe.</li></ul><p>La demande varie au cours de la journée ; les périodes calmes sont normales. Rester près des restaurants et des commerces aux heures de repas améliore vos chances.</p>"
+    },
+    "content_ar": {
+      "title": "لماذا لا أستقبل أي طلبات رحلات؟",
+      "body": "<p>إذا كنت متصلاً ولكن لا تصلك أي طلبات، تحقّق مما يلي:</p><ul><li>أنك <strong>متصل بالعمل</strong> وأن زر الحالة لديك أخضر.</li><li>أن أياً من وثائقك ليست منتهية الصلاحية، فهذا قد يقفل الرحلات الجديدة.</li><li>أن لديك اتصال إنترنت مستقر وأن خدمة الموقع مفعّلة.</li><li>أنك داخل منطقة توصيل نشطة خلال ساعات الذروة.</li></ul><p>يتغيّر الطلب على مدار اليوم، لذا فإن فترات الهدوء أمر طبيعي. البقاء قرب المطاعم والمتاجر في أوقات الوجبات يحسّن فرصك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "trips",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "What happens when I decline a trip?",
+      "body": "<p>You can decline a trip request you do not want, but every decline lowers your <strong>acceptance rate</strong>.</p><p>We recommend keeping your acceptance rate above <strong>80%</strong>, as it affects your tier and access to bonuses. Declining occasionally is fine; declining many trips in a row is what hurts your rate.</p>"
+    },
+    "content_fr": {
+      "title": "Que se passe-t-il quand je refuse une course ?",
+      "body": "<p>Vous pouvez refuser une demande de course dont vous ne voulez pas, mais chaque refus fait baisser votre <strong>taux d'acceptation</strong>.</p><p>Nous recommandons de garder un taux d'acceptation supérieur à <strong>80 %</strong>, car il influence votre niveau et l'accès aux bonus. Refuser de temps en temps n'est pas un problème ; ce sont les refus répétés qui nuisent à votre taux.</p>"
+    },
+    "content_ar": {
+      "title": "ماذا يحدث عندما أرفض رحلة؟",
+      "body": "<p>يمكنك رفض طلب رحلة لا تريده، لكن كل رفض يخفض <strong>معدّل القبول</strong> لديك.</p><p>ننصح بالحفاظ على معدّل قبول أعلى من <strong>80%</strong>، لأنه يؤثّر على مستواك وعلى وصولك إلى المكافآت. الرفض من حين لآخر لا بأس به؛ لكن رفض رحلات كثيرة متتالية هو ما يضرّ بمعدّلك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "trips",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How do cancellations affect my rating?",
+      "body": "<p>Cancelling a trip you already accepted counts against your <strong>cancellation rate</strong>, which should stay below <strong>5%</strong>.</p><p>Some cancellations are not your fault, for example if the merchant is closed or the order cannot be prepared. Always cancel through the app and pick the correct reason so it can be reviewed fairly.</p>"
+    },
+    "content_fr": {
+      "title": "Comment les annulations affectent-elles ma note ?",
+      "body": "<p>Annuler une course déjà acceptée compte dans votre <strong>taux d'annulation</strong>, qui doit rester inférieur à <strong>5 %</strong>.</p><p>Certaines annulations ne sont pas de votre faute, par exemple si le commerçant est fermé ou si la commande ne peut être préparée. Annulez toujours via l'application et choisissez le bon motif afin que la situation soit évaluée équitablement.</p>"
+    },
+    "content_ar": {
+      "title": "كيف تؤثّر الإلغاءات على تقييمي؟",
+      "body": "<p>إلغاء رحلة قبلتها بالفعل يُحتسب ضمن <strong>معدّل الإلغاء</strong> لديك، والذي يجب أن يبقى أقل من <strong>5%</strong>.</p><p>بعض الإلغاءات ليست خطأك، مثلاً إذا كان التاجر مغلقاً أو تعذّر تجهيز الطلب. ألغِ دائماً عبر التطبيق واختر السبب الصحيح كي تتم مراجعة الحالة بإنصاف.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "trips",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "Handling multi-stop and batched orders",
+      "body": "<p>Sometimes Blink groups several deliveries into one trip so you can earn more on a single route. These are called batched or multi-stop orders.</p><h2>How batching works</h2><p>You may pick up from one or more merchants and deliver to several customers in an order optimized by the app. Follow the sequence shown on your screen rather than choosing your own order, so every customer gets their food on time.</p><h2>Steps for a multi-stop trip</h2><ol><li>Pick up each order and confirm it before leaving the merchant.</li><li>Keep orders separated and labeled so you do not mix them up.</li><li>Deliver to each stop in the order the app lists.</li><li>Tap <strong>Complete</strong> at every drop-off before moving to the next.</li></ol><blockquote>Tip: An insulated bag with dividers keeps hot and cold items separate across multiple stops.</blockquote><p>Batched trips can boost your earnings per hour, but only accept them when you are confident you can deliver everything on time.</p>"
+    },
+    "content_fr": {
+      "title": "Gérer les commandes groupées et multi-arrêts",
+      "body": "<p>Parfois, Blink regroupe plusieurs livraisons en une seule course pour vous permettre de gagner plus sur un même trajet. On parle de commandes groupées ou multi-arrêts.</p><h2>Comment fonctionne le regroupement</h2><p>Vous pouvez récupérer chez un ou plusieurs commerçants et livrer plusieurs clients dans un ordre optimisé par l'application. Suivez la séquence affichée à l'écran plutôt que de choisir votre propre ordre, afin que chaque client reçoive sa commande à temps.</p><h2>Étapes d'une course multi-arrêts</h2><ol><li>Récupérez chaque commande et confirmez-la avant de quitter le commerçant.</li><li>Gardez les commandes séparées et étiquetées pour ne pas les mélanger.</li><li>Livrez chaque arrêt dans l'ordre indiqué par l'application.</li><li>Appuyez sur <strong>Terminer</strong> à chaque dépôt avant de passer au suivant.</li></ol><blockquote>Astuce : un sac isotherme avec séparateurs garde le chaud et le froid à part sur plusieurs arrêts.</blockquote><p>Les courses groupées peuvent augmenter vos gains horaires, mais ne les acceptez que si vous êtes sûr de pouvoir tout livrer à temps.</p>"
+    },
+    "content_ar": {
+      "title": "التعامل مع الطلبات المجمّعة ومتعدّدة الوجهات",
+      "body": "<p>أحياناً يجمع بلينك عدة عمليات توصيل في رحلة واحدة لتتمكّن من كسب المزيد على مسار واحد. تُسمّى هذه بالطلبات المجمّعة أو متعدّدة الوجهات.</p><h2>كيف يعمل التجميع</h2><p>قد تستلم من تاجر واحد أو أكثر وتسلّم إلى عدة عملاء بترتيب يحسّنه التطبيق. اتبع التسلسل الظاهر على شاشتك بدلاً من اختيار ترتيبك الخاص، كي يحصل كل عميل على طلبه في الوقت المناسب.</p><h2>خطوات الرحلة متعدّدة الوجهات</h2><ol><li>استلم كل طلب وأكّده قبل مغادرة التاجر.</li><li>احتفظ بالطلبات منفصلة ومعنونة كي لا تخلط بينها.</li><li>سلّم كل وجهة بالترتيب الذي يعرضه التطبيق.</li><li>اضغط على <strong>إتمام</strong> عند كل عملية تسليم قبل الانتقال إلى التالية.</li></ol><blockquote>نصيحة: الحقيبة المعزولة بفواصل تبقي العناصر الساخنة والباردة منفصلة عبر عدة وجهات.</blockquote><p>قد تزيد الرحلات المجمّعة من أرباحك في الساعة، لكن لا تقبلها إلا عندما تكون واثقاً من قدرتك على توصيل كل شيء في الوقت المحدّد.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "trips",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "I can't reach the customer. What should I do?",
+      "body": "<p>First, call and message the customer through the app from the trip screen. Wait a few minutes at the drop-off and try again.</p><p>If they still do not respond, tap <strong>Customer unreachable</strong> and follow the on-screen steps. The app will start a short wait timer and tell you what to do next so the trip is handled correctly and your rates are protected.</p>"
+    },
+    "content_fr": {
+      "title": "Je n'arrive pas à joindre le client. Que faire ?",
+      "body": "<p>D'abord, appelez et envoyez un message au client via l'application depuis l'écran de la course. Patientez quelques minutes au point de dépôt et réessayez.</p><p>S'il ne répond toujours pas, appuyez sur <strong>Client injoignable</strong> et suivez les étapes à l'écran. L'application lancera un court minuteur d'attente et vous indiquera la suite pour que la course soit traitée correctement et vos taux protégés.</p>"
+    },
+    "content_ar": {
+      "title": "لا أستطيع الوصول إلى العميل. ماذا أفعل؟",
+      "body": "<p>أولاً، اتصل بالعميل وراسله عبر التطبيق من شاشة الرحلة. انتظر بضع دقائق عند نقطة التسليم وحاول مجدداً.</p><p>إذا لم يستجب بعد ذلك، اضغط على <strong>تعذّر الوصول إلى العميل</strong> واتبع الخطوات الظاهرة على الشاشة. سيبدأ التطبيق مؤقّت انتظار قصيراً ويخبرك بما تفعله بعد ذلك كي تتم معالجة الرحلة بشكل صحيح وتُحمى معدّلاتك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "trips",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Can I use my own navigation app?",
+      "body": "<p>Blink shows the route inside the app, but you can open your preferred maps app if you find it easier. Tap the address or the navigation icon on the trip screen to launch directions.</p><p>Whatever you use, always confirm pickup and drop-off and tap <strong>Complete delivery</strong> in the Blink app, so the trip is recorded and you are paid.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je utiliser ma propre application de navigation ?",
+      "body": "<p>Blink affiche l'itinéraire dans l'application, mais vous pouvez ouvrir votre application de cartes préférée si cela vous convient mieux. Appuyez sur l'adresse ou l'icône de navigation sur l'écran de la course pour lancer les indications.</p><p>Quel que soit votre choix, confirmez toujours le retrait et le dépôt et appuyez sur <strong>Terminer la livraison</strong> dans l'application Blink, afin que la course soit enregistrée et que vous soyez payé.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني استخدام تطبيق الملاحة الخاص بي؟",
+      "body": "<p>يعرض بلينك المسار داخل التطبيق، لكن يمكنك فتح تطبيق الخرائط المفضّل لديك إن وجدته أسهل. اضغط على العنوان أو أيقونة الملاحة في شاشة الرحلة لبدء الإرشادات.</p><p>مهما استخدمت، أكّد دائماً الاستلام والتسليم واضغط على <strong>إتمام التوصيل</strong> في تطبيق بلينك، كي تُسجَّل الرحلة وتتقاضى أجرك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "trips",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Completing a delivery the right way",
+      "body": "<p>Finishing a delivery correctly protects your rating and makes sure you are paid for the trip. Here is the routine to follow at every drop-off.</p><h2>At the drop-off</h2><ol><li>Confirm you are at the correct address shown on the trip screen.</li><li>Hand the order directly to the customer when possible.</li><li>If a <strong>handover code</strong> is required, ask the customer for it and enter it in the app.</li></ol><h2>Closing the trip</h2><ol><li>Tap <strong>Complete delivery</strong> only after the customer has the order.</li><li>Take a photo of the drop-off if the app asks for proof of delivery.</li><li>Check that your earnings for the trip appear in your activity.</li></ol><blockquote>Tip: Never mark a trip complete before the customer has the order. Doing so early can lead to complaints and hurt your rating.</blockquote><p>A polite handover and an accurate completion are the simplest way to keep good ratings and steady requests.</p>"
+    },
+    "content_fr": {
+      "title": "Terminer une livraison correctement",
+      "body": "<p>Bien terminer une livraison protège votre note et garantit votre paiement. Voici la routine à suivre à chaque dépôt.</p><h2>Au point de dépôt</h2><ol><li>Vérifiez que vous êtes à la bonne adresse affichée sur l'écran de la course.</li><li>Remettez la commande directement au client lorsque c'est possible.</li><li>Si un <strong>code de remise</strong> est requis, demandez-le au client et saisissez-le dans l'application.</li></ol><h2>Clôturer la course</h2><ol><li>Appuyez sur <strong>Terminer la livraison</strong> seulement une fois la commande remise au client.</li><li>Prenez une photo du dépôt si l'application demande une preuve de livraison.</li><li>Vérifiez que vos gains pour la course apparaissent dans votre activité.</li></ol><blockquote>Astuce : ne marquez jamais une course comme terminée avant que le client ait la commande. Le faire trop tôt peut entraîner des réclamations et nuire à votre note.</blockquote><p>Une remise polie et une clôture exacte sont le moyen le plus simple de garder de bonnes notes et un flux régulier de demandes.</p>"
+    },
+    "content_ar": {
+      "title": "إتمام عملية التوصيل بالطريقة الصحيحة",
+      "body": "<p>إنهاء التوصيل بشكل صحيح يحمي تقييمك ويضمن حصولك على أجر الرحلة. إليك الروتين الواجب اتباعه عند كل عملية تسليم.</p><h2>عند نقطة التسليم</h2><ol><li>تأكّد من أنك في العنوان الصحيح الظاهر على شاشة الرحلة.</li><li>سلّم الطلب مباشرةً إلى العميل كلما أمكن.</li><li>إذا كان مطلوباً <strong>رمز تسليم</strong>، اطلبه من العميل وأدخله في التطبيق.</li></ol><h2>إغلاق الرحلة</h2><ol><li>اضغط على <strong>إتمام التوصيل</strong> فقط بعد أن يستلم العميل الطلب.</li><li>التقط صورة لمكان التسليم إذا طلب التطبيق إثبات التوصيل.</li><li>تحقّق من ظهور أرباح الرحلة في سجل نشاطك.</li></ol><blockquote>نصيحة: لا تضع علامة إتمام على رحلة قبل أن يستلم العميل الطلب. القيام بذلك مبكراً قد يؤدّي إلى شكاوى ويضرّ بتقييمك.</blockquote><p>التسليم المهذّب والإتمام الدقيق هما أبسط طريقة للحفاظ على تقييمات جيدة وطلبات منتظمة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "trips",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "The merchant is taking too long to prepare the order. What can I do?",
+      "body": "<p>Let the merchant know you are waiting and ask for an estimated time. A short wait is normal during busy periods.</p><p>If the delay is very long, use the <strong>Help</strong> option on the trip screen to report a long wait. Do not cancel on your own without reporting it, so the delay is recorded and does not unfairly affect your cancellation rate.</p>"
+    },
+    "content_fr": {
+      "title": "Le commerçant met trop de temps à préparer la commande. Que faire ?",
+      "body": "<p>Faites savoir au commerçant que vous attendez et demandez une estimation de temps. Une courte attente est normale aux heures de pointe.</p><p>Si le retard est très long, utilisez l'option <strong>Aide</strong> sur l'écran de la course pour signaler une longue attente. N'annulez pas de votre propre chef sans le signaler, afin que le retard soit enregistré et n'affecte pas injustement votre taux d'annulation.</p>"
+    },
+    "content_ar": {
+      "title": "التاجر يستغرق وقتاً طويلاً في تجهيز الطلب. ماذا أفعل؟",
+      "body": "<p>أعلِم التاجر بأنك تنتظر واطلب تقديراً للوقت. الانتظار القصير أمر طبيعي خلال فترات الازدحام.</p><p>إذا كان التأخير طويلاً جداً، استخدم خيار <strong>المساعدة</strong> في شاشة الرحلة للإبلاغ عن انتظار طويل. لا تلغِ من تلقاء نفسك دون الإبلاغ، كي يُسجَّل التأخير ولا يؤثّر بشكل غير عادل على معدّل الإلغاء لديك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "rider-earnings",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How your delivery pay is calculated",
+      "body": "<p>Your earnings on Blink are made up of several parts, all shown on each trip and in your earnings history. Understanding them helps you plan your day.</p><h2>What makes up a trip's pay</h2><ul><li><strong>Base fare</strong> for accepting and completing the delivery.</li><li><strong>Distance</strong> between pickup and drop-off.</li><li><strong>Busy-area or peak bonuses</strong> when demand is high.</li><li><strong>Tips</strong> from customers, which are always yours to keep.</li></ul><h2>Where to see it</h2><p>Open <strong>Earnings</strong> from your profile to see the breakdown for each trip and your daily total. Amounts are shown in Algerian Dinar (Da).</p><blockquote>Tip: Working during meal times and in busy zones is the easiest way to catch peak bonuses and raise your hourly pay.</blockquote><p>Earnings are calculated daily, so you can always see what you made today before the weekly payout.</p>"
+    },
+    "content_fr": {
+      "title": "Comment votre rémunération de livraison est calculée",
+      "body": "<p>Vos gains sur Blink se composent de plusieurs éléments, tous affichés sur chaque course et dans votre historique. Les comprendre vous aide à organiser votre journée.</p><h2>Ce qui compose la rémunération d'une course</h2><ul><li>Un <strong>tarif de base</strong> pour avoir accepté et terminé la livraison.</li><li>La <strong>distance</strong> entre le retrait et le dépôt.</li><li>Des <strong>bonus de zone chargée ou de pointe</strong> quand la demande est forte.</li><li>Les <strong>pourboires</strong> des clients, qui vous reviennent toujours intégralement.</li></ul><h2>Où le consulter</h2><p>Ouvrez <strong>Gains</strong> depuis votre profil pour voir le détail de chaque course et votre total quotidien. Les montants sont affichés en dinar algérien (Da).</p><blockquote>Astuce : travailler aux heures de repas et dans les zones chargées est le moyen le plus simple de capter les bonus de pointe et d'augmenter votre revenu horaire.</blockquote><p>Les gains sont calculés quotidiennement, vous voyez donc toujours ce que vous avez gagné aujourd'hui avant le versement hebdomadaire.</p>"
+    },
+    "content_ar": {
+      "title": "كيف يُحتسب أجر التوصيل الخاص بك",
+      "body": "<p>تتكوّن أرباحك في بلينك من عدة أجزاء، تظهر جميعها في كل رحلة وفي سجل أرباحك. فهمها يساعدك على تنظيم يومك.</p><h2>مما يتكوّن أجر الرحلة</h2><ul><li><strong>الأجر الأساسي</strong> مقابل قبول التوصيل وإتمامه.</li><li><strong>المسافة</strong> بين نقطة الاستلام ونقطة التسليم.</li><li><strong>مكافآت المناطق المزدحمة أو أوقات الذروة</strong> عندما يكون الطلب مرتفعاً.</li><li><strong>الإكراميات</strong> من العملاء، وهي دائماً من حقّك بالكامل.</li></ul><h2>أين تراها</h2><p>افتح <strong>الأرباح</strong> من ملفك الشخصي لترى تفصيل كل رحلة وإجماليك اليومي. تظهر المبالغ بالدينار الجزائري (دج).</p><blockquote>نصيحة: العمل في أوقات الوجبات وفي المناطق المزدحمة هو أسهل طريقة لاقتناص مكافآت الذروة ورفع أجرك في الساعة.</blockquote><p>تُحتسب الأرباح يومياً، لذا يمكنك دائماً رؤية ما كسبته اليوم قبل الدفعة الأسبوعية.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-earnings",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "When do I get paid?",
+      "body": "<p>Your earnings are <strong>calculated daily</strong> and paid out <strong>weekly</strong> to your registered bank account.</p><p>You can see your daily totals any time in <strong>Earnings</strong>. If you need cash sooner, you can use instant withdrawal from Blink Cash for a small processing fee.</p>"
+    },
+    "content_fr": {
+      "title": "Quand suis-je payé ?",
+      "body": "<p>Vos gains sont <strong>calculés quotidiennement</strong> et versés <strong>chaque semaine</strong> sur votre compte bancaire enregistré.</p><p>Vous pouvez consulter vos totaux quotidiens à tout moment dans <strong>Gains</strong>. Si vous avez besoin d'argent plus tôt, vous pouvez utiliser le retrait instantané depuis Blink Cash moyennant de petits frais de traitement.</p>"
+    },
+    "content_ar": {
+      "title": "متى أتقاضى أجري؟",
+      "body": "<p>تُحتسب أرباحك <strong>يومياً</strong> وتُدفع <strong>أسبوعياً</strong> إلى حسابك البنكي المسجّل.</p><p>يمكنك رؤية إجمالياتك اليومية في أي وقت ضمن <strong>الأرباح</strong>. وإذا احتجت إلى النقد قبل ذلك، يمكنك استخدام السحب الفوري من بلينك كاش مقابل رسوم معالجة بسيطة.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "rider-earnings",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "Using instant withdrawal from Blink Cash",
+      "body": "<p>Instant withdrawal lets you cash out your available earnings right away instead of waiting for the weekly payout. It is useful when you need money the same day.</p><h2>How it works</h2><p>Your completed earnings move into your <strong>Blink Cash</strong> balance. From there, you can request an instant withdrawal at any time for a small <strong>processing fee</strong>, which is shown before you confirm.</p><h2>Steps to withdraw instantly</h2><ol><li>Open <strong>Blink Cash</strong> from your profile.</li><li>Tap <strong>Withdraw</strong> and choose <strong>Instant</strong>.</li><li>Enter the amount and review the processing fee.</li><li>Confirm to send the money to your bank or collect cash at a partner agent shop.</li></ol><blockquote>Tip: If you can wait, the regular weekly payout has no instant fee. Use instant withdrawal only when you truly need the cash sooner.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Utiliser le retrait instantané depuis Blink Cash",
+      "body": "<p>Le retrait instantané vous permet d'encaisser vos gains disponibles immédiatement, sans attendre le versement hebdomadaire. C'est utile quand vous avez besoin d'argent le jour même.</p><h2>Comment ça marche</h2><p>Vos gains terminés sont transférés sur votre solde <strong>Blink Cash</strong>. De là, vous pouvez demander un retrait instantané à tout moment moyennant de petits <strong>frais de traitement</strong>, affichés avant confirmation.</p><h2>Étapes du retrait instantané</h2><ol><li>Ouvrez <strong>Blink Cash</strong> depuis votre profil.</li><li>Appuyez sur <strong>Retirer</strong> et choisissez <strong>Instantané</strong>.</li><li>Saisissez le montant et vérifiez les frais de traitement.</li><li>Confirmez pour envoyer l'argent vers votre banque ou retirer du liquide chez une boutique d'agent partenaire.</li></ol><blockquote>Astuce : si vous pouvez patienter, le versement hebdomadaire habituel n'a pas de frais. N'utilisez le retrait instantané que lorsque vous avez vraiment besoin de l'argent plus tôt.</blockquote>"
+    },
+    "content_ar": {
+      "title": "استخدام السحب الفوري من بلينك كاش",
+      "body": "<p>يتيح لك السحب الفوري صرف أرباحك المتاحة على الفور بدلاً من انتظار الدفعة الأسبوعية. وهو مفيد عندما تحتاج إلى المال في اليوم نفسه.</p><h2>كيف يعمل</h2><p>تنتقل أرباحك المكتملة إلى رصيد <strong>بلينك كاش</strong> الخاص بك. ومن هناك يمكنك طلب سحب فوري في أي وقت مقابل <strong>رسوم معالجة</strong> بسيطة، تظهر لك قبل التأكيد.</p><h2>خطوات السحب الفوري</h2><ol><li>افتح <strong>بلينك كاش</strong> من ملفك الشخصي.</li><li>اضغط على <strong>سحب</strong> واختر <strong>فوري</strong>.</li><li>أدخل المبلغ وراجع رسوم المعالجة.</li><li>أكّد لإرسال المال إلى بنكك أو لاستلام النقد في محل وكيل شريك.</li></ol><blockquote>نصيحة: إن كان بإمكانك الانتظار، فإن الدفعة الأسبوعية العادية بلا رسوم فورية. استخدم السحب الفوري فقط عندما تحتاج إلى المال أبكر فعلاً.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-earnings",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "How do I add or change my bank details?",
+      "body": "<p>Go to <strong>Profile → Payout details</strong> and enter or update your bank account information. This is where your weekly payouts are sent.</p><p>Make sure the account name matches your verified identity. Incorrect bank details are the most common cause of a delayed or failed payout.</p>"
+    },
+    "content_fr": {
+      "title": "Comment ajouter ou modifier mes coordonnées bancaires ?",
+      "body": "<p>Allez dans <strong>Profil → Coordonnées de versement</strong> et saisissez ou mettez à jour les informations de votre compte bancaire. C'est là que sont envoyés vos versements hebdomadaires.</p><p>Assurez-vous que le nom du compte correspond à votre identité vérifiée. Des coordonnées bancaires erronées sont la cause la plus fréquente d'un versement retardé ou échoué.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أضيف بياناتي البنكية أو أغيّرها؟",
+      "body": "<p>اذهب إلى <strong>الملف الشخصي ← بيانات الدفع</strong> وأدخل معلومات حسابك البنكي أو حدّثها. هنا تُرسَل دفعاتك الأسبوعية.</p><p>تأكّد من تطابق اسم الحساب مع هويتك الموثّقة. البيانات البنكية غير الصحيحة هي السبب الأكثر شيوعاً لتأخّر الدفعة أو فشلها.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-earnings",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Where can I see my earnings history?",
+      "body": "<p>Open <strong>Earnings</strong> from your profile to view a breakdown by day and by trip, including base fare, distance, bonuses, and tips.</p><p>You can switch between daily, weekly, and monthly views to track how much you have made over time and confirm each payout.</p>"
+    },
+    "content_fr": {
+      "title": "Où puis-je voir mon historique de gains ?",
+      "body": "<p>Ouvrez <strong>Gains</strong> depuis votre profil pour voir le détail par jour et par course, y compris le tarif de base, la distance, les bonus et les pourboires.</p><p>Vous pouvez basculer entre les vues quotidienne, hebdomadaire et mensuelle pour suivre vos gains dans le temps et confirmer chaque versement.</p>"
+    },
+    "content_ar": {
+      "title": "أين أرى سجل أرباحي؟",
+      "body": "<p>افتح <strong>الأرباح</strong> من ملفك الشخصي لعرض تفصيل حسب اليوم وحسب الرحلة، بما في ذلك الأجر الأساسي والمسافة والمكافآت والإكراميات.</p><p>يمكنك التبديل بين العرض اليومي والأسبوعي والشهري لتتبّع ما كسبته بمرور الوقت وتأكيد كل دفعة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-earnings",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "What are incentives and how do I earn them?",
+      "body": "<p>Incentives are extra rewards on top of your regular trip pay, such as bonuses for completing a set number of trips in a period or for working during busy hours.</p><p>Active incentives appear in <strong>Earnings</strong> with their target and progress. Keeping a high acceptance rate and a low cancellation rate helps you qualify for more of them.</p>"
+    },
+    "content_fr": {
+      "title": "Que sont les incitations et comment les gagner ?",
+      "body": "<p>Les incitations sont des récompenses supplémentaires en plus de votre rémunération habituelle, comme des bonus pour avoir effectué un certain nombre de courses sur une période ou pour avoir travaillé aux heures de pointe.</p><p>Les incitations actives apparaissent dans <strong>Gains</strong> avec leur objectif et votre progression. Garder un taux d'acceptation élevé et un taux d'annulation faible vous aide à en obtenir davantage.</p>"
+    },
+    "content_ar": {
+      "title": "ما هي الحوافز وكيف أكسبها؟",
+      "body": "<p>الحوافز هي مكافآت إضافية فوق أجر رحلاتك المعتاد، مثل مكافآت إتمام عدد محدّد من الرحلات خلال فترة معيّنة أو العمل في ساعات الذروة.</p><p>تظهر الحوافز النشطة في <strong>الأرباح</strong> مع هدفها ومدى تقدّمك فيها. الحفاظ على معدّل قبول مرتفع ومعدّل إلغاء منخفض يساعدك على التأهّل للمزيد منها.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-earnings",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "Are tips included in my Blink earnings?",
+      "body": "<p>Yes. Any tip a customer adds is <strong>100% yours</strong> and is added to your trip earnings.</p><p>Tips appear separately in your earnings breakdown so you can see exactly how much customers tipped you. Blink does not take any cut of your tips.</p>"
+    },
+    "content_fr": {
+      "title": "Les pourboires sont-ils inclus dans mes gains Blink ?",
+      "body": "<p>Oui. Tout pourboire ajouté par un client est <strong>100 % à vous</strong> et s'ajoute à vos gains de course.</p><p>Les pourboires apparaissent séparément dans le détail de vos gains afin que vous voyiez exactement combien les clients vous ont donné. Blink ne prélève aucune part sur vos pourboires.</p>"
+    },
+    "content_ar": {
+      "title": "هل الإكراميات مشمولة في أرباحي على بلينك؟",
+      "body": "<p>نعم. أي إكرامية يضيفها العميل هي <strong>من حقّك بالكامل</strong> وتُضاف إلى أرباح رحلتك.</p><p>تظهر الإكراميات بشكل منفصل في تفصيل أرباحك كي ترى بالضبط كم أعطاك العملاء. لا يأخذ بلينك أي نسبة من إكرامياتك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "vehicle",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Documents you need to ride with Blink",
+      "body": "<p>To keep delivering, your rider and vehicle documents must be valid and up to date. The exact list depends on whether you ride a bicycle or a motorcycle.</p><h2>For all riders</h2><ul><li>A valid identity document.</li><li>A clear profile photo for your account.</li></ul><h2>For motorcycle riders</h2><ul><li><strong>Driving license</strong> valid for your motorcycle.</li><li><strong>Vehicle insurance</strong> that is in force.</li><li><strong>Vehicle inspection certificate</strong>.</li></ul><h2>Where to manage them</h2><p>Upload and check all documents under <strong>Profile → Documents</strong>. Each one shows its status and expiry date, so you always know what is valid.</p><blockquote>Tip: Set a reminder a couple of weeks before any document expires. The app locks new trips when a required document is expired, so renewing early keeps you earning.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Les documents nécessaires pour livrer avec Blink",
+      "body": "<p>Pour continuer à livrer, vos documents de livreur et de véhicule doivent être valides et à jour. La liste exacte dépend de si vous roulez à vélo ou à moto.</p><h2>Pour tous les livreurs</h2><ul><li>Une pièce d'identité valide.</li><li>Une photo de profil nette pour votre compte.</li></ul><h2>Pour les livreurs à moto</h2><ul><li><strong>Permis de conduire</strong> valable pour votre moto.</li><li><strong>Assurance du véhicule</strong> en cours de validité.</li><li><strong>Certificat de contrôle technique</strong> du véhicule.</li></ul><h2>Où les gérer</h2><p>Téléversez et vérifiez tous les documents sous <strong>Profil → Documents</strong>. Chacun affiche son statut et sa date d'expiration, vous savez donc toujours ce qui est valide.</p><blockquote>Astuce : programmez un rappel quelques semaines avant l'expiration d'un document. L'application bloque les nouvelles courses lorsqu'un document requis est expiré ; renouveler tôt vous permet de continuer à gagner.</blockquote>"
+    },
+    "content_ar": {
+      "title": "الوثائق التي تحتاجها للتوصيل مع بلينك",
+      "body": "<p>للاستمرار في التوصيل، يجب أن تكون وثائق السائق والمركبة لديك سارية ومحدّثة. تعتمد القائمة الدقيقة على ما إذا كنت تستخدم دراجة هوائية أو دراجة نارية.</p><h2>لجميع السائقين</h2><ul><li>وثيقة هوية سارية.</li><li>صورة شخصية واضحة لحسابك.</li></ul><h2>لسائقي الدراجات النارية</h2><ul><li><strong>رخصة قيادة</strong> سارية لدراجتك النارية.</li><li><strong>تأمين المركبة</strong> ساري المفعول.</li><li><strong>شهادة الفحص الفني للمركبة</strong>.</li></ul><h2>أين تديرها</h2><p>ارفع جميع الوثائق وتحقّق منها ضمن <strong>الملف الشخصي ← الوثائق</strong>. تعرض كل وثيقة حالتها وتاريخ انتهائها، لذا تعرف دائماً ما هو ساري المفعول.</p><blockquote>نصيحة: اضبط تذكيراً قبل أسبوعين من انتهاء أي وثيقة. يقفل التطبيق الرحلات الجديدة عند انتهاء صلاحية وثيقة مطلوبة، لذا فإن التجديد المبكر يبقيك تكسب.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "vehicle",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "What happens if one of my documents expires?",
+      "body": "<p>If a required document such as your vehicle inspection certificate, insurance, or driving license expires, the app <strong>locks new trips</strong> until you upload a valid replacement.</p><p>Go to <strong>Profile → Documents</strong>, upload the renewed document, and wait for it to be reviewed. Once approved, you can go online again.</p>"
+    },
+    "content_fr": {
+      "title": "Que se passe-t-il si un de mes documents expire ?",
+      "body": "<p>Si un document requis comme votre certificat de contrôle technique, votre assurance ou votre permis de conduire expire, l'application <strong>bloque les nouvelles courses</strong> jusqu'à ce que vous téléversiez un remplacement valide.</p><p>Allez dans <strong>Profil → Documents</strong>, téléversez le document renouvelé et attendez son examen. Une fois approuvé, vous pourrez vous remettre en ligne.</p>"
+    },
+    "content_ar": {
+      "title": "ماذا يحدث إذا انتهت صلاحية إحدى وثائقي؟",
+      "body": "<p>إذا انتهت صلاحية وثيقة مطلوبة مثل شهادة الفحص الفني أو التأمين أو رخصة القيادة، يقوم التطبيق <strong>بقفل الرحلات الجديدة</strong> حتى ترفع بديلاً سارياً.</p><p>اذهب إلى <strong>الملف الشخصي ← الوثائق</strong>، وارفع الوثيقة المجدّدة وانتظر مراجعتها. وبمجرد الموافقة عليها، يمكنك الاتصال بالعمل مجدداً.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "vehicle",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How to add or change your vehicle",
+      "body": "<p>You can switch between a bicycle and a motorcycle, or update your vehicle details, from your profile. Remember that Blink only supports these two vehicle types.</p><h2>Before you change</h2><p>Have the documents for the new vehicle ready. A motorcycle needs a driving license, insurance, and an inspection certificate; a bicycle does not require these vehicle documents.</p><h2>Steps</h2><ol><li>Go to <strong>Profile → Vehicle</strong>.</li><li>Tap <strong>Add</strong> or <strong>Change vehicle</strong>.</li><li>Select <strong>bicycle</strong> or <strong>motorcycle</strong> and enter the details.</li><li>Upload the matching documents under <strong>Profile → Documents</strong>.</li><li>Submit and wait for review.</li></ol><blockquote>Tip: Switching to a motorcycle is only complete once its documents are approved. Until then, you may stay limited to bicycle trips.</blockquote><p>Once your new vehicle is approved, requests will match the vehicle type on your account.</p>"
+    },
+    "content_fr": {
+      "title": "Comment ajouter ou changer votre véhicule",
+      "body": "<p>Vous pouvez passer d'un vélo à une moto, ou mettre à jour les détails de votre véhicule, depuis votre profil. Rappelez-vous que Blink ne prend en charge que ces deux types de véhicules.</p><h2>Avant de changer</h2><p>Préparez les documents du nouveau véhicule. Une moto nécessite un permis de conduire, une assurance et un certificat de contrôle ; un vélo ne requiert pas ces documents de véhicule.</p><h2>Étapes</h2><ol><li>Allez dans <strong>Profil → Véhicule</strong>.</li><li>Appuyez sur <strong>Ajouter</strong> ou <strong>Changer de véhicule</strong>.</li><li>Choisissez <strong>vélo</strong> ou <strong>moto</strong> et saisissez les détails.</li><li>Téléversez les documents correspondants sous <strong>Profil → Documents</strong>.</li><li>Validez et attendez l'examen.</li></ol><blockquote>Astuce : le passage à une moto n'est complet qu'une fois ses documents approuvés. D'ici là, vous pourriez rester limité aux courses à vélo.</blockquote><p>Une fois votre nouveau véhicule approuvé, les demandes correspondront au type de véhicule de votre compte.</p>"
+    },
+    "content_ar": {
+      "title": "كيف تضيف مركبتك أو تغيّرها",
+      "body": "<p>يمكنك التبديل بين الدراجة الهوائية والدراجة النارية، أو تحديث تفاصيل مركبتك، من ملفك الشخصي. تذكّر أن بلينك يدعم هذين النوعين من المركبات فقط.</p><h2>قبل التغيير</h2><p>جهّز وثائق المركبة الجديدة. تحتاج الدراجة النارية إلى رخصة قيادة وتأمين وشهادة فحص؛ أما الدراجة الهوائية فلا تتطلّب وثائق المركبة هذه.</p><h2>الخطوات</h2><ol><li>اذهب إلى <strong>الملف الشخصي ← المركبة</strong>.</li><li>اضغط على <strong>إضافة</strong> أو <strong>تغيير المركبة</strong>.</li><li>اختر <strong>دراجة هوائية</strong> أو <strong>دراجة نارية</strong> وأدخل التفاصيل.</li><li>ارفع الوثائق المطابقة ضمن <strong>الملف الشخصي ← الوثائق</strong>.</li><li>أرسل الطلب وانتظر المراجعة.</li></ol><blockquote>نصيحة: لا يكتمل التبديل إلى دراجة نارية إلا بعد الموافقة على وثائقها. حتى ذلك الحين، قد تبقى محصوراً برحلات الدراجة الهوائية.</blockquote><p>بمجرد الموافقة على مركبتك الجديدة، ستتطابق الطلبات مع نوع المركبة في حسابك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "vehicle",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Do bicycle riders need a license or insurance?",
+      "body": "<p>No. If you ride a <strong>bicycle</strong>, you do not need a driving license, vehicle insurance, or an inspection certificate. You still need a valid identity document and an approved profile.</p><p>These vehicle documents are only required for <strong>motorcycle</strong> riders. If you later switch to a motorcycle, you must add them before you can take motorcycle trips.</p>"
+    },
+    "content_fr": {
+      "title": "Les livreurs à vélo ont-ils besoin d'un permis ou d'une assurance ?",
+      "body": "<p>Non. Si vous roulez à <strong>vélo</strong>, vous n'avez pas besoin de permis de conduire, d'assurance de véhicule ni de certificat de contrôle. Vous devez toutefois avoir une pièce d'identité valide et un profil approuvé.</p><p>Ces documents de véhicule ne sont requis que pour les livreurs à <strong>moto</strong>. Si vous passez ensuite à une moto, vous devez les ajouter avant de pouvoir effectuer des courses à moto.</p>"
+    },
+    "content_ar": {
+      "title": "هل يحتاج سائقو الدراجات الهوائية إلى رخصة أو تأمين؟",
+      "body": "<p>لا. إذا كنت تستخدم <strong>دراجة هوائية</strong>، فلست بحاجة إلى رخصة قيادة أو تأمين مركبة أو شهادة فحص. لكنك لا تزال بحاجة إلى وثيقة هوية سارية وملف شخصي معتمد.</p><p>وثائق المركبة هذه مطلوبة فقط لسائقي <strong>الدراجات النارية</strong>. وإذا انتقلت لاحقاً إلى دراجة نارية، فيجب إضافتها قبل أن تتمكّن من القيام برحلات الدراجة النارية.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "vehicle",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "How do I renew an expiring document?",
+      "body": "<p>When a document is close to its expiry date, you will see a reminder in <strong>Profile → Documents</strong>. Renew it with the relevant authority, then upload a clear photo of the new document.</p><p>Submit it before the old one expires so you avoid having new trips locked. Once the renewed document is approved, the reminder clears.</p>"
+    },
+    "content_fr": {
+      "title": "Comment renouveler un document qui expire ?",
+      "body": "<p>Lorsqu'un document approche de sa date d'expiration, vous verrez un rappel dans <strong>Profil → Documents</strong>. Renouvelez-le auprès de l'autorité concernée, puis téléversez une photo nette du nouveau document.</p><p>Soumettez-le avant l'expiration de l'ancien pour éviter le blocage des nouvelles courses. Une fois le document renouvelé approuvé, le rappel disparaît.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أجدّد وثيقة قاربت على الانتهاء؟",
+      "body": "<p>عندما تقترب وثيقة من تاريخ انتهائها، ستظهر لك تذكيراً في <strong>الملف الشخصي ← الوثائق</strong>. جدّدها لدى الجهة المختصّة، ثم ارفع صورة واضحة للوثيقة الجديدة.</p><p>أرسلها قبل انتهاء صلاحية القديمة لتتجنّب قفل الرحلات الجديدة. وبمجرد الموافقة على الوثيقة المجدّدة، يختفي التذكير.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "vehicle",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "What is the vehicle inspection certificate?",
+      "body": "<p>The vehicle inspection certificate confirms your motorcycle is roadworthy and safe to use. It is one of the documents required for motorcycle riders.</p><p>Upload a valid certificate under <strong>Profile → Documents</strong>. If it expires, new trips are locked until you upload a renewed one and it is approved.</p>"
+    },
+    "content_fr": {
+      "title": "Qu'est-ce que le certificat de contrôle technique ?",
+      "body": "<p>Le certificat de contrôle technique atteste que votre moto est en état de rouler et sûre à utiliser. C'est l'un des documents requis pour les livreurs à moto.</p><p>Téléversez un certificat valide sous <strong>Profil → Documents</strong>. S'il expire, les nouvelles courses sont bloquées jusqu'à ce que vous en téléversiez un renouvelé et qu'il soit approuvé.</p>"
+    },
+    "content_ar": {
+      "title": "ما هي شهادة الفحص الفني للمركبة؟",
+      "body": "<p>تؤكّد شهادة الفحص الفني أن دراجتك النارية صالحة للسير وآمنة للاستخدام. وهي إحدى الوثائق المطلوبة لسائقي الدراجات النارية.</p><p>ارفع شهادة سارية ضمن <strong>الملف الشخصي ← الوثائق</strong>. وإذا انتهت صلاحيتها، تُقفل الرحلات الجديدة حتى ترفع شهادة مجدّدة وتتم الموافقة عليها.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "vehicle",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "My document was rejected. What now?",
+      "body": "<p>A document is usually rejected when the photo is blurry, cut off, or the document is expired or does not match your account details.</p><p>Open <strong>Profile → Documents</strong> to see the reason, then upload a new, clear photo of a valid document. It will be reviewed again, usually within 48 hours.</p>"
+    },
+    "content_fr": {
+      "title": "Mon document a été refusé. Que faire ?",
+      "body": "<p>Un document est généralement refusé lorsque la photo est floue, coupée, ou que le document est expiré ou ne correspond pas aux informations de votre compte.</p><p>Ouvrez <strong>Profil → Documents</strong> pour voir le motif, puis téléversez une nouvelle photo nette d'un document valide. Il sera réexaminé, généralement sous 48 heures.</p>"
+    },
+    "content_ar": {
+      "title": "تم رفض وثيقتي. ماذا أفعل الآن؟",
+      "body": "<p>عادةً ما تُرفض الوثيقة عندما تكون الصورة غير واضحة أو مقصوصة، أو عندما تكون الوثيقة منتهية الصلاحية أو لا تطابق بيانات حسابك.</p><p>افتح <strong>الملف الشخصي ← الوثائق</strong> لمعرفة السبب، ثم ارفع صورة جديدة واضحة لوثيقة سارية. ستتم مراجعتها مجدداً، عادةً خلال 48 ساعة.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "tiers",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How rider tiers work",
+      "body": "<p>Tiers reward riders who deliver consistently and reliably. Your tier is based on three things measured over a rolling <strong>30-day window</strong>: your trip volume, your acceptance rate, and your rating.</p><h2>The three factors</h2><ul><li><strong>Trips completed</strong> in the last 30 days.</li><li><strong>Acceptance rate</strong>, which we recommend keeping above <strong>80%</strong>.</li><li><strong>Rating</strong> from customers, kept high by good, on-time service.</li></ul><h2>Tier overview</h2><table><thead><tr><th>Tier</th><th>Trips (30 days)</th><th>Rating</th></tr></thead><tbody><tr><td>Bronze</td><td>Entry level</td><td>Good standing</td></tr><tr><td>Silver</td><td>Higher volume</td><td>Good standing</td></tr><tr><td>Gold</td><td>High volume</td><td>Strong rating</td></tr><tr><td>Diamond</td><td>200+</td><td>4.8+</td></tr></tbody></table><blockquote>Tip: Keeping your cancellation rate below 5% protects your standing as your trip count grows.</blockquote><p>Because the window rolls, your tier reflects your recent performance, not your all-time history.</p>"
+    },
+    "content_fr": {
+      "title": "Comment fonctionnent les niveaux des livreurs",
+      "body": "<p>Les niveaux récompensent les livreurs qui livrent de façon régulière et fiable. Votre niveau dépend de trois éléments mesurés sur une <strong>fenêtre glissante de 30 jours</strong> : votre volume de courses, votre taux d'acceptation et votre note.</p><h2>Les trois facteurs</h2><ul><li>Le <strong>nombre de courses terminées</strong> au cours des 30 derniers jours.</li><li>Le <strong>taux d'acceptation</strong>, que nous recommandons de garder au-dessus de <strong>80 %</strong>.</li><li>La <strong>note</strong> des clients, maintenue élevée par un bon service ponctuel.</li></ul><h2>Aperçu des niveaux</h2><table><thead><tr><th>Niveau</th><th>Courses (30 j)</th><th>Note</th></tr></thead><tbody><tr><td>Bronze</td><td>Niveau d'entrée</td><td>En règle</td></tr><tr><td>Argent</td><td>Volume supérieur</td><td>En règle</td></tr><tr><td>Or</td><td>Volume élevé</td><td>Note solide</td></tr><tr><td>Diamant</td><td>200+</td><td>4,8+</td></tr></tbody></table><blockquote>Astuce : garder un taux d'annulation inférieur à 5 % protège votre statut à mesure que votre nombre de courses augmente.</blockquote><p>Comme la fenêtre est glissante, votre niveau reflète votre performance récente, pas votre historique global.</p>"
+    },
+    "content_ar": {
+      "title": "كيف تعمل مستويات السائقين",
+      "body": "<p>تكافئ المستويات السائقين الذين يوصّلون بانتظام وموثوقية. يعتمد مستواك على ثلاثة أمور تُقاس على <strong>نافذة متجدّدة مدتها 30 يوماً</strong>: عدد رحلاتك ومعدّل قبولك وتقييمك.</p><h2>العوامل الثلاثة</h2><ul><li><strong>عدد الرحلات المكتملة</strong> خلال آخر 30 يوماً.</li><li><strong>معدّل القبول</strong>، وننصح بإبقائه أعلى من <strong>80%</strong>.</li><li><strong>التقييم</strong> من العملاء، ويبقى مرتفعاً بخدمة جيدة وفي الوقت المحدّد.</li></ul><h2>نظرة على المستويات</h2><table><thead><tr><th>المستوى</th><th>الرحلات (30 يوماً)</th><th>التقييم</th></tr></thead><tbody><tr><td>برونزي</td><td>مستوى البداية</td><td>وضع جيد</td></tr><tr><td>فضي</td><td>عدد أعلى</td><td>وضع جيد</td></tr><tr><td>ذهبي</td><td>عدد مرتفع</td><td>تقييم قوي</td></tr><tr><td>ماسي</td><td>200+</td><td>4.8+</td></tr></tbody></table><blockquote>نصيحة: إبقاء معدّل الإلغاء لديك أقل من 5% يحمي وضعك مع تزايد عدد رحلاتك.</blockquote><p>ولأن النافذة متجدّدة، فإن مستواك يعكس أداءك الأخير وليس سجلّك طوال الوقت.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "tiers",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How do I reach Diamond tier?",
+      "body": "<p>Diamond is the top tier. To reach it you need <strong>200 or more completed trips</strong> in the rolling 30-day window and a rating of <strong>4.8 or higher</strong>.</p><p>You also need to keep your acceptance rate high and your cancellation rate low. Consistent, on-time deliveries are the surest path to Diamond.</p>"
+    },
+    "content_fr": {
+      "title": "Comment atteindre le niveau Diamant ?",
+      "body": "<p>Diamant est le niveau le plus élevé. Pour l'atteindre, il faut <strong>200 courses terminées ou plus</strong> sur la fenêtre glissante de 30 jours et une note de <strong>4,8 ou plus</strong>.</p><p>Vous devez aussi garder un taux d'acceptation élevé et un taux d'annulation faible. Des livraisons régulières et ponctuelles sont le chemin le plus sûr vers le Diamant.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أصل إلى المستوى الماسي؟",
+      "body": "<p>الماسي هو أعلى مستوى. للوصول إليه تحتاج إلى <strong>200 رحلة مكتملة أو أكثر</strong> ضمن النافذة المتجدّدة لمدة 30 يوماً، وتقييم <strong>4.8 أو أعلى</strong>.</p><p>كما يجب أن تبقي معدّل قبولك مرتفعاً ومعدّل إلغائك منخفضاً. التوصيلات المنتظمة وفي الوقت المحدّد هي أضمن طريق إلى المستوى الماسي.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "tiers",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How often do tiers update?",
+      "body": "<p>Tiers are based on a rolling <strong>30-day window</strong>, so your numbers update continuously as new trips are added and old ones drop off.</p><p>Your current tier and progress are shown in your profile. Because old activity rolls off, staying active keeps your tier from slipping.</p>"
+    },
+    "content_fr": {
+      "title": "À quelle fréquence les niveaux sont-ils mis à jour ?",
+      "body": "<p>Les niveaux reposent sur une <strong>fenêtre glissante de 30 jours</strong> ; vos chiffres se mettent donc à jour en continu à mesure que de nouvelles courses s'ajoutent et que les anciennes disparaissent.</p><p>Votre niveau actuel et votre progression sont affichés dans votre profil. Comme l'ancienne activité disparaît, rester actif évite que votre niveau ne baisse.</p>"
+    },
+    "content_ar": {
+      "title": "كم مرة يتم تحديث المستويات؟",
+      "body": "<p>تعتمد المستويات على <strong>نافذة متجدّدة مدتها 30 يوماً</strong>، لذا تتحدّث أرقامك باستمرار مع إضافة رحلات جديدة وسقوط القديمة.</p><p>يظهر مستواك الحالي وتقدّمك في ملفك الشخصي. ولأن النشاط القديم يسقط، فإن البقاء نشطاً يمنع تراجع مستواك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "tiers",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Tier benefits and bonuses explained",
+      "body": "<p>Higher tiers come with perks that reward your reliability. The more consistently you deliver, the more you unlock.</p><h2>Common benefits by tier</h2><ul><li><strong>Priority on trip requests</strong> during busy periods.</li><li><strong>Higher incentive targets and bonuses</strong> as you move up.</li><li><strong>Early access</strong> to new features and promotions.</li><li>Recognition with a tier badge on your profile.</li></ul><h2>How to keep your benefits</h2><ol><li>Keep your acceptance rate above <strong>80%</strong>.</li><li>Keep your cancellation rate below <strong>5%</strong>.</li><li>Maintain a strong customer rating.</li><li>Deliver enough trips to stay within your tier's range over 30 days.</li></ol><blockquote>Tip: Benefits follow your current tier. If your recent numbers drop, your tier and perks can move down too, so steady activity matters.</blockquote><p>Check your profile to see which benefits are active at your current tier and what you need for the next one.</p>"
+    },
+    "content_fr": {
+      "title": "Les avantages et bonus des niveaux expliqués",
+      "body": "<p>Les niveaux supérieurs s'accompagnent d'avantages qui récompensent votre fiabilité. Plus vous livrez régulièrement, plus vous débloquez.</p><h2>Avantages courants par niveau</h2><ul><li><strong>Priorité sur les demandes de course</strong> pendant les périodes chargées.</li><li><strong>Objectifs d'incitation et bonus plus élevés</strong> à mesure que vous montez.</li><li><strong>Accès anticipé</strong> aux nouvelles fonctionnalités et promotions.</li><li>Une reconnaissance avec un badge de niveau sur votre profil.</li></ul><h2>Comment conserver vos avantages</h2><ol><li>Gardez un taux d'acceptation supérieur à <strong>80 %</strong>.</li><li>Gardez un taux d'annulation inférieur à <strong>5 %</strong>.</li><li>Maintenez une bonne note client.</li><li>Effectuez assez de courses pour rester dans la plage de votre niveau sur 30 jours.</li></ol><blockquote>Astuce : les avantages suivent votre niveau actuel. Si vos chiffres récents baissent, votre niveau et vos avantages peuvent baisser aussi ; la régularité compte.</blockquote><p>Consultez votre profil pour voir quels avantages sont actifs à votre niveau actuel et ce qu'il vous faut pour le suivant.</p>"
+    },
+    "content_ar": {
+      "title": "شرح مزايا المستويات ومكافآتها",
+      "body": "<p>تأتي المستويات الأعلى بمزايا تكافئ موثوقيتك. كلما وصّلت بانتظام أكبر، فتحت المزيد منها.</p><h2>مزايا شائعة حسب المستوى</h2><ul><li><strong>أولوية في طلبات الرحلات</strong> خلال الفترات المزدحمة.</li><li><strong>أهداف حوافز ومكافآت أعلى</strong> كلما ارتقيت.</li><li><strong>وصول مبكر</strong> إلى الميزات والعروض الجديدة.</li><li>تقدير بشارة مستوى على ملفك الشخصي.</li></ul><h2>كيف تحافظ على مزاياك</h2><ol><li>أبقِ معدّل قبولك أعلى من <strong>80%</strong>.</li><li>أبقِ معدّل إلغائك أقل من <strong>5%</strong>.</li><li>حافظ على تقييم عملاء قوي.</li><li>أنجز رحلات كافية لتبقى ضمن نطاق مستواك خلال 30 يوماً.</li></ol><blockquote>نصيحة: تتبع المزايا مستواك الحالي. فإذا انخفضت أرقامك الأخيرة، فقد ينخفض مستواك ومزاياك أيضاً، لذا فإن الانتظام مهم.</blockquote><p>راجع ملفك الشخصي لترى المزايا النشطة في مستواك الحالي وما تحتاجه للمستوى التالي.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "tiers",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Why did my tier go down?",
+      "body": "<p>Because tiers use a rolling 30-day window, your tier can drop if your recent trip count, acceptance rate, or rating falls below your tier's requirements.</p><p>Common causes are a quiet period with fewer trips, many declines lowering your acceptance rate, or a dip in your rating. Returning to steady, high-quality deliveries brings your tier back up.</p>"
+    },
+    "content_fr": {
+      "title": "Pourquoi mon niveau a-t-il baissé ?",
+      "body": "<p>Comme les niveaux utilisent une fenêtre glissante de 30 jours, votre niveau peut baisser si votre nombre de courses récent, votre taux d'acceptation ou votre note passe sous les exigences de votre niveau.</p><p>Les causes fréquentes sont une période calme avec moins de courses, de nombreux refus faisant baisser votre taux d'acceptation, ou une baisse de votre note. Reprendre des livraisons régulières et de qualité fait remonter votre niveau.</p>"
+    },
+    "content_ar": {
+      "title": "لماذا انخفض مستواي؟",
+      "body": "<p>لأن المستويات تستخدم نافذة متجدّدة لمدة 30 يوماً، يمكن أن ينخفض مستواك إذا قلّ عدد رحلاتك الأخير أو معدّل قبولك أو تقييمك عن متطلّبات مستواك.</p><p>الأسباب الشائعة هي فترة هدوء بعدد رحلات أقل، أو رفض كثير يخفض معدّل قبولك، أو تراجع في تقييمك. العودة إلى توصيلات منتظمة وعالية الجودة تعيد رفع مستواك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "tiers",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Does my rating affect my tier?",
+      "body": "<p>Yes. Your customer rating is one of the three factors in your tier, alongside trip volume and acceptance rate.</p><p>For example, Diamond requires a rating of <strong>4.8 or higher</strong>. Polite handovers, on-time deliveries, and careful handling of orders keep your rating strong.</p>"
+    },
+    "content_fr": {
+      "title": "Ma note influence-t-elle mon niveau ?",
+      "body": "<p>Oui. Votre note client est l'un des trois facteurs de votre niveau, avec le volume de courses et le taux d'acceptation.</p><p>Par exemple, le Diamant exige une note de <strong>4,8 ou plus</strong>. Des remises polies, des livraisons ponctuelles et une manipulation soigneuse des commandes maintiennent votre note élevée.</p>"
+    },
+    "content_ar": {
+      "title": "هل يؤثّر تقييمي على مستواي؟",
+      "body": "<p>نعم. تقييم العملاء لك هو أحد العوامل الثلاثة في مستواك، إلى جانب عدد الرحلات ومعدّل القبول.</p><p>على سبيل المثال، يتطلّب المستوى الماسي تقييماً <strong>4.8 أو أعلى</strong>. التسليم المهذّب والتوصيل في الوقت المحدّد والتعامل الحريص مع الطلبات تبقي تقييمك قوياً.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "rider-safety",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Road safety basics for Blink riders",
+      "body": "<p>Your safety always comes before any delivery. No trip is worth an accident, and following a few habits keeps you safe on every ride.</p><h2>Before you ride</h2><ul><li>Wear a helmet, especially on a motorcycle.</li><li>Check your brakes, lights, and tyres.</li><li>Mount your phone so you never hold it while riding.</li></ul><h2>On the road</h2><ul><li>Follow traffic rules and speed limits at all times.</li><li>Do not read the app or messages while moving; stop safely first.</li><li>Keep a safe distance and stay visible to other vehicles.</li><li>Take breaks to avoid fatigue on long shifts.</li></ul><blockquote>Tip: A delayed delivery can be explained. An accident cannot be undone. If conditions are unsafe, slow down or stop.</blockquote><p>If you ever feel unsafe, you can pause and use the in-app safety options for help.</p>"
+    },
+    "content_fr": {
+      "title": "Les bases de la sécurité routière pour les livreurs Blink",
+      "body": "<p>Votre sécurité passe toujours avant toute livraison. Aucune course ne vaut un accident, et quelques habitudes suffisent à rester en sécurité à chaque trajet.</p><h2>Avant de rouler</h2><ul><li>Portez un casque, surtout à moto.</li><li>Vérifiez vos freins, vos feux et vos pneus.</li><li>Fixez votre téléphone pour ne jamais le tenir en roulant.</li></ul><h2>Sur la route</h2><ul><li>Respectez le code de la route et les limitations de vitesse en tout temps.</li><li>Ne lisez pas l'application ni les messages en mouvement ; arrêtez-vous d'abord en sécurité.</li><li>Gardez une distance de sécurité et restez visible des autres véhicules.</li><li>Faites des pauses pour éviter la fatigue lors des longues vacations.</li></ul><blockquote>Astuce : une livraison en retard peut s'expliquer. Un accident est irréversible. Si les conditions ne sont pas sûres, ralentissez ou arrêtez-vous.</blockquote><p>Si vous vous sentez en danger, vous pouvez faire une pause et utiliser les options de sécurité de l'application pour obtenir de l'aide.</p>"
+    },
+    "content_ar": {
+      "title": "أساسيات السلامة على الطريق لسائقي بلينك",
+      "body": "<p>سلامتك تأتي دائماً قبل أي عملية توصيل. لا توجد رحلة تستحق حادثاً، واتباع بضع عادات يبقيك آمناً في كل رحلة.</p><h2>قبل الانطلاق</h2><ul><li>ارتدِ خوذة، خاصة على الدراجة النارية.</li><li>افحص فراملك وأضواءك وإطاراتك.</li><li>ثبّت هاتفك كي لا تمسكه أبداً أثناء القيادة.</li></ul><h2>على الطريق</h2><ul><li>التزم بقواعد المرور وحدود السرعة في كل وقت.</li><li>لا تقرأ التطبيق أو الرسائل أثناء الحركة؛ توقّف بأمان أولاً.</li><li>حافظ على مسافة آمنة وابقَ مرئياً للمركبات الأخرى.</li><li>خذ فترات راحة لتجنّب الإرهاق في النوبات الطويلة.</li></ul><blockquote>نصيحة: التوصيل المتأخّر يمكن تبريره. أما الحادث فلا يمكن التراجع عنه. إذا كانت الظروف غير آمنة، خفّف السرعة أو توقّف.</blockquote><p>إذا شعرت يوماً بعدم الأمان، يمكنك التوقّف مؤقتاً واستخدام خيارات السلامة داخل التطبيق للحصول على المساعدة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-safety",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "What should I do if I have an accident during a trip?",
+      "body": "<p>First, get to safety and check yourself for injuries. If anyone is hurt, call the local emergency services right away.</p><p>Once you are safe, open the in-app <strong>safety</strong> option to report the incident to Blink. Keep any details, and do not worry about the order until you and others are safe.</p>"
+    },
+    "content_fr": {
+      "title": "Que faire en cas d'accident pendant une course ?",
+      "body": "<p>D'abord, mettez-vous en sécurité et vérifiez si vous êtes blessé. Si quelqu'un est blessé, appelez immédiatement les services d'urgence locaux.</p><p>Une fois en sécurité, ouvrez l'option <strong>sécurité</strong> dans l'application pour signaler l'incident à Blink. Conservez les détails et ne vous souciez pas de la commande tant que vous et les autres n'êtes pas en sécurité.</p>"
+    },
+    "content_ar": {
+      "title": "ماذا أفعل إذا تعرّضت لحادث أثناء الرحلة؟",
+      "body": "<p>أولاً، انتقل إلى مكان آمن وتفقّد نفسك بحثاً عن إصابات. إذا أُصيب أحد، اتصل بخدمات الطوارئ المحلية على الفور.</p><p>بمجرد أن تصبح آمناً، افتح خيار <strong>السلامة</strong> داخل التطبيق للإبلاغ عن الحادث إلى بلينك. احتفظ بأي تفاصيل، ولا تقلق بشأن الطلب حتى تكون أنت والآخرون في أمان.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-safety",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "Is there an emergency button in the app?",
+      "body": "<p>Yes. During an active trip you can open the <strong>safety</strong> menu to quickly contact emergency services or report an urgent issue to Blink.</p><p>Use it any time you feel threatened, are in an accident, or witness something dangerous. In a life-threatening situation, always call local emergency services first.</p>"
+    },
+    "content_fr": {
+      "title": "Y a-t-il un bouton d'urgence dans l'application ?",
+      "body": "<p>Oui. Pendant une course active, vous pouvez ouvrir le menu <strong>sécurité</strong> pour contacter rapidement les services d'urgence ou signaler un problème urgent à Blink.</p><p>Utilisez-le dès que vous vous sentez menacé, êtes victime d'un accident ou êtes témoin de quelque chose de dangereux. En cas de danger vital, appelez toujours d'abord les services d'urgence locaux.</p>"
+    },
+    "content_ar": {
+      "title": "هل يوجد زر طوارئ في التطبيق؟",
+      "body": "<p>نعم. أثناء رحلة نشطة يمكنك فتح قائمة <strong>السلامة</strong> للاتصال بخدمات الطوارئ بسرعة أو للإبلاغ عن مشكلة عاجلة إلى بلينك.</p><p>استخدمه في أي وقت تشعر فيه بالتهديد أو تتعرّض لحادث أو تشهد أمراً خطيراً. وفي حالة تهدّد الحياة، اتصل دائماً بخدمات الطوارئ المحلية أولاً.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "rider-safety",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Staying safe on night shifts",
+      "body": "<p>Working at night can mean fewer riders on the road and good earnings, but it also calls for extra care. These habits help you stay safe after dark.</p><h2>Be seen</h2><ul><li>Use front and rear lights and wear reflective or bright clothing.</li><li>Keep your phone charged so navigation never cuts out.</li></ul><h2>Plan your route</h2><ul><li>Stick to well-lit, busier streets even if slightly longer.</li><li>Avoid isolated shortcuts and poorly lit areas.</li><li>Let someone you trust know your general working area.</li></ul><h2>At handover</h2><ol><li>Confirm the address and stay aware of your surroundings.</li><li>Keep your engine or wheels ready to leave if something feels wrong.</li><li>If a situation feels unsafe, leave and use the in-app safety option.</li></ol><blockquote>Tip: Trust your instincts. If a drop-off feels unsafe, your wellbeing comes before completing the trip; report it and we will help.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Rester en sécurité lors des vacations de nuit",
+      "body": "<p>Travailler la nuit peut signifier moins de livreurs sur la route et de bons gains, mais cela demande une vigilance accrue. Ces habitudes vous aident à rester en sécurité une fois la nuit tombée.</p><h2>Soyez visible</h2><ul><li>Utilisez des feux avant et arrière et portez des vêtements réfléchissants ou clairs.</li><li>Gardez votre téléphone chargé pour que la navigation ne s'interrompe jamais.</li></ul><h2>Planifiez votre itinéraire</h2><ul><li>Privilégiez les rues bien éclairées et fréquentées, même un peu plus longues.</li><li>Évitez les raccourcis isolés et les zones mal éclairées.</li><li>Informez une personne de confiance de votre zone de travail générale.</li></ul><h2>À la remise</h2><ol><li>Confirmez l'adresse et restez attentif à votre environnement.</li><li>Gardez votre moteur ou vos roues prêts à repartir si quelque chose ne va pas.</li><li>Si une situation semble dangereuse, partez et utilisez l'option de sécurité de l'application.</li></ol><blockquote>Astuce : faites confiance à votre instinct. Si un point de dépôt semble dangereux, votre bien-être passe avant la course ; signalez-le et nous vous aiderons.</blockquote>"
+    },
+    "content_ar": {
+      "title": "البقاء آمناً في النوبات الليلية",
+      "body": "<p>قد يعني العمل ليلاً سائقين أقل على الطريق وأرباحاً جيدة، لكنه يستلزم حذراً إضافياً. تساعدك هذه العادات على البقاء آمناً بعد حلول الظلام.</p><h2>كن مرئياً</h2><ul><li>استخدم أضواء أمامية وخلفية وارتدِ ملابس عاكسة أو فاتحة.</li><li>أبقِ هاتفك مشحوناً كي لا تنقطع الملاحة أبداً.</li></ul><h2>خطّط لمسارك</h2><ul><li>التزم بالشوارع المضاءة جيداً والأكثر ازدحاماً حتى لو كانت أطول قليلاً.</li><li>تجنّب الطرق المختصرة المنعزلة والمناطق ضعيفة الإضاءة.</li><li>أخبر شخصاً تثق به عن منطقة عملك العامة.</li></ul><h2>عند التسليم</h2><ol><li>أكّد العنوان وابقَ منتبهاً لما حولك.</li><li>أبقِ محرّكك أو عجلاتك جاهزة للمغادرة إذا شعرت أن شيئاً ما ليس على ما يرام.</li><li>إذا شعرت بأن الموقف غير آمن، غادر واستخدم خيار السلامة داخل التطبيق.</li></ol><blockquote>نصيحة: ثق بحدسك. إذا شعرت أن مكان التسليم غير آمن، فإن سلامتك تأتي قبل إتمام الرحلة؛ أبلغ عن ذلك وسنساعدك.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-safety",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "How do I handle a difficult or aggressive customer?",
+      "body": "<p>Stay calm and polite, and keep the interaction short. Do not argue or escalate. If a customer is rude but not threatening, complete the handover and move on.</p><p>If you feel threatened at any point, leave the location immediately, get to safety, and use the in-app <strong>safety</strong> option to report it. Your safety matters more than completing the trip.</p>"
+    },
+    "content_fr": {
+      "title": "Comment gérer un client difficile ou agressif ?",
+      "body": "<p>Restez calme et poli, et écourtez l'interaction. Ne discutez pas et n'envenimez pas la situation. Si un client est impoli sans être menaçant, effectuez la remise et passez à la suite.</p><p>Si vous vous sentez menacé à un moment quelconque, quittez les lieux immédiatement, mettez-vous en sécurité et utilisez l'option <strong>sécurité</strong> de l'application pour le signaler. Votre sécurité compte plus que la course.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أتعامل مع عميل صعب أو عدائي؟",
+      "body": "<p>ابقَ هادئاً ومهذّباً، واجعل التفاعل قصيراً. لا تجادل ولا تصعّد الموقف. إذا كان العميل فظاً لكنه غير مهدِّد، أكمل التسليم وامضِ في طريقك.</p><p>إذا شعرت بالتهديد في أي لحظة، غادر المكان فوراً وانتقل إلى مكان آمن واستخدم خيار <strong>السلامة</strong> داخل التطبيق للإبلاغ عن ذلك. سلامتك أهم من إتمام الرحلة.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "rider-safety",
+    "target_roles": ["Rider"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "How do I report a safety issue?",
+      "body": "<p>Open the <strong>safety</strong> menu on the trip screen, or go to <strong>Help</strong> in your profile, and choose to report a safety issue. Describe what happened with as much detail as you can.</p><p>For accidents, threats, or anything urgent, call local emergency services first, then report it in the app so our team can follow up.</p>"
+    },
+    "content_fr": {
+      "title": "Comment signaler un problème de sécurité ?",
+      "body": "<p>Ouvrez le menu <strong>sécurité</strong> sur l'écran de la course, ou allez dans <strong>Aide</strong> dans votre profil, et choisissez de signaler un problème de sécurité. Décrivez ce qui s'est passé avec le plus de détails possible.</p><p>Pour les accidents, les menaces ou toute urgence, appelez d'abord les services d'urgence locaux, puis signalez-le dans l'application afin que notre équipe puisse assurer le suivi.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أبلّغ عن مشكلة تتعلّق بالسلامة؟",
+      "body": "<p>افتح قائمة <strong>السلامة</strong> في شاشة الرحلة، أو اذهب إلى <strong>المساعدة</strong> في ملفك الشخصي، واختر الإبلاغ عن مشكلة تتعلّق بالسلامة. صِف ما حدث بأكبر قدر ممكن من التفاصيل.</p><p>في حالات الحوادث أو التهديدات أو أي أمر عاجل، اتصل بخدمات الطوارئ المحلية أولاً، ثم أبلغ عن ذلك في التطبيق كي يتمكّن فريقنا من المتابعة.</p>"
+    }
+  }
+]
