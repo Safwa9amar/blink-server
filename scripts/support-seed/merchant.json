@@ -1,0 +1,781 @@
+[
+  {
+    "type": "article",
+    "category": "store",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How to onboard your first store on Blink",
+      "body": "<p>Getting your restaurant or shop live on Blink takes only a few steps. Once your details are submitted, our team reviews them and activates your store within 24–48 hours.</p><h2>Before you start</h2><p>Have these ready so verification is fast and smooth:</p><ul><li>A clear photo of your business registration document</li><li>Owner ID and a recent utility bill or lease showing the store address</li><li>Your bank details for weekly payouts</li><li>A store logo and at least one cover photo</li></ul><h2>Set up your store</h2><ol><li>Go to <strong>Profile → My Stores → Add Store</strong>.</li><li>Enter the store name, category, and full address.</li><li>Set your opening hours for each day of the week.</li><li>Upload your documents, logo, and photos.</li><li>Add your bank details, then submit for review.</li></ol><blockquote>Tip: Use bright, well-lit photos. Stores with a logo and cover image get noticeably more orders in their first week.</blockquote><h2>What happens next</h2><p>Verification takes <strong>24–48 hours</strong>. You will get a notification when your store is approved. After that, add your menu and you are ready to receive orders.</p>"
+    },
+    "content_fr": {
+      "title": "Comment intégrer votre première boutique sur Blink",
+      "body": "<p>Mettre votre restaurant ou boutique en ligne sur Blink ne prend que quelques étapes. Une fois vos informations envoyées, notre équipe les vérifie et active votre boutique sous 24 à 48 heures.</p><h2>Avant de commencer</h2><p>Préparez ces éléments pour une vérification rapide :</p><ul><li>Une photo nette de votre registre de commerce</li><li>La pièce d'identité du propriétaire et une facture ou un bail récent indiquant l'adresse</li><li>Vos coordonnées bancaires pour les versements hebdomadaires</li><li>Un logo et au moins une photo de couverture</li></ul><h2>Configurer votre boutique</h2><ol><li>Allez dans <strong>Profil → Mes boutiques → Ajouter une boutique</strong>.</li><li>Saisissez le nom, la catégorie et l'adresse complète.</li><li>Définissez vos horaires d'ouverture pour chaque jour.</li><li>Téléversez vos documents, votre logo et vos photos.</li><li>Ajoutez vos coordonnées bancaires, puis soumettez pour vérification.</li></ol><blockquote>Astuce : utilisez des photos lumineuses et bien éclairées. Les boutiques avec logo et image de couverture reçoivent nettement plus de commandes la première semaine.</blockquote><h2>Et ensuite ?</h2><p>La vérification prend <strong>24 à 48 heures</strong>. Vous recevrez une notification dès l'approbation. Ajoutez ensuite votre menu et vous serez prêt à recevoir des commandes.</p>"
+    },
+    "content_ar": {
+      "title": "كيفية إعداد متجرك الأول على بلينك",
+      "body": "<p>لا يتطلب إطلاق مطعمك أو متجرك على بلينك سوى بضع خطوات. بعد إرسال بياناتك، يراجعها فريقنا ويُفعّل متجرك خلال 24 إلى 48 ساعة.</p><h2>قبل أن تبدأ</h2><p>جهّز هذه المستندات لتسريع عملية التحقق:</p><ul><li>صورة واضحة لسجلك التجاري</li><li>بطاقة هوية المالك وفاتورة حديثة أو عقد إيجار يوضح عنوان المتجر</li><li>بياناتك البنكية لاستلام المدفوعات الأسبوعية</li><li>شعار المتجر وصورة غلاف واحدة على الأقل</li></ul><h2>إعداد متجرك</h2><ol><li>انتقل إلى <strong>الملف الشخصي ← متاجري ← إضافة متجر</strong>.</li><li>أدخل اسم المتجر والفئة والعنوان الكامل.</li><li>حدد ساعات العمل لكل يوم من أيام الأسبوع.</li><li>ارفع مستنداتك وشعارك وصورك.</li><li>أضف بياناتك البنكية ثم أرسل الطلب للمراجعة.</li></ol><blockquote>نصيحة: استخدم صورًا ساطعة وجيدة الإضاءة. المتاجر التي تحتوي على شعار وصورة غلاف تحصل على طلبات أكثر بوضوح في أسبوعها الأول.</blockquote><h2>ماذا بعد ذلك؟</h2><p>تستغرق المراجعة <strong>24 إلى 48 ساعة</strong>. ستصلك إشعار عند الموافقة على متجرك. بعد ذلك أضف قائمتك وستكون جاهزًا لاستقبال الطلبات.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "store",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How long does store verification take?",
+      "body": "<p>New store applications and document changes are reviewed by our team and usually approved within <strong>24–48 hours</strong>.</p><p>You will receive a notification the moment your store is verified. If 48 hours pass without an update, please contact support and we will check your application.</p>"
+    },
+    "content_fr": {
+      "title": "Combien de temps prend la vérification d'une boutique ?",
+      "body": "<p>Les nouvelles demandes de boutique et les changements de documents sont examinés par notre équipe et généralement approuvés sous <strong>24 à 48 heures</strong>.</p><p>Vous recevrez une notification dès la vérification de votre boutique. Si 48 heures passent sans réponse, contactez le support et nous vérifierons votre dossier.</p>"
+    },
+    "content_ar": {
+      "title": "كم تستغرق عملية التحقق من المتجر؟",
+      "body": "<p>تتم مراجعة طلبات المتاجر الجديدة وتغييرات المستندات من قبل فريقنا، وعادة ما تتم الموافقة عليها خلال <strong>24 إلى 48 ساعة</strong>.</p><p>ستصلك إشعار فور التحقق من متجرك. إذا مرت 48 ساعة دون أي تحديث، يُرجى التواصل مع الدعم وسنتحقق من طلبك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "store",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "What documents do I need to verify my store?",
+      "body": "<p>To verify a store you will need:</p><ul><li>Your business registration document</li><li>The owner's national ID</li><li>Proof of the store address (utility bill or lease)</li><li>Bank details for payouts</li></ul><p>Any time you change these documents, the store re-enters review and can take another 24–48 hours to re-approve.</p>"
+    },
+    "content_fr": {
+      "title": "Quels documents faut-il pour vérifier ma boutique ?",
+      "body": "<p>Pour vérifier une boutique, vous aurez besoin de :</p><ul><li>Votre registre de commerce</li><li>La carte nationale d'identité du propriétaire</li><li>Un justificatif d'adresse (facture ou bail)</li><li>Vos coordonnées bancaires pour les versements</li></ul><p>Chaque fois que vous modifiez ces documents, la boutique repasse en vérification et l'approbation peut prendre 24 à 48 heures supplémentaires.</p>"
+    },
+    "content_ar": {
+      "title": "ما المستندات اللازمة للتحقق من متجري؟",
+      "body": "<p>للتحقق من متجرك ستحتاج إلى:</p><ul><li>سجلك التجاري</li><li>بطاقة الهوية الوطنية للمالك</li><li>إثبات عنوان المتجر (فاتورة مرافق أو عقد إيجار)</li><li>بياناتك البنكية لاستلام المدفوعات</li></ul><p>في كل مرة تُغيّر فيها هذه المستندات، يدخل المتجر مرحلة المراجعة من جديد، وقد تستغرق إعادة الموافقة 24 إلى 48 ساعة أخرى.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "store",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "How do I set my opening hours and holidays?",
+      "body": "<p>Open <strong>Profile → My Stores</strong>, select the store, and tap <strong>Opening Hours</strong>. Set hours per day, and add multiple time slots if you close for an afternoon break.</p><p>For a one-off holiday, add a closure date. Your store will show as closed to customers on that day and reopen automatically afterward.</p>"
+    },
+    "content_fr": {
+      "title": "Comment définir mes horaires et mes jours fériés ?",
+      "body": "<p>Ouvrez <strong>Profil → Mes boutiques</strong>, choisissez la boutique et touchez <strong>Horaires d'ouverture</strong>. Définissez les horaires par jour et ajoutez plusieurs créneaux si vous fermez l'après-midi.</p><p>Pour un jour férié ponctuel, ajoutez une date de fermeture. Votre boutique apparaîtra fermée aux clients ce jour-là et rouvrira automatiquement ensuite.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أحدد ساعات العمل وأيام العطل؟",
+      "body": "<p>افتح <strong>الملف الشخصي ← متاجري</strong>، اختر المتجر، ثم اضغط على <strong>ساعات العمل</strong>. حدد الساعات لكل يوم، وأضف فترات زمنية متعددة إذا كنت تغلق لاستراحة بعد الظهر.</p><p>لعطلة لمرة واحدة، أضف تاريخ إغلاق. سيظهر متجرك مغلقًا للعملاء في ذلك اليوم ويُعاد فتحه تلقائيًا بعده.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "store",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "How do I pause or temporarily close a store?",
+      "body": "<p>If you get too busy or run low on stock, go to <strong>Profile → My Stores</strong>, select the store and toggle <strong>Pause orders</strong>. Customers will see the store as temporarily unavailable and you stop receiving new orders.</p><p>Switch the toggle back when you are ready. Pausing does not affect your rating, but frequent or long pauses can lower your acceptance rate and ranking.</p>"
+    },
+    "content_fr": {
+      "title": "Comment mettre en pause ou fermer temporairement une boutique ?",
+      "body": "<p>Si vous êtes débordé ou à court de stock, allez dans <strong>Profil → Mes boutiques</strong>, sélectionnez la boutique et activez <strong>Suspendre les commandes</strong>. Les clients verront la boutique comme temporairement indisponible et vous ne recevrez plus de nouvelles commandes.</p><p>Désactivez l'option quand vous êtes prêt. La mise en pause n'affecte pas votre note, mais des pauses fréquentes ou longues peuvent réduire votre taux d'acceptation et votre classement.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أوقف متجرًا مؤقتًا أو أغلقه؟",
+      "body": "<p>إذا ازدحم العمل أو نفد المخزون، انتقل إلى <strong>الملف الشخصي ← متاجري</strong>، اختر المتجر وفعّل خيار <strong>إيقاف الطلبات</strong>. سيرى العملاء المتجر غير متاح مؤقتًا وتتوقف عن استقبال طلبات جديدة.</p><p>أعد تفعيل الخيار عندما تكون جاهزًا. الإيقاف المؤقت لا يؤثر على تقييمك، لكن الإيقاف المتكرر أو الطويل قد يخفض معدل قبولك وترتيبك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "store",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Managing multiple stores from one account",
+      "body": "<p>One Blink account can run several stores at once. Each store keeps its own menu, opening hours, ratings, and sales, so you can compare branches and manage them independently.</p><h2>Add another store</h2><ol><li>Go to <strong>Profile → My Stores → Add Store</strong>.</li><li>Fill in the new store's details and upload its documents.</li><li>Submit for verification (24–48 hours).</li></ol><h2>Switch between stores</h2><p>From <strong>Profile → My Stores</strong> you see a card for each store with its rating and recent sales. Tap a store to edit its menu, hours, address, or photos.</p><h3>Good to know</h3><ul><li>Each store has its own ranking based on its own rating, prep time, and acceptance rate.</li><li>Payouts are calculated per store but settled to your account weekly.</li><li>Outstanding dues across all stores are paid from the shared Blink Cash tab.</li></ul><blockquote>Tip: Give each branch a clear name (e.g. district) so orders and reports are easy to tell apart.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Gérer plusieurs boutiques depuis un seul compte",
+      "body": "<p>Un seul compte Blink peut gérer plusieurs boutiques à la fois. Chaque boutique conserve son propre menu, ses horaires, ses notes et ses ventes, ce qui vous permet de comparer vos établissements et de les gérer indépendamment.</p><h2>Ajouter une autre boutique</h2><ol><li>Allez dans <strong>Profil → Mes boutiques → Ajouter une boutique</strong>.</li><li>Saisissez les détails de la nouvelle boutique et téléversez ses documents.</li><li>Soumettez pour vérification (24 à 48 heures).</li></ol><h2>Basculer entre les boutiques</h2><p>Dans <strong>Profil → Mes boutiques</strong>, une carte par boutique affiche sa note et ses ventes récentes. Touchez une boutique pour modifier son menu, ses horaires, son adresse ou ses photos.</p><h3>Bon à savoir</h3><ul><li>Chaque boutique a son propre classement basé sur sa note, son temps de préparation et son taux d'acceptation.</li><li>Les versements sont calculés par boutique mais réglés sur votre compte chaque semaine.</li><li>Les dettes de toutes les boutiques sont payées depuis l'onglet Blink Cash commun.</li></ul><blockquote>Astuce : donnez un nom clair à chaque établissement (par ex. le quartier) pour distinguer facilement commandes et rapports.</blockquote>"
+    },
+    "content_ar": {
+      "title": "إدارة عدة متاجر من حساب واحد",
+      "body": "<p>يمكن لحساب بلينك واحد إدارة عدة متاجر في آنٍ واحد. يحتفظ كل متجر بقائمته وساعات عمله وتقييماته ومبيعاته الخاصة، مما يتيح لك مقارنة الفروع وإدارتها بشكل مستقل.</p><h2>إضافة متجر آخر</h2><ol><li>انتقل إلى <strong>الملف الشخصي ← متاجري ← إضافة متجر</strong>.</li><li>أدخل تفاصيل المتجر الجديد وارفع مستنداته.</li><li>أرسل الطلب للتحقق (24 إلى 48 ساعة).</li></ol><h2>التبديل بين المتاجر</h2><p>من <strong>الملف الشخصي ← متاجري</strong> ترى بطاقة لكل متجر تعرض تقييمه ومبيعاته الأخيرة. اضغط على متجر لتعديل قائمته أو ساعاته أو عنوانه أو صوره.</p><h3>معلومات مفيدة</h3><ul><li>لكل متجر ترتيبه الخاص المبني على تقييمه ووقت تحضيره ومعدل قبوله.</li><li>تُحسب المدفوعات لكل متجر على حدة لكنها تُسوّى إلى حسابك أسبوعيًا.</li><li>تُدفع المستحقات عبر جميع المتاجر من تبويب بلينك كاش المشترك.</li></ul><blockquote>نصيحة: امنح كل فرع اسمًا واضحًا (مثل اسم الحي) لتسهيل التمييز بين الطلبات والتقارير.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "store",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "How do I update my store photos and profile?",
+      "body": "<p>Go to <strong>Profile → My Stores</strong>, select the store, and tap <strong>Edit profile</strong>. Here you can change the logo, cover photo, description, and category.</p><p>Most edits go live right away. Changes to your legal documents or address require a quick re-verification of 24–48 hours.</p>"
+    },
+    "content_fr": {
+      "title": "Comment mettre à jour les photos et le profil de ma boutique ?",
+      "body": "<p>Allez dans <strong>Profil → Mes boutiques</strong>, sélectionnez la boutique et touchez <strong>Modifier le profil</strong>. Vous pouvez y changer le logo, la photo de couverture, la description et la catégorie.</p><p>La plupart des modifications sont publiées immédiatement. Les changements de documents légaux ou d'adresse nécessitent une nouvelle vérification de 24 à 48 heures.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أُحدّث صور متجري وملفه الشخصي؟",
+      "body": "<p>انتقل إلى <strong>الملف الشخصي ← متاجري</strong>، اختر المتجر، ثم اضغط على <strong>تعديل الملف الشخصي</strong>. يمكنك هنا تغيير الشعار وصورة الغلاف والوصف والفئة.</p><p>معظم التعديلات تظهر فورًا. أما تغييرات المستندات القانونية أو العنوان فتتطلب إعادة تحقق سريعة تستغرق 24 إلى 48 ساعة.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "menu",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Building your menu: items, categories, and photos",
+      "body": "<p>A clear, well-photographed menu is the single biggest driver of orders. Here is how to build one customers love.</p><h2>Create categories first</h2><p>Group items so customers can browse easily, for example <em>Starters</em>, <em>Mains</em>, <em>Drinks</em>. Go to <strong>Profile → My Stores → Menu → Add Category</strong>.</p><h2>Add items</h2><ol><li>Open a category and tap <strong>Add Item</strong>.</li><li>Enter the name, a short description, and the price in Da.</li><li>Upload one clear photo per item.</li><li>Save. The item appears in your menu immediately.</li></ol><h2>Photo tips</h2><ul><li>Shoot in natural light, from slightly above the dish.</li><li>Use a clean background and fill the frame.</li><li>One real photo per item beats a generic stock image every time.</li></ul><blockquote>Tip: Items with a photo and a one-line description sell far better than text-only listings. Prioritize photos for your best-sellers first.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Créer votre menu : articles, catégories et photos",
+      "body": "<p>Un menu clair et bien photographié est le principal moteur de commandes. Voici comment en créer un que les clients adorent.</p><h2>Créez d'abord les catégories</h2><p>Regroupez les articles pour faciliter la navigation, par exemple <em>Entrées</em>, <em>Plats</em>, <em>Boissons</em>. Allez dans <strong>Profil → Mes boutiques → Menu → Ajouter une catégorie</strong>.</p><h2>Ajoutez des articles</h2><ol><li>Ouvrez une catégorie et touchez <strong>Ajouter un article</strong>.</li><li>Saisissez le nom, une courte description et le prix en Da.</li><li>Téléversez une photo nette par article.</li><li>Enregistrez. L'article apparaît immédiatement dans votre menu.</li></ol><h2>Conseils photo</h2><ul><li>Photographiez à la lumière naturelle, légèrement au-dessus du plat.</li><li>Utilisez un fond propre et remplissez le cadre.</li><li>Une vraie photo par article vaut toujours mieux qu'une image générique.</li></ul><blockquote>Astuce : les articles avec photo et description d'une ligne se vendent bien mieux que les listes en texte seul. Priorisez les photos de vos best-sellers.</blockquote>"
+    },
+    "content_ar": {
+      "title": "بناء قائمتك: الأصناف والفئات والصور",
+      "body": "<p>القائمة الواضحة والمصورة جيدًا هي أكبر محرك للطلبات. إليك كيفية بناء قائمة يحبها العملاء.</p><h2>أنشئ الفئات أولًا</h2><p>جمّع الأصناف لتسهيل التصفح، مثل <em>المقبلات</em> و<em>الأطباق الرئيسية</em> و<em>المشروبات</em>. انتقل إلى <strong>الملف الشخصي ← متاجري ← القائمة ← إضافة فئة</strong>.</p><h2>أضف الأصناف</h2><ol><li>افتح فئة واضغط على <strong>إضافة صنف</strong>.</li><li>أدخل الاسم ووصفًا قصيرًا والسعر بالدينار.</li><li>ارفع صورة واضحة لكل صنف.</li><li>احفظ. يظهر الصنف في قائمتك فورًا.</li></ol><h2>نصائح للصور</h2><ul><li>صوّر في الضوء الطبيعي من زاوية أعلى الطبق قليلًا.</li><li>استخدم خلفية نظيفة واملأ الإطار.</li><li>صورة حقيقية واحدة لكل صنف أفضل دائمًا من صورة عامة جاهزة.</li></ul><blockquote>نصيحة: الأصناف التي تحتوي على صورة ووصف من سطر واحد تُباع أفضل بكثير من القوائم النصية فقط. اعتنِ بصور أكثر أصنافك مبيعًا أولًا.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "menu",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How do I change an item's price?",
+      "body": "<p>Go to <strong>Profile → My Stores → Menu</strong>, tap the item, edit the price field (in Da), and save.</p><p>Price changes apply to new orders immediately. Orders already placed keep the price the customer paid at checkout.</p>"
+    },
+    "content_fr": {
+      "title": "Comment modifier le prix d'un article ?",
+      "body": "<p>Allez dans <strong>Profil → Mes boutiques → Menu</strong>, touchez l'article, modifiez le champ du prix (en Da) et enregistrez.</p><p>Les changements de prix s'appliquent immédiatement aux nouvelles commandes. Les commandes déjà passées conservent le prix payé par le client au paiement.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أُغيّر سعر صنف؟",
+      "body": "<p>انتقل إلى <strong>الملف الشخصي ← متاجري ← القائمة</strong>، اضغط على الصنف، عدّل حقل السعر (بالدينار)، ثم احفظ.</p><p>تنطبق تغييرات السعر على الطلبات الجديدة فورًا. أما الطلبات التي تم تقديمها فتحتفظ بالسعر الذي دفعه العميل عند الدفع.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "menu",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How do I mark an item as out of stock?",
+      "body": "<p>Open <strong>Profile → My Stores → Menu</strong>, find the item, and toggle <strong>Availability</strong> off. It stays on your menu but customers can't add it to their cart.</p><p>Toggle it back on once you restock. Marking items unavailable in advance is much better than cancelling orders later.</p>"
+    },
+    "content_fr": {
+      "title": "Comment marquer un article comme épuisé ?",
+      "body": "<p>Ouvrez <strong>Profil → Mes boutiques → Menu</strong>, trouvez l'article et désactivez <strong>Disponibilité</strong>. Il reste dans votre menu mais les clients ne peuvent pas l'ajouter au panier.</p><p>Réactivez-le après réapprovisionnement. Marquer les articles indisponibles à l'avance vaut bien mieux que d'annuler des commandes ensuite.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أُحدد صنفًا بأنه غير متوفر؟",
+      "body": "<p>افتح <strong>الملف الشخصي ← متاجري ← القائمة</strong>، اعثر على الصنف، وأوقف خيار <strong>التوفر</strong>. يبقى الصنف في قائمتك لكن لا يستطيع العملاء إضافته إلى سلتهم.</p><p>أعد تفعيله بعد إعادة التخزين. تحديد الأصناف غير المتوفرة مسبقًا أفضل بكثير من إلغاء الطلبات لاحقًا.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "menu",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Adding options and add-ons to your items",
+      "body": "<p>Options and add-ons let customers customize an order and increase your average ticket. Think sizes, sauces, extra toppings, or drink choices.</p><h2>Types of options</h2><ul><li><strong>Single choice</strong> — customer picks exactly one, e.g. portion size.</li><li><strong>Multiple choice</strong> — customer picks several, e.g. extra toppings.</li><li><strong>Required vs optional</strong> — mark a group required if a choice is mandatory.</li></ul><h2>How to add them</h2><ol><li>Open the item in <strong>Profile → My Stores → Menu</strong>.</li><li>Tap <strong>Options &amp; Add-ons → Add Group</strong>.</li><li>Name the group (e.g. \"Size\"), choose single or multiple, and set required if needed.</li><li>Add each option with its extra price in Da (use 0 for no charge).</li><li>Save. The group now appears when customers open the item.</li></ol><blockquote>Tip: Keep groups short and clear. Two or three well-priced add-ons per item lift order value without overwhelming the customer.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Ajouter des options et suppléments à vos articles",
+      "body": "<p>Les options et suppléments permettent aux clients de personnaliser leur commande et d'augmenter votre panier moyen : tailles, sauces, garnitures, choix de boisson.</p><h2>Types d'options</h2><ul><li><strong>Choix unique</strong> — le client en choisit exactement un, par ex. la taille.</li><li><strong>Choix multiple</strong> — le client en choisit plusieurs, par ex. des garnitures.</li><li><strong>Obligatoire ou facultatif</strong> — marquez un groupe obligatoire si un choix est requis.</li></ul><h2>Comment les ajouter</h2><ol><li>Ouvrez l'article dans <strong>Profil → Mes boutiques → Menu</strong>.</li><li>Touchez <strong>Options et suppléments → Ajouter un groupe</strong>.</li><li>Nommez le groupe (par ex. « Taille »), choisissez unique ou multiple, et marquez-le obligatoire si besoin.</li><li>Ajoutez chaque option avec son supplément en Da (0 si gratuit).</li><li>Enregistrez. Le groupe apparaît quand le client ouvre l'article.</li></ol><blockquote>Astuce : gardez des groupes courts et clairs. Deux ou trois suppléments bien tarifés par article augmentent la valeur des commandes sans submerger le client.</blockquote>"
+    },
+    "content_ar": {
+      "title": "إضافة الخيارات والإضافات إلى أصنافك",
+      "body": "<p>تتيح الخيارات والإضافات للعملاء تخصيص طلباتهم وترفع متوسط قيمة الفاتورة، مثل الأحجام والصلصات والإضافات والمشروبات.</p><h2>أنواع الخيارات</h2><ul><li><strong>اختيار واحد</strong> — يختار العميل خيارًا واحدًا فقط، مثل حجم الحصة.</li><li><strong>اختيار متعدد</strong> — يختار العميل عدة خيارات، مثل الإضافات.</li><li><strong>إلزامي أو اختياري</strong> — حدد المجموعة كإلزامية إذا كان الاختيار ضروريًا.</li></ul><h2>كيفية إضافتها</h2><ol><li>افتح الصنف في <strong>الملف الشخصي ← متاجري ← القائمة</strong>.</li><li>اضغط على <strong>الخيارات والإضافات ← إضافة مجموعة</strong>.</li><li>سمِّ المجموعة (مثل «الحجم»)، اختر واحدًا أو متعددًا، وحددها إلزامية عند الحاجة.</li><li>أضف كل خيار مع سعره الإضافي بالدينار (استخدم 0 إذا كان مجانيًا).</li><li>احفظ. تظهر المجموعة الآن عند فتح العميل للصنف.</li></ol><blockquote>نصيحة: اجعل المجموعات قصيرة وواضحة. إضافتان أو ثلاث مسعّرة جيدًا لكل صنف ترفع قيمة الطلب دون إرباك العميل.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "menu",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Can I reorder or rename menu categories?",
+      "body": "<p>Yes. In <strong>Profile → My Stores → Menu</strong>, press and hold a category to drag it into a new position. Tap a category name to rename it.</p><p>Customers see categories in the order you set, so put your most popular sections at the top.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je réorganiser ou renommer les catégories du menu ?",
+      "body": "<p>Oui. Dans <strong>Profil → Mes boutiques → Menu</strong>, appuyez longuement sur une catégorie pour la déplacer. Touchez le nom d'une catégorie pour la renommer.</p><p>Les clients voient les catégories dans l'ordre que vous définissez : placez vos sections les plus populaires en haut.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني إعادة ترتيب فئات القائمة أو إعادة تسميتها؟",
+      "body": "<p>نعم. في <strong>الملف الشخصي ← متاجري ← القائمة</strong>، اضغط مطولًا على فئة لسحبها إلى موضع جديد. اضغط على اسم الفئة لإعادة تسميتها.</p><p>يرى العملاء الفئات بالترتيب الذي تحدده، لذا ضع أكثر أقسامك شهرة في الأعلى.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "menu",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Making bulk updates to your menu",
+      "body": "<p>When prices rise or a whole section sells out, you don't have to edit items one by one. Blink lets you update several items at once.</p><h2>Bulk availability</h2><p>From <strong>Profile → My Stores → Menu</strong>, tap <strong>Select</strong>, tick the items, and choose <strong>Mark unavailable</strong> or <strong>Mark available</strong>. This is perfect for pausing a whole category at closing time.</p><h2>Bulk price changes</h2><ol><li>Tap <strong>Select</strong> and choose the items.</li><li>Tap <strong>Edit price</strong>.</li><li>Apply a fixed new price or a percentage increase across the selection.</li><li>Review and save.</li></ol><h2>Hide a whole category</h2><p>Toggle a category off to hide all its items at once, for example a breakfast menu outside morning hours. Toggle it back on later.</p><blockquote>Tip: After a bulk change, scan your menu as a customer would to confirm everything looks right before you reopen.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Faire des mises à jour groupées de votre menu",
+      "body": "<p>Quand les prix augmentent ou qu'une section entière est épuisée, pas besoin de modifier les articles un par un. Blink permet de mettre à jour plusieurs articles à la fois.</p><h2>Disponibilité groupée</h2><p>Dans <strong>Profil → Mes boutiques → Menu</strong>, touchez <strong>Sélectionner</strong>, cochez les articles et choisissez <strong>Marquer indisponible</strong> ou <strong>Marquer disponible</strong>. Idéal pour suspendre toute une catégorie à la fermeture.</p><h2>Changements de prix groupés</h2><ol><li>Touchez <strong>Sélectionner</strong> et choisissez les articles.</li><li>Touchez <strong>Modifier le prix</strong>.</li><li>Appliquez un nouveau prix fixe ou une hausse en pourcentage sur la sélection.</li><li>Vérifiez et enregistrez.</li></ol><h2>Masquer une catégorie entière</h2><p>Désactivez une catégorie pour masquer tous ses articles d'un coup, par exemple un menu petit-déjeuner hors des heures du matin. Réactivez-la plus tard.</p><blockquote>Astuce : après une modification groupée, parcourez votre menu comme un client pour vérifier que tout est correct avant de rouvrir.</blockquote>"
+    },
+    "content_ar": {
+      "title": "إجراء تحديثات جماعية على قائمتك",
+      "body": "<p>عندما ترتفع الأسعار أو ينفد قسم كامل، لست مضطرًا لتعديل الأصناف واحدًا تلو الآخر. يتيح لك بلينك تحديث عدة أصناف دفعة واحدة.</p><h2>التوفر الجماعي</h2><p>من <strong>الملف الشخصي ← متاجري ← القائمة</strong>، اضغط على <strong>تحديد</strong>، اختر الأصناف، ثم اختر <strong>تحديد كغير متوفر</strong> أو <strong>تحديد كمتوفر</strong>. هذا مثالي لإيقاف فئة كاملة عند وقت الإغلاق.</p><h2>تغييرات الأسعار الجماعية</h2><ol><li>اضغط على <strong>تحديد</strong> واختر الأصناف.</li><li>اضغط على <strong>تعديل السعر</strong>.</li><li>طبّق سعرًا جديدًا ثابتًا أو زيادة بنسبة مئوية على التحديد.</li><li>راجع واحفظ.</li></ol><h2>إخفاء فئة كاملة</h2><p>أوقف فئة لإخفاء جميع أصنافها دفعة واحدة، مثل قائمة الفطور خارج ساعات الصباح. أعد تفعيلها لاحقًا.</p><blockquote>نصيحة: بعد التغيير الجماعي، تصفح قائمتك كما يفعل العميل للتأكد من أن كل شيء يبدو صحيحًا قبل إعادة الفتح.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "menu",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "Why was my menu photo rejected?",
+      "body": "<p>Photos may be rejected if they are blurry, too dark, contain watermarks or text overlays, or don't match the item. Re-upload a clear, well-lit photo that shows the actual dish.</p><p>Avoid screenshots, logos, or images taken from the internet. Real photos build customer trust and convert far better.</p>"
+    },
+    "content_fr": {
+      "title": "Pourquoi ma photo de menu a-t-elle été refusée ?",
+      "body": "<p>Une photo peut être refusée si elle est floue, trop sombre, contient un filigrane ou du texte, ou ne correspond pas à l'article. Téléversez à nouveau une photo nette et bien éclairée montrant le plat réel.</p><p>Évitez les captures d'écran, les logos ou les images trouvées sur internet. Les vraies photos inspirent confiance et convertissent bien mieux.</p>"
+    },
+    "content_ar": {
+      "title": "لماذا تم رفض صورة القائمة الخاصة بي؟",
+      "body": "<p>قد تُرفض الصور إذا كانت ضبابية أو داكنة جدًا أو تحتوي على علامات مائية أو نصوص أو لا تطابق الصنف. أعد رفع صورة واضحة وجيدة الإضاءة تُظهر الطبق الفعلي.</p><p>تجنب لقطات الشاشة أو الشعارات أو الصور المأخوذة من الإنترنت. الصور الحقيقية تبني ثقة العملاء وتحقق مبيعات أفضل بكثير.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "merchant-orders",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Receiving and accepting orders",
+      "body": "<p>When a customer places an order, you get an alert with a sound. Accepting quickly keeps customers happy and protects your acceptance rate and ranking.</p><h2>The order flow</h2><ol><li>A new order appears with the items, options, and total in Da.</li><li>Tap <strong>Accept</strong> and confirm or adjust the preparation time.</li><li>Start cooking; the customer and rider see your prep time.</li><li>Tap <strong>Mark ready</strong> when the order is packed for pickup.</li></ol><h2>If you can't take an order</h2><p>If you must decline, do it immediately and pick a reason (e.g. item unavailable, too busy). Declining is sometimes necessary, but frequent rejections lower your acceptance rate.</p><blockquote>Tip: Keep your device volume up and notifications on. A missed order auto-cancels and counts against your acceptance rate just like a manual decline.</blockquote><h2>Stay reachable</h2><p>Make sure your store is set to <em>open</em> only when staff are present to accept orders. Pause the store during gaps instead of letting orders time out.</p>"
+    },
+    "content_fr": {
+      "title": "Recevoir et accepter des commandes",
+      "body": "<p>Quand un client passe une commande, vous recevez une alerte sonore. Accepter rapidement satisfait les clients et protège votre taux d'acceptation et votre classement.</p><h2>Le déroulé d'une commande</h2><ol><li>Une nouvelle commande apparaît avec les articles, options et le total en Da.</li><li>Touchez <strong>Accepter</strong> et confirmez ou ajustez le temps de préparation.</li><li>Commencez à préparer ; le client et le livreur voient votre temps de préparation.</li><li>Touchez <strong>Marquer prête</strong> une fois la commande emballée pour le retrait.</li></ol><h2>Si vous ne pouvez pas prendre une commande</h2><p>Si vous devez refuser, faites-le immédiatement et choisissez un motif (article indisponible, trop occupé). Refuser est parfois nécessaire, mais des refus fréquents baissent votre taux d'acceptation.</p><blockquote>Astuce : gardez le volume élevé et les notifications activées. Une commande manquée s'annule automatiquement et pénalise votre taux d'acceptation comme un refus manuel.</blockquote><h2>Restez joignable</h2><p>Mettez votre boutique sur <em>ouverte</em> uniquement quand du personnel est présent pour accepter les commandes. Suspendez la boutique pendant les creux plutôt que de laisser les commandes expirer.</p>"
+    },
+    "content_ar": {
+      "title": "استقبال الطلبات وقبولها",
+      "body": "<p>عندما يقدّم العميل طلبًا، يصلك تنبيه مصحوب بصوت. القبول السريع يُسعد العملاء ويحمي معدل قبولك وترتيبك.</p><h2>مسار الطلب</h2><ol><li>يظهر طلب جديد يحتوي على الأصناف والخيارات والإجمالي بالدينار.</li><li>اضغط على <strong>قبول</strong> وأكّد وقت التحضير أو عدّله.</li><li>ابدأ التحضير؛ يرى العميل والسائق وقت تحضيرك.</li><li>اضغط على <strong>تحديد كجاهز</strong> عندما يُغلّف الطلب للاستلام.</li></ol><h2>إذا تعذّر عليك قبول طلب</h2><p>إذا اضطررت للرفض، افعل ذلك فورًا واختر سببًا (الصنف غير متوفر، انشغال شديد). الرفض ضروري أحيانًا، لكن الرفض المتكرر يخفض معدل قبولك.</p><blockquote>نصيحة: أبقِ صوت الجهاز مرتفعًا والإشعارات مفعّلة. الطلب الفائت يُلغى تلقائيًا ويُحتسب ضد معدل قبولك تمامًا كالرفض اليدوي.</blockquote><h2>كن متاحًا دائمًا</h2><p>اجعل متجرك <em>مفتوحًا</em> فقط عند وجود موظفين لقبول الطلبات. أوقف المتجر مؤقتًا خلال الفترات الفارغة بدلًا من ترك الطلبات تنتهي مهلتها.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-orders",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How do I set the preparation time for an order?",
+      "body": "<p>When you accept an order, you confirm or adjust an estimated prep time. Be realistic: this is what the customer and rider rely on.</p><p>A shorter, accurate prep time improves your ranking, but quoting too low and running late hurts your rating. Keep your default prep time updated to match how busy you usually are.</p>"
+    },
+    "content_fr": {
+      "title": "Comment définir le temps de préparation d'une commande ?",
+      "body": "<p>Quand vous acceptez une commande, vous confirmez ou ajustez un temps de préparation estimé. Soyez réaliste : c'est sur lui que comptent le client et le livreur.</p><p>Un temps court et exact améliore votre classement, mais annoncer trop peu et être en retard nuit à votre note. Tenez votre temps de préparation par défaut à jour selon votre affluence habituelle.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أحدد وقت تحضير الطلب؟",
+      "body": "<p>عند قبول طلب، تؤكد وقت تحضير مُقدّرًا أو تعدّله. كن واقعيًا: فهذا ما يعتمد عليه العميل والسائق.</p><p>الوقت الأقصر والدقيق يحسّن ترتيبك، لكن تقدير وقت قليل جدًا ثم التأخر يضر بتقييمك. أبقِ وقت التحضير الافتراضي محدّثًا ليتناسب مع مدى انشغالك المعتاد.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-orders",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "What do I do when an item is out of stock mid-order?",
+      "body": "<p>Open the active order and tap <strong>Edit order → Mark item unavailable</strong>. The customer is notified and can approve a substitute or a partial refund for that item.</p><p>Always handle it inside the app rather than just leaving the item out. Quietly skipping an item leads to bad reviews and refund disputes.</p>"
+    },
+    "content_fr": {
+      "title": "Que faire si un article est en rupture en cours de commande ?",
+      "body": "<p>Ouvrez la commande en cours et touchez <strong>Modifier la commande → Marquer l'article indisponible</strong>. Le client est notifié et peut accepter un remplacement ou un remboursement partiel pour cet article.</p><p>Gérez toujours cela dans l'application plutôt que d'omettre l'article. Sauter discrètement un article entraîne de mauvais avis et des litiges de remboursement.</p>"
+    },
+    "content_ar": {
+      "title": "ماذا أفعل عند نفاد صنف أثناء الطلب؟",
+      "body": "<p>افتح الطلب النشط واضغط على <strong>تعديل الطلب ← تحديد الصنف كغير متوفر</strong>. يُخطر العميل ويمكنه الموافقة على بديل أو على استرداد جزئي لذلك الصنف.</p><p>عالج الأمر دائمًا داخل التطبيق بدلًا من حذف الصنف فقط. تخطّي الصنف بصمت يؤدي إلى مراجعات سيئة ونزاعات استرداد.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-orders",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Can I cancel an order after accepting it?",
+      "body": "<p>Yes, but only for genuine reasons such as a kitchen problem or all items being unavailable. Open the order, tap <strong>Cancel</strong>, and choose a reason.</p><p>The customer is refunded automatically. Frequent merchant cancellations lower your ranking, so use this only when there's no alternative.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je annuler une commande après l'avoir acceptée ?",
+      "body": "<p>Oui, mais uniquement pour des raisons valables comme un problème en cuisine ou l'indisponibilité de tous les articles. Ouvrez la commande, touchez <strong>Annuler</strong> et choisissez un motif.</p><p>Le client est remboursé automatiquement. Des annulations fréquentes du commerçant baissent votre classement : n'utilisez cette option qu'en dernier recours.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني إلغاء طلب بعد قبوله؟",
+      "body": "<p>نعم، لكن فقط لأسباب حقيقية مثل مشكلة في المطبخ أو عدم توفر جميع الأصناف. افتح الطلب، اضغط على <strong>إلغاء</strong>، واختر سببًا.</p><p>يُسترد المبلغ للعميل تلقائيًا. الإلغاءات المتكررة من التاجر تخفض ترتيبك، لذا استخدم هذا الخيار فقط عند عدم وجود بديل.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-orders",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "How do I get notified about new orders?",
+      "body": "<p>Order alerts come as in-app notifications with a sound. Keep the app running, notifications enabled, and your device volume up during open hours.</p><p>If you miss alerts, check that battery saver isn't blocking the app and that notifications are allowed in your phone settings.</p>"
+    },
+    "content_fr": {
+      "title": "Comment être averti des nouvelles commandes ?",
+      "body": "<p>Les alertes de commande arrivent sous forme de notifications sonores dans l'application. Gardez l'application active, les notifications activées et le volume élevé pendant les heures d'ouverture.</p><p>Si vous ratez des alertes, vérifiez que l'économiseur de batterie ne bloque pas l'application et que les notifications sont autorisées dans les réglages du téléphone.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أتلقى إشعارات بالطلبات الجديدة؟",
+      "body": "<p>تصل تنبيهات الطلبات كإشعارات داخل التطبيق مصحوبة بصوت. أبقِ التطبيق يعمل والإشعارات مفعّلة وصوت الجهاز مرتفعًا خلال ساعات العمل.</p><p>إذا فاتتك التنبيهات، تأكد من أن موفّر البطارية لا يحجب التطبيق وأن الإشعارات مسموح بها في إعدادات هاتفك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-orders",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Can I print order receipts?",
+      "body": "<p>Yes. If you have a compatible Bluetooth or network receipt printer paired with your device, open the order and tap <strong>Print</strong>. You can also re-print past orders from your order history.</p><p>No printer? Every order stays in the app with its full details, so you can prepare straight from the screen.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je imprimer les reçus de commande ?",
+      "body": "<p>Oui. Si vous avez une imprimante de reçus Bluetooth ou réseau compatible, ouvrez la commande et touchez <strong>Imprimer</strong>. Vous pouvez aussi réimprimer d'anciennes commandes depuis l'historique.</p><p>Pas d'imprimante ? Chaque commande reste dans l'application avec tous ses détails, vous pouvez préparer directement depuis l'écran.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني طباعة إيصالات الطلبات؟",
+      "body": "<p>نعم. إذا كانت لديك طابعة إيصالات بلوتوث أو شبكية متوافقة مقترنة بجهازك، افتح الطلب واضغط على <strong>طباعة</strong>. يمكنك أيضًا إعادة طباعة الطلبات السابقة من سجل الطلبات.</p><p>لا توجد طابعة؟ يبقى كل طلب في التطبيق بكامل تفاصيله، فيمكنك التحضير مباشرة من الشاشة.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "merchant-promotions",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "Creating your first promotion",
+      "body": "<p>The in-app Promotions builder lets you run discounts, bundles, and flash sales to attract new customers and boost slow hours. Approved promotions go live within minutes.</p><h2>Choose a promotion type</h2><ul><li><strong>Discount</strong> — a percentage or fixed amount off selected items or the whole order.</li><li><strong>Bundle</strong> — combine items at a set price, e.g. a meal deal.</li><li><strong>Flash sale</strong> — a deep discount for a short time window to spike demand.</li></ul><h2>Build it</h2><ol><li>Go to <strong>Profile → Promotions → Create</strong>.</li><li>Pick the type and the items it applies to.</li><li>Set the discount value, dates, and times.</li><li>Add an optional minimum order or usage limit.</li><li>Submit for approval.</li></ol><h2>Approval and go-live</h2><p>Promotions are reviewed and, once approved, go live within minutes. You'll get a notification and the offer appears on your store page with a badge.</p><blockquote>Tip: Schedule flash sales during your quiet hours to fill the kitchen when it would otherwise be idle.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Créer votre première promotion",
+      "body": "<p>Le générateur de promotions intégré vous permet de lancer des réductions, des offres groupées et des ventes flash pour attirer de nouveaux clients et dynamiser les heures creuses. Les promotions approuvées sont actives en quelques minutes.</p><h2>Choisir un type de promotion</h2><ul><li><strong>Réduction</strong> — un pourcentage ou un montant fixe sur des articles ou la commande entière.</li><li><strong>Offre groupée</strong> — combinez des articles à un prix fixe, par ex. une formule repas.</li><li><strong>Vente flash</strong> — une forte réduction sur une courte durée pour stimuler la demande.</li></ul><h2>Construisez-la</h2><ol><li>Allez dans <strong>Profil → Promotions → Créer</strong>.</li><li>Choisissez le type et les articles concernés.</li><li>Définissez la valeur de la réduction, les dates et les heures.</li><li>Ajoutez un montant minimum ou une limite d'utilisation (facultatif).</li><li>Soumettez pour approbation.</li></ol><h2>Approbation et mise en ligne</h2><p>Les promotions sont vérifiées et, une fois approuvées, actives en quelques minutes. Vous recevrez une notification et l'offre apparaîtra sur votre page avec un badge.</p><blockquote>Astuce : programmez les ventes flash pendant vos heures creuses pour occuper la cuisine quand elle serait inactive.</blockquote>"
+    },
+    "content_ar": {
+      "title": "إنشاء عرضك الترويجي الأول",
+      "body": "<p>يتيح لك منشئ العروض داخل التطبيق تشغيل خصومات وحزم وعروض خاطفة لجذب عملاء جدد وتنشيط الساعات الهادئة. تصبح العروض المعتمدة فعّالة خلال دقائق.</p><h2>اختر نوع العرض</h2><ul><li><strong>خصم</strong> — نسبة مئوية أو مبلغ ثابت على أصناف محددة أو الطلب بالكامل.</li><li><strong>حزمة</strong> — اجمع أصنافًا بسعر محدد، مثل وجبة متكاملة.</li><li><strong>عرض خاطف</strong> — خصم كبير لفترة قصيرة لزيادة الطلب.</li></ul><h2>أنشئه</h2><ol><li>انتقل إلى <strong>الملف الشخصي ← العروض ← إنشاء</strong>.</li><li>اختر النوع والأصناف التي ينطبق عليها.</li><li>حدد قيمة الخصم والتواريخ والأوقات.</li><li>أضف حدًا أدنى للطلب أو حد استخدام (اختياري).</li><li>أرسل للموافقة.</li></ol><h2>الموافقة والتفعيل</h2><p>تُراجع العروض، وبعد الموافقة عليها تصبح فعّالة خلال دقائق. ستصلك إشعار ويظهر العرض على صفحة متجرك مع شارة.</p><blockquote>نصيحة: جدول العروض الخاطفة خلال ساعاتك الهادئة لملء المطبخ في الأوقات التي يكون فيها خاملًا.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-promotions",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "How long until my promotion is approved?",
+      "body": "<p>Promotions are reviewed by our team. Once approved, they go live <strong>within minutes</strong> and you receive a confirmation notification.</p><p>If a promotion is rejected, the notification explains why so you can adjust and resubmit. Schedule offers a little ahead of time to be safe.</p>"
+    },
+    "content_fr": {
+      "title": "Combien de temps avant l'approbation de ma promotion ?",
+      "body": "<p>Les promotions sont vérifiées par notre équipe. Une fois approuvées, elles sont actives <strong>en quelques minutes</strong> et vous recevez une notification de confirmation.</p><p>Si une promotion est refusée, la notification en explique la raison pour que vous puissiez l'ajuster et la renvoyer. Programmez vos offres un peu à l'avance par sécurité.</p>"
+    },
+    "content_ar": {
+      "title": "كم يستغرق اعتماد عرضي الترويجي؟",
+      "body": "<p>تُراجع العروض من قبل فريقنا. بعد الموافقة عليها تصبح فعّالة <strong>خلال دقائق</strong> ويصلك إشعار تأكيد.</p><p>إذا رُفض العرض، يوضح الإشعار السبب لتتمكن من تعديله وإعادة إرساله. جدول عروضك قبل وقتها قليلًا للأمان.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-promotions",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "Can I schedule a promotion for a future date?",
+      "body": "<p>Yes. When building a promotion in <strong>Profile → Promotions</strong>, set a start and end date and time. The offer activates automatically at the start time and ends on its own.</p><p>This is ideal for weekend deals, holidays, or recurring happy-hour flash sales.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je programmer une promotion pour une date future ?",
+      "body": "<p>Oui. Lors de la création d'une promotion dans <strong>Profil → Promotions</strong>, définissez une date et une heure de début et de fin. L'offre s'active automatiquement à l'heure de début et se termine seule.</p><p>Idéal pour les offres du week-end, les jours fériés ou les ventes flash récurrentes en heure creuse.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني جدولة عرض ترويجي لتاريخ مستقبلي؟",
+      "body": "<p>نعم. عند إنشاء عرض في <strong>الملف الشخصي ← العروض</strong>، حدد تاريخ ووقت البدء والانتهاء. يُفعّل العرض تلقائيًا في وقت البدء وينتهي من تلقاء نفسه.</p><p>هذا مثالي لعروض نهاية الأسبوع والأعياد أو العروض الخاطفة المتكررة في الساعات الهادئة.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "merchant-promotions",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "Measuring how your promotions perform",
+      "body": "<p>Running an offer is only half the job. Checking the results tells you what to repeat and what to drop.</p><h2>Where to look</h2><p>Open <strong>Profile → Promotions</strong> and tap an active or finished promotion to see its performance.</p><h2>Key numbers</h2><ul><li><strong>Orders</strong> — how many orders used the promotion.</li><li><strong>Revenue</strong> — total sales in Da generated, before commission.</li><li><strong>New vs returning</strong> — whether the offer brought in new customers.</li><li><strong>Average ticket</strong> — did bundles lift order size?</li></ul><h2>Turn data into decisions</h2><ol><li>Compare revenue against the discount you gave to gauge real profit.</li><li>Repeat the formats that brought new customers at a healthy margin.</li><li>Drop deep discounts that only attracted existing regulars.</li></ol><blockquote>Tip: Test one variable at a time. Run the same offer at two different times of day to learn when your customers respond best.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Mesurer la performance de vos promotions",
+      "body": "<p>Lancer une offre n'est que la moitié du travail. Analyser les résultats vous dit quoi reproduire et quoi abandonner.</p><h2>Où regarder</h2><p>Ouvrez <strong>Profil → Promotions</strong> et touchez une promotion active ou terminée pour voir sa performance.</p><h2>Chiffres clés</h2><ul><li><strong>Commandes</strong> — combien de commandes ont utilisé la promotion.</li><li><strong>Chiffre d'affaires</strong> — total des ventes en Da générées, avant commission.</li><li><strong>Nouveaux vs fidèles</strong> — l'offre a-t-elle amené de nouveaux clients ?</li><li><strong>Panier moyen</strong> — les offres groupées ont-elles augmenté la taille des commandes ?</li></ul><h2>Transformer les données en décisions</h2><ol><li>Comparez le chiffre d'affaires à la réduction accordée pour estimer le profit réel.</li><li>Reproduisez les formats qui ont amené de nouveaux clients avec une bonne marge.</li><li>Abandonnez les fortes réductions qui n'ont attiré que vos habitués.</li></ol><blockquote>Astuce : testez une variable à la fois. Lancez la même offre à deux moments de la journée pour savoir quand vos clients répondent le mieux.</blockquote>"
+    },
+    "content_ar": {
+      "title": "قياس أداء عروضك الترويجية",
+      "body": "<p>تشغيل العرض هو نصف المهمة فقط. مراجعة النتائج تخبرك بما يجب تكراره وما يجب التخلي عنه.</p><h2>أين تنظر</h2><p>افتح <strong>الملف الشخصي ← العروض</strong> واضغط على عرض نشط أو منتهٍ لرؤية أدائه.</p><h2>الأرقام الرئيسية</h2><ul><li><strong>الطلبات</strong> — كم عدد الطلبات التي استخدمت العرض.</li><li><strong>الإيرادات</strong> — إجمالي المبيعات المحققة بالدينار، قبل العمولة.</li><li><strong>عملاء جدد مقابل عائدين</strong> — هل جلب العرض عملاء جددًا؟</li><li><strong>متوسط الفاتورة</strong> — هل رفعت الحزم حجم الطلب؟</li></ul><h2>حوّل البيانات إلى قرارات</h2><ol><li>قارن الإيرادات بالخصم الذي قدمته لتقدير الربح الفعلي.</li><li>كرر الصيغ التي جلبت عملاء جددًا بهامش ربح جيد.</li><li>تخلَّ عن الخصومات الكبيرة التي جذبت عملاءك المعتادين فقط.</li></ol><blockquote>نصيحة: اختبر متغيرًا واحدًا في كل مرة. شغّل العرض نفسه في وقتين مختلفين من اليوم لتعرف متى يتفاعل عملاؤك بشكل أفضل.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-promotions",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Who pays for the promotion discount?",
+      "body": "<p>The discount you set comes out of your own sales, not Blink's. You decide how deep the offer goes, so price it to stay profitable after the platform commission.</p><p>From time to time Blink runs co-funded campaigns; if you're eligible you'll see them as a separate option in the Promotions builder.</p>"
+    },
+    "content_fr": {
+      "title": "Qui paie la réduction de la promotion ?",
+      "body": "<p>La réduction que vous définissez est prélevée sur vos propres ventes, pas sur celles de Blink. Vous décidez de l'ampleur de l'offre : tarifez-la pour rester rentable après la commission de la plateforme.</p><p>De temps en temps, Blink propose des campagnes cofinancées ; si vous y êtes éligible, elles apparaîtront comme une option distincte dans le générateur de promotions.</p>"
+    },
+    "content_ar": {
+      "title": "من يتحمل تكلفة خصم العرض الترويجي؟",
+      "body": "<p>الخصم الذي تحدده يُخصم من مبيعاتك أنت، وليس من بلينك. أنت من يقرر حجم العرض، لذا سعّره ليبقى مربحًا بعد عمولة المنصة.</p><p>بين الحين والآخر يطلق بلينك حملات بتمويل مشترك؛ إذا كنت مؤهلًا، ستظهر لك كخيار منفصل في منشئ العروض.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-promotions",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Can I stop a promotion early?",
+      "body": "<p>Yes. Open <strong>Profile → Promotions</strong>, select the active promotion, and tap <strong>End now</strong>. It stops applying to new orders right away.</p><p>Orders already placed under the promotion keep their discounted price. You can always create a new offer later.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je arrêter une promotion plus tôt ?",
+      "body": "<p>Oui. Ouvrez <strong>Profil → Promotions</strong>, sélectionnez la promotion active et touchez <strong>Terminer maintenant</strong>. Elle cesse de s'appliquer aux nouvelles commandes immédiatement.</p><p>Les commandes déjà passées sous la promotion conservent leur prix réduit. Vous pouvez toujours créer une nouvelle offre plus tard.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني إيقاف عرض ترويجي مبكرًا؟",
+      "body": "<p>نعم. افتح <strong>الملف الشخصي ← العروض</strong>، اختر العرض النشط، واضغط على <strong>إنهاء الآن</strong>. يتوقف تطبيقه على الطلبات الجديدة فورًا.</p><p>الطلبات التي تم تقديمها بالفعل ضمن العرض تحتفظ بسعرها المخفّض. يمكنك دائمًا إنشاء عرض جديد لاحقًا.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "merchant-promotions",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "Promotion best practices that actually drive sales",
+      "body": "<p>A well-designed offer brings in customers and protects your margin. A careless one just gives away profit. Use these habits to get promotions right.</p><h2>Pick the right goal</h2><ul><li><strong>New customers</strong> — a first-order discount or a low-risk bundle.</li><li><strong>Bigger baskets</strong> — bundles and \"spend X, save Y\" thresholds.</li><li><strong>Fill quiet hours</strong> — time-boxed flash sales in your slow windows.</li></ul><h2>Keep it profitable</h2><ol><li>Discount your best-sellers, which people already want, rather than slow items.</li><li>Set a minimum order so the discount adds basket value.</li><li>Account for the platform commission before setting the discount depth.</li></ol><h2>Make it irresistible</h2><p>Use a clear name, a strong photo, and a real deadline. Short, urgent flash sales convert better than open-ended discounts.</p><blockquote>Tip: Don't stack heavy discounts back to back. Customers start waiting for the next deal and your full-price sales suffer.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Bonnes pratiques de promotion qui font vraiment vendre",
+      "body": "<p>Une offre bien conçue attire des clients et protège votre marge. Une offre négligée ne fait que brader vos profits. Adoptez ces habitudes pour réussir vos promotions.</p><h2>Choisir le bon objectif</h2><ul><li><strong>Nouveaux clients</strong> — une réduction première commande ou une offre groupée peu risquée.</li><li><strong>Paniers plus gros</strong> — offres groupées et seuils « dépensez X, économisez Y ».</li><li><strong>Remplir les heures creuses</strong> — ventes flash limitées dans le temps pendant vos creux.</li></ul><h2>Rester rentable</h2><ol><li>Réduisez vos best-sellers, déjà désirés, plutôt que les articles peu vendus.</li><li>Fixez un montant minimum pour que la réduction augmente la valeur du panier.</li><li>Tenez compte de la commission de la plateforme avant de fixer l'ampleur de la réduction.</li></ol><h2>La rendre irrésistible</h2><p>Utilisez un nom clair, une belle photo et une vraie échéance. Les ventes flash courtes et urgentes convertissent mieux que les réductions sans fin.</p><blockquote>Astuce : n'enchaînez pas les fortes réductions. Les clients se mettent à attendre la prochaine offre et vos ventes à prix plein en pâtissent.</blockquote>"
+    },
+    "content_ar": {
+      "title": "أفضل ممارسات العروض الترويجية التي تزيد المبيعات فعلًا",
+      "body": "<p>العرض المصمم جيدًا يجلب العملاء ويحمي هامش ربحك. أما العرض المتسرع فيهدر الأرباح فقط. اتبع هذه العادات لإتقان العروض.</p><h2>اختر الهدف الصحيح</h2><ul><li><strong>عملاء جدد</strong> — خصم على الطلب الأول أو حزمة منخفضة المخاطرة.</li><li><strong>سلال أكبر</strong> — حزم وعتبات «أنفق كذا، وفّر كذا».</li><li><strong>ملء الساعات الهادئة</strong> — عروض خاطفة محددة بوقت خلال فتراتك الهادئة.</li></ul><h2>حافظ على الربحية</h2><ol><li>خصّم على أكثر أصنافك مبيعًا التي يرغبها الناس أصلًا، لا على الأصناف بطيئة الحركة.</li><li>حدد حدًا أدنى للطلب ليضيف الخصم قيمة للسلة.</li><li>احسب عمولة المنصة قبل تحديد حجم الخصم.</li></ol><h2>اجعله لا يُقاوم</h2><p>استخدم اسمًا واضحًا وصورة قوية وموعدًا نهائيًا حقيقيًا. العروض الخاطفة القصيرة والعاجلة تحقق مبيعات أفضل من الخصومات المفتوحة.</p><blockquote>نصيحة: لا تكدّس الخصومات الكبيرة المتتالية. سيبدأ العملاء بانتظار العرض التالي وستتضرر مبيعاتك بالسعر الكامل.</blockquote>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "merchant-earnings",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How settlement and weekly payouts work",
+      "body": "<p>Blink settles your sales on a weekly cycle. Knowing how the numbers flow helps you plan cash and reconcile your books.</p><h2>The weekly cycle</h2><ol><li>Throughout the week, every completed order is recorded in Da.</li><li>At the end of the cycle, Blink totals your sales and subtracts the platform commission.</li><li>The net amount is transferred to your registered bank account.</li></ol><h2>What's deducted</h2><ul><li><strong>Platform commission</strong> — a percentage of each order.</li><li><strong>Refunds</strong> — any amounts refunded to customers during the week.</li><li><strong>Outstanding dues</strong> — paid from your Blink Cash tab, not netted off the payout.</li></ul><h2>Where to check</h2><p>Open <strong>Profile → Earnings</strong> to see this week's sales, the commission applied, and your expected payout. Each past week has its own statement.</p><blockquote>Tip: Keep your bank details current. If they're outdated or unverified, a payout can be held until you fix them.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Fonctionnement du règlement et des versements hebdomadaires",
+      "body": "<p>Blink règle vos ventes selon un cycle hebdomadaire. Comprendre le flux des chiffres vous aide à gérer votre trésorerie et votre comptabilité.</p><h2>Le cycle hebdomadaire</h2><ol><li>Tout au long de la semaine, chaque commande terminée est enregistrée en Da.</li><li>En fin de cycle, Blink totalise vos ventes et soustrait la commission de la plateforme.</li><li>Le montant net est versé sur votre compte bancaire enregistré.</li></ol><h2>Ce qui est déduit</h2><ul><li><strong>Commission de la plateforme</strong> — un pourcentage de chaque commande.</li><li><strong>Remboursements</strong> — les montants remboursés aux clients durant la semaine.</li><li><strong>Dettes en cours</strong> — payées depuis l'onglet Blink Cash, non déduites du versement.</li></ul><h2>Où vérifier</h2><p>Ouvrez <strong>Profil → Gains</strong> pour voir les ventes de la semaine, la commission appliquée et le versement attendu. Chaque semaine passée a son propre relevé.</p><blockquote>Astuce : gardez vos coordonnées bancaires à jour. Si elles sont obsolètes ou non vérifiées, un versement peut être bloqué jusqu'à correction.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كيف تعمل التسوية والمدفوعات الأسبوعية",
+      "body": "<p>يسوّي بلينك مبيعاتك وفق دورة أسبوعية. معرفة كيفية تدفق الأرقام تساعدك على تخطيط السيولة وتسوية حساباتك.</p><h2>الدورة الأسبوعية</h2><ol><li>طوال الأسبوع، يُسجَّل كل طلب مكتمل بالدينار.</li><li>في نهاية الدورة، يجمع بلينك مبيعاتك ويخصم عمولة المنصة.</li><li>يُحوَّل المبلغ الصافي إلى حسابك البنكي المسجل.</li></ol><h2>ما الذي يُخصم</h2><ul><li><strong>عمولة المنصة</strong> — نسبة مئوية من كل طلب.</li><li><strong>المبالغ المستردة</strong> — أي مبالغ أُعيدت للعملاء خلال الأسبوع.</li><li><strong>المستحقات القائمة</strong> — تُدفع من تبويب بلينك كاش، ولا تُخصم من الدفعة.</li></ul><h2>أين تتحقق</h2><p>افتح <strong>الملف الشخصي ← الأرباح</strong> لرؤية مبيعات هذا الأسبوع والعمولة المطبقة والدفعة المتوقعة. لكل أسبوع سابق كشف خاص به.</p><blockquote>نصيحة: أبقِ بياناتك البنكية محدّثة. إذا كانت قديمة أو غير موثّقة، قد تُحتجز الدفعة حتى تصحيحها.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-earnings",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "When do I get paid?",
+      "body": "<p>Payouts run on a <strong>weekly</strong> cycle. At the end of each week, your sales minus the platform commission are transferred to your registered bank account.</p><p>You can track the current week's expected payout anytime in <strong>Profile → Earnings</strong>.</p>"
+    },
+    "content_fr": {
+      "title": "Quand suis-je payé ?",
+      "body": "<p>Les versements suivent un cycle <strong>hebdomadaire</strong>. À la fin de chaque semaine, vos ventes diminuées de la commission de la plateforme sont transférées sur votre compte bancaire enregistré.</p><p>Vous pouvez suivre le versement attendu de la semaine en cours à tout moment dans <strong>Profil → Gains</strong>.</p>"
+    },
+    "content_ar": {
+      "title": "متى أحصل على مستحقاتي؟",
+      "body": "<p>تتم المدفوعات وفق دورة <strong>أسبوعية</strong>. في نهاية كل أسبوع، تُحوَّل مبيعاتك بعد خصم عمولة المنصة إلى حسابك البنكي المسجل.</p><p>يمكنك متابعة الدفعة المتوقعة للأسبوع الحالي في أي وقت من <strong>الملف الشخصي ← الأرباح</strong>.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-earnings",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "What is the platform commission?",
+      "body": "<p>Blink charges a commission on each order, taken as a percentage of the order value. It covers the platform, customer acquisition, and support.</p><p>Your exact rate is shown in <strong>Profile → Earnings</strong> on each weekly statement, so you always see what was deducted before your payout.</p>"
+    },
+    "content_fr": {
+      "title": "Qu'est-ce que la commission de la plateforme ?",
+      "body": "<p>Blink prélève une commission sur chaque commande, sous forme de pourcentage de la valeur de la commande. Elle couvre la plateforme, l'acquisition de clients et le support.</p><p>Votre taux exact figure dans <strong>Profil → Gains</strong> sur chaque relevé hebdomadaire, vous voyez ainsi toujours ce qui a été déduit avant votre versement.</p>"
+    },
+    "content_ar": {
+      "title": "ما هي عمولة المنصة؟",
+      "body": "<p>يتقاضى بلينك عمولة على كل طلب، تُؤخذ كنسبة مئوية من قيمة الطلب. وهي تغطي المنصة واكتساب العملاء والدعم.</p><p>تظهر نسبتك الدقيقة في <strong>الملف الشخصي ← الأرباح</strong> على كل كشف أسبوعي، فترى دائمًا ما خُصم قبل دفعتك.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-earnings",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "How do I pay my outstanding dues to Blink?",
+      "body": "<p>Any amounts you owe Blink, such as commission on cash orders, appear as dues. Open the <strong>Blink Cash</strong> tab to see the balance and pay it.</p><p>Settle dues promptly. Unpaid dues can pause new payouts and, if left too long, affect your store's standing.</p>"
+    },
+    "content_fr": {
+      "title": "Comment payer mes dettes envers Blink ?",
+      "body": "<p>Les montants que vous devez à Blink, comme la commission sur les commandes en espèces, apparaissent comme des dettes. Ouvrez l'onglet <strong>Blink Cash</strong> pour voir le solde et le régler.</p><p>Réglez vos dettes rapidement. Des dettes impayées peuvent suspendre vos versements et, laissées trop longtemps, affecter le statut de votre boutique.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أدفع مستحقاتي لبلينك؟",
+      "body": "<p>أي مبالغ مستحقة عليك لبلينك، مثل العمولة على الطلبات النقدية، تظهر كمستحقات. افتح تبويب <strong>بلينك كاش</strong> لرؤية الرصيد ودفعه.</p><p>سدّد المستحقات بسرعة. المستحقات غير المدفوعة قد توقف الدفعات الجديدة، وإذا تُركت طويلًا قد تؤثر على وضع متجرك.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "merchant-earnings",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "Reading your sales reports and invoices",
+      "body": "<p>Your reports turn raw orders into numbers you can act on. Here's how to read them and find the documents your accountant needs.</p><h2>Sales overview</h2><p>In <strong>Profile → Earnings</strong> you'll see daily and weekly totals in Da, order counts, and your average ticket. Switch the date range to compare periods.</p><h2>The weekly statement</h2><p>Each settled week has a statement showing:</p><ul><li>Gross sales for the week</li><li>Platform commission deducted</li><li>Refunds and adjustments</li><li>Net amount paid out</li></ul><h2>Invoices and downloads</h2><ol><li>Open the week you need.</li><li>Tap <strong>Download statement</strong> to save a PDF.</li><li>Share it with your accountant or keep it for your records.</li></ol><blockquote>Tip: Review reports weekly, not monthly. Spotting a dip in one item or one day early lets you fix it before it costs you a full month of sales.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Lire vos rapports de ventes et vos factures",
+      "body": "<p>Vos rapports transforment les commandes brutes en chiffres exploitables. Voici comment les lire et trouver les documents dont votre comptable a besoin.</p><h2>Aperçu des ventes</h2><p>Dans <strong>Profil → Gains</strong>, vous verrez les totaux quotidiens et hebdomadaires en Da, le nombre de commandes et votre panier moyen. Changez la plage de dates pour comparer les périodes.</p><h2>Le relevé hebdomadaire</h2><p>Chaque semaine réglée a un relevé affichant :</p><ul><li>Les ventes brutes de la semaine</li><li>La commission de la plateforme déduite</li><li>Les remboursements et ajustements</li><li>Le montant net versé</li></ul><h2>Factures et téléchargements</h2><ol><li>Ouvrez la semaine souhaitée.</li><li>Touchez <strong>Télécharger le relevé</strong> pour enregistrer un PDF.</li><li>Partagez-le avec votre comptable ou conservez-le.</li></ol><blockquote>Astuce : examinez vos rapports chaque semaine, pas chaque mois. Repérer tôt une baisse sur un article ou un jour vous permet d'agir avant de perdre un mois entier de ventes.</blockquote>"
+    },
+    "content_ar": {
+      "title": "قراءة تقارير مبيعاتك وفواتيرك",
+      "body": "<p>تحوّل تقاريرك الطلبات الخام إلى أرقام يمكنك التصرف بناءً عليها. إليك كيفية قراءتها والعثور على المستندات التي يحتاجها محاسبك.</p><h2>نظرة عامة على المبيعات</h2><p>في <strong>الملف الشخصي ← الأرباح</strong> سترى الإجماليات اليومية والأسبوعية بالدينار وعدد الطلبات ومتوسط الفاتورة. غيّر النطاق الزمني لمقارنة الفترات.</p><h2>الكشف الأسبوعي</h2><p>لكل أسبوع مُسوّى كشف يعرض:</p><ul><li>إجمالي مبيعات الأسبوع</li><li>عمولة المنصة المخصومة</li><li>المبالغ المستردة والتعديلات</li><li>المبلغ الصافي المدفوع</li></ul><h2>الفواتير والتنزيلات</h2><ol><li>افتح الأسبوع الذي تحتاجه.</li><li>اضغط على <strong>تنزيل الكشف</strong> لحفظ ملف PDF.</li><li>شاركه مع محاسبك أو احتفظ به لسجلاتك.</li></ol><blockquote>نصيحة: راجع التقارير أسبوعيًا لا شهريًا. اكتشاف انخفاض في صنف أو يوم مبكرًا يتيح لك معالجته قبل أن يكلفك شهرًا كاملًا من المبيعات.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-earnings",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "How do I update my bank details for payouts?",
+      "body": "<p>Go to <strong>Profile → Earnings → Bank details</strong> (or your store settings) and update your account information. For security, changes are verified, which can take 24–48 hours.</p><p>A payout due during that window is released once the new details are confirmed, so update them a few days before your next settlement.</p>"
+    },
+    "content_fr": {
+      "title": "Comment mettre à jour mes coordonnées bancaires pour les versements ?",
+      "body": "<p>Allez dans <strong>Profil → Gains → Coordonnées bancaires</strong> (ou les paramètres de votre boutique) et mettez à jour vos informations. Par sécurité, les modifications sont vérifiées, ce qui peut prendre 24 à 48 heures.</p><p>Un versement dû pendant cette période est libéré une fois les nouvelles coordonnées confirmées : mettez-les à jour quelques jours avant votre prochain règlement.</p>"
+    },
+    "content_ar": {
+      "title": "كيف أُحدّث بياناتي البنكية لاستلام المدفوعات؟",
+      "body": "<p>انتقل إلى <strong>الملف الشخصي ← الأرباح ← البيانات البنكية</strong> (أو إعدادات متجرك) وحدّث معلومات حسابك. لأسباب أمنية، يتم التحقق من التغييرات، وقد يستغرق ذلك 24 إلى 48 ساعة.</p><p>أي دفعة مستحقة خلال هذه الفترة تُحرَّر بعد تأكيد البيانات الجديدة، لذا حدّثها قبل تسويتك القادمة ببضعة أيام.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "merchant-earnings",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "My weekly payout looks lower than expected. Why?",
+      "body": "<p>A few things reduce the net payout from your gross sales:</p><ul><li>The platform commission on each order</li><li>Refunds or order adjustments made during the week</li><li>Promotion discounts you funded</li></ul><p>Open the weekly statement in <strong>Profile → Earnings</strong> for a full breakdown. If a number still looks wrong, contact support with the statement.</p>"
+    },
+    "content_fr": {
+      "title": "Mon versement hebdomadaire est plus bas que prévu. Pourquoi ?",
+      "body": "<p>Plusieurs éléments réduisent le versement net par rapport aux ventes brutes :</p><ul><li>La commission de la plateforme sur chaque commande</li><li>Les remboursements ou ajustements de commande de la semaine</li><li>Les réductions de promotion que vous avez financées</li></ul><p>Ouvrez le relevé hebdomadaire dans <strong>Profil → Gains</strong> pour un détail complet. Si un montant semble toujours erroné, contactez le support avec le relevé.</p>"
+    },
+    "content_ar": {
+      "title": "دفعتي الأسبوعية أقل من المتوقع. لماذا؟",
+      "body": "<p>هناك عدة أمور تخفض الدفعة الصافية مقارنة بمبيعاتك الإجمالية:</p><ul><li>عمولة المنصة على كل طلب</li><li>المبالغ المستردة أو تعديلات الطلبات خلال الأسبوع</li><li>خصومات العروض التي مولتها</li></ul><p>افتح الكشف الأسبوعي في <strong>الملف الشخصي ← الأرباح</strong> لرؤية تفصيل كامل. إذا بقي رقم يبدو خاطئًا، تواصل مع الدعم مرفقًا الكشف.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "ranking",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 0,
+    "content_eng": {
+      "title": "How store ranking works on Blink",
+      "body": "<p>Your ranking decides how high your store appears to customers. A higher rank means more visibility and more orders. Three factors drive it.</p><h2>The three ranking factors</h2><table><thead><tr><th>Factor</th><th>What it measures</th><th>Top-tier target</th></tr></thead><tbody><tr><td>Rating</td><td>Average customer star rating</td><td>4.5 or higher</td></tr><tr><td>Prep time</td><td>How fast you prepare orders</td><td>Under 12 minutes</td></tr><tr><td>Acceptance rate</td><td>Share of orders you accept</td><td>As high as possible</td></tr></tbody></table><h2>Reaching the top tier</h2><p>A store with a <strong>4.5+ rating</strong> and a prep time <strong>under 12 minutes</strong> lands in the top tier, the most visible slot in customer search and category pages.</p><h2>Each store ranks on its own</h2><p>If you run multiple stores, each has its own rank based on its own numbers. Improving one branch won't lift another, so manage them individually in <strong>Profile → My Stores</strong>.</p><blockquote>Tip: Consistency beats perfection. A steady 4.6 with quick prep outranks a store that swings between great and poor weeks.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comment fonctionne le classement des boutiques sur Blink",
+      "body": "<p>Votre classement détermine la position de votre boutique aux yeux des clients. Un rang plus élevé signifie plus de visibilité et plus de commandes. Trois facteurs l'influencent.</p><h2>Les trois facteurs de classement</h2><table><thead><tr><th>Facteur</th><th>Ce qu'il mesure</th><th>Objectif haut de gamme</th></tr></thead><tbody><tr><td>Note</td><td>La note moyenne des clients</td><td>4,5 ou plus</td></tr><tr><td>Temps de préparation</td><td>La rapidité de préparation</td><td>Moins de 12 minutes</td></tr><tr><td>Taux d'acceptation</td><td>Part des commandes acceptées</td><td>Le plus élevé possible</td></tr></tbody></table><h2>Atteindre le haut de gamme</h2><p>Une boutique avec une <strong>note de 4,5+</strong> et un temps de préparation <strong>inférieur à 12 minutes</strong> rejoint le haut de gamme, l'emplacement le plus visible dans la recherche et les pages de catégorie.</p><h2>Chaque boutique se classe seule</h2><p>Si vous gérez plusieurs boutiques, chacune a son rang selon ses propres chiffres. Améliorer un établissement n'élève pas un autre : gérez-les individuellement dans <strong>Profil → Mes boutiques</strong>.</p><blockquote>Astuce : la régularité l'emporte sur la perfection. Un 4,6 stable avec préparation rapide devance une boutique qui alterne semaines excellentes et médiocres.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كيف يعمل ترتيب المتاجر على بلينك",
+      "body": "<p>يحدد ترتيبك مدى ظهور متجرك للعملاء في الأعلى. الترتيب الأعلى يعني ظهورًا أكبر وطلبات أكثر. ثلاثة عوامل تحدده.</p><h2>عوامل الترتيب الثلاثة</h2><table><thead><tr><th>العامل</th><th>ما يقيسه</th><th>هدف الفئة العليا</th></tr></thead><tbody><tr><td>التقييم</td><td>متوسط تقييم نجوم العملاء</td><td>4.5 أو أعلى</td></tr><tr><td>وقت التحضير</td><td>سرعة تحضيرك للطلبات</td><td>أقل من 12 دقيقة</td></tr><tr><td>معدل القبول</td><td>نسبة الطلبات التي تقبلها</td><td>أعلى ما يمكن</td></tr></tbody></table><h2>الوصول إلى الفئة العليا</h2><p>المتجر الذي يحقق <strong>تقييم 4.5+</strong> ووقت تحضير <strong>أقل من 12 دقيقة</strong> يدخل الفئة العليا، وهي أكثر المواقع ظهورًا في بحث العملاء وصفحات الفئات.</p><h2>كل متجر يُرتَّب بمفرده</h2><p>إذا كنت تدير عدة متاجر، فلكل منها ترتيبه الخاص بناءً على أرقامه. تحسين فرع لا يرفع آخر، لذا أدِرها بشكل فردي في <strong>الملف الشخصي ← متاجري</strong>.</p><blockquote>نصيحة: الثبات يتفوق على الكمال. تقييم 4.6 ثابت مع تحضير سريع يتفوق على متجر يتأرجح بين أسابيع ممتازة وضعيفة.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "ranking",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 1,
+    "content_eng": {
+      "title": "What does it take to reach the top tier?",
+      "body": "<p>To reach the top tier, aim for a <strong>4.5+ rating</strong> and a preparation time <strong>under 12 minutes</strong>, while keeping a high acceptance rate.</p><p>Top-tier stores get the most visibility in search and category pages, which directly drives more orders.</p>"
+    },
+    "content_fr": {
+      "title": "Que faut-il pour atteindre le haut de gamme ?",
+      "body": "<p>Pour atteindre le haut de gamme, visez une <strong>note de 4,5+</strong> et un temps de préparation <strong>inférieur à 12 minutes</strong>, tout en gardant un taux d'acceptation élevé.</p><p>Les boutiques haut de gamme bénéficient de la meilleure visibilité dans la recherche et les pages de catégorie, ce qui génère directement plus de commandes.</p>"
+    },
+    "content_ar": {
+      "title": "ما المطلوب للوصول إلى الفئة العليا؟",
+      "body": "<p>للوصول إلى الفئة العليا، استهدف <strong>تقييم 4.5+</strong> ووقت تحضير <strong>أقل من 12 دقيقة</strong>، مع الحفاظ على معدل قبول مرتفع.</p><p>تحصل متاجر الفئة العليا على أكبر ظهور في البحث وصفحات الفئات، مما يجلب طلبات أكثر بشكل مباشر.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "ranking",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 2,
+    "content_eng": {
+      "title": "How to improve your store rating",
+      "body": "<p>Your rating is the heaviest ranking factor and the first thing customers notice. Lifting it is mostly about consistency and the small details.</p><h2>Get the food right</h2><ul><li>Keep portions and quality the same every time.</li><li>Pack carefully so food arrives hot and intact.</li><li>Double-check each order against the ticket before handing it over.</li></ul><h2>Set accurate expectations</h2><ul><li>Use real photos and honest descriptions so the dish matches the listing.</li><li>Quote prep times you can actually meet.</li><li>Mark sold-out items unavailable instead of substituting silently.</li></ul><h2>Recover from mistakes</h2><ol><li>If something goes wrong, respond to the review politely and quickly.</li><li>Fix the root cause, whether it's packaging, timing, or a recipe.</li><li>One great recovery often turns a critic into a regular.</li></ol><blockquote>Tip: A handful of bad weeks can drag a rating down fast. Watch your daily reviews so you catch a slip before it becomes a trend.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Comment améliorer la note de votre boutique",
+      "body": "<p>Votre note est le facteur de classement le plus important et la première chose que les clients remarquent. L'améliorer repose surtout sur la régularité et les petits détails.</p><h2>Réussir la nourriture</h2><ul><li>Gardez des portions et une qualité constantes.</li><li>Emballez soigneusement pour que la nourriture arrive chaude et intacte.</li><li>Vérifiez chaque commande par rapport au ticket avant de la remettre.</li></ul><h2>Fixer des attentes justes</h2><ul><li>Utilisez de vraies photos et des descriptions honnêtes pour que le plat corresponde à l'annonce.</li><li>Annoncez des temps de préparation réalistes.</li><li>Marquez les articles épuisés indisponibles plutôt que de remplacer en silence.</li></ul><h2>Se rattraper après une erreur</h2><ol><li>Si quelque chose tourne mal, répondez à l'avis poliment et rapidement.</li><li>Corrigez la cause, qu'il s'agisse de l'emballage, du timing ou d'une recette.</li><li>Un bon rattrapage transforme souvent un mécontent en habitué.</li></ol><blockquote>Astuce : quelques mauvaises semaines peuvent faire chuter une note rapidement. Surveillez vos avis quotidiens pour repérer un dérapage avant qu'il ne devienne une tendance.</blockquote>"
+    },
+    "content_ar": {
+      "title": "كيف ترفع تقييم متجرك",
+      "body": "<p>تقييمك هو أهم عوامل الترتيب وأول ما يلاحظه العملاء. رفعه يعتمد غالبًا على الثبات والتفاصيل الصغيرة.</p><h2>أتقِن الطعام</h2><ul><li>حافظ على ثبات الحصص والجودة في كل مرة.</li><li>غلّف بعناية ليصل الطعام ساخنًا وسليمًا.</li><li>تحقق من كل طلب مقابل الفاتورة قبل تسليمه.</li></ul><h2>اضبط التوقعات بدقة</h2><ul><li>استخدم صورًا حقيقية وأوصافًا صادقة ليطابق الطبق ما هو معروض.</li><li>قدّر أوقات تحضير يمكنك الالتزام بها فعلًا.</li><li>حدد الأصناف المنتهية كغير متوفرة بدلًا من استبدالها بصمت.</li></ul><h2>التعافي من الأخطاء</h2><ol><li>إذا حدث خطأ، رد على المراجعة بأدب وسرعة.</li><li>عالج السبب الجذري، سواء كان التغليف أو التوقيت أو وصفة ما.</li><li>تعافٍ جيد واحد غالبًا ما يحوّل ناقدًا إلى عميل دائم.</li></ol><blockquote>نصيحة: بضعة أسابيع سيئة قد تخفض التقييم بسرعة. راقب مراجعاتك اليومية لتكتشف أي تراجع قبل أن يصبح اتجاهًا.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "ranking",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 3,
+    "content_eng": {
+      "title": "How can I reduce my preparation time?",
+      "body": "<p>Faster, accurate prep lifts your ranking. Try these:</p><ul><li>Prep popular ingredients in advance during quiet hours.</li><li>Simplify or pause complex items at peak times.</li><li>Use bulk availability to hide slow dishes when you're busy.</li><li>Set realistic default prep times so you're rarely late.</li></ul><p>Aim for under 12 minutes consistently to qualify for the top tier.</p>"
+    },
+    "content_fr": {
+      "title": "Comment réduire mon temps de préparation ?",
+      "body": "<p>Une préparation rapide et exacte améliore votre classement. Essayez ceci :</p><ul><li>Préparez les ingrédients populaires à l'avance pendant les heures creuses.</li><li>Simplifiez ou suspendez les articles complexes aux heures de pointe.</li><li>Utilisez la disponibilité groupée pour masquer les plats lents quand vous êtes occupé.</li><li>Définissez des temps de préparation par défaut réalistes pour être rarement en retard.</li></ul><p>Visez moins de 12 minutes de façon constante pour accéder au haut de gamme.</p>"
+    },
+    "content_ar": {
+      "title": "كيف يمكنني تقليل وقت تحضيري؟",
+      "body": "<p>التحضير السريع والدقيق يرفع ترتيبك. جرّب هذا:</p><ul><li>حضّر المكونات الشائعة مسبقًا خلال الساعات الهادئة.</li><li>بسّط الأصناف المعقدة أو أوقفها في أوقات الذروة.</li><li>استخدم التوفر الجماعي لإخفاء الأطباق البطيئة عند انشغالك.</li><li>حدد أوقات تحضير افتراضية واقعية لتندر تأخراتك.</li></ul><p>استهدف أقل من 12 دقيقة بثبات لتتأهل للفئة العليا.</p>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "ranking",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 4,
+    "content_eng": {
+      "title": "What is acceptance rate and why does it matter?",
+      "body": "<p>Acceptance rate is the share of orders you accept out of those sent to you. A missed or rejected order both count against it.</p><p>A high acceptance rate signals you're reliable, which lifts your ranking. To protect it, pause your store when you can't cook instead of letting orders time out.</p>"
+    },
+    "content_fr": {
+      "title": "Qu'est-ce que le taux d'acceptation et pourquoi est-il important ?",
+      "body": "<p>Le taux d'acceptation est la part des commandes que vous acceptez parmi celles qui vous sont envoyées. Une commande manquée ou refusée le pénalise.</p><p>Un taux élevé montre votre fiabilité, ce qui améliore votre classement. Pour le protéger, suspendez votre boutique quand vous ne pouvez pas cuisiner plutôt que de laisser les commandes expirer.</p>"
+    },
+    "content_ar": {
+      "title": "ما هو معدل القبول ولماذا يهم؟",
+      "body": "<p>معدل القبول هو نسبة الطلبات التي تقبلها من بين الطلبات المرسلة إليك. الطلب الفائت أو المرفوض كلاهما يُحتسب ضده.</p><p>المعدل المرتفع يدل على موثوقيتك، مما يرفع ترتيبك. لحمايته، أوقف متجرك مؤقتًا عندما لا تستطيع الطهي بدلًا من ترك الطلبات تنتهي مهلتها.</p>"
+    }
+  },
+  {
+    "type": "article",
+    "category": "ranking",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 5,
+    "content_eng": {
+      "title": "Responding to customer reviews",
+      "body": "<p>Reviews shape both your rating and how new customers see you. A thoughtful reply can win back an unhappy customer and reassure everyone reading.</p><h2>Where to reply</h2><p>Open <strong>Profile → My Stores</strong>, select the store, and tap <strong>Reviews</strong>. You can respond to each review there.</p><h2>How to handle a bad review</h2><ol><li>Reply quickly, while the experience is fresh.</li><li>Stay calm and professional, never defensive.</li><li>Acknowledge the issue and apologize where it's warranted.</li><li>Explain the fix briefly and invite them to try again.</li></ol><h2>Don't ignore the good ones</h2><p>A short thank-you to happy customers builds loyalty and encourages repeat orders.</p><blockquote>Tip: Look for patterns across reviews. If several mention cold food or long waits, that's a kitchen or packaging fix that will lift your whole rating, not just one order.</blockquote>"
+    },
+    "content_fr": {
+      "title": "Répondre aux avis des clients",
+      "body": "<p>Les avis façonnent à la fois votre note et l'image que les nouveaux clients ont de vous. Une réponse réfléchie peut reconquérir un client mécontent et rassurer tous ceux qui la lisent.</p><h2>Où répondre</h2><p>Ouvrez <strong>Profil → Mes boutiques</strong>, sélectionnez la boutique et touchez <strong>Avis</strong>. Vous pouvez y répondre à chaque avis.</p><h2>Gérer un mauvais avis</h2><ol><li>Répondez vite, tant que l'expérience est récente.</li><li>Restez calme et professionnel, jamais sur la défensive.</li><li>Reconnaissez le problème et présentez des excuses si nécessaire.</li><li>Expliquez brièvement la correction et invitez le client à réessayer.</li></ol><h2>N'ignorez pas les bons avis</h2><p>Un simple merci aux clients satisfaits renforce la fidélité et encourage les commandes répétées.</p><blockquote>Astuce : repérez les tendances dans les avis. Si plusieurs mentionnent une nourriture froide ou de longues attentes, c'est un problème de cuisine ou d'emballage dont la correction améliorera toute votre note, pas seulement une commande.</blockquote>"
+    },
+    "content_ar": {
+      "title": "الرد على مراجعات العملاء",
+      "body": "<p>تشكّل المراجعات تقييمك ونظرة العملاء الجدد إليك معًا. الرد المدروس قد يستعيد عميلًا غير راضٍ ويطمئن كل من يقرأه.</p><h2>أين ترد</h2><p>افتح <strong>الملف الشخصي ← متاجري</strong>، اختر المتجر، ثم اضغط على <strong>المراجعات</strong>. يمكنك الرد على كل مراجعة هناك.</p><h2>كيف تتعامل مع مراجعة سيئة</h2><ol><li>رد بسرعة بينما التجربة لا تزال حديثة.</li><li>ابقَ هادئًا ومهنيًا، ولا تكن دفاعيًا أبدًا.</li><li>اعترف بالمشكلة واعتذر حيث يلزم.</li><li>اشرح الحل باختصار وادعُ العميل للمحاولة مجددًا.</li></ol><h2>لا تتجاهل المراجعات الجيدة</h2><p>كلمة شكر قصيرة للعملاء السعداء تبني الولاء وتشجع على تكرار الطلبات.</p><blockquote>نصيحة: ابحث عن الأنماط في المراجعات. إذا ذكر عدة عملاء برودة الطعام أو طول الانتظار، فهذه مشكلة مطبخ أو تغليف، ومعالجتها سترفع تقييمك بالكامل لا طلبًا واحدًا فقط.</blockquote>"
+    }
+  },
+  {
+    "type": "faq",
+    "category": "ranking",
+    "target_roles": ["Merchant"],
+    "status": "published",
+    "sort": 6,
+    "content_eng": {
+      "title": "Can I remove a negative or unfair review?",
+      "body": "<p>You can't delete reviews yourself, as honest feedback keeps the platform fair for everyone. But you can reply to give your side of the story.</p><p>If a review breaks our rules, for example it's abusive, spam, or clearly about a different store, report it from the review and our team will check it.</p>"
+    },
+    "content_fr": {
+      "title": "Puis-je supprimer un avis négatif ou injuste ?",
+      "body": "<p>Vous ne pouvez pas supprimer les avis vous-même, car des retours honnêtes garantissent l'équité de la plateforme pour tous. Mais vous pouvez répondre pour donner votre version.</p><p>Si un avis enfreint nos règles, par exemple s'il est injurieux, du spam ou concerne clairement une autre boutique, signalez-le depuis l'avis et notre équipe l'examinera.</p>"
+    },
+    "content_ar": {
+      "title": "هل يمكنني إزالة مراجعة سلبية أو غير عادلة؟",
+      "body": "<p>لا يمكنك حذف المراجعات بنفسك، لأن الملاحظات الصادقة تُبقي المنصة عادلة للجميع. لكن يمكنك الرد لتقديم وجهة نظرك.</p><p>إذا خالفت مراجعة قواعدنا، مثل أن تكون مسيئة أو رسائل مزعجة أو تتعلق بوضوح بمتجر آخر، فأبلغ عنها من المراجعة وسيتحقق فريقنا منها.</p>"
+    }
+  }
+]
