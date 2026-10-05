@@ -1,10 +1,13 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
 import { detailHref } from "../../lib/notifications";
 import type { UserRole } from "../../db";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import {
+  listNotificationsQuery,
+  NotificationListResponse,
+} from "../../validators/notifications";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // Flatten a recipient row (+ its embedded content) into the shape the app's feed
 // expects: the content fields plus the user's own `is_unread`/`archived_at`. The
@@ -31,11 +34,22 @@ function flatten(r: any, role: UserRole) {
 // ─── List notifications ──────────────────────────────────────────────
 // `?filter=active` (default) → the feed (archived_at IS NULL).
 // `?filter=archived`        → the archive view (archived_at IS NOT NULL).
-app.get("/", async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/",
+  operationId: "listNotifications",
+  tags: ["notifications"],
+  security: bearer,
+  request: { query: listNotificationsQuery },
+  responses: { 200: json(NotificationListResponse), 400: errorResponses[400] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const page = Number(c.req.query("page") ?? 1);
-  const limit = Number(c.req.query("limit") ?? 20);
-  const archived = c.req.query("filter") === "archived";
+  const q = c.req.valid("query");
+  const page = Number(q.page ?? 1);
+  const limit = Number(q.limit ?? 20);
+  const archived = q.filter === "archived";
   const offset = (page - 1) * limit;
 
   let query = supabaseAdmin
@@ -67,11 +81,14 @@ app.get("/", async (c) => {
     .is("archived_at", null)
     .eq("is_unread", true);
 
-  return c.json({
-    notifications,
-    unread_count: unread ?? 0,
-    pagination: { page, limit, total: count ?? 0 },
-  });
+  return c.json(
+    {
+      notifications,
+      unread_count: unread ?? 0,
+      pagination: { page, limit, total: count ?? 0 },
+    },
+    200
+  );
 });
 
 export default app;

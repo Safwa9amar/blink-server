@@ -1,5 +1,5 @@
-import { Hono } from "hono";
-import { auth, type AuthEnv } from "../../middleware/auth";
+import { auth } from "../../middleware/auth";
+import { router } from "../../openapi";
 import list from "./list";
 import detail from "./detail";
 import read from "./read";
@@ -10,7 +10,7 @@ import broadcastTest from "./broadcast-test";
 import del from "./delete";
 import restore from "./restore";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 app.use("/*", auth);
 

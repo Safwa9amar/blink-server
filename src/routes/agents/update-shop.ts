@@ -1,25 +1,31 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { auth, requireRole, type AuthEnv } from "../../middleware/auth";
-import { z } from "zod";
+import { auth, requireRole } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { AgentShopResponse, updateShopSchema } from "../../validators/agents";
 
-const updateShopSchema = z.object({
-  shop_name: z.string().min(1).optional(),
-  phone_number: z.string().optional(),
-  open_time: z.string().optional(),
-  close_time: z.string().optional(),
-  status: z.enum(["open", "closed"]).optional(),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-  address: z.string().optional(),
-});
-
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Agent: update shop ──────────────────────────────────────────────
-app.patch("/shop", auth, requireRole("agent"), async (c) => {
+const route = createRoute({
+  method: "patch",
+  path: "/shop",
+  operationId: "updateAgentShop",
+  tags: ["agents"],
+  security: bearer,
+  middleware: [auth, requireRole("agent")] as const,
+  request: { body: { ...json(updateShopSchema), required: true } },
+  responses: {
+    200: json(AgentShopResponse),
+    400: errorResponses[400],
+    401: errorResponses[401],
+    403: errorResponses[403],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const body = updateShopSchema.parse(await c.req.json());
+  const body = c.req.valid("json");
 
   const { data, error } = await supabaseAdmin
     .from("agent_shops")
@@ -32,7 +38,7 @@ app.patch("/shop", auth, requireRole("agent"), async (c) => {
     return c.json({ error: "Shop not found" }, 404);
   }
 
-  return c.json({ shop: data });
+  return c.json({ shop: data }, 200);
 });
 
 export default app;

@@ -1,15 +1,30 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { requireRole, type AuthEnv } from "../../middleware/auth";
-import { createDepositSchema } from "../../validators/transactions";
+import { requireRole } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { createDepositSchema, TransactionResponse } from "../../validators/transactions";
 import { randomUUID } from "crypto";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Create deposit (rider) ─────────────────────────────────────────
-app.post("/deposit", requireRole("rider"), async (c) => {
+const route = createRoute({
+  method: "post",
+  path: "/deposit",
+  operationId: "createDeposit",
+  tags: ["transactions"],
+  security: bearer,
+  middleware: [requireRole("rider")] as const,
+  request: { body: { ...json(createDepositSchema), required: true } },
+  responses: {
+    201: json(TransactionResponse, "Created"),
+    400: errorResponses[400],
+    403: errorResponses[403],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const body = createDepositSchema.parse(await c.req.json());
+  const body = c.req.valid("json");
 
   const fees = Math.round(body.amount * 0.02); // 2% fee
   const total = body.amount + fees;

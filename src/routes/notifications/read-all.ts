@@ -1,13 +1,22 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { NotificationMessageResponse } from "../../validators/notifications";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Mark all as read ────────────────────────────────────────────────
 // Clears unread across the caller's ACTIVE feed (the badge). Archived rows are
 // left untouched.
-app.patch("/read-all", async (c) => {
+const route = createRoute({
+  method: "patch",
+  path: "/read-all",
+  operationId: "markAllNotificationsRead",
+  tags: ["notifications"],
+  security: bearer,
+  responses: { 200: json(NotificationMessageResponse), 400: errorResponses[400] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
 
   const { error } = await supabaseAdmin
@@ -21,7 +30,7 @@ app.patch("/read-all", async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ message: "All notifications marked as read" });
+  return c.json({ message: "All notifications marked as read" }, 200);
 });
 
 export default app;

@@ -1,19 +1,30 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import {
+  DeviceResponse,
+  NotificationMessageResponse,
   registerDeviceSchema,
   unregisterDeviceSchema,
 } from "../../validators/notifications";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Register (upsert) a device push token ───────────────────────────
 // The same physical device keeps a stable Expo token, so we upsert on `token`
 // and re-point it at the current user (handles account switching on a device).
-app.post("/devices", async (c) => {
+const registerRoute = createRoute({
+  method: "post",
+  path: "/devices",
+  operationId: "registerDevice",
+  tags: ["notifications"],
+  security: bearer,
+  request: { body: { ...json(registerDeviceSchema), required: true } },
+  responses: { 200: json(DeviceResponse), 400: errorResponses[400] },
+});
+
+app.openapi(registerRoute, async (c) => {
   const user = c.get("user");
-  const { token, platform } = registerDeviceSchema.parse(await c.req.json());
+  const { token, platform } = c.req.valid("json");
 
   const { data, error } = await supabaseAdmin
     .from("device_tokens")
@@ -28,13 +39,23 @@ app.post("/devices", async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ device: data });
+  return c.json({ device: data }, 200);
 });
 
 // ─── Unregister a device push token ──────────────────────────────────
-app.delete("/devices", async (c) => {
+const unregisterRoute = createRoute({
+  method: "delete",
+  path: "/devices",
+  operationId: "unregisterDevice",
+  tags: ["notifications"],
+  security: bearer,
+  request: { body: { ...json(unregisterDeviceSchema), required: true } },
+  responses: { 200: json(NotificationMessageResponse), 400: errorResponses[400] },
+});
+
+app.openapi(unregisterRoute, async (c) => {
   const user = c.get("user");
-  const { token } = unregisterDeviceSchema.parse(await c.req.json());
+  const { token } = c.req.valid("json");
 
   const { error } = await supabaseAdmin
     .from("device_tokens")
@@ -46,7 +67,7 @@ app.delete("/devices", async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ message: "Device unregistered" });
+  return c.json({ message: "Device unregistered" }, 200);
 });
 
 export default app;

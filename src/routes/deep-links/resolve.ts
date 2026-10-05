@@ -1,8 +1,8 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { createRoute, errorResponses, json, router } from "../../openapi";
+import { ResolveDeepLinkResponse, SlugParam } from "../../validators/deep-links";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // Fill `[param]` placeholders in the internal Expo routePath, keeping `(group)`
 // segments — the form the app passes to `router.push()` / a push payload's
@@ -18,8 +18,21 @@ function fillRoute(routePath: string, params: Record<string, string> | null | un
 // Declared BEFORE the auth middleware so opening a link works before login.
 // Returns where to send the user and records a click. Only active, unexpired
 // links resolve.
-app.get("/resolve/:slug", async (c) => {
-  const slug = c.req.param("slug");
+const route = createRoute({
+  method: "get",
+  path: "/resolve/{slug}",
+  operationId: "resolveDeepLink",
+  tags: ["deep-links"],
+  request: { params: SlugParam },
+  responses: {
+    200: json(ResolveDeepLinkResponse),
+    400: errorResponses[400],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
+  const { slug } = c.req.valid("param");
   const nowIso = new Date().toISOString();
 
   const { data, error } = await supabaseAdmin
@@ -43,22 +56,25 @@ app.get("/resolve/:slug", async (c) => {
     .update({ clicks: (data.clicks ?? 0) + 1 })
     .eq("id", data.id);
 
-  return c.json({
-    link: {
-      slug: data.slug,
-      title: data.title,
-      role: data.role,
-      // `href` is the internal expo-router target (group kept, params filled) —
-      // feed it straight to router.push() / a push payload's data.href.
-      href: fillRoute(data.route_path, data.params),
-      route_path: data.route_path,
-      deep_link: data.deep_link,
-      web_url: data.web_url,
-      params: data.params,
-      required_params: data.required_params,
-      campaign: data.campaign,
+  return c.json(
+    {
+      link: {
+        slug: data.slug,
+        title: data.title,
+        role: data.role,
+        // `href` is the internal expo-router target (group kept, params filled) —
+        // feed it straight to router.push() / a push payload's data.href.
+        href: fillRoute(data.route_path, data.params),
+        route_path: data.route_path,
+        deep_link: data.deep_link,
+        web_url: data.web_url,
+        params: data.params,
+        required_params: data.required_params,
+        campaign: data.campaign,
+      },
     },
-  });
+    200
+  );
 });
 
 export default app;

@@ -1,15 +1,29 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
-import { listMessagesSchema } from "../../validators/support-chat";
+import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
+import {
+  listMessagesSchema,
+  openConversationSchema,
+  SupportConversationResponse,
+  SupportMessageListResponse,
+} from "../../validators/support-chat";
 import { MESSAGE_COLUMNS, getOrCreateConversation, getConversation } from "./shared";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // POST /conversations — get-or-create the caller's conversation + recent messages.
-app.post("/conversations", async (c) => {
+const openRoute = createRoute({
+  method: "post",
+  path: "/conversations",
+  operationId: "openSupportConversation",
+  tags: ["support-chat"],
+  security: bearer,
+  request: { body: { ...json(openConversationSchema), required: false } },
+  responses: { 200: json(SupportConversationResponse), 400: errorResponses[400] },
+});
+
+app.openapi(openRoute, async (c) => {
   const user = c.get("user");
-  const body = await c.req.json().catch(() => ({}));
+  const body = c.req.valid("json");
   const useLocale = typeof body?.locale === "string" ? body.locale : "en";
 
   const { conversation, error } = await getOrCreateConversation(user.id, user.role, useLocale);
@@ -25,14 +39,29 @@ app.post("/conversations", async (c) => {
     .order("created_at", { ascending: false })
     .limit(50);
 
-  return c.json({ conversation, messages: (messages ?? []).reverse() });
+  return c.json({ conversation, messages: (messages ?? []).reverse() }, 200);
 });
 
 // GET /conversations/:id/messages — paginated history (owner or staff).
-app.get("/conversations/:id/messages", async (c) => {
+const messagesRoute = createRoute({
+  method: "get",
+  path: "/conversations/{id}/messages",
+  operationId: "listSupportMessages",
+  tags: ["support-chat"],
+  security: bearer,
+  request: { params: IdParam, query: listMessagesSchema },
+  responses: {
+    200: json(SupportMessageListResponse),
+    400: errorResponses[400],
+    403: errorResponses[403],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(messagesRoute, async (c) => {
   const user = c.get("user");
-  const id = c.req.param("id");
-  const { page, limit } = listMessagesSchema.parse(c.req.query());
+  const { id } = c.req.valid("param");
+  const { page, limit } = c.req.valid("query");
 
   const conversation = await getConversation(id);
   if (!conversation) return c.json({ error: "Conversation not found" }, 404);
@@ -50,7 +79,7 @@ app.get("/conversations/:id/messages", async (c) => {
     .range(offset, offset + limit - 1);
   if (error) return c.json({ error: error.message }, 400);
 
-  return c.json({ messages: data ?? [], pagination: { page, limit, total: count ?? 0 } });
+  return c.json({ messages: data ?? [], pagination: { page, limit, total: count ?? 0 } }, 200);
 });
 
 export default app;

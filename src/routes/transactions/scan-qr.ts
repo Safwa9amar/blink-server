@@ -1,13 +1,29 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { requireRole, type AuthEnv } from "../../middleware/auth";
-import { scanQrSchema } from "../../validators/transactions";
+import { requireRole } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { scanQrSchema, TransactionResponse } from "../../validators/transactions";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Scan QR (agent) ─────────────────────────────────────────────────
-app.post("/scan-qr", requireRole("agent"), async (c) => {
-  const body = scanQrSchema.parse(await c.req.json());
+const route = createRoute({
+  method: "post",
+  path: "/scan-qr",
+  operationId: "scanQr",
+  tags: ["transactions"],
+  security: bearer,
+  middleware: [requireRole("agent")] as const,
+  request: { body: { ...json(scanQrSchema), required: true } },
+  responses: {
+    200: json(TransactionResponse),
+    400: errorResponses[400],
+    403: errorResponses[403],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
+  const body = c.req.valid("json");
 
   let qrPayload: { pending_id: string };
   try {
@@ -27,7 +43,7 @@ app.post("/scan-qr", requireRole("agent"), async (c) => {
     return c.json({ error: "No pending transaction found for this QR" }, 404);
   }
 
-  return c.json({ transaction: data });
+  return c.json({ transaction: data }, 200);
 });
 
 export default app;

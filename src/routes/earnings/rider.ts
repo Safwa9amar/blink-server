@@ -1,11 +1,26 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { requireRole, type AuthEnv } from "../../middleware/auth";
+import { requireRole } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { RiderEarningsResponse } from "../../validators/earnings";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Rider earnings summary ─────────────────────────────────────────
-app.get("/rider", requireRole("rider"), async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/rider",
+  operationId: "getRiderEarnings",
+  tags: ["earnings"],
+  security: bearer,
+  middleware: [requireRole("rider")] as const,
+  responses: {
+    200: json(RiderEarningsResponse),
+    400: errorResponses[400],
+    403: errorResponses[403],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
 
   // Get completed trips for this rider
@@ -23,14 +38,17 @@ app.get("/rider", requireRole("rider"), async (c) => {
   const netIncome = trips?.reduce((sum, t) => sum + (t.net_payout ?? 0), 0) ?? 0;
   const commissions = grossIncome - netIncome;
 
-  return c.json({
-    earnings: {
-      net_income: netIncome,
-      gross_income: grossIncome,
-      commissions_taxes: commissions,
-      trips_count: trips?.length ?? 0,
+  return c.json(
+    {
+      earnings: {
+        net_income: netIncome,
+        gross_income: grossIncome,
+        commissions_taxes: commissions,
+        trips_count: trips?.length ?? 0,
+      },
     },
-  });
+    200
+  );
 });
 
 export default app;

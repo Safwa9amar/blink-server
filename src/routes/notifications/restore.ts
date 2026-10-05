@@ -1,15 +1,29 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
+import { NotificationMessageResponse } from "../../validators/notifications";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Restore an archived notification ────────────────────────────────
 // Un-archives the caller's recipient row (clears `archived_at`), moving it back
 // into the active feed. The counterpart to DELETE /:id. Idempotent.
-app.post("/:id/restore", async (c) => {
+const route = createRoute({
+  method: "post",
+  path: "/{id}/restore",
+  operationId: "restoreNotification",
+  tags: ["notifications"],
+  security: bearer,
+  request: { params: IdParam },
+  responses: {
+    200: json(NotificationMessageResponse),
+    400: errorResponses[400],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const notifId = c.req.param("id");
+  const { id: notifId } = c.req.valid("param");
 
   const { error, count } = await supabaseAdmin
     .from("notification_recipients")
@@ -24,7 +38,7 @@ app.post("/:id/restore", async (c) => {
     return c.json({ error: "Notification not found" }, 404);
   }
 
-  return c.json({ message: "Notification restored" });
+  return c.json({ message: "Notification restored" }, 200);
 });
 
 export default app;

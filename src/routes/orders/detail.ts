@@ -1,13 +1,23 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
+import { OrderResponse } from "../../validators/orders";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Get single order ────────────────────────────────────────────────
-app.get("/:id", async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/{id}",
+  operationId: "getOrder",
+  tags: ["orders"],
+  security: bearer,
+  request: { params: IdParam },
+  responses: { 200: json(OrderResponse), 403: errorResponses[403], 404: errorResponses[404] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const orderId = c.req.param("id");
+  const { id: orderId } = c.req.valid("param");
 
   const { data, error } = await supabaseAdmin
     .from("orders")
@@ -23,7 +33,7 @@ app.get("/:id", async (c) => {
     return c.json({ error: "Access denied" }, 403);
   }
 
-  return c.json({ order: data });
+  return c.json({ order: data }, 200);
 });
 
 export default app;

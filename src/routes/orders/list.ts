@@ -1,14 +1,23 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
-import { listOrdersSchema } from "../../validators/orders";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { listOrdersSchema, OrderListResponse } from "../../validators/orders";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── List orders ─────────────────────────────────────────────────────
-app.get("/", async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/",
+  operationId: "listOrders",
+  tags: ["orders"],
+  security: bearer,
+  request: { query: listOrdersSchema },
+  responses: { 200: json(OrderListResponse), 400: errorResponses[400] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const query = listOrdersSchema.parse(c.req.query());
+  const query = c.req.valid("query");
   const { page, limit, status } = query;
   const offset = (page - 1) * limit;
 
@@ -34,10 +43,13 @@ app.get("/", async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({
-    orders: data,
-    pagination: { page, limit, total: count ?? 0 },
-  });
+  return c.json(
+    {
+      orders: data,
+      pagination: { page, limit, total: count ?? 0 },
+    },
+    200
+  );
 });
 
 export default app;

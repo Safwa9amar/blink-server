@@ -1,13 +1,23 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
+import { AddressDeletedResponse } from "../../validators/addresses";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Delete address ──────────────────────────────────────────────────
-app.delete("/:id", async (c) => {
+const route = createRoute({
+  method: "delete",
+  path: "/{id}",
+  operationId: "deleteAddress",
+  tags: ["addresses"],
+  security: bearer,
+  request: { params: IdParam },
+  responses: { 200: json(AddressDeletedResponse), 400: errorResponses[400] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const addressId = c.req.param("id");
+  const { id: addressId } = c.req.valid("param");
 
   const { error } = await supabaseAdmin
     .from("addresses")
@@ -19,7 +29,7 @@ app.delete("/:id", async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ message: "Address deleted" });
+  return c.json({ message: "Address deleted" }, 200);
 });
 
 export default app;

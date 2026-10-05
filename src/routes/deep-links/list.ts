@@ -1,13 +1,24 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { auth, type AuthEnv } from "../../middleware/auth";
-import { listDeepLinksSchema } from "../../validators/deep-links";
+import { auth } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { DeepLinkListResponse, listDeepLinksSchema } from "../../validators/deep-links";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── List (filter + search + paginate) ───────────────────────────────
-app.get("/", auth, async (c) => {
-  const { page, limit, role, campaign, active, q } = listDeepLinksSchema.parse(c.req.query());
+const route = createRoute({
+  method: "get",
+  path: "/",
+  operationId: "listDeepLinks",
+  tags: ["admin-deep-links"],
+  security: bearer,
+  middleware: [auth] as const,
+  request: { query: listDeepLinksSchema },
+  responses: { 200: json(DeepLinkListResponse), 400: errorResponses[400], 401: errorResponses[401] },
+});
+
+app.openapi(route, async (c) => {
+  const { page, limit, role, campaign, active, q } = c.req.valid("query");
   const offset = (page - 1) * limit;
 
   let query = supabaseAdmin
@@ -26,10 +37,13 @@ app.get("/", auth, async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({
-    deep_links: data ?? [],
-    pagination: { page, limit, total: count ?? 0 },
-  });
+  return c.json(
+    {
+      deep_links: data ?? [],
+      pagination: { page, limit, total: count ?? 0 },
+    },
+    200
+  );
 });
 
 export default app;

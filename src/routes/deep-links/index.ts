@@ -1,5 +1,4 @@
-import { Hono } from "hono";
-import type { AuthEnv } from "../../middleware/auth";
+import { router } from "../../openapi";
 import resolve from "./resolve";
 import list from "./list";
 import detail from "./detail";
@@ -11,10 +10,10 @@ import del from "./delete";
 // deeplinks.json; this manages the dynamic, persisted links built from it —
 // resolve-by-slug (public) + CRUD (authoring). Reads/writes go through the
 // admin client; the `deep_links_select_active` RLS still scopes anon resolves.
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // Each endpoint lives in its own file and is mounted at the router root.
-// `/resolve/:slug` is PUBLIC and carries no auth; the CRUD endpoints apply
+// `/resolve/{slug}` is PUBLIC and carries no auth; the CRUD endpoints apply
 // `auth` inline (per-endpoint) so resolving a link works before login.
 app.route("/", resolve);
 app.route("/", list);

@@ -1,11 +1,11 @@
-import { Hono } from "hono";
-import { auth, requireRole, type AuthEnv } from "../../middleware/auth";
+import { auth, requireRole } from "../../middleware/auth";
+import { router } from "../../openapi";
 import getProfile from "./get-profile";
 import updateProfile from "./update-profile";
 import getVehicle from "./get-vehicle";
 import upsertVehicle from "./upsert-vehicle";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 app.use("/*", auth, requireRole("rider"));
 

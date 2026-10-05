@@ -1,23 +1,29 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
-import { z } from "zod";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { upsertVehicleSchema, VehicleResponse } from "../../validators/riders";
 
-const upsertVehicleSchema = z.object({
-  brand: z.string().min(1),
-  model: z.string().min(1),
-  license_plate: z.string().min(1),
-  year: z.string().min(1),
-  color: z.string().min(1),
-  category: z.enum(["standard", "electric", "hybrid"]),
-});
-
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Create or update vehicle ────────────────────────────────────────
-app.put("/vehicle", async (c) => {
+const route = createRoute({
+  method: "put",
+  path: "/vehicle",
+  operationId: "upsertRiderVehicle",
+  tags: ["riders"],
+  security: bearer,
+  request: { body: { ...json(upsertVehicleSchema), required: true } },
+  responses: {
+    200: json(VehicleResponse),
+    400: errorResponses[400],
+    401: errorResponses[401],
+    403: errorResponses[403],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const body = upsertVehicleSchema.parse(await c.req.json());
+  const body = c.req.valid("json");
 
   // Check if vehicle exists
   const { data: existing } = await supabaseAdmin
@@ -52,7 +58,7 @@ app.put("/vehicle", async (c) => {
     return c.json({ error: result.error.message }, 400);
   }
 
-  return c.json({ vehicle: result.data });
+  return c.json({ vehicle: result.data }, 200);
 });
 
 export default app;

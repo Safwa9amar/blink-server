@@ -1,5 +1,5 @@
-import { Hono } from "hono";
-import { auth, type AuthEnv } from "../../middleware/auth";
+import { auth } from "../../middleware/auth";
+import { router } from "../../openapi";
 import list from "./list";
 import detail from "./detail";
 import deposit from "./deposit";
@@ -8,7 +8,7 @@ import process from "./process";
 import scanQr from "./scan-qr";
 import rate from "./rate";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 app.use("/*", auth);
 

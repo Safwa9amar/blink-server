@@ -1,9 +1,11 @@
-import { Hono } from "hono";
 import { broadcastNotification } from "../../lib/notifications";
-import type { AuthEnv } from "../../middleware/auth";
-import { broadcastTestNotificationSchema } from "../../validators/notifications";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import {
+  BroadcastTestNotificationResponse,
+  broadcastTestNotificationSchema,
+} from "../../validators/notifications";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Broadcast test: create + push a notification to EVERY user in the target
 // roles ──────────────────────────────────────────────────────────────────────
@@ -11,11 +13,22 @@ const app = new Hono<AuthEnv>();
 // out a push to each user's devices. Verifies the broadcast pipeline end to end.
 // Powerful — it writes to and pushes every targeted user — so it's a dev/test
 // trigger, not a per-user action. `roles` defaults to all four.
-app.post("/broadcast-test", async (c) => {
+const route = createRoute({
+  method: "post",
+  path: "/broadcast-test",
+  operationId: "broadcastTestNotification",
+  tags: ["admin-notifications"],
+  security: bearer,
+  // Optional body — a bare POST uses every default.
+  request: { body: { ...json(broadcastTestNotificationSchema), required: false } },
+  responses: { 200: json(BroadcastTestNotificationResponse), 400: errorResponses[400] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const body = broadcastTestNotificationSchema.parse(
-    await c.req.json().catch(() => ({}))
-  );
+  // Re-parse: without a JSON content-type the validator yields `{}` unparsed,
+  // so this applies the schema defaults (as the bare-POST path always did).
+  const body = broadcastTestNotificationSchema.parse(c.req.valid("json"));
 
   const recipients = await broadcastNotification(body.roles, {
     type: body.type,
@@ -26,7 +39,7 @@ app.post("/broadcast-test", async (c) => {
     createdBy: user.id,
   });
 
-  return c.json({ recipients, roles: body.roles });
+  return c.json({ recipients, roles: body.roles }, 200);
 });
 
 export default app;

@@ -1,7 +1,6 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
-import { sendMessageSchema } from "../../validators/support-chat";
+import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
+import { sendMessageSchema, SupportMessageResponse } from "../../validators/support-chat";
 import {
   insertMessage,
   runBotTurn,
@@ -10,16 +9,29 @@ import {
 } from "../../lib/support-chat";
 import { getConversation } from "./shared";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // POST /conversations/:id/messages — send a message.
 // Sender derived from the caller: owner → "user"; staff → "agent".
-app.post("/conversations/:id/messages", async (c) => {
+const route = createRoute({
+  method: "post",
+  path: "/conversations/{id}/messages",
+  operationId: "sendSupportMessage",
+  tags: ["support-chat"],
+  security: bearer,
+  request: { params: IdParam, body: { ...json(sendMessageSchema), required: true } },
+  responses: {
+    201: json(SupportMessageResponse, "Created"),
+    400: errorResponses[400],
+    403: errorResponses[403],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const id = c.req.param("id");
-  const { body, attachmentUrl } = sendMessageSchema.parse(
-    await c.req.json().catch(() => ({}))
-  );
+  const { id } = c.req.valid("param");
+  const { body, attachmentUrl } = c.req.valid("json");
 
   const conversation = await getConversation(id);
   if (!conversation) return c.json({ error: "Conversation not found" }, 404);

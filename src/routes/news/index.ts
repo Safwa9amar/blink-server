@@ -1,5 +1,5 @@
-import { Hono } from "hono";
-import { auth, type AuthEnv } from "../../middleware/auth";
+import { auth } from "../../middleware/auth";
+import { router } from "../../openapi";
 import list from "./list";
 import detail from "./detail";
 import click from "./click";
@@ -8,7 +8,7 @@ import click from "./click";
 // stays in the dashboard, which writes via the service role). Served through the
 // admin client so we can filter explicitly here rather than relying on the
 // `news_select_published` RLS policy — same approach as the other app routes.
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // Auth gates the whole feed.
 app.use("/*", auth);

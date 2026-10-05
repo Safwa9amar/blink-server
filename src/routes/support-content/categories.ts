@@ -1,12 +1,21 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { SupportCategoryListResponse } from "../../validators/support-content";
 import { audienceFor } from "./shared";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── List the Help Center categories for this role ───────────────────
-app.get("/categories", async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/categories",
+  operationId: "listSupportCategories",
+  tags: ["support-content"],
+  security: bearer,
+  responses: { 200: json(SupportCategoryListResponse), 400: errorResponses[400] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
 
   const { data, error } = await supabaseAdmin
@@ -19,7 +28,7 @@ app.get("/categories", async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ categories: data ?? [] });
+  return c.json({ categories: data ?? [] }, 200);
 });
 
 export default app;

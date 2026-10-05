@@ -1,9 +1,9 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
+import { SocialSyncResponse, socialSyncSchema, publicUser } from "../../validators/auth";
 import { VALID_ROLES, ensureRoleProfile, type ServerRole } from "./shared";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Google OAuth profile sync ───────────────────────────────────────
 // The mobile app completes Google OAuth directly against Supabase, so no
@@ -15,7 +15,24 @@ const app = new Hono<AuthEnv>();
 // not defaulted. Two-step:
 //   1. no `role` in body  → report whether the user is new (no row created).
 //   2. `role` in body     → create the row with that role (first time only).
-app.post("/google", async (c) => {
+const route = createRoute({
+  method: "post",
+  path: "/google",
+  operationId: "syncGoogleUser",
+  tags: ["auth"],
+  // Supabase access token from the OAuth flow (verified in-handler, not via
+  // the `auth` middleware — a new user has no profile row yet).
+  security: bearer,
+  request: { body: { ...json(socialSyncSchema), required: false } },
+  responses: {
+    200: json(SocialSyncResponse),
+    400: errorResponses[400],
+    401: errorResponses[401],
+    409: json(ErrorSchema, "Account already exists under a different role"),
+  },
+});
+
+app.openapi(route, async (c) => {
   const header = c.req.header("Authorization");
   if (!header?.startsWith("Bearer ")) {
     return c.json({ error: "Missing or invalid authorization header" }, 401);
@@ -59,12 +76,12 @@ app.post("/google", async (c) => {
     // Backfill the role profile if missing (e.g. account predates its role
     // table), then return the existing profile.
     await ensureRoleProfile(existingUser.id, existingUser.role as ServerRole);
-    return c.json({ is_new_user: false, user: existingUser });
+    return c.json({ is_new_user: false, user: publicUser(existingUser) }, 200);
   }
 
   // Step 1: no role yet — report new, create nothing.
   if (!role) {
-    return c.json({ is_new_user: true, user: null });
+    return c.json({ is_new_user: true, user: null }, 200);
   }
 
   // Step 2: create the profile with the chosen role.
@@ -94,7 +111,7 @@ app.post("/google", async (c) => {
   // screen can't load or save.
   await ensureRoleProfile(supaUser.id, role as ServerRole);
 
-  return c.json({ is_new_user: true, user: created });
+  return c.json({ is_new_user: true, user: publicUser(created) }, 200);
 });
 
 export default app;

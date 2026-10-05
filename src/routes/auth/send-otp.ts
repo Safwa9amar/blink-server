@@ -1,13 +1,21 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
-import { sendOtpSchema } from "../../validators/auth";
+import { createRoute, errorResponses, json, router } from "../../openapi";
+import { MessageResponse, sendOtpSchema } from "../../validators/auth";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Send OTP ────────────────────────────────────────────────────────
-app.post("/otp/send", async (c) => {
-  const body = sendOtpSchema.parse(await c.req.json());
+const route = createRoute({
+  method: "post",
+  path: "/otp/send",
+  operationId: "sendOtp",
+  tags: ["auth"],
+  request: { body: { ...json(sendOtpSchema), required: true } },
+  responses: { 200: json(MessageResponse), 400: errorResponses[400] },
+});
+
+app.openapi(route, async (c) => {
+  const body = c.req.valid("json");
 
   const { error } = await supabaseAdmin.auth.signInWithOtp({
     phone: body.phone_number,
@@ -17,7 +25,7 @@ app.post("/otp/send", async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ message: "OTP sent successfully" });
+  return c.json({ message: "OTP sent successfully" }, 200);
 });
 
 export default app;

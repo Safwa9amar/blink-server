@@ -1,11 +1,10 @@
-import { Hono } from "hono";
-import type { AuthEnv } from "../../middleware/auth";
+import { router } from "../../openapi";
 import nearby from "./nearby";
 import profile from "./profile";
 import getShop from "./get-shop";
 import updateShop from "./update-shop";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // Auth is applied per-endpoint inline (see each endpoint file), not app-wide.
 

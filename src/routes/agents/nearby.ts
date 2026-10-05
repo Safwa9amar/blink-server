@@ -1,13 +1,29 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { auth, type AuthEnv } from "../../middleware/auth";
+import { auth } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { nearbyAgentsQuery, NearbyAgentsResponse } from "../../validators/agents";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Public: list nearby agents (for rider agent locator) ────────────
-app.get("/nearby", auth, async (c) => {
-  const lat = Number(c.req.query("lat"));
-  const lng = Number(c.req.query("lng"));
+const route = createRoute({
+  method: "get",
+  path: "/nearby",
+  operationId: "getNearbyAgents",
+  tags: ["agents"],
+  security: bearer,
+  middleware: [auth] as const,
+  request: { query: nearbyAgentsQuery },
+  responses: {
+    200: json(NearbyAgentsResponse),
+    400: errorResponses[400],
+    401: errorResponses[401],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
+  const { lat, lng } = c.req.valid("query");
 
   if (isNaN(lat) || isNaN(lng)) {
     return c.json({ error: "lat and lng query params are required" }, 400);
@@ -24,7 +40,7 @@ app.get("/nearby", auth, async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ agents: data });
+  return c.json({ agents: data }, 200);
 });
 
 export default app;

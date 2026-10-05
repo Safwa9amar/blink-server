@@ -1,14 +1,30 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { auth, type AuthEnv } from "../../middleware/auth";
-import { setupPinSchema } from "../../validators/auth";
+import { auth } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { MessageResponse, setupPinSchema } from "../../validators/auth";
 import { hashPin } from "../../lib/pin";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Setup PIN ───────────────────────────────────────────────────────
-app.post("/pin/setup", auth, async (c) => {
-  const body = setupPinSchema.parse(await c.req.json());
+const route = createRoute({
+  method: "post",
+  path: "/pin/setup",
+  operationId: "setupPin",
+  tags: ["auth"],
+  security: bearer,
+  middleware: [auth] as const,
+  request: { body: { ...json(setupPinSchema), required: true } },
+  responses: {
+    200: json(MessageResponse),
+    400: errorResponses[400],
+    401: errorResponses[401],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
+  const body = c.req.valid("json");
   const userId = c.get("userId");
 
   const pinHash = await hashPin(body.pin);
@@ -22,7 +38,7 @@ app.post("/pin/setup", auth, async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ message: "PIN set successfully" });
+  return c.json({ message: "PIN set successfully" }, 200);
 });
 
 export default app;

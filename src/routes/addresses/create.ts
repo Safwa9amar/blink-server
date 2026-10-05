@@ -1,14 +1,23 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
-import { createAddressSchema } from "./shared";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { AddressResponse, createAddressSchema } from "../../validators/addresses";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Create address ──────────────────────────────────────────────────
-app.post("/", async (c) => {
+const route = createRoute({
+  method: "post",
+  path: "/",
+  operationId: "createAddress",
+  tags: ["addresses"],
+  security: bearer,
+  request: { body: { ...json(createAddressSchema), required: true } },
+  responses: { 201: json(AddressResponse, "Created"), 400: errorResponses[400] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const body = createAddressSchema.parse(await c.req.json());
+  const body = c.req.valid("json");
 
   // If this is set as default, unset others
   if (body.is_default) {

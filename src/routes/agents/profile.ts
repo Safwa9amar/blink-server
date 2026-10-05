@@ -1,14 +1,31 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { auth, requireRole, type AuthEnv } from "../../middleware/auth";
+import { auth, requireRole } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { AgentProfileResponse } from "../../validators/agents";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Agent: get own personal profile (display ID) ────────────────────
 // agent_profiles holds only the auto-generated agent_id — there's nothing to
 // PATCH (editable fields live on users via /auth/profile). Create-if-missing so
 // agents created before this table existed still get a display ID.
-app.get("/profile", auth, requireRole("agent"), async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/profile",
+  operationId: "getAgentProfile",
+  tags: ["agents"],
+  security: bearer,
+  middleware: [auth, requireRole("agent")] as const,
+  responses: {
+    200: json(AgentProfileResponse),
+    400: errorResponses[400],
+    401: errorResponses[401],
+    403: errorResponses[403],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
 
   const { data: existing } = await supabaseAdmin
@@ -18,7 +35,7 @@ app.get("/profile", auth, requireRole("agent"), async (c) => {
     .single();
 
   if (existing) {
-    return c.json({ profile: existing });
+    return c.json({ profile: existing }, 200);
   }
 
   const { data: created, error } = await supabaseAdmin
@@ -34,7 +51,7 @@ app.get("/profile", auth, requireRole("agent"), async (c) => {
     );
   }
 
-  return c.json({ profile: created });
+  return c.json({ profile: created }, 200);
 });
 
 export default app;

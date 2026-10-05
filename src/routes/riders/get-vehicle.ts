@@ -1,11 +1,25 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { OptionalVehicleResponse } from "../../validators/riders";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Get vehicle ─────────────────────────────────────────────────────
-app.get("/vehicle", async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/vehicle",
+  operationId: "getRiderVehicle",
+  tags: ["riders"],
+  security: bearer,
+  responses: {
+    200: json(OptionalVehicleResponse),
+    401: errorResponses[401],
+    403: errorResponses[403],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
 
   const { data, error } = await supabaseAdmin
@@ -15,10 +29,10 @@ app.get("/vehicle", async (c) => {
     .single();
 
   if (error) {
-    return c.json({ vehicle: null });
+    return c.json({ vehicle: null }, 200);
   }
 
-  return c.json({ vehicle: data });
+  return c.json({ vehicle: data }, 200);
 });
 
 export default app;

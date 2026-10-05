@@ -1,11 +1,26 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { auth, type AuthEnv } from "../../middleware/auth";
+import { auth } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { AuthProfileResponse, publicUser } from "../../validators/auth";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Get Profile ─────────────────────────────────────────────────────
-app.get("/profile", auth, async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/profile",
+  operationId: "getAuthProfile",
+  tags: ["auth"],
+  security: bearer,
+  middleware: [auth] as const,
+  responses: {
+    200: json(AuthProfileResponse),
+    401: errorResponses[401],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
 
   // Attach role-specific data
@@ -55,7 +70,7 @@ app.get("/profile", auth, async (c) => {
     roleData = { customer_profile: data };
   }
 
-  return c.json({ user, ...roleData });
+  return c.json({ user: publicUser(user), ...roleData }, 200);
 });
 
 export default app;

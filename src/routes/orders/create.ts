@@ -1,14 +1,29 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { requireRole, type AuthEnv } from "../../middleware/auth";
-import { createOrderSchema } from "../../validators/orders";
+import { requireRole } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { createOrderSchema, OrderResponse } from "../../validators/orders";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Create order (customer) ─────────────────────────────────────────
-app.post("/", requireRole("customer"), async (c) => {
+const route = createRoute({
+  method: "post",
+  path: "/",
+  operationId: "createOrder",
+  tags: ["orders"],
+  security: bearer,
+  middleware: [requireRole("customer")] as const,
+  request: { body: { ...json(createOrderSchema), required: true } },
+  responses: {
+    201: json(OrderResponse, "Created"),
+    400: errorResponses[400],
+    403: errorResponses[403],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const body = createOrderSchema.parse(await c.req.json());
+  const body = c.req.valid("json");
 
   const total = body.subtotal + body.delivery_fee + body.service_fee - body.discount;
 

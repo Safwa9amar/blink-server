@@ -1,15 +1,31 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { requireRole, type AuthEnv } from "../../middleware/auth";
+import { requireRole } from "../../middleware/auth";
 import { verifyPin } from "../../lib/pin";
-import { processTransactionSchema } from "../../validators/transactions";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { processTransactionSchema, TransactionResponse } from "../../validators/transactions";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Process transaction (agent confirms/cancels via QR) ─────────────
-app.post("/process", requireRole("agent"), async (c) => {
+const route = createRoute({
+  method: "post",
+  path: "/process",
+  operationId: "processTransaction",
+  tags: ["transactions"],
+  security: bearer,
+  middleware: [requireRole("agent")] as const,
+  request: { body: { ...json(processTransactionSchema), required: true } },
+  responses: {
+    200: json(TransactionResponse),
+    400: errorResponses[400],
+    401: errorResponses[401],
+    403: errorResponses[403],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const body = processTransactionSchema.parse(await c.req.json());
+  const body = c.req.valid("json");
 
   // Verify agent PIN
   if (!user.pin_hash) {
@@ -17,7 +33,9 @@ app.post("/process", requireRole("agent"), async (c) => {
   }
   const pinValid = await verifyPin(body.pin, user.pin_hash);
   if (!pinValid) {
-    return c.json({ error: "Invalid PIN" }, 401);
+    // 403, not 401: a wrong PIN must not look like an expired session to the
+    // app (its 401 backstop signs the user out).
+    return c.json({ error: "Invalid PIN" }, 403);
   }
 
   const newStatus = body.action === "confirm" ? "completed" : "cancelled";
@@ -34,7 +52,7 @@ app.post("/process", requireRole("agent"), async (c) => {
     return c.json({ error: "Transaction not found or already processed" }, 400);
   }
 
-  return c.json({ transaction: data });
+  return c.json({ transaction: data }, 200);
 });
 
 export default app;

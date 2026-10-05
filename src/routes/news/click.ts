@@ -1,13 +1,27 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { NewsClickResponse, NewsIdParam } from "../../validators/news";
 import { UUID_RE } from "./shared";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Record a CTA click ──────────────────────────────────────────────
-app.post("/:id/click", async (c) => {
-  const idOrSlug = c.req.param("id");
+const route = createRoute({
+  method: "post",
+  path: "/{id}/click",
+  operationId: "trackNewsClick",
+  tags: ["news"],
+  security: bearer,
+  request: { params: NewsIdParam },
+  responses: {
+    200: json(NewsClickResponse),
+    400: errorResponses[400],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
+  const { id: idOrSlug } = c.req.valid("param");
   const lookupColumn = UUID_RE.test(idOrSlug) ? "id" : "slug";
 
   const { data, error } = await supabaseAdmin
@@ -27,7 +41,7 @@ app.post("/:id/click", async (c) => {
   const clicks = (data.clicks ?? 0) + 1;
   await supabaseAdmin.from("news").update({ clicks }).eq("id", data.id);
 
-  return c.json({ message: "Click recorded", clicks });
+  return c.json({ message: "Click recorded", clicks }, 200);
 });
 
 export default app;

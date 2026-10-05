@@ -1,14 +1,31 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { auth, type AuthEnv } from "../../middleware/auth";
-import { updateDeepLinkSchema } from "../../validators/deep-links";
+import { auth } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, ErrorSchema, IdParam, json, router } from "../../openapi";
+import { DeepLinkResponse, updateDeepLinkSchema } from "../../validators/deep-links";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Update (by id) ──────────────────────────────────────────────────
-app.patch("/:id", auth, async (c) => {
-  const id = c.req.param("id");
-  const body = updateDeepLinkSchema.parse(await c.req.json());
+const route = createRoute({
+  method: "patch",
+  path: "/{id}",
+  operationId: "updateDeepLink",
+  tags: ["admin-deep-links"],
+  security: bearer,
+  middleware: [auth] as const,
+  request: { params: IdParam, body: { ...json(updateDeepLinkSchema), required: true } },
+  responses: {
+    200: json(DeepLinkResponse),
+    400: errorResponses[400],
+    401: errorResponses[401],
+    404: errorResponses[404],
+    409: json(ErrorSchema, "Slug already taken"),
+  },
+});
+
+app.openapi(route, async (c) => {
+  const { id } = c.req.valid("param");
+  const body = c.req.valid("json");
 
   // Map camelCase input → snake_case columns; only patch provided keys.
   const patch: Record<string, unknown> = {};
@@ -37,13 +54,15 @@ app.patch("/:id", auth, async (c) => {
     .single();
 
   if (error) {
-    return c.json({ error: error.message }, error.code === "23505" ? 409 : 400);
+    return error.code === "23505"
+      ? c.json({ error: error.message }, 409)
+      : c.json({ error: error.message }, 400);
   }
   if (!data) {
     return c.json({ error: "Deep link not found" }, 404);
   }
 
-  return c.json({ deep_link: data });
+  return c.json({ deep_link: data }, 200);
 });
 
 export default app;

@@ -1,20 +1,29 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
-import { z } from "zod";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { RiderProfileResponse, updateRiderProfileSchema } from "../../validators/riders";
 
-// Only rider-specific fields. Common fields (wilaya, bank_rib) are on users and
-// saved via PATCH /auth/profile.
-const updateRiderProfileSchema = z.object({
-  vehicle_type: z.enum(["bicycle", "motorcycle"]).optional(),
-});
-
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Update rider profile ────────────────────────────────────────────
-app.patch("/profile", async (c) => {
+const route = createRoute({
+  method: "patch",
+  path: "/profile",
+  operationId: "updateRiderProfile",
+  tags: ["riders"],
+  security: bearer,
+  request: { body: { ...json(updateRiderProfileSchema), required: true } },
+  responses: {
+    200: json(RiderProfileResponse),
+    400: errorResponses[400],
+    401: errorResponses[401],
+    403: errorResponses[403],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const body = updateRiderProfileSchema.parse(await c.req.json());
+  const body = c.req.valid("json");
 
   // Create-if-missing: OAuth users who picked "rider" never went through
   // POST /auth/role, so they may have no rider_profiles row yet. Heal it here.
@@ -48,7 +57,7 @@ app.patch("/profile", async (c) => {
     );
   }
 
-  return c.json({ profile: result.data });
+  return c.json({ profile: result.data }, 200);
 });
 
 export default app;

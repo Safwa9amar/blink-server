@@ -1,13 +1,27 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { NewsDetailResponse, NewsIdParam } from "../../validators/news";
 import { FEED_COLUMNS, UUID_RE } from "./shared";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Get a single published post (by id or slug) — counts a view ─────
-app.get("/:id", async (c) => {
-  const idOrSlug = c.req.param("id");
+const route = createRoute({
+  method: "get",
+  path: "/{id}",
+  operationId: "getNews",
+  tags: ["news"],
+  security: bearer,
+  request: { params: NewsIdParam },
+  responses: {
+    200: json(NewsDetailResponse),
+    400: errorResponses[400],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
+  const { id: idOrSlug } = c.req.valid("param");
   const lookupColumn = UUID_RE.test(idOrSlug) ? "id" : "slug";
 
   const { data, error } = await supabaseAdmin
@@ -28,7 +42,7 @@ app.get("/:id", async (c) => {
   const views = (data.views ?? 0) + 1;
   await supabaseAdmin.from("news").update({ views }).eq("id", data.id);
 
-  return c.json({ news: { ...data, views } });
+  return c.json({ news: { ...data, views } }, 200);
 });
 
 export default app;

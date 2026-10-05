@@ -1,13 +1,21 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
-import { verifyOtpSchema } from "../../validators/auth";
+import { createRoute, errorResponses, json, router } from "../../openapi";
+import { VerifyOtpResponse, verifyOtpSchema, publicUser } from "../../validators/auth";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Verify OTP ──────────────────────────────────────────────────────
-app.post("/otp/verify", async (c) => {
-  const body = verifyOtpSchema.parse(await c.req.json());
+const route = createRoute({
+  method: "post",
+  path: "/otp/verify",
+  operationId: "verifyOtp",
+  tags: ["auth"],
+  request: { body: { ...json(verifyOtpSchema), required: true } },
+  responses: { 200: json(VerifyOtpResponse), 400: errorResponses[400] },
+});
+
+app.openapi(route, async (c) => {
+  const body = c.req.valid("json");
 
   const { data, error } = await supabaseAdmin.auth.verifyOtp({
     phone: body.phone_number,
@@ -37,12 +45,15 @@ app.post("/otp/verify", async (c) => {
     });
   }
 
-  return c.json({
-    access_token: data.session.access_token,
-    refresh_token: data.session.refresh_token,
-    is_new_user: isNewUser,
-    user: existingUser ?? { id: data.user!.id, phone_number: body.phone_number },
-  });
+  return c.json(
+    {
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+      is_new_user: isNewUser,
+      user: publicUser(existingUser) ?? { id: data.user!.id, phone_number: body.phone_number },
+    },
+    200
+  );
 });
 
 export default app;

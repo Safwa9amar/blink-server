@@ -1,16 +1,33 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
+import { SocialSyncResponse, socialSyncSchema, publicUser } from "../../validators/auth";
 import { VALID_ROLES, ensureRoleProfile, type ServerRole } from "./shared";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Apple OAuth sync ────────────────────────────────────────────────
 // Standalone counterpart to POST /google (each social provider is its own
 // feature). Same two-step contract — verify the Supabase JWT, return the
 // existing profile or create one once a role is chosen — but parses Apple's
 // name metadata (`full_name`/`name`), which it only sends on first sign-in.
-app.post("/apple", async (c) => {
+const route = createRoute({
+  method: "post",
+  path: "/apple",
+  operationId: "syncAppleUser",
+  tags: ["auth"],
+  // Supabase access token from the OAuth flow (verified in-handler, not via
+  // the `auth` middleware — a new user has no profile row yet).
+  security: bearer,
+  request: { body: { ...json(socialSyncSchema), required: false } },
+  responses: {
+    200: json(SocialSyncResponse),
+    400: errorResponses[400],
+    401: errorResponses[401],
+    409: json(ErrorSchema, "Account already exists under a different role"),
+  },
+});
+
+app.openapi(route, async (c) => {
   const header = c.req.header("Authorization");
   if (!header?.startsWith("Bearer ")) {
     return c.json({ error: "Missing or invalid authorization header" }, 401);
@@ -50,12 +67,12 @@ app.post("/apple", async (c) => {
     }
     // Backfill the role profile if missing, then return the existing profile.
     await ensureRoleProfile(existingUser.id, existingUser.role as ServerRole);
-    return c.json({ is_new_user: false, user: existingUser });
+    return c.json({ is_new_user: false, user: publicUser(existingUser) }, 200);
   }
 
   // Step 1: no role yet — report new, create nothing.
   if (!role) {
-    return c.json({ is_new_user: true, user: null });
+    return c.json({ is_new_user: true, user: null }, 200);
   }
 
   // Step 2: create the profile with the chosen role.
@@ -92,7 +109,7 @@ app.post("/apple", async (c) => {
   // /google and /auth/role). All four roles handled.
   await ensureRoleProfile(supaUser.id, role as ServerRole);
 
-  return c.json({ is_new_user: true, user: created });
+  return c.json({ is_new_user: true, user: publicUser(created) }, 200);
 });
 
 export default app;

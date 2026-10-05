@@ -1,7 +1,7 @@
-import { Hono } from "hono";
-import { z } from "zod";
 import { supabaseAdmin } from "../../lib/supabase";
-import { auth, type AuthEnv } from "../../middleware/auth";
+import { auth } from "../../middleware/auth";
+import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
+import { AvatarUploadResponse, uploadAvatarSchema } from "../../validators/auth";
 
 const AVATARS_BUCKET = "avatars";
 const MAX_BYTES = 6 * 1024 * 1024; // 6MB decoded cap
@@ -13,20 +13,32 @@ const EXT_BY_TYPE: Record<string, string> = {
   "image/webp": "webp",
 };
 
-const uploadAvatarSchema = z.object({
-  image_base64: z.string().min(1),
-  content_type: z.enum(["image/jpeg", "image/jpg", "image/png", "image/webp"]),
-});
-
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Upload avatar to Supabase Storage ───────────────────────────────
 // Uploads via the service role (the storage service rejects direct client
 // session tokens in some setups, so the server does the write). Returns the
 // public URL; the client persists it to users.profile_picture via supabase.
-app.post("/avatar", auth, async (c) => {
+const route = createRoute({
+  method: "post",
+  path: "/avatar",
+  operationId: "uploadAvatar",
+  tags: ["auth"],
+  security: bearer,
+  middleware: [auth] as const,
+  request: { body: { ...json(uploadAvatarSchema), required: true } },
+  responses: {
+    200: json(AvatarUploadResponse),
+    400: errorResponses[400],
+    401: errorResponses[401],
+    404: errorResponses[404],
+    413: json(ErrorSchema, "Image too large"),
+  },
+});
+
+app.openapi(route, async (c) => {
   const userId = c.get("userId");
-  const body = uploadAvatarSchema.parse(await c.req.json());
+  const body = c.req.valid("json");
 
   const bytes = Buffer.from(body.image_base64, "base64");
   if (bytes.length === 0) return c.json({ error: "Empty image payload" }, 400);
@@ -48,7 +60,7 @@ app.post("/avatar", auth, async (c) => {
     data: { publicUrl },
   } = supabaseAdmin.storage.from(AVATARS_BUCKET).getPublicUrl(path);
 
-  return c.json({ url: publicUrl });
+  return c.json({ url: publicUrl }, 200);
 });
 
 export default app;

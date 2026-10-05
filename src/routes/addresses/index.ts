@@ -1,11 +1,11 @@
-import { Hono } from "hono";
-import { auth, requireRole, type AuthEnv } from "../../middleware/auth";
+import { auth, requireRole } from "../../middleware/auth";
+import { router } from "../../openapi";
 import list from "./list";
 import create from "./create";
 import update from "./update";
 import del from "./delete";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 app.use("/*", auth, requireRole("customer"));
 

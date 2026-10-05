@@ -1,11 +1,20 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { AddressListResponse } from "../../validators/addresses";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── List addresses ──────────────────────────────────────────────────
-app.get("/", async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/",
+  operationId: "listAddresses",
+  tags: ["addresses"],
+  security: bearer,
+  responses: { 200: json(AddressListResponse), 400: errorResponses[400] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
 
   const { data, error } = await supabaseAdmin
@@ -18,7 +27,7 @@ app.get("/", async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ addresses: data });
+  return c.json({ addresses: data }, 200);
 });
 
 export default app;

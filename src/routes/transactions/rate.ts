@@ -1,15 +1,30 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { requireRole, type AuthEnv } from "../../middleware/auth";
-import { rateTransactionSchema } from "../../validators/transactions";
+import { requireRole } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
+import { rateTransactionSchema, TransactionResponse } from "../../validators/transactions";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Rate transaction (rider) ────────────────────────────────────────
-app.post("/:id/rate", requireRole("rider"), async (c) => {
+const route = createRoute({
+  method: "post",
+  path: "/{id}/rate",
+  operationId: "rateTransaction",
+  tags: ["transactions"],
+  security: bearer,
+  middleware: [requireRole("rider")] as const,
+  request: { params: IdParam, body: { ...json(rateTransactionSchema), required: true } },
+  responses: {
+    200: json(TransactionResponse),
+    400: errorResponses[400],
+    403: errorResponses[403],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const txId = c.req.param("id");
-  const body = rateTransactionSchema.parse(await c.req.json());
+  const { id: txId } = c.req.valid("param");
+  const body = c.req.valid("json");
 
   const { data, error } = await supabaseAdmin
     .from("transactions")
@@ -24,7 +39,7 @@ app.post("/:id/rate", requireRole("rider"), async (c) => {
     return c.json({ error: "Transaction not found or not ratable" }, 400);
   }
 
-  return c.json({ transaction: data });
+  return c.json({ transaction: data }, 200);
 });
 
 export default app;

@@ -1,9 +1,9 @@
-import { Hono } from "hono";
-import { auth, type AuthEnv } from "../../middleware/auth";
+import { auth } from "../../middleware/auth";
+import { router } from "../../openapi";
 import rider from "./rider";
 import agent from "./agent";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 app.use("/*", auth);
 

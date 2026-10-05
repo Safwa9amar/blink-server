@@ -1,5 +1,4 @@
-import { Hono } from "hono";
-import type { AuthEnv } from "../../middleware/auth";
+import { router } from "../../openapi";
 import sendOtp from "./send-otp";
 import verifyOtp from "./verify-otp";
 import google from "./google";
@@ -12,7 +11,7 @@ import avatar from "./avatar";
 import setupPin from "./setup-pin";
 import verifyPin from "./verify-pin";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // Each endpoint lives in its own file and is mounted at the router root.
 // Order matches the original declaration order (matters for route matching).

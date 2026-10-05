@@ -1,11 +1,25 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { RiderProfileResponse } from "../../validators/riders";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Get rider profile ───────────────────────────────────────────────
-app.get("/profile", async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/profile",
+  operationId: "getRiderProfile",
+  tags: ["riders"],
+  security: bearer,
+  responses: {
+    200: json(RiderProfileResponse),
+    401: errorResponses[401],
+    403: errorResponses[403],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
 
   const { data, error } = await supabaseAdmin
@@ -18,7 +32,7 @@ app.get("/profile", async (c) => {
     return c.json({ error: "Rider profile not found" }, 404);
   }
 
-  return c.json({ profile: data });
+  return c.json({ profile: data }, 200);
 });
 
 export default app;

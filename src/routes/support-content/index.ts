@@ -1,5 +1,5 @@
-import { Hono } from "hono";
-import { auth, type AuthEnv } from "../../middleware/auth";
+import { auth } from "../../middleware/auth";
+import { router } from "../../openapi";
 import categories from "./categories";
 import articles from "./articles";
 
@@ -7,7 +7,7 @@ import articles from "./articles";
 // `support_articles` tables (admin authoring stays in the dashboard, which
 // writes via the service role). Served through the admin client so we can
 // filter role targeting explicitly here — same approach as the news routes.
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // Auth gates the whole reader.
 app.use("/*", auth);

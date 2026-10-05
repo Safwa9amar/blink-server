@@ -1,11 +1,27 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { auth, requireRole, type AuthEnv } from "../../middleware/auth";
+import { auth, requireRole } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { AgentShopResponse } from "../../validators/agents";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Agent: get own shop ─────────────────────────────────────────────
-app.get("/shop", auth, requireRole("agent"), async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/shop",
+  operationId: "getAgentShop",
+  tags: ["agents"],
+  security: bearer,
+  middleware: [auth, requireRole("agent")] as const,
+  responses: {
+    200: json(AgentShopResponse),
+    401: errorResponses[401],
+    403: errorResponses[403],
+    404: errorResponses[404],
+  },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
 
   const { data, error } = await supabaseAdmin
@@ -18,7 +34,7 @@ app.get("/shop", auth, requireRole("agent"), async (c) => {
     return c.json({ error: "Shop not found" }, 404);
   }
 
-  return c.json({ shop: data });
+  return c.json({ shop: data }, 200);
 });
 
 export default app;

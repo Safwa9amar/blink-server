@@ -1,15 +1,24 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
-import { updateAddressSchema } from "./shared";
+import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
+import { AddressResponse, updateAddressSchema } from "../../validators/addresses";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Update address ──────────────────────────────────────────────────
-app.patch("/:id", async (c) => {
+const route = createRoute({
+  method: "patch",
+  path: "/{id}",
+  operationId: "updateAddress",
+  tags: ["addresses"],
+  security: bearer,
+  request: { params: IdParam, body: { ...json(updateAddressSchema), required: true } },
+  responses: { 200: json(AddressResponse), 400: errorResponses[400], 404: errorResponses[404] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const addressId = c.req.param("id");
-  const body = updateAddressSchema.parse(await c.req.json());
+  const { id: addressId } = c.req.valid("param");
+  const body = c.req.valid("json");
 
   if (body.is_default) {
     await supabaseAdmin
@@ -30,7 +39,7 @@ app.patch("/:id", async (c) => {
     return c.json({ error: "Address not found" }, 404);
   }
 
-  return c.json({ address: data });
+  return c.json({ address: data }, 200);
 });
 
 export default app;
