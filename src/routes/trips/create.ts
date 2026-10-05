@@ -1,13 +1,24 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { auth, requireRole, type AuthEnv } from "../../middleware/auth";
-import { createTripSchema } from "../../validators/trips";
+import { requireRole } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { createTripSchema, TripResponse, TRIP_SELECT } from "../../validators/trips";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Create trip (internal/admin) ────────────────────────────────────
-app.post("/", auth, requireRole("rider"), async (c) => {
-  const body = createTripSchema.parse(await c.req.json());
+const route = createRoute({
+  method: "post",
+  path: "/",
+  operationId: "createTrip",
+  tags: ["trips"],
+  security: bearer,
+  middleware: [requireRole("rider")] as const,
+  request: { body: { ...json(createTripSchema), required: true } },
+  responses: { 201: json(TripResponse, "Created"), 400: errorResponses[400] },
+});
+
+app.openapi(route, async (c) => {
+  const body = c.req.valid("json");
   const userId = c.get("userId");
 
   const displayId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -21,7 +32,7 @@ app.post("/", auth, requireRole("rider"), async (c) => {
       status: "upcoming",
       net_payout: body.estimated_payout,
     })
-    .select()
+    .select(TRIP_SELECT)
     .single();
 
   if (error) {

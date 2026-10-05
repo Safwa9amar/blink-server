@@ -1,11 +1,11 @@
-import { Hono } from "hono";
-import { auth, type AuthEnv } from "../../middleware/auth";
+import { auth } from "../../middleware/auth";
+import { router } from "../../openapi";
 import list from "./list";
 import detail from "./detail";
 import create from "./create";
 import updateStatus from "./update-status";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 app.use("/*", auth);
 

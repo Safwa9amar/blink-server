@@ -1,15 +1,24 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import { auth, type AuthEnv } from "../../middleware/auth";
-import { updateTripStatusSchema } from "../../validators/trips";
+import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
+import { TripResponse, updateTripStatusSchema, TRIP_SELECT } from "../../validators/trips";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Update trip status ──────────────────────────────────────────────
-app.patch("/:id/status", auth, async (c) => {
+const route = createRoute({
+  method: "patch",
+  path: "/{id}/status",
+  operationId: "updateTripStatus",
+  tags: ["trips"],
+  security: bearer,
+  request: { params: IdParam, body: { ...json(updateTripStatusSchema), required: true } },
+  responses: { 200: json(TripResponse), 400: errorResponses[400], 404: errorResponses[404] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const tripId = c.req.param("id");
-  const body = updateTripStatusSchema.parse(await c.req.json());
+  const { id: tripId } = c.req.valid("param");
+  const body = c.req.valid("json");
 
   // Verify ownership
   const { data: existing } = await supabaseAdmin
@@ -26,14 +35,14 @@ app.patch("/:id/status", auth, async (c) => {
     .from("trips")
     .update(body)
     .eq("id", tripId)
-    .select()
+    .select(TRIP_SELECT)
     .single();
 
   if (error) {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ trip: data });
+  return c.json({ trip: data }, 200);
 });
 
 export default app;

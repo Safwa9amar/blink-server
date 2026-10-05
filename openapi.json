@@ -1,0 +1,602 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Blink API",
+    "version": "dev"
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "TripListResponse": {
+        "type": "object",
+        "properties": {
+          "trips": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Trip"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "trips",
+          "pagination"
+        ]
+      },
+      "Trip": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TripRow"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "customer": {
+                "$ref": "#/components/schemas/TripCustomer"
+              }
+            }
+          }
+        ]
+      },
+      "TripCustomer": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "profile_picture": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "first_name",
+          "last_name",
+          "phone_number",
+          "profile_picture"
+        ]
+      },
+      "TripRow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "display_id": {
+            "type": "string"
+          },
+          "rider_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "customer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "upcoming",
+              "completed",
+              "under_review",
+              "canceled"
+            ]
+          },
+          "pickup_label": {
+            "type": "string"
+          },
+          "pickup_address": {
+            "type": "string"
+          },
+          "pickup_lat": {
+            "type": "number",
+            "minimum": -140737488355328,
+            "maximum": 140737488355327
+          },
+          "pickup_lng": {
+            "type": "number",
+            "minimum": -140737488355328,
+            "maximum": 140737488355327
+          },
+          "dropoff_label": {
+            "type": "string"
+          },
+          "dropoff_address": {
+            "type": "string"
+          },
+          "dropoff_lat": {
+            "type": "number",
+            "minimum": -140737488355328,
+            "maximum": 140737488355327
+          },
+          "dropoff_lng": {
+            "type": "number",
+            "minimum": -140737488355328,
+            "maximum": 140737488355327
+          },
+          "estimated_payout": {
+            "type": "number"
+          },
+          "net_payout": {
+            "type": "number"
+          },
+          "distance_km": {
+            "type": "number"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "cancellation_reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "penalty_amount": {
+            "type": "number",
+            "nullable": true
+          },
+          "dispute_status": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "under_review",
+              "pending",
+              "decision_issued",
+              null
+            ]
+          },
+          "fraud_notice": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "display_id",
+          "rider_id",
+          "customer_id",
+          "status",
+          "pickup_label",
+          "pickup_address",
+          "pickup_lat",
+          "pickup_lng",
+          "dropoff_label",
+          "dropoff_address",
+          "dropoff_lat",
+          "dropoff_lng",
+          "estimated_payout",
+          "net_payout",
+          "distance_km",
+          "duration_minutes",
+          "cancellation_reason",
+          "notes",
+          "penalty_amount",
+          "dispute_status",
+          "fraud_notice",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total"
+        ]
+      },
+      "ApiErrorBody": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "message"
+              ]
+            }
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "TripResponse": {
+        "type": "object",
+        "properties": {
+          "trip": {
+            "$ref": "#/components/schemas/Trip"
+          }
+        },
+        "required": [
+          "trip"
+        ]
+      },
+      "CreateTripBody": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pickup_label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pickup_address": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pickup_lat": {
+            "type": "number"
+          },
+          "pickup_lng": {
+            "type": "number"
+          },
+          "dropoff_label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dropoff_address": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dropoff_lat": {
+            "type": "number"
+          },
+          "dropoff_lng": {
+            "type": "number"
+          },
+          "estimated_payout": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "distance_km": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "duration_minutes": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        },
+        "required": [
+          "customer_id",
+          "pickup_label",
+          "pickup_address",
+          "pickup_lat",
+          "pickup_lng",
+          "dropoff_label",
+          "dropoff_address",
+          "dropoff_lat",
+          "dropoff_lng",
+          "estimated_payout",
+          "distance_km",
+          "duration_minutes"
+        ]
+      },
+      "UpdateTripStatusBody": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "upcoming",
+              "completed",
+              "under_review",
+              "canceled"
+            ]
+          },
+          "cancellation_reason": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/trips": {
+      "get": {
+        "operationId": "listTrips",
+        "tags": [
+          "trips"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "upcoming",
+                "completed",
+                "under_review",
+                "canceled"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 50,
+              "default": 20
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createTrip",
+        "tags": [
+          "trips"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTripBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trips/{id}": {
+      "get": {
+        "operationId": "getTrip",
+        "tags": [
+          "trips"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trips/{id}/status": {
+      "patch": {
+        "operationId": "updateTripStatus",
+        "tags": [
+          "trips"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTripStatusBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

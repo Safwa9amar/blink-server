@@ -1,17 +1,27 @@
-import { Hono } from "hono";
 import { supabaseAdmin } from "../../lib/supabase";
-import type { AuthEnv } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
+import { TripResponse, TRIP_SELECT } from "../../validators/trips";
 
-const app = new Hono<AuthEnv>();
+const app = router();
 
 // ─── Get single trip ─────────────────────────────────────────────────
-app.get("/:id", async (c) => {
+const route = createRoute({
+  method: "get",
+  path: "/{id}",
+  operationId: "getTrip",
+  tags: ["trips"],
+  security: bearer,
+  request: { params: IdParam },
+  responses: { 200: json(TripResponse), 403: errorResponses[403], 404: errorResponses[404] },
+});
+
+app.openapi(route, async (c) => {
   const user = c.get("user");
-  const tripId = c.req.param("id");
+  const { id: tripId } = c.req.valid("param");
 
   const { data, error } = await supabaseAdmin
     .from("trips")
-    .select("*")
+    .select(TRIP_SELECT)
     .eq("id", tripId)
     .single();
 
@@ -24,7 +34,7 @@ app.get("/:id", async (c) => {
     return c.json({ error: "Access denied" }, 403);
   }
 
-  return c.json({ trip: data });
+  return c.json({ trip: data }, 200);
 });
 
 export default app;
