@@ -7,6 +7,7 @@
     "build": "node scripts/build.mjs",
     "deploy": "node scripts/deploy.mjs",
     "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/lib/*.test.ts",
     "start": "node dist/index.js",
     "db:init": "npx supabase init",
     "db:start": "npx supabase start",
@@ -20,7 +21,12 @@
     "drizzle:studio": "drizzle-kit studio",
     "apple:secret": "node scripts/gen-apple-secret.mjs",
     "apple:proxy": "node scripts/apple-domain-proxy.mjs",
-    "openapi": "tsx scripts/gen-openapi.ts"
+    "openapi": "tsx scripts/gen-openapi.ts",
+    "seed:dev-users": "tsx scripts/seed-dev-users.ts",
+    "seed:dev-merchant": "tsx scripts/seed-dev-merchant.ts",
+    "seed:dev-agents": "tsx scripts/seed-dev-agents.ts",
+    "test:order": "tsx scripts/trigger-test-order.ts",
+    "test:checkout": "tsx scripts/trigger-test-checkout.ts"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.2",

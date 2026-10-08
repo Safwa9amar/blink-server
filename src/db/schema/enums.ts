@@ -57,7 +57,7 @@ export const orderStatus = pgEnum("order_status", [
   "merchant_rejected",
   "processing",
 ]);
-export const orderType = pgEnum("order_type", ["merchant", "shopper"]);
+export const orderType = pgEnum("order_type", ["merchant", "shopper", "courier"]);
 export const notificationType = pgEnum("notification_type", [
   "courier",
   "promo",
@@ -69,6 +69,8 @@ export const notificationType = pgEnum("notification_type", [
   "announcement",
   "benefit",
   "deposit",
+  // Merchant "Efficiency" tab — strategy nudges (00036_merchant_flows.sql).
+  "improvement",
 ]);
 export const addressType = pgEnum("address_type", ["home", "work", "other"]);
 export const agentShopStatus = pgEnum("agent_shop_status", ["open", "closed"]);

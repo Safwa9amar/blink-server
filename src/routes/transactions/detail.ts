@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../lib/supabase";
+import { withRider } from "../../lib/transactions";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
 import { TransactionResponse } from "../../validators/transactions";
 
@@ -37,7 +38,8 @@ app.openapi(route, async (c) => {
     return c.json({ error: "Access denied" }, 403);
   }
 
-  return c.json({ transaction: data }, 200);
+  const transaction = data.agent_id === user.id ? await withRider(data) : data;
+  return c.json({ transaction }, 200);
 });
 
 export default app;

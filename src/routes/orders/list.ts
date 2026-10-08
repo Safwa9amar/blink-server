@@ -1,3 +1,6 @@
+import { isActiveOrder } from "../../lib/rider-card";
+import { attachRiders, attachStoreInfo } from "../../lib/rider-cards-load";
+import { withoutOffer } from "../../lib/rider-offer";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { listOrdersSchema, OrderListResponse } from "../../validators/orders";
@@ -18,7 +21,7 @@ const route = createRoute({
 app.openapi(route, async (c) => {
   const user = c.get("user");
   const query = c.req.valid("query");
-  const { page, limit, status } = query;
+  const { page, limit, status, checkout_id } = query;
   const offset = (page - 1) * limit;
 
   const column =
@@ -36,6 +39,8 @@ app.openapi(route, async (c) => {
     .range(offset, offset + limit - 1);
 
   if (status) q = q.eq("status", status);
+  // Sibling orders of one multi-store checkout — still scoped to the caller above.
+  if (checkout_id) q = q.eq("checkout_id", checkout_id);
 
   const { data, error, count } = await q;
 
@@ -43,9 +48,16 @@ app.openapi(route, async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
+  // Which rider a store asked is the merchant's business only.
+  let orders = (data ?? []).map((o) => withoutOffer(o));
+  if (column === "customer_id") {
+    // The caller's own orders: who delivers them + the store card.
+    orders = await attachStoreInfo(await attachRiders(orders, isActiveOrder));
+  }
+
   return c.json(
     {
-      orders: data,
+      orders,
       pagination: { page, limit, total: count ?? 0 },
     },
     200

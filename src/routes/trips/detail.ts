@@ -1,3 +1,5 @@
+import { isActiveTrip } from "../../lib/rider-card";
+import { attachRiders, attachTripCosts } from "../../lib/rider-cards-load";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
 import { TripResponse, TRIP_SELECT } from "../../validators/trips";
@@ -34,7 +36,11 @@ app.openapi(route, async (c) => {
     return c.json({ error: "Access denied" }, 403);
   }
 
-  return c.json({ trip: data }, 200);
+  if (data.customer_id !== user.id) return c.json({ trip: data }, 200);
+  // The customer sees who delivers (phone while under way) and the fare split.
+  const [withRider] = await attachRiders([data], isActiveTrip);
+  const [trip] = await attachTripCosts([withRider]);
+  return c.json({ trip }, 200);
 });
 
 export default app;

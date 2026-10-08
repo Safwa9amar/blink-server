@@ -1,3 +1,5 @@
+import { isActiveTrip } from "../../lib/rider-card";
+import { attachRiders, attachTripCosts } from "../../lib/rider-cards-load";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { listTripsSchema, TripListResponse, TRIP_SELECT } from "../../validators/trips";
@@ -39,9 +41,15 @@ app.openapi(route, async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
+  // A customer's own trips: who delivered them + the fare split.
+  const trips =
+    column === "customer_id"
+      ? await attachTripCosts(await attachRiders(data ?? [], isActiveTrip))
+      : data;
+
   return c.json(
     {
-      trips: data,
+      trips,
       pagination: { page, limit, total: count ?? 0 },
     },
     200

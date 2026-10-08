@@ -33,6 +33,14 @@ export const users = pgTable(
     index("idx_users_phone").on(t.phoneNumber),
     index("idx_users_role").on(t.role),
     pgPolicy("users_select_own", { for: "select", using: sql`auth.uid() = id` }),
-    pgPolicy("users_update_own", { for: "update", using: sql`auth.uid() = id` }),
+    // Column-level grants limit clients to display fields; role / staff_role /
+    // pin_hash / bank_rib / phone_number / email are service-role only
+    // (20261006215408_users_privileged_columns.sql).
+    pgPolicy("users_update_own", {
+      for: "update",
+      to: "authenticated",
+      using: sql`auth.uid() = id`,
+      withCheck: sql`auth.uid() = id`,
+    }),
   ]
 );

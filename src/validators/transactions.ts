@@ -7,6 +7,11 @@ export const createDepositSchema = z
     amount: z.number().positive("Amount must be positive"),
     method: z.enum(["electronic", "agent"]),
     agent_id: z.string().uuid().optional(), // required if method is "agent"
+    shop_id: z
+      .string()
+      .uuid()
+      .optional()
+      .openapi({ description: "Agent shop the rider chose; its owner becomes agent_id" }),
   })
   .openapi("CreateDepositBody");
 
@@ -15,14 +20,30 @@ export const createWithdrawalSchema = z
     amount: z.number().positive("Amount must be positive"),
     method: z.enum(["electronic", "agent"]),
     agent_id: z.string().uuid().optional(),
+    shop_id: z
+      .string()
+      .uuid()
+      .optional()
+      .openapi({ description: "Agent shop the rider chose; its owner becomes agent_id" }),
   })
   .openapi("CreateWithdrawalBody");
+
+export const setTransactionShopSchema = z
+  .object({
+    shop_id: z
+      .string()
+      .uuid()
+      .openapi({ description: "Agent shop the rider picked; its owner becomes agent_id" }),
+  })
+  .openapi("SetTransactionShopBody");
 
 export const processTransactionSchema = z
   .object({
     transaction_id: z.string().uuid(),
     action: z.enum(["confirm", "cancel"]),
     pin: z.string().length(4).regex(/^\d{4}$/),
+    /** Agent shop the operation goes through; defaults to the primary shop. */
+    shop_id: z.string().uuid().optional(),
   })
   .openapi("ProcessTransactionBody");
 
@@ -48,7 +69,19 @@ export const listTransactionsSchema = z.object({
 
 // ─── Response schemas ────────────────────────────────────────────────
 
-export const TransactionSchema = rowSchema(transactions, "Transaction");
+export const TransactionSchema = rowSchema(transactions, "Transaction", {
+  /** The rider served — embedded on agent-facing reads (inline: OpenAPI 3.0
+   *  drops `nullable` beside a $ref, so it's optional, never null). */
+  rider: z
+    .object({
+      id: z.string(),
+      name: z.string().nullable(),
+      phone_number: z.string().nullable(),
+      profile_picture: z.string().nullable(),
+      display_id: z.string().nullable(),
+    })
+    .optional(),
+});
 
 export const TransactionResponse = z
   .object({ transaction: TransactionSchema })

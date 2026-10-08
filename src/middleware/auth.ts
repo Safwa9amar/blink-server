@@ -1,5 +1,6 @@
 import { createMiddleware } from "hono/factory";
 import type { Context } from "hono";
+import { isAuthOutage } from "../lib/auth-outage";
 import { supabaseAdmin } from "../lib/supabase";
 import type { UserRole, UserRow } from "../types/database";
 
@@ -18,11 +19,18 @@ export const auth = createMiddleware<AuthEnv>(async (c, next) => {
   }
 
   const token = header.slice(7);
+  let result = await supabaseAdmin.auth.getUser(token);
+  // One retry: a network blip reaching Supabase Auth is common in dev.
+  if (isAuthOutage(result.error)) result = await supabaseAdmin.auth.getUser(token);
   const {
     data: { user: supaUser },
     error,
-  } = await supabaseAdmin.auth.getUser(token);
+  } = result;
 
+  // 503, not 401: the app signs the user out on a 401 (expired session).
+  if (isAuthOutage(error)) {
+    return c.json({ error: "Authentication service unavailable, please retry" }, 503);
+  }
   if (error || !supaUser) {
     return c.json({ error: "Invalid or expired token" }, 401);
   }
@@ -34,8 +42,12 @@ export const auth = createMiddleware<AuthEnv>(async (c, next) => {
     .eq("id", supaUser.id)
     .single();
 
-  if (profileError || !appUser) {
-    return c.json({ error: "User profile not found" }, 404);
+  if (!appUser) {
+    // No row (PGRST116) is a real 404; anything else is the database
+    // being unreachable for a moment.
+    return profileError && profileError.code !== "PGRST116"
+      ? c.json({ error: "Service temporarily unavailable, please retry" }, 503)
+      : c.json({ error: "User profile not found" }, 404);
   }
 
   c.set("user", appUser as UserRow);

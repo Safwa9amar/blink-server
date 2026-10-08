@@ -1,6 +1,7 @@
 import { z } from "@hono/zod-openapi";
 import { trips } from "../db/schema";
 import { PaginationSchema, rowSchema } from "../openapi";
+import { RiderCardSchema, TripCostsSchema } from "./rider-card";
 
 const tripStatus = z.enum(["upcoming", "completed", "under_review", "canceled"]);
 
@@ -18,7 +19,12 @@ export const TripCustomerSchema = z
   .openapi("TripCustomer");
 
 export const TripSchema = rowSchema(trips, "TripRow")
-  .extend({ customer: TripCustomerSchema.nullable().optional() })
+  .extend({
+    customer: TripCustomerSchema.nullable().optional(),
+    // For the trip's customer only (omitted otherwise).
+    rider: RiderCardSchema.optional(),
+    costs: TripCostsSchema.optional(),
+  })
   .openapi("Trip");
 
 export const createTripSchema = z

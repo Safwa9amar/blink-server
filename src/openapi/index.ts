@@ -76,7 +76,12 @@ export const bearer = [{ bearerAuth: [] }];
  * Zod schema for a DB row as PostgREST returns it: snake_case keys, numeric
  * columns as numbers (Drizzle infers `numeric` as string), ISO timestamps.
  */
-export function rowSchema<T extends Table>(table: T, name: string) {
+export function rowSchema<T extends Table>(
+  table: T,
+  name: string,
+  /** Per-column replacements (e.g. a typed schema for a jsonb column). */
+  overrides: Record<string, z.ZodTypeAny> = {}
+) {
   const select = createSelectSchema(table) as unknown as z.ZodObject<any>;
   const columns = getTableColumns(table) as Record<string, any>;
   const shape: Record<string, z.ZodTypeAny> = {};
@@ -88,6 +93,7 @@ export function rowSchema<T extends Table>(table: T, name: string) {
     }
     shape[col.name] = s;
   }
+  Object.assign(shape, overrides);
   return z.object(shape).openapi(name);
 }
 

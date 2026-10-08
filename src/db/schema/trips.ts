@@ -6,6 +6,7 @@ import {
   numeric,
   pgPolicy,
   pgTable,
+  smallint,
   text,
   uuid,
 } from "drizzle-orm/pg-core";
@@ -46,6 +47,11 @@ export const trips = pgTable(
     penaltyAmount: money("penalty_amount"),
     disputeStatus: disputeStatus("dispute_status"),
     fraudNotice: text("fraud_notice"),
+    // Rider dispatch (00037_rider_dispatch.sql): the order this trip delivers
+    // (plain uuid — FK in the migration, avoids an import cycle) and the
+    // rider's 1-5 rating of the customer from the trip summary.
+    orderId: uuid("order_id").unique(),
+    customerRating: smallint("customer_rating"),
     ...timestamps,
   },
   (t) => [

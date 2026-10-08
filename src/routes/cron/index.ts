@@ -4,6 +4,8 @@ import { processDueScheduledNotifications } from "../../lib/scheduled-notificati
 import { processNewsCron } from "../../lib/news-cron";
 import { evaluateAlerts } from "../../lib/alerts";
 import { pollEmailInbox } from "../../lib/email/imap";
+import { runMerchantInsights } from "../merchant/strategy-shared";
+import { processBundleTimeouts } from "../../lib/bundle-timeouts";
 
 // External cron entrypoints. NOT behind `auth` (a cron caller has no JWT) —
 // guarded by CRON_SECRET via the `x-cron-secret` header instead. Driven by
@@ -43,6 +45,25 @@ app.post("/alerts", requireCronSecret, async (c) => {
 //   */2 * * * * curl -sS -X POST https://blink.greenpedal.net/cron/email-poll -H "x-cron-secret: $CRON_SECRET"
 app.post("/email-poll", requireCronSecret, async (c) => {
   const result = await pollEmailInbox();
+  return c.json(result);
+});
+
+// POST /cron/merchant-insights — weekly "Efficiency" nudges for every active
+// store (idempotent per store/action/week). Wire hourly or daily:
+//   0 9 * * * curl -sS -X POST https://blink.greenpedal.net/cron/merchant-insights -H "x-cron-secret: $CRON_SECRET"
+app.post("/merchant-insights", requireCronSecret, async (c) => {
+  const result = await runMerchantInsights();
+  return c.json(result);
+});
+
+// POST /cron/bundle-timeouts — a store that hasn't answered a multi-store
+// checkout order within 10 minutes hands it to a Blink shopper (same patch as a
+// `too_busy` rejection), so the rest of the checkout isn't held up. It's
+// idempotent because only `pending` orders are touched. Wire a cPanel Cron Job
+// to hit this every minute:
+//   * * * * * curl -sS -X POST https://blink.greenpedal.net/cron/bundle-timeouts -H "x-cron-secret: $CRON_SECRET"
+app.post("/bundle-timeouts", requireCronSecret, async (c) => {
+  const result = await processBundleTimeouts();
   return c.json(result);
 });
 

@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../lib/supabase";
+import { withRiders } from "../../lib/transactions";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { listTransactionsSchema, TransactionListResponse } from "../../validators/transactions";
 
@@ -40,9 +41,12 @@ app.openapi(route, async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
+  // Agents get the rider's identity embedded on each row.
+  const transactions = user.role === "agent" ? await withRiders(data ?? []) : data ?? [];
+
   return c.json(
     {
-      transactions: data,
+      transactions,
       pagination: { page, limit, total: count ?? 0 },
     },
     200

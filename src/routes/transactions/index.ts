@@ -7,6 +7,8 @@ import withdrawal from "./withdrawal";
 import process from "./process";
 import scanQr from "./scan-qr";
 import rate from "./rate";
+import rateRider from "./rate-rider";
+import setShop from "./set-shop";
 
 const app = router();
 
@@ -22,5 +24,7 @@ app.route("/", withdrawal);
 app.route("/", process);
 app.route("/", scanQr);
 app.route("/", rate);
+app.route("/", rateRider);
+app.route("/", setShop);
 
 export default app;

@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../lib/supabase";
+import { withRider } from "../../lib/transactions";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { scanQrSchema, TransactionResponse } from "../../validators/transactions";
@@ -25,17 +26,24 @@ const route = createRoute({
 app.openapi(route, async (c) => {
   const body = c.req.valid("json");
 
-  let qrPayload: { pending_id: string };
+  let qrPayload: { pending_id?: unknown };
   try {
     qrPayload = JSON.parse(body.qr_data);
   } catch {
+    return c.json({ error: "Invalid QR code" }, 400);
+  }
+  const pendingId = qrPayload?.pending_id;
+  if (
+    typeof pendingId !== "string" ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pendingId)
+  ) {
     return c.json({ error: "Invalid QR code" }, 400);
   }
 
   const { data, error } = await supabaseAdmin
     .from("transactions")
     .select("*")
-    .eq("pending_id", qrPayload.pending_id)
+    .eq("pending_id", pendingId)
     .eq("status", "pending")
     .single();
 
@@ -43,7 +51,7 @@ app.openapi(route, async (c) => {
     return c.json({ error: "No pending transaction found for this QR" }, 404);
   }
 
-  return c.json({ transaction: data }, 200);
+  return c.json({ transaction: await withRider(data) }, 200);
 });
 
 export default app;

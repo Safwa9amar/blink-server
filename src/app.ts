@@ -25,6 +25,11 @@ import aiRoutes from "./routes/ai";
 import logsRoutes from "./routes/logs";
 import aiLogsRoutes from "./routes/ai-logs";
 import metricsRoutes from "./routes/metrics";
+import marketplaceRoutes from "./routes/marketplace";
+import promotionRoutes from "./routes/promotions";
+import couponRoutes from "./routes/coupons";
+import favoriteRoutes from "./routes/favorites";
+import merchantRoutes from "./routes/merchant";
 import { metricsMiddleware } from "./middleware/metrics";
 
 // __APP_VERSION__ is injected from package.json at build time by
@@ -63,6 +68,11 @@ app.route("/transactions", transactionRoutes);
 app.route("/orders", orderRoutes);
 app.route("/notifications", notificationRoutes);
 app.route("/addresses", addressRoutes);
+app.route("/marketplace", marketplaceRoutes);
+app.route("/promotions", promotionRoutes);
+app.route("/coupons", couponRoutes);
+app.route("/favorites", favoriteRoutes);
+app.route("/merchant", merchantRoutes);
 app.route("/earnings", earningsRoutes);
 app.route("/agents", agentRoutes);
 app.route("/riders", riderRoutes);

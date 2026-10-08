@@ -39,6 +39,24 @@ app.openapi(route, async (c) => {
     return c.json({ error: "Transaction not found or not ratable" }, 400);
   }
 
+  // Keep the agent shop's rating (shown to riders in /agents/nearby) as the
+  // average of its rated operations.
+  if (data.shop_id) {
+    const { data: rated } = await supabaseAdmin
+      .from("transactions")
+      .select("rating")
+      .eq("shop_id", data.shop_id)
+      .not("rating", "is", null);
+    const ratings = (rated ?? []).map((r) => Number(r.rating));
+    if (ratings.length) {
+      const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+      await supabaseAdmin
+        .from("agent_shops")
+        .update({ rating: Math.round(avg * 10) / 10 })
+        .eq("id", data.shop_id);
+    }
+  }
+
   return c.json({ transaction: data }, 200);
 });
 

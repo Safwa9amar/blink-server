@@ -45,6 +45,20 @@ import { supportConversationStatus } from "./schema/support-conversations";
 import { supportMessageSender } from "./schema/support-messages";
 import { scheduledNotificationStatus } from "./schema/scheduled-notifications";
 import { deepLinkRole } from "./schema/deep-links";
+import {
+  marketplaceCategories,
+  storeProducts,
+  stores,
+  storeStatus,
+} from "./schema/marketplace";
+import {
+  customerCoupons,
+  discountType,
+  promotionAction,
+  promotionKind,
+  promotions,
+} from "./schema/promotions";
+import { customerFavorites, favoriteTarget } from "./schema/customer-favorites";
 import { libraryCategoryStatus } from "./schema/library-categories";
 import { libraryProductStatus } from "./schema/library-products";
 import { supportArticleType, supportArticleStatus } from "./schema/support-articles";
@@ -110,6 +124,11 @@ export type AlertSeverity = (typeof alertSeverity.enumValues)[number];
 export type AlertEventStatus = (typeof alertEventStatus.enumValues)[number];
 export type EmailThreadStatus = (typeof emailThreadStatus.enumValues)[number];
 export type EmailDirection = (typeof emailDirection.enumValues)[number];
+export type StoreStatus = (typeof storeStatus.enumValues)[number];
+export type PromotionKind = (typeof promotionKind.enumValues)[number];
+export type PromotionAction = (typeof promotionAction.enumValues)[number];
+export type DiscountType = (typeof discountType.enumValues)[number];
+export type FavoriteTarget = (typeof favoriteTarget.enumValues)[number];
 
 // ─── Row / Insert types, inferred from the Drizzle tables ────────────────────
 export type UserRow = InferSelectModel<typeof users>;
@@ -164,3 +183,9 @@ export type EmailThreadRow = InferSelectModel<typeof emailThreads>;
 export type EmailThreadInsert = InferInsertModel<typeof emailThreads>;
 export type EmailMessageRow = InferSelectModel<typeof emailMessages>;
 export type EmailMessageInsert = InferInsertModel<typeof emailMessages>;
+export type MarketplaceCategoryRow = InferSelectModel<typeof marketplaceCategories>;
+export type StoreRow = InferSelectModel<typeof stores>;
+export type StoreProductRow = InferSelectModel<typeof storeProducts>;
+export type PromotionRow = InferSelectModel<typeof promotions>;
+export type CustomerCouponRow = InferSelectModel<typeof customerCoupons>;
+export type CustomerFavoriteRow = InferSelectModel<typeof customerFavorites>;

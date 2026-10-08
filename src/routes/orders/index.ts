@@ -4,6 +4,7 @@ import list from "./list";
 import detail from "./detail";
 import create from "./create";
 import updateStatus from "./update-status";
+import rate from "./rate";
 
 const app = router();
 
@@ -14,5 +15,6 @@ app.route("/", list);
 app.route("/", detail);
 app.route("/", create);
 app.route("/", updateStatus);
+app.route("/", rate);
 
 export default app;

@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../lib/supabase";
+import { primaryShop } from "../agents/shared";
 import { auth } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { AuthProfileResponse, publicUser } from "../../validators/auth";
@@ -41,12 +42,8 @@ app.openapi(route, async (c) => {
       .single();
     roleData.vehicle = vehicle;
   } else if (user.role === "agent") {
-    const { data } = await supabaseAdmin
-      .from("agent_shops")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-    roleData = { shop: data };
+    const data = await primaryShop(user.id);
+    roleData = { shop: data ? { ...data, documents: data.documents ?? {} } : null };
 
     const { data: agentProfile } = await supabaseAdmin
       .from("agent_profiles")

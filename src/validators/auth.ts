@@ -9,6 +9,7 @@ import {
   vehicles,
 } from "../db/schema";
 import { rowSchema } from "../openapi";
+import { documentsSchema, weekHoursSchema } from "./merchant";
 
 export const sendOtpSchema = z
   .object({
@@ -101,8 +102,33 @@ export function publicUser<T extends { pin_hash?: unknown } | null | undefined>(
 }
 export const RiderProfileSchema = rowSchema(riderProfiles, "RiderProfile");
 export const VehicleSchema = rowSchema(vehicles, "Vehicle");
-export const AgentShopSchema = rowSchema(agentShops, "AgentShop");
-export const AgentProfileSchema = rowSchema(agentProfiles, "AgentProfile");
+export const AgentShopSchema = rowSchema(agentShops, "AgentShop", {
+  hours: weekHoursSchema.nullable(),
+  documents: documentsSchema,
+  review_status: z.enum(["under_review", "active", "rejected"]),
+});
+
+const reviewedDocSchema = z
+  .object({
+    url: z.string(),
+    status: z.enum(["pending", "verified", "rejected"]),
+    reason: z.string().nullable().optional(),
+  })
+  .openapi("AgentReviewedDocument");
+
+/** An agent's business documents (agent_profiles.documents). */
+export const AgentDocumentsSchema = z
+  .object({
+    commercial_register_front: reviewedDocSchema.optional(),
+    commercial_register_back: reviewedDocSchema.optional(),
+    nif: z.string().optional(),
+    nis: z.string().optional(),
+  })
+  .openapi("AgentDocuments");
+
+export const AgentProfileSchema = rowSchema(agentProfiles, "AgentProfile", {
+  documents: AgentDocumentsSchema,
+});
 export const MerchantProfileSchema = rowSchema(merchantProfiles, "MerchantProfile");
 export const CustomerProfileSchema = rowSchema(customerProfiles, "CustomerProfile");
 

@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   index,
+  jsonb,
   pgPolicy,
   pgSequence,
   pgTable,
@@ -10,6 +11,19 @@ import {
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./_shared";
 import { users } from "./users";
+
+export interface AgentReviewedDocument {
+  url: string;
+  status: "pending" | "verified" | "rejected";
+  reason?: string | null;
+}
+
+export interface AgentDocuments {
+  commercial_register_front?: AgentReviewedDocument;
+  commercial_register_back?: AgentReviewedDocument;
+  nif?: string;
+  nis?: string;
+}
 
 // Backs the agent_id column default. Per-role sequence; the role-prefixed format
 // ("BK-AG-") keeps agent IDs distinct from riders' ("BK-RR-").
@@ -31,6 +45,9 @@ export const agentProfiles = pgTable(
       .unique()
       .default(sql`'BK-AG-' || nextval('agent_id_seq')`),
     // wilaya / bank_rib are common fields and live on users (see users.ts).
+    // Business documents (20261006230006_agent_backend.sql): commercial register scans
+    // with their staff review status, plus NIF / NIS numbers.
+    documents: jsonb("documents").$type<AgentDocuments>().notNull().default({}),
     ...timestamps,
   },
   (t) => [

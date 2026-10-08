@@ -1,5 +1,16 @@
 import { sql } from "drizzle-orm";
-import { index, jsonb, numeric, pgPolicy, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import {
+  doublePrecision,
+  index,
+  jsonb,
+  numeric,
+  pgPolicy,
+  pgTable,
+  smallint,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { orderStatus, orderType } from "./enums";
 import { timestamps } from "./_shared";
 import { users } from "./users";
@@ -22,6 +33,11 @@ export const orders = pgTable(
     riderId: uuid("rider_id").references(() => users.id),
     storeName: text("store_name").notNull(),
     storeLogo: text("store_logo"),
+    // Marketplace store + applied coupon (00032_marketplace.sql). Plain uuids
+    // here to avoid an import cycle with marketplace.ts / promotions.ts; the
+    // FKs live in the migration.
+    storeId: uuid("store_id"),
+    couponId: uuid("coupon_id"),
     type: orderType("type").notNull(),
     status: orderStatus("status").notNull().default("processing"),
     estimatedTime: text("estimated_time"),
@@ -33,10 +49,57 @@ export const orders = pgTable(
     items: jsonb("items").$type<OrderItem[]>().notNull().default([]),
     pickupAddress: text("pickup_address"),
     destinationAddress: text("destination_address"),
+    // Courier requests + tracking maps (00034_courier_orders.sql).
+    vehicleType: text("vehicle_type"),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true, mode: "string" }),
+    pickupLat: doublePrecision("pickup_lat"),
+    pickupLng: doublePrecision("pickup_lng"),
+    destinationLat: doublePrecision("destination_lat"),
+    destinationLng: doublePrecision("destination_lng"),
+    // Customer's rating of the store after delivery (00035_merchant.sql);
+    // rolls up into stores.rating / review_count.
+    // Merchant's handling of a store order, independent of the delivery
+    // `status` the rider flow drives: pending → accepted → ready | rejected.
+    merchantStatus: text("merchant_status").$type<"pending" | "accepted" | "ready" | "rejected">(),
+    storeRating: smallint("store_rating"),
+    storeReview: text("store_review"),
+    // Merchant flow (00036_merchant_flows.sql). store_driver_id is a plain
+    // uuid here (FK in the migration) to avoid an import cycle with merchant.ts.
+    merchantRejectReason: text("merchant_reject_reason").$type<
+      "too_busy" | "out_of_stock" | "closing_soon" | "cannot_fulfil"
+    >(),
+    deliveryMode: text("delivery_mode").$type<"blink" | "own">(),
+    storeDriverId: uuid("store_driver_id"),
+    canceledBy: text("canceled_by").$type<"customer" | "merchant" | "system">(),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true, mode: "string" }),
+    preparedAt: timestamp("prepared_at", { withTimezone: true, mode: "string" }),
+    riderAssignedAt: timestamp("rider_assigned_at", { withTimezone: true, mode: "string" }),
+    pickedUpAt: timestamp("picked_up_at", { withTimezone: true, mode: "string" }),
+    deliveredAt: timestamp("delivered_at", { withTimezone: true, mode: "string" }),
+    canceledAt: timestamp("canceled_at", { withTimezone: true, mode: "string" }),
+    storeReviewReply: text("store_review_reply"),
+    storeReviewRepliedAt: timestamp("store_review_replied_at", { withTimezone: true, mode: "string" }),
+    // Client-generated id shared by the per-store orders of one multi-store
+    // checkout (20261006220240_order_checkout_group.sql); null for single orders.
+    checkoutId: uuid("checkout_id"),
+    // Rider offer handshake (20261007180407_order_rider_offer.sql): a store's
+    // pending request to one rider. The order stays `searching` until the
+    // rider accepts; rules in src/lib/rider-offer.ts. offered_driver_id is a
+    // plain uuid here (FK in the migration), like store_driver_id.
+    offeredRiderId: uuid("offered_rider_id").references(() => users.id, { onDelete: "set null" }),
+    offeredDriverId: uuid("offered_driver_id"),
+    offeredMode: text("offered_mode").$type<"own" | "blink">(),
+    offeredAt: timestamp("offered_at", { withTimezone: true, mode: "string" }),
+    offerDeclinedAt: timestamp("offer_declined_at", { withTimezone: true, mode: "string" }),
     ...timestamps,
   },
   (t) => [
     index("idx_orders_customer").on(t.customerId),
+    index("idx_orders_customer_checkout").on(t.customerId, t.checkoutId),
+    // 20261007130816_orders_checkout_index.sql
+    index("idx_orders_checkout").on(t.checkoutId).where(sql`checkout_id is not null`),
+    // 20261007180407_order_rider_offer.sql
+    index("idx_orders_offered_rider").on(t.offeredRiderId).where(sql`offered_rider_id is not null`),
     index("idx_orders_rider").on(t.riderId),
     index("idx_orders_status").on(t.status),
     pgPolicy("orders_select_own", {

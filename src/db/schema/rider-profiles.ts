@@ -1,10 +1,13 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
+  doublePrecision,
   index,
   pgPolicy,
   pgSequence,
   pgTable,
   text,
+  timestamp,
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
@@ -33,6 +36,12 @@ export const riderProfiles = pgTable(
     vehicleType: vehicleType("vehicle_type"),
     licenseFrontUrl: text("license_front_url"),
     licenseBackUrl: text("license_back_url"),
+    // Dispatch: availability + last known position, sent by the rider app
+    // (PATCH /riders/location) — 00036_merchant_flows.sql.
+    isAvailable: boolean("is_available").notNull().default(true),
+    latitude: doublePrecision("latitude"),
+    longitude: doublePrecision("longitude"),
+    locationUpdatedAt: timestamp("location_updated_at", { withTimezone: true, mode: "string" }),
     ...timestamps,
   },
   (t) => [

@@ -1,18 +1,16 @@
-import { supabaseAdmin } from "../../lib/supabase";
-import { auth, requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { AgentShopResponse, updateShopSchema } from "../../validators/agents";
+import { primaryShop, updateShop } from "./shared";
 
 const app = router();
 
-// ─── Agent: update shop ──────────────────────────────────────────────
+// ─── Agent: update primary shop ──────────────────────────────────────
 const route = createRoute({
   method: "patch",
   path: "/shop",
   operationId: "updateAgentShop",
   tags: ["agents"],
   security: bearer,
-  middleware: [auth, requireRole("agent")] as const,
   request: { body: { ...json(updateShopSchema), required: true } },
   responses: {
     200: json(AgentShopResponse),
@@ -27,18 +25,16 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const body = c.req.valid("json");
 
-  const { data, error } = await supabaseAdmin
-    .from("agent_shops")
-    .update(body)
-    .eq("user_id", user.id)
-    .select()
-    .single();
+  const current = await primaryShop(user.id);
+  if (!current) return c.json({ error: "Shop not found" }, 404);
 
-  if (error || !data) {
-    return c.json({ error: "Shop not found" }, 404);
+  try {
+    const shop = await updateShop(user.id, current.id, body);
+    if (!shop) return c.json({ error: "Shop not found" }, 404);
+    return c.json({ shop: { ...shop, documents: shop.documents ?? {} } }, 200);
+  } catch (e) {
+    return c.json({ error: (e as Error).message }, 400);
   }
-
-  return c.json({ shop: data }, 200);
 });
 
 export default app;
