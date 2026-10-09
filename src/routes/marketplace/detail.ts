@@ -1,7 +1,7 @@
 import { normalizeStoreMenu, toStorefront } from "../../lib/store-categories";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
-import { StoreResponse } from "../../validators/marketplace";
+import { getStoreSchema, StoreResponse } from "../../validators/marketplace";
 
 const app = router();
 
@@ -12,16 +12,23 @@ const route = createRoute({
   operationId: "getStore",
   tags: ["marketplace"],
   security: bearer,
-  request: { params: IdParam },
+  request: { params: IdParam, query: getStoreSchema },
   responses: { 200: json(StoreResponse), 404: errorResponses[404] },
 });
 
 app.openapi(route, async (c) => {
   const { id } = c.req.valid("param");
+  const { products: withProducts } = c.req.valid("query");
 
+  // Without products the menu chips still need every product's category —
+  // read just those two columns (rows are paged by GET /stores/{id}/products).
   const { data, error } = await supabaseAdmin
     .from("stores")
-    .select("*, products:store_products(*)")
+    .select(
+      withProducts
+        ? "*, products:store_products(*)"
+        : "*, products:store_products(category, menu_category)"
+    )
     .eq("id", id)
     .eq("status", "active")
     .eq("store_products.is_available", true)
@@ -36,8 +43,18 @@ app.openapi(route, async (c) => {
 
   // Merchant-managed stores name categories freely — map them onto the
   // menu-category ids the app filters by.
-  const { menu, products } = normalizeStoreMenu(data.menu_categories, data.products ?? []);
-  return c.json({ store: { ...toStorefront(data), menu_categories: menu, products } }, 200);
+  const { products: rows, ...row } = data;
+  const { menu, products } = normalizeStoreMenu(row.menu_categories, rows ?? []);
+  return c.json(
+    {
+      store: {
+        ...toStorefront(row),
+        menu_categories: menu,
+        ...(withProducts ? { products } : {}),
+      },
+    },
+    200
+  );
 });
 
 export default app;

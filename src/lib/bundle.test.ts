@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   BUNDLE_STORE_TIMEOUT_MS,
+  bundleAnswersRequest,
   bundleClaimComplete,
+  bundleHeldForOtherRider,
+  bundleOfferedTo,
+  bundleRequestVisibleTo,
+  canAssignOwnDriver,
   bundleMembers,
   bundleStatus,
   canCancelBundle,
@@ -13,6 +18,7 @@ import {
   leadOrder,
   orderStops,
 } from "./bundle";
+import { RIDER_OFFER_TTL_MS } from "./rider-offer";
 
 const order = (o: Record<string, unknown>) => ({
   id: "o1",
@@ -139,5 +145,60 @@ describe("orderStops", () => {
       p("w", 36.8, 3.1, { picked_up_at: "2026-10-07T10:10:00Z" }),
     ];
     assert.deepEqual(orderStops(stops, { lat: 36.7, lng: 3.0 }).map((s) => s.id), ["w", "y", "z", "x"]);
+  });
+});
+
+describe("own driver for a checkout", () => {
+  const T0 = Date.parse("2026-10-09T12:00:00Z");
+  const at = new Date(T0).toISOString();
+  const m = (over: Record<string, unknown> = {}) => ({
+    id: "a",
+    type: "merchant",
+    rider_id: null,
+    status: "searching",
+    merchant_status: "ready",
+    offered_rider_id: null,
+    offered_at: null,
+    offer_declined_at: null,
+    ...over,
+  });
+  const asked = (over: Record<string, unknown> = {}) =>
+    m({ offered_rider_id: "drv", offered_at: at, offered_mode: "own", offered_driver_id: "d1", ...over });
+
+  it("canAssignOwnDriver: every member accepted/ready, unassigned, store order", () => {
+    assert.equal(canAssignOwnDriver([m(), m({ id: "b", merchant_status: "accepted" })]), true);
+    assert.equal(canAssignOwnDriver([m(), m({ id: "b", merchant_status: "pending" })]), false);
+    assert.equal(canAssignOwnDriver([m(), m({ id: "b", type: "shopper" })]), false);
+    assert.equal(canAssignOwnDriver([m(), m({ id: "b", rider_id: "r" })]), false);
+    assert.equal(canAssignOwnDriver([]), false);
+  });
+
+  it("a request is visible only when every member carries it", () => {
+    assert.equal(bundleRequestVisibleTo([asked(), asked({ id: "b" })], "drv", T0 + 1000), true);
+    assert.equal(bundleRequestVisibleTo([asked(), m({ id: "b" })], "drv", T0 + 1000), false);
+    assert.equal(bundleRequestVisibleTo([asked(), asked({ id: "b" })], "other", T0 + 1000), false);
+    assert.equal(
+      bundleRequestVisibleTo([asked(), asked({ id: "b" })], "drv", T0 + RIDER_OFFER_TTL_MS + 1),
+      false
+    );
+  });
+
+  it("members with different offered_at are not one request", () => {
+    const later = new Date(T0 + 5000).toISOString();
+    assert.equal(bundleOfferedTo([asked(), asked({ id: "b", offered_at: later })], "drv", T0 + 6000), false);
+  });
+
+  it("answers the request shown by its deadline", () => {
+    const deadline = new Date(T0 + RIDER_OFFER_TTL_MS).toISOString();
+    const both = [asked(), asked({ id: "b" })];
+    assert.equal(bundleAnswersRequest(both, "drv", deadline, T0 + 1000), true);
+    assert.equal(bundleAnswersRequest(both, "drv", new Date(T0).toISOString(), T0 + 1000), false);
+  });
+
+  it("held for another rider while a request is open", () => {
+    const both = [asked(), asked({ id: "b" })];
+    assert.equal(bundleHeldForOtherRider(both, "someone", T0 + 1000), true);
+    assert.equal(bundleHeldForOtherRider(both, "drv", T0 + 1000), false);
+    assert.equal(bundleHeldForOtherRider([m(), m({ id: "b" })], "someone", T0 + 1000), false);
   });
 });

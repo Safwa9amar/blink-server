@@ -233,6 +233,23 @@ const personSchema = z
   })
   .openapi("OrderPerson");
 
+/** Another part of the same checkout, in a store with the same owner. */
+export const MerchantOrderSiblingSchema = OrderSchema.pick({
+  id: true,
+  store_id: true,
+  store_name: true,
+  status: true,
+  merchant_status: true,
+  type: true,
+  subtotal: true,
+  total: true,
+  accepted_at: true,
+  prepared_at: true,
+  rider_assigned_at: true,
+})
+  .extend({ item_count: z.number().int() })
+  .openapi("MerchantOrderSibling");
+
 /** Order + who's involved, for the merchant's order cards. */
 export const MerchantOrderSchema = OrderSchema.extend({
   customer_name: z.string().nullable(),
@@ -250,6 +267,14 @@ export const MerchantOrderSchema = OrderSchema.extend({
     .nullable()
     .openapi({ description: "When the requested rider's time to answer runs out (ISO), while pending" }),
   has_pack: z.boolean(),
+  own_siblings: z.array(MerchantOrderSiblingSchema).openapi({
+    description:
+      "The other parts of this order's checkout in stores with the same owner (one checkout across several of the merchant's stores); empty otherwise",
+  }),
+  checkout_own_only: z.boolean().openapi({
+    description:
+      "Every store in this order's checkout is the merchant's: one of its own drivers may collect the whole checkout",
+  }),
 }).openapi("MerchantOrder");
 
 export const MerchantOrderListResponse = z

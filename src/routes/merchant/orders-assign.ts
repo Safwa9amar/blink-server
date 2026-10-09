@@ -1,8 +1,10 @@
+import { canAssignOwnDriver } from "../../lib/bundle";
 import { createNotification } from "../../lib/notifications";
 import { CLEAR_OFFER, isHeld, isLiveOffer } from "../../lib/rider-offer";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, ErrorSchema, errorResponses, IdParam, json, router } from "../../openapi";
 import { assignRiderSchema, EnrichedMerchantOrderResponse } from "../../validators/merchant";
+import { assignExternalDriver, endRequest, loadOwnCheckout, requestDriver } from "./checkout-driver";
 import { enrichOrders, nearestAvailableRider, riderEligibility } from "./orders-shared";
 import { orderRef, ownedStore } from "./shared";
 
@@ -22,9 +24,12 @@ const app = router();
 //        - app driver: a request (offered_mode own).
 // blink: a request to a Blink rider (rider_id, or omit to auto-match the
 //        nearest one who can take it).
-// DELETE /merchant/orders/{id}/offer withdraws a request. Never for
-// multi-store checkout orders (400): one Blink rider collects the whole
-// checkout through the rider offer.
+// DELETE /merchant/orders/{id}/offer withdraws a request.
+// Multi-store checkout orders: the Blink pool offers the whole checkout to one
+// rider. Only when every store in the checkout is this merchant's may it send
+// one of its own drivers (mode own) for ALL of it — the external driver is
+// assigned to every store's order, the app driver gets one request on every
+// store's order. Anything else is 400.
 const route = createRoute({
   method: "post",
   path: "/orders/{id}/assign",
@@ -57,7 +62,76 @@ app.openapi(route, async (c) => {
   const store = order?.store_id ? await ownedStore(user.id, order.store_id) : null;
   if (!order || !store) return c.json({ error: "Order not found" }, 404);
   if (order.checkout_id) {
-    return c.json({ error: "Multi-store orders are assigned to one Blink rider automatically" }, 400);
+    const blinkOnly = () =>
+      c.json({ error: "Multi-store orders are assigned to one Blink rider automatically" }, 400);
+    if (body.mode !== "own" || !body.rider_id) return blinkOnly();
+    const checkout = await loadOwnCheckout(order.checkout_id, user.id);
+    if (!checkout.ownOnly) return blinkOnly();
+    if (!canAssignOwnDriver(checkout.members)) {
+      return c.json({ error: "Every store must accept the order before you assign a rider" }, 400);
+    }
+    const { data: driver } = await supabaseAdmin
+      .from("store_drivers")
+      .select("*")
+      .eq("id", body.rider_id)
+      .in("store_id", checkout.storeIds)
+      .eq("status", "active")
+      .maybeSingle();
+    if (!driver) return c.json({ error: "Driver not found" }, 404);
+
+    const now = Date.now();
+    const nowIso = new Date(now).toISOString();
+    const reload = async () => {
+      const { data: row } = await supabaseAdmin.from("orders").select("*").eq("id", id).maybeSingle();
+      const [enriched] = await enrichOrders([row!]);
+      return enriched;
+    };
+    const changed = () => c.json({ error: "Order changed, refresh and try again" }, 409);
+
+    if (!driver.rider_user_id) {
+      if (!(await assignExternalDriver(checkout.members, driver.id, nowIso))) return changed();
+      return c.json({ order: await reload() }, 200);
+    }
+
+    const target = driver.rider_user_id as string;
+    if (checkout.members.every((m) => m.offered_rider_id === target && isLiveOffer(m, now))) {
+      return c.json({ error: "Already waiting for this rider to answer" }, 409);
+    }
+    const unavailable = (availability: "busy" | "offline") =>
+      c.json(
+        { error: availability === "offline" ? "This rider is offline in the Blink app" : "This rider is busy right now" },
+        400
+      );
+    const availability = (await riderEligibility([target], { orderId: id, now })).get(target)?.availability;
+    if (availability === "offline" || availability === "busy") return unavailable(availability);
+    if (!(await requestDriver(checkout.members, target, driver.id, nowIso))) return changed();
+
+    // Same race as a single request: the driver went offline / took a job
+    // between the check and the write.
+    const after = (await riderEligibility([target], { orderId: id, now })).get(target)?.availability;
+    if (after === "offline" || after === "busy") {
+      await endRequest(order.checkout_id, target, nowIso, { offer_declined_at: new Date().toISOString() });
+      return unavailable(after);
+    }
+
+    const ref = orderRef(id);
+    const count = checkout.members.length;
+    await createNotification({
+      userId: target,
+      type: "order",
+      title: "Delivery request",
+      description: `${order.store_name} asks you to deliver order ${ref} from ${count} stores. Open Blink to accept.`,
+      contentFr: {
+        title: "Demande de livraison",
+        description: `${order.store_name} vous demande de livrer la commande ${ref} depuis ${count} magasins. Ouvrez Blink pour accepter.`,
+      },
+      contentAr: {
+        title: "طلب توصيل",
+        description: `${order.store_name} يطلب منك توصيل الطلب ${ref} من ${count} متاجر. افتح Blink للقبول.`,
+      },
+      href: "/(rider)",
+    }).catch(() => null);
+    return c.json({ order: await reload() }, 200);
   }
   if (!["accepted", "ready"].includes(order.merchant_status ?? "")) {
     return c.json({ error: "Accept the order before assigning a rider" }, 400);

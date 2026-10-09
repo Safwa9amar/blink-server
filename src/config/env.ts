@@ -58,6 +58,28 @@ const envSchema = z.object({
   IMAP_PASS: z.string().optional(),
   // Mailbox to poll for new customer mail.
   IMAP_MAILBOX: z.string().default("INBOX"),
+
+  // ─── OTP SMS (Supabase Send SMS hook → SMS Gate Android app) ─────────
+  // Secret Supabase generates when the Send SMS hook is created
+  // ("v1,whsec_…"). Empty = POST /hooks/send-sms rejects every call.
+  SEND_SMS_HOOK_SECRET: z.string().default(""),
+  // SMS Gate API base. Default is the public cloud relay; in the app's Local
+  // server mode use http://<phone-lan-ip>:8080 instead.
+  SMS_GATE_URL: z
+    .string()
+    .url()
+    .default("https://api.sms-gate.app/3rdparty/v1")
+    .transform((v) => v.replace(/\/$/, "")),
+  // Basic-auth pair shown in the app (Settings → Cloud server). Unset in dev =
+  // the hook just logs the OTP to the console.
+  SMS_GATE_USERNAME: z.string().optional(),
+  SMS_GATE_PASSWORD: z.string().optional(),
+  // Which SIM slot sends (1-based). Unset = the phone's default SMS SIM. Pin it
+  // on dual-SIM phones where only one line can send SMS.
+  SMS_GATE_SIM_NUMBER: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.coerce.number().int().min(1).max(3).optional()
+  ),
 });
 
 export const env = envSchema.parse(process.env);

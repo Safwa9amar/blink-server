@@ -3,6 +3,8 @@ import { router } from "../../openapi";
 import categories from "./categories";
 import list from "./list";
 import detail from "./detail";
+import products from "./products";
+import branchSuggestion from "./branch-suggestion";
 
 const app = router();
 
@@ -13,5 +15,7 @@ app.use("/*", auth);
 app.route("/", categories);
 app.route("/", list);
 app.route("/", detail);
+app.route("/", products);
+app.route("/", branchSuggestion);
 
 export default app;

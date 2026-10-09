@@ -79,6 +79,17 @@ export const socialSyncSchema = z
   .object({ role: z.string().optional() })
   .openapi("SocialSyncBody");
 
+/** Finish a phone sign-up: the details form + the chosen role, in one call. */
+export const registerPhoneSchema = z
+  .object({
+    role: selectRoleSchema.shape.role,
+    first_name: z.string().trim().min(1).max(50),
+    last_name: z.string().trim().min(1).max(50),
+    middle_name: z.string().trim().max(50).optional(),
+    email: z.string().trim().email().optional(),
+  })
+  .openapi("RegisterPhoneBody");
+
 export const uploadAvatarSchema = z
   .object({
     image_base64: z.string().min(1),
@@ -93,6 +104,9 @@ export const uploadAvatarSchema = z
  * `publicUser()` before any user row leaves the server.
  */
 export const UserSchema = rowSchema(users, "UserRow").omit({ pin_hash: true }).openapi("User");
+/** Named nullable wrapper: reusing a bare `UserSchema.nullable()` makes the
+ *  OpenAPI generator mark the `User` component itself nullable app-wide. */
+const NullableUser = UserSchema.nullable().openapi("NullableUser");
 
 /** Strip secrets from a users row before returning it to a client. */
 export function publicUser<T extends { pin_hash?: unknown } | null | undefined>(row: T) {
@@ -140,22 +154,19 @@ export const SessionTokensResponse = z
   .object({ access_token: z.string(), refresh_token: z.string() })
   .openapi("SessionTokens");
 
-/** Stub returned for a brand-new OTP user (the row was just inserted). */
-const OtpStubUser = z
-  .object({ id: z.string(), phone_number: z.string() })
-  .openapi("OtpStubUser");
-
+/** `user` is null for a brand-new phone user: like OAuth, the profile row is
+ *  only created once they pick a role (POST /auth/otp/register). */
 export const VerifyOtpResponse = z
   .object({
     access_token: z.string(),
     refresh_token: z.string(),
     is_new_user: z.boolean(),
-    user: z.union([UserSchema, OtpStubUser]),
+    user: NullableUser,
   })
   .openapi("VerifyOtpResponse");
 
 export const SocialSyncResponse = z
-  .object({ is_new_user: z.boolean(), user: UserSchema.nullable() })
+  .object({ is_new_user: z.boolean(), user: NullableUser })
   .openapi("SocialSyncResponse");
 
 export const SelectRoleResponse = z

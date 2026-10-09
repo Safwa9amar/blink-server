@@ -1,0 +1,9 @@
+{
+  "name": "blink-sync",
+  "private": true,
+  "type": "module",
+  "description": "DEV ONLY: two-way row sync between arch's Supabase and the online dev project",
+  "dependencies": {
+    "pg": "8.21.0"
+  }
+}

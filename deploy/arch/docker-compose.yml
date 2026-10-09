@@ -1,0 +1,24 @@
+# DEV ONLY — Blink API on the LAN box `arch`, backed by the self-hosted Supabase
+# that runs there (arch:~/supabase). Production stays on Render.
+#
+#   npm run deploy:arch     # from the Mac: rsync this repo to arch, rebuild, restart
+#
+# Secrets live on arch in ~/blink-server-env/api.env (never in this repo); it is
+# generated on arch from arch:~/supabase/.env, so no cloud credentials are involved.
+name: blink-dev
+
+services:
+  api:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: blink-api-dev
+    env_file: ${HOME}/blink-server-env/api.env
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

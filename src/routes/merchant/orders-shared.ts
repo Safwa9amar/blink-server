@@ -1,6 +1,7 @@
 // Helpers for the merchant order endpoints: enrich order rows with the people
 // involved (customer / Blink rider / store driver), pack detection and who a
 // store may send a rider request to.
+import { ownSiblings, ownsWholeCheckout, type SiblingRow } from "../../lib/checkout-siblings";
 import { heldRequestTargets, offerExpiresAt, offerStatus, riderAvailability } from "../../lib/rider-offer";
 import { supabaseAdmin } from "../../lib/supabase";
 
@@ -57,13 +58,31 @@ export const hasPack = (
   return !!names && (order.items ?? []).some((it) => names.has(it.name));
 };
 
+/** Every order of these checkouts, with its store's owner. */
+async function checkoutRows(checkoutIds: string[]): Promise<SiblingRow[]> {
+  if (!checkoutIds.length) return [];
+  const { data } = await supabaseAdmin
+    .from("orders")
+    .select(
+      "id, checkout_id, store_id, store_name, status, merchant_status, type, items, subtotal, total, accepted_at, prepared_at, rider_assigned_at, store:stores(owner_id)"
+    )
+    .in("checkout_id", checkoutIds);
+  // A non-`*` embed is typed as an array but is an object at runtime (many-to-one).
+  return (data ?? []).map(({ store, ...r }: any) => ({
+    ...r,
+    owner_id: (store as { owner_id?: string | null } | null)?.owner_id ?? null,
+  }));
+}
+
 /** Order rows → MerchantOrder (adds names, has_pack and the rider request state). */
 export async function enrichOrders<T extends Record<string, any>>(orders: T[]) {
   const now = Date.now();
-  const [users, drivers, packs] = await Promise.all([
+  const checkoutIds = [...new Set(orders.map((o) => o.checkout_id).filter(Boolean))] as string[];
+  const [users, drivers, packs, siblingRows] = await Promise.all([
     usersById(orders.flatMap((o) => [o.customer_id, o.rider_id, o.offered_rider_id])),
     driversById(orders.flatMap((o) => [o.store_driver_id, o.offered_driver_id])),
     packNamesByStore([...new Set(orders.map((o) => o.store_id).filter(Boolean))]),
+    checkoutRows(checkoutIds),
   ]);
   return orders.map((o) => {
     const customer = users.get(o.customer_id);
@@ -81,6 +100,8 @@ export async function enrichOrders<T extends Record<string, any>>(orders: T[]) {
       offer_status: offerStatus(o, now),
       offer_expires_at: offerExpiresAt(o, now),
       has_pack: hasPack(o as any, packs),
+      own_siblings: ownSiblings({ id: o.id, checkout_id: o.checkout_id ?? null }, siblingRows),
+      checkout_own_only: ownsWholeCheckout({ id: o.id, checkout_id: o.checkout_id ?? null }, siblingRows),
     };
   });
 }

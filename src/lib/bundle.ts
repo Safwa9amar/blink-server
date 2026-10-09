@@ -3,6 +3,8 @@
 // `checkout_id`; ONE rider collects from all its stores and makes one
 // drop-off. dispatch.ts / routes load the rows and apply these rules.
 
+import { answersRequest, isHeldForOtherRider, isOfferedTo, isRequestVisibleTo } from "./rider-offer";
+
 /** A store that hasn't answered within this window becomes a shopper order. */
 export const BUNDLE_STORE_TIMEOUT_MS = 10 * 60 * 1000;
 
@@ -74,6 +76,51 @@ export function isStoreTimedOut(o: BundleRow, now = Date.now()): boolean {
     now - new Date(o.created_at).getTime() > BUNDLE_STORE_TIMEOUT_MS
   );
 }
+
+// ─── A merchant's own driver for a checkout across their stores ─────
+// Ownership (every store is the merchant's) is checked by the route; these
+// rules cover the members' state. The request lives on EVERY member with one
+// shared offered_at, so it's one request only while all members carry it.
+
+/** The merchant may send its own driver: every member accepted/ready, unassigned, a store order. */
+export function canAssignOwnDriver(members: BundleRow[]): boolean {
+  return (
+    members.length > 0 &&
+    members.every(
+      (o) =>
+        o.type === "merchant" &&
+        !o.rider_id &&
+        o.status === "searching" &&
+        ["accepted", "ready"].includes(o.merchant_status ?? "")
+    )
+  );
+}
+
+const oneRequest = (members: BundleRow[]) =>
+  members.length > 0 &&
+  members.every(
+    (m) => m.offered_rider_id === members[0].offered_rider_id && m.offered_at === members[0].offered_at
+  );
+
+/** Shown to the requested driver as one job. */
+export const bundleRequestVisibleTo = (members: BundleRow[], riderId: string, now = Date.now()) =>
+  oneRequest(members) && members.every((m) => isRequestVisibleTo(m, riderId, now));
+
+/** The requested driver may still accept (TTL + grace). */
+export const bundleOfferedTo = (members: BundleRow[], riderId: string, now = Date.now()) =>
+  oneRequest(members) && members.every((m) => isOfferedTo(m, riderId, now));
+
+/** The answer names the request the driver was shown (by its deadline). */
+export const bundleAnswersRequest = (
+  members: BundleRow[],
+  riderId: string,
+  shown: string,
+  now = Date.now()
+) => oneRequest(members) && members.every((m) => answersRequest(m, riderId, shown, now));
+
+/** Reserved for another driver: not claimable from the pool. */
+export const bundleHeldForOtherRider = (members: BundleRow[], riderId: string, now = Date.now()) =>
+  members.some((m) => isHeldForOtherRider(m, riderId, now));
 
 type Point = { lat: number | null; lng: number | null };
 

@@ -2,6 +2,7 @@ import { CLEAR_OFFER } from "../../lib/rider-offer";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, ErrorSchema, errorResponses, IdParam, json, router } from "../../openapi";
 import { EnrichedMerchantOrderResponse } from "../../validators/merchant";
+import { endRequest } from "./checkout-driver";
 import { enrichOrders } from "./orders-shared";
 import { ownedStore } from "./shared";
 
@@ -13,7 +14,8 @@ const app = router();
 // The requested rider's sheet closes through realtime (the order trigger also
 // notifies the previous offered_rider_id), so no push. 409 when there is no
 // request to withdraw (a double tap, or the rider answered already), or once a
-// rider accepted (or claimed it from the pool) in between.
+// rider accepted (or claimed it from the pool) in between. A checkout's
+// own-driver request lives on every store's order: it's withdrawn from all.
 const route = createRoute({
   method: "delete",
   path: "/orders/{id}/offer",
@@ -37,7 +39,7 @@ app.openapi(route, async (c) => {
 
   const { data: order } = await supabaseAdmin
     .from("orders")
-    .select("id, store_id, offered_rider_id, offered_at")
+    .select("id, store_id, checkout_id, offered_rider_id, offered_at")
     .eq("id", id)
     .maybeSingle();
   const store = order?.store_id ? await ownedStore(user.id, order.store_id) : null;
@@ -47,6 +49,14 @@ app.openapi(route, async (c) => {
   // whatever request another device sent meanwhile.
   if (!order.offered_rider_id || !order.offered_at) {
     return c.json({ error: "No rider request to withdraw — refresh" }, 409);
+  }
+
+  if (order.checkout_id) {
+    const rows = await endRequest(order.checkout_id, order.offered_rider_id, order.offered_at, CLEAR_OFFER);
+    const row = rows.find((r) => r.id === id);
+    if (!row) return c.json({ error: "The rider already answered — refresh" }, 409);
+    const [withdrawn] = await enrichOrders([row]);
+    return c.json({ order: withdrawn }, 200);
   }
 
   // Compare-and-swap on the request read: an accept, a pool claim or a newer

@@ -22,3 +22,17 @@ export const supabaseAdmin = createClient(
   env.SUPABASE_SERVICE_ROLE_KEY,
   options
 );
+
+/**
+ * Fresh, session-less client for calls that SIGN SOMEONE IN (OTP send/verify,
+ * refresh). supabase-js keeps the session it gets back and then sends that
+ * user's JWT on every later query — doing this on the shared `supabaseAdmin`
+ * would silently turn service-role queries into RLS-scoped ones for whoever
+ * logged in last. One client per call, nothing persisted, nothing shared.
+ */
+export function createAuthClient() {
+  return createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+    ...options,
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+}

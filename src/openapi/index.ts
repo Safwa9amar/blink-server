@@ -68,6 +68,7 @@ export const errorResponses = {
   401: json(ErrorSchema, "Unauthorized"),
   403: json(ErrorSchema, "Forbidden"),
   404: json(ErrorSchema, "Not found"),
+  429: json(ErrorSchema, "Too many requests"),
 } as const;
 
 export const bearer = [{ bearerAuth: [] }];

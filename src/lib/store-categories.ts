@@ -38,6 +38,33 @@ export function normalizeStoreMenu<P extends ProductLike>(
   return { menu: out, products: mapped };
 }
 
+// ─── Paged product filters (PostgREST `or` groups) ──────────────────
+
+/** A PostgREST filter value in double quotes — safe with , . : ( ) " \ inside. */
+function pgQuote(value: string): string {
+  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+}
+
+/**
+ * Products in menu category `id`: rows tagged with it, plus untagged rows
+ * whose category name slugs to it (what normalizeStoreMenu does at read time).
+ * `names` are the category names in use in the store.
+ */
+export function menuCategoryFilter(id: string, names: (string | null)[]): string {
+  const tagged = `menu_category.eq.${pgQuote(id)}`;
+  const matching = [...new Set(names)].filter(
+    (n): n is string => !!n && categorySlug(n) === id
+  );
+  if (matching.length === 0) return `or(${tagged})`;
+  return `or(${tagged},and(menu_category.is.null,category.in.(${matching.map(pgQuote).join(",")})))`;
+}
+
+/** Products with `q` in the title, description or unit (case-insensitive). */
+export function productSearchFilter(q: string): string {
+  const like = pgQuote(`%${q}%`);
+  return `or(title.ilike.${like},description.ilike.${like},unit.ilike.${like})`;
+}
+
 // ─── Merchant store → marketplace storefront ─────────────────────────
 // Merchants pick a free "store type" (blink store/merchant/store-creation-store
 // STORE_CATEGORY_KEYS) and edit weekly `hours`; the customer marketplace
@@ -82,17 +109,26 @@ type WeekHours = Record<string, { enabled: boolean; shifts: Shift[] }>;
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 const STORE_TZ = "Africa/Algiers";
 
-/** Day key + "HH:MM" for `now` in the stores' timezone. */
-function localNow(now: Date): { day: string; time: string } {
+/** Day key, "HH:MM" and the calendar date of `now` in the stores' timezone. */
+function localNow(now: Date) {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: STORE_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
     weekday: "short",
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
   }).formatToParts(now);
   const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
-  return { day: get("weekday").slice(0, 3).toLowerCase(), time: `${get("hour")}:${get("minute")}` };
+  return {
+    day: get("weekday").slice(0, 3).toLowerCase(),
+    time: `${get("hour")}:${get("minute")}`,
+    y: Number(get("year")),
+    m: Number(get("month")),
+    d: Number(get("day")),
+  };
 }
 
 /** Is `time` inside the shift? Handles shifts that run past midnight. */
@@ -106,6 +142,34 @@ function todayLabel(hours: WeekHours, day: string): string | null {
   return today.shifts.map((s) => `${s.open} - ${s.close}`).join(", ");
 }
 
+/** The weekly schedule, or null when the store has none. */
+function scheduleOf(hours: unknown): WeekHours | null {
+  if (!hours || typeof hours !== "object" || Object.keys(hours).length === 0) return null;
+  return hours as WeekHours;
+}
+
+/** When the schedule next opens strictly after `now` (ISO), or null if it never does. */
+function nextOpenAt(hours: WeekHours, now: Date): string | null {
+  const { day, time, y, m, d } = localNow(now);
+  // The stores' UTC offset at `now` (Algeria: +1, no DST), minute precision.
+  const [hh, mm] = time.split(":").map(Number);
+  const offset = Date.UTC(y, m - 1, d, hh, mm) - Math.floor(now.getTime() / 60e3) * 60e3;
+  const start = DAY_KEYS.indexOf(day);
+  // Up to 7 days ahead — today's weekday again for a shift earlier than now.
+  for (let i = 0; i <= 7; i++) {
+    const entry = hours[DAY_KEYS[(start + i) % 7]];
+    if (!entry?.enabled) continue;
+    const opens = entry.shifts
+      .map((s) => s.open)
+      .filter((open) => i > 0 || open > time)
+      .sort();
+    if (opens.length === 0) continue;
+    const [oh, om] = opens[0].split(":").map(Number);
+    return new Date(Date.UTC(y, m - 1, d + i, oh, om) - offset).toISOString();
+  }
+  return null;
+}
+
 type StoreLike = {
   category_slugs?: string[] | null;
   is_supermarket?: boolean;
@@ -115,32 +179,50 @@ type StoreLike = {
   manual_override?: boolean;
 };
 
+export type StoreOpenState = {
+  is_open: boolean;
+  /** Next scheduled opening while closed; null when open or closed indefinitely. */
+  next_open_at: string | null;
+};
+
+/**
+ * Is the store taking orders at `now`? With a weekly schedule it follows the
+ * schedule (shifts past midnight included), unless the merchant forced
+ * open/closed with `manual_override` — then, like stores without hours, the
+ * stored `is_open` decides.
+ */
+export function storeOpenState(store: StoreLike, now = new Date()): StoreOpenState {
+  const hours = scheduleOf(store.hours);
+  if (!hours || store.manual_override) {
+    return { is_open: store.is_open ?? true, next_open_at: null };
+  }
+  const { day, time } = localNow(now);
+  const todayOpen = hours[day]?.enabled && hours[day].shifts.some((s) => inShift(time, s));
+  // Shifts that started yesterday and run past midnight.
+  const yesterday = hours[DAY_KEYS[(DAY_KEYS.indexOf(day) + 6) % 7]];
+  const carryOver =
+    yesterday?.enabled && yesterday.shifts.some((s) => s.open > s.close && time < s.close);
+  const is_open = !!(todayOpen || carryOver);
+  return { is_open, next_open_at: is_open ? null : nextOpenAt(hours, now) };
+}
+
 /**
  * Shape a stores row for the customer marketplace: map merchant store types
- * onto marketplace slugs, and — for stores with a weekly schedule — derive
- * today's `opening_hours` and a schedule-based `is_open` (unless the merchant
- * forced open/closed with `manual_override`).
+ * onto marketplace slugs, derive today's `opening_hours` from the weekly
+ * schedule, and the live `is_open` / `next_open_at` (see storeOpenState).
  */
-export function toStorefront<S extends StoreLike>(store: S, now = new Date()): S {
+export function toStorefront<S extends StoreLike>(
+  store: S,
+  now = new Date()
+): S & StoreOpenState & { is_supermarket: boolean } {
   const category_slugs = marketplaceSlugs(store.category_slugs);
-  const out: S = {
+  const out = {
     ...store,
     category_slugs,
     is_supermarket: !!store.is_supermarket || category_slugs.includes("supermarket"),
+    ...storeOpenState(store, now),
   };
-
-  const hours = store.hours as WeekHours | null | undefined;
-  if (!hours || typeof hours !== "object" || Object.keys(hours).length === 0) return out;
-
-  const { day, time } = localNow(now);
-  out.opening_hours = store.opening_hours ?? todayLabel(hours, day);
-  if (!store.manual_override) {
-    const todayOpen = hours[day]?.enabled && hours[day].shifts.some((s) => inShift(time, s));
-    // Shifts that started yesterday and run past midnight.
-    const yesterday = hours[DAY_KEYS[(DAY_KEYS.indexOf(day) + 6) % 7]];
-    const carryOver =
-      yesterday?.enabled && yesterday.shifts.some((s) => s.open > s.close && time < s.close);
-    out.is_open = !!(todayOpen || carryOver);
-  }
+  const hours = scheduleOf(store.hours);
+  if (hours) out.opening_hours = store.opening_hours ?? todayLabel(hours, localNow(now).day);
   return out;
 }

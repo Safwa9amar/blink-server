@@ -9,6 +9,7 @@ import {
   riderEligibility,
   usersById,
 } from "./orders-shared";
+import { loadOwnCheckout } from "./checkout-driver";
 import { ownedStore } from "./shared";
 
 const app = router();
@@ -47,7 +48,7 @@ app.openapi(route, async (c) => {
 
   const { data: order } = await supabaseAdmin
     .from("orders")
-    .select("id, store_id")
+    .select("id, store_id, checkout_id")
     .eq("id", id)
     .maybeSingle();
   const store = order?.store_id ? await ownedStore(user.id, order.store_id) : null;
@@ -55,11 +56,16 @@ app.openapi(route, async (c) => {
   const sLat = store.latitude as number | null;
   const sLng = store.longitude as number | null;
 
+  // A checkout made only of the merchant's stores: any of those stores' drivers.
+  const driverStoreIds = order.checkout_id
+    ? await loadOwnCheckout(order.checkout_id, user.id).then((k) => (k.ownOnly ? k.storeIds : [store.id]))
+    : [store.id];
+
   const [{ data: drivers }, { data: busyOrders }, { data: profiles }, { data: riderUsers }] = await Promise.all([
     supabaseAdmin
       .from("store_drivers")
       .select("*")
-      .eq("store_id", store.id)
+      .in("store_id", driverStoreIds)
       .eq("status", "active"),
     // External drivers have no app: busy while they hold one of the store's jobs.
     supabaseAdmin

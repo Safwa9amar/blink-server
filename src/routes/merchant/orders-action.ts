@@ -1,3 +1,4 @@
+import { bundleMembers } from "../../lib/bundle";
 import { createNotification } from "../../lib/notifications";
 import { pickedUpPatch } from "../../lib/order-steps";
 import { supabaseAdmin } from "../../lib/supabase";
@@ -21,10 +22,11 @@ const app = router();
 //           on_the_way. An external driver has no app to report arriving
 //           (pickup), so the merchant hands over from the assignment on.
 // delivered own-driver orders: → delivered
-// A multi-store checkout order (`checkout_id`) is collected by the checkout's
-// one Blink rider, never by the store's own driver (POST /orders/{id}/assign
-// refuses it). Reject needs `pending`, so it can't happen once a rider holds
-// the checkout.
+// A multi-store checkout order (`checkout_id`) is collected by ONE rider: the
+// checkout's Blink rider, or — when every store in it is this merchant's — the
+// merchant's own driver, whose picked_up / delivered then move every store's
+// order that driver carries. Reject needs `pending`, so it can't happen once a
+// rider holds the checkout.
 const route = createRoute({
   method: "patch",
   path: "/orders/{id}",
@@ -59,7 +61,7 @@ app.openapi(route, async (c) => {
 
   const { data: order } = await supabaseAdmin
     .from("orders")
-    .select("id, customer_id, store_id, store_name, status, merchant_status, delivery_mode, type")
+    .select("id, customer_id, store_id, store_name, status, merchant_status, delivery_mode, type, checkout_id, store_driver_id")
     .eq("id", id)
     .maybeSingle();
   if (!order?.store_id || !(await ownedStore(user.id, order.store_id))) {
@@ -74,6 +76,56 @@ app.openapi(route, async (c) => {
   const patch: Record<string, unknown> = {};
   const ref = orderRef(id);
   const store = order.store_name;
+
+  // An own-driver checkout: one driver collects every store, so picked up /
+  // delivered move every member that driver carries.
+  if (order.checkout_id && (action === "picked_up" || action === "delivered")) {
+    if (order.delivery_mode !== "own") {
+      return c.json({ error: "Only orders delivered by your own rider" }, 400);
+    }
+    const { data: rows } = await supabaseAdmin
+      .from("orders")
+      .select("id, status, type, merchant_status, delivery_mode, store_driver_id")
+      .eq("checkout_id", order.checkout_id);
+    const members = bundleMembers(rows ?? []).filter(
+      (m) => m.delivery_mode === "own" && m.store_driver_id === order.store_driver_id
+    );
+    if (action === "picked_up") {
+      const waiting = members.filter((m) => PICKUP_FROM.has(m.status));
+      if (!waiting.length) return c.json({ error: "Order is not waiting for pickup" }, 400);
+      await Promise.all(
+        waiting.map((m) =>
+          supabaseAdmin.from("orders").update(pickedUpPatch(m, now)).eq("id", m.id).eq("status", m.status)
+        )
+      );
+    } else {
+      if (!members.every((m) => m.status === "on_the_way")) {
+        return c.json({ error: "Mark every store picked up first" }, 400);
+      }
+      await supabaseAdmin
+        .from("orders")
+        .update({ status: "delivered", delivered_at: now })
+        .in("id", members.map((m) => m.id))
+        .eq("status", "on_the_way");
+    }
+    const { data: fresh } = await supabaseAdmin.from("orders").select("*").eq("id", id).maybeSingle();
+    if (action === "picked_up") {
+      await notify(
+        order.customer_id,
+        { title: "On the way", description: `Your order ${ref} is on its way.` },
+        { title: "En route", description: `Votre commande ${ref} est en route.` },
+        { title: "في الطريق", description: `طلبك ${ref} في الطريق.` }
+      );
+    } else {
+      await notify(
+        order.customer_id,
+        { title: "Delivered", description: `Your order ${ref} was delivered. Rate it!` },
+        { title: "Livrée", description: `Votre commande ${ref} a été livrée. Notez-la !` },
+        { title: "تم التوصيل", description: `تم توصيل طلبك ${ref}. قيّمه!` }
+      );
+    }
+    return c.json({ order: fresh }, 200);
+  }
 
   switch (action) {
     case "accept":

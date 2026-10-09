@@ -4,8 +4,11 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "dev:arch": "tsx watch --env-file=.env.arch.local src/index.ts",
     "build": "node scripts/build.mjs",
     "deploy": "node scripts/deploy.mjs",
+    "deploy:arch": "sh scripts/deploy-arch.sh",
+    "sync:arch": "sh scripts/sync-arch.sh",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test src/lib/*.test.ts",
     "start": "node dist/index.js",

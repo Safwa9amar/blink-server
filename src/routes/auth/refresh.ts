@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "../../lib/supabase";
+import { createAuthClient } from "../../lib/supabase";
 import { createRoute, errorResponses, json, router } from "../../openapi";
 import { refreshSchema, SessionTokensResponse } from "../../validators/auth";
 
@@ -25,7 +25,7 @@ app.openapi(route, async (c) => {
     return c.json({ error: "refresh_token is required" }, 400);
   }
 
-  const { data, error } = await supabaseAdmin.auth.refreshSession({
+  const { data, error } = await createAuthClient().auth.refreshSession({
     refresh_token,
   });
 

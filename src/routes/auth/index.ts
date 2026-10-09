@@ -1,6 +1,7 @@
 import { router } from "../../openapi";
 import sendOtp from "./send-otp";
 import verifyOtp from "./verify-otp";
+import registerPhone from "./register-phone";
 import google from "./google";
 import apple from "./apple";
 import refresh from "./refresh";
@@ -18,6 +19,7 @@ const app = router();
 // Order matches the original declaration order (matters for route matching).
 app.route("/", sendOtp);
 app.route("/", verifyOtp);
+app.route("/", registerPhone);
 app.route("/", google);
 app.route("/", apple);
 app.route("/", refresh);
