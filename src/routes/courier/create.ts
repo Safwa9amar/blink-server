@@ -1,0 +1,114 @@
+import { randomUUID } from "node:crypto";
+import {
+  buildCourierDetails,
+  COURIER_STORE_NAME,
+  courierItems,
+  scheduleError,
+} from "../../lib/courier";
+import { COURIER_RATES, courierFare, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
+import { withoutOffer } from "../../lib/rider-offer";
+import { supabaseAdmin } from "../../lib/supabase";
+import { requireRole } from "../../middleware/auth";
+import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { CourierRequestResponse, createCourierRequestSchema } from "../../validators/courier";
+import { priceCourierCoupon } from "./shared";
+
+const app = router();
+
+// ─── POST /courier/requests — request one courier per route ──────────
+// Every route becomes a `courier` order in `searching` (one rider each),
+// priced here — never by the client. The orders share courier_group_id
+// (GET /orders?courier_group_id=…). Riders see them through /riders/jobs.
+const route = createRoute({
+  method: "post",
+  path: "/requests",
+  operationId: "createCourierRequest",
+  tags: ["courier"],
+  security: bearer,
+  middleware: [requireRole("customer")] as const,
+  request: { body: { ...json(createCourierRequestSchema), required: true } },
+  responses: {
+    201: json(CourierRequestResponse, "Created"),
+    400: errorResponses[400],
+    403: errorResponses[403],
+  },
+});
+
+app.openapi(route, async (c) => {
+  const user = c.get("user");
+  const body = c.req.valid("json");
+  const vehicle = body.vehicle_type as CourierVehicle;
+
+  const scheduleProblem = scheduleError(body.scheduled_at);
+  if (scheduleProblem) return c.json({ error: scheduleProblem }, 400);
+
+  const priced = body.routes.map((r) => {
+    const km = routeKm(r.pickup, r.drop_offs);
+    return { route: r, km, fare: courierFare(vehicle, km, r.drop_offs.length) };
+  });
+  const maxKm = COURIER_RATES[vehicle].maxKm;
+  const tooLong = priced.findIndex((p) => p.km > maxKm);
+  if (tooLong !== -1) {
+    return c.json(
+      { error: `Route too long: courier ${tooLong + 1} is ${priced[tooLong].km} km, a ${vehicle} takes up to ${maxKm} km` },
+      400
+    );
+  }
+
+  // The coupon is used once: on the first route.
+  let discount = 0;
+  let couponId: string | null = null;
+  if (body.coupon_code) {
+    const coupon = await priceCourierCoupon(user.id, body.coupon_code, priced[0].fare);
+    if (!coupon.ok) return c.json({ error: `Coupon not applicable: ${coupon.reason}` }, 400);
+    discount = coupon.discount;
+    couponId = coupon.coupon.id;
+  }
+
+  const groupId = randomUUID();
+  const rows = priced.map((p, i) => {
+    const courier = buildCourierDetails(p.route, body.paid_by, p.km);
+    const last = courier.drop_offs[courier.drop_offs.length - 1];
+    const off = i === 0 ? discount : 0;
+    return {
+      customer_id: user.id,
+      store_name: COURIER_STORE_NAME,
+      type: "courier" as const,
+      status: "searching" as const,
+      items: courierItems(courier),
+      subtotal: 0,
+      delivery_fee: p.fare,
+      service_fee: 0,
+      discount: off,
+      total: Math.max(0, p.fare - off),
+      coupon_id: i === 0 ? couponId : null,
+      pickup_address: courier.pickup.address,
+      destination_address: last.address,
+      pickup_lat: courier.pickup.lat,
+      pickup_lng: courier.pickup.lng,
+      destination_lat: last.lat,
+      destination_lng: last.lng,
+      vehicle_type: vehicle,
+      scheduled_at: body.scheduled_at ?? null,
+      courier,
+      courier_group_id: groupId,
+    };
+  });
+
+  // One INSERT: every route is created, or none is.
+  const { data, error } = await supabaseAdmin.from("orders").insert(rows).select();
+  if (error || !data?.length) return c.json({ error: error?.message ?? "Couldn't create the request" }, 400);
+
+  if (couponId) {
+    const used = data.find((o) => o.coupon_id === couponId) ?? data[0];
+    await supabaseAdmin
+      .from("customer_coupons")
+      .update({ used_at: new Date().toISOString(), order_id: used.id })
+      .eq("id", couponId);
+  }
+
+  // INSERT … RETURNING keeps the routes' order.
+  return c.json({ orders: data.map((o) => withoutOffer(o)) }, 201);
+});
+
+export default app;

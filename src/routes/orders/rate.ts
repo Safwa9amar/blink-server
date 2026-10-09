@@ -30,7 +30,7 @@ app.openapi(route, async (c) => {
 
   const { data: order } = await supabaseAdmin
     .from("orders")
-    .select("id, customer_id, store_id, status")
+    .select("id, customer_id, store_id, status, type")
     .eq("id", id)
     .maybeSingle();
   if (!order || order.customer_id !== user.id) {
@@ -38,6 +38,10 @@ app.openapi(route, async (c) => {
   }
   if (order.status !== "delivered") {
     return c.json({ error: "Only delivered orders can be rated" }, 400);
+  }
+  // A parcel has no store: its rider is rated (POST /orders/{id}/rate-rider).
+  if (order.type === "courier") {
+    return c.json({ error: "Courier deliveries rate the rider instead" }, 400);
   }
 
   const { data, error } = await supabaseAdmin

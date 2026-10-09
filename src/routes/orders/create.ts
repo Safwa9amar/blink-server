@@ -1,6 +1,10 @@
 import { priceCoupon } from "../../lib/coupons";
+import { scheduleError } from "../../lib/courier";
+import { COURIER_RATES, COURIER_VEHICLES, courierFare, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
+import { priceCourierCoupon } from "../courier/shared";
 import { createNotification } from "../../lib/notifications";
 import { withoutOffer } from "../../lib/rider-offer";
+import { storeOpenState } from "../../lib/store-categories";
 import { LOW_STOCK } from "../merchant/strategy-shared";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
@@ -36,10 +40,59 @@ app.openapi(route, async (c) => {
     return c.json({ error: "store_id is required for merchant orders" }, 400);
   }
 
+  // A store only takes orders while it's live and open — by its weekly
+  // schedule, or the merchant's manual override. The app matches the
+  // "Store closed" / "Store unavailable" prefixes.
+  let storeOwnerId: string | null = null;
+  if (body.store_id) {
+    const { data: store } = await supabaseAdmin
+      .from("stores")
+      .select("name, owner_id, status, is_open, hours, manual_override")
+      .eq("id", body.store_id)
+      .maybeSingle();
+    if (!store || store.status !== "active") {
+      return c.json({ error: "Store unavailable: this store isn't taking orders" }, 400);
+    }
+    if (!storeOpenState(store).is_open) {
+      return c.json({ error: `Store closed: ${store.name} is closed right now` }, 400);
+    }
+    storeOwnerId = store.owner_id;
+  }
+
+  // Courier requests from older apps (new ones use POST /courier/requests):
+  // the fee is priced here from the route, never taken from the client.
+  let subtotal = body.subtotal;
+  let deliveryFee = body.delivery_fee;
+  let serviceFee = body.service_fee;
+  if (body.type === "courier") {
+    const vehicle = COURIER_VEHICLES.find((v) => v === body.vehicle_type) as CourierVehicle | undefined;
+    if (!vehicle) return c.json({ error: "vehicle_type must be bicycle or motorcycle" }, 400);
+    const { pickup_lat, pickup_lng, destination_lat, destination_lng } = body;
+    if (pickup_lat == null || pickup_lng == null || destination_lat == null || destination_lng == null) {
+      return c.json({ error: "A courier request needs pickup and destination coordinates" }, 400);
+    }
+    const scheduleProblem = scheduleError(body.scheduled_at);
+    if (scheduleProblem) return c.json({ error: scheduleProblem }, 400);
+    const km = routeKm({ lat: pickup_lat, lng: pickup_lng }, [{ lat: destination_lat, lng: destination_lng }]);
+    if (km > COURIER_RATES[vehicle].maxKm) {
+      return c.json({ error: `Route too long: a ${vehicle} takes up to ${COURIER_RATES[vehicle].maxKm} km` }, 400);
+    }
+    subtotal = 0;
+    deliveryFee = courierFare(vehicle, km, 1);
+    serviceFee = 0;
+  }
+
   // A coupon code is priced here, never trusted from the client.
-  let discount = body.discount;
+  let discount = body.type === "courier" ? 0 : body.discount;
   let couponId: string | null = null;
-  if (body.coupon_code) {
+  if (body.coupon_code && body.type === "courier") {
+    const priced = await priceCourierCoupon(user.id, body.coupon_code, deliveryFee);
+    if (!priced.ok) {
+      return c.json({ error: `Coupon not applicable: ${priced.reason}` }, 400);
+    }
+    discount = priced.discount;
+    couponId = priced.coupon.id;
+  } else if (body.coupon_code) {
     const priced = await priceCoupon(user.id, body.coupon_code, body.subtotal, body.delivery_fee);
     if (!priced.ok) {
       return c.json({ error: `Coupon not applicable: ${priced.reason}` }, 400);
@@ -48,7 +101,7 @@ app.openapi(route, async (c) => {
     couponId = priced.coupon.id;
   }
 
-  const total = Math.max(0, body.subtotal + body.delivery_fee + body.service_fee - discount);
+  const total = Math.max(0, subtotal + deliveryFee + serviceFee - discount);
 
   const { data, error } = await supabaseAdmin
     .from("orders")
@@ -59,9 +112,9 @@ app.openapi(route, async (c) => {
       type: body.type,
       status: body.type === "courier" ? "searching" : "processing",
       items: body.items,
-      subtotal: body.subtotal,
-      delivery_fee: body.delivery_fee,
-      service_fee: body.service_fee,
+      subtotal,
+      delivery_fee: deliveryFee,
+      service_fee: serviceFee,
       discount,
       store_id: body.store_id ?? null,
       merchant_status: body.store_id ? "pending" : null,
@@ -100,27 +153,20 @@ app.openapi(route, async (c) => {
   }
 
   // Tell the store's merchant a new order is waiting for them.
-  if (body.store_id) {
-    const { data: store } = await supabaseAdmin
-      .from("stores")
-      .select("owner_id")
-      .eq("id", body.store_id)
-      .maybeSingle();
-    if (store?.owner_id) {
-      const ref = `#${data.id.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
-      await createNotification({
-        userId: store.owner_id,
-        type: "order",
-        title: "New order",
-        description: `${body.store_name}: order ${ref} is waiting for you.`,
-        contentFr: {
-          title: "Nouvelle commande",
-          description: `${body.store_name} : la commande ${ref} vous attend.`,
-        },
-        contentAr: { title: "طلب جديد", description: `${body.store_name}: الطلب ${ref} بانتظارك.` },
-        href: "/(merchant)/orders",
-      }).catch(() => null);
-    }
+  if (storeOwnerId) {
+    const ref = `#${data.id.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
+    await createNotification({
+      userId: storeOwnerId,
+      type: "order",
+      title: "New order",
+      description: `${body.store_name}: order ${ref} is waiting for you.`,
+      contentFr: {
+        title: "Nouvelle commande",
+        description: `${body.store_name} : la commande ${ref} vous attend.`,
+      },
+      contentAr: { title: "طلب جديد", description: `${body.store_name}: الطلب ${ref} بانتظارك.` },
+      href: "/(merchant)/orders",
+    }).catch(() => null);
   }
 
   return c.json({ order: withoutOffer(data) }, 201);

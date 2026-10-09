@@ -10,10 +10,16 @@
 // order stays `searching` with a pending request (offered_*) that only that
 // rider sees (request_kind) and only their accept assigns. Until it is
 // answered or times out (TTL + grace) nobody else can take the order. Rules:
-// src/lib/rider-offer.ts.
+// src/lib/rider-offer.ts. When every store in a checkout is one merchant's,
+// that merchant may ask its own driver for the WHOLE checkout: the request
+// lives on every member, is shown as the bundle job and accepted all-or-nothing.
 import {
+  bundleAnswersRequest,
   bundleClaimComplete,
+  bundleHeldForOtherRider,
   bundleMembers,
+  bundleOfferedTo,
+  bundleRequestVisibleTo,
   canCancelBundle,
   canDeliverBundle,
   isBundleOfferable,
@@ -31,8 +37,10 @@ import {
   isFreshOffer,
   isOfferable,
   loadBundle,
+  notifyCourier,
   notifyCustomer,
   notifyStoreOwner,
+  dropOffName,
   OFFER_RADIUS_KM,
   ORDER_SELECT,
   POST_ACCEPT_PENALTY,
@@ -56,6 +64,7 @@ import {
   poolClaimPatch,
 } from "../../lib/rider-offer";
 import { pickedUpPatch } from "../../lib/order-steps";
+import { courierOf, deliverCurrentDropOff, isCourierSearchExpired, remainingDropOffs, riderCanTake } from "../../lib/courier";
 import { supabaseAdmin } from "../../lib/supabase";
 import { orderRef } from "../merchant/shared";
 import { bearer, createRoute, ErrorSchema, z, errorResponses, IdParam, json, OkSchema, router } from "../../openapi";
@@ -146,6 +155,48 @@ async function isActiveStoreDriver(order: Record<string, any>, riderId: string) 
   return !!data;
 }
 
+/** An own-driver checkout request still points at an active driver of one of its stores: this rider. */
+async function isActiveCheckoutDriver(driverId: string | null, members: BundleRow[], riderId: string) {
+  const storeIds = [...new Set(members.map((m) => m.store_id as string).filter(Boolean))];
+  if (!driverId || !storeIds.length) return false;
+  const { data } = await supabaseAdmin
+    .from("store_drivers")
+    .select("id")
+    .eq("id", driverId)
+    .in("store_id", storeIds)
+    .eq("rider_user_id", riderId)
+    .eq("status", "active")
+    .maybeSingle();
+  return !!data;
+}
+
+/** A checkout was accepted: the customer hears once, each store hears who's coming. */
+async function notifyBundleAccepted(won: BundleRow[], riderId: string) {
+  const lead = leadOrder(won);
+  const ref = orderRef(lead.id);
+  // Each store (not shopper hand-overs) hears who's coming for its order.
+  const storeOrders = won.filter((o) => o.type === "merchant");
+  const names = storeOrders.length ? await riderNames(riderId) : null;
+  await Promise.all([
+    notifyCustomer(
+      lead.customer_id,
+      { title: "Rider found", description: `A rider accepted your order ${ref} and will collect it from ${won.length} stores.` },
+      { title: "Livreur trouvé", description: `Un livreur a accepté votre commande ${ref} et la récupérera dans ${won.length} magasins.` },
+      { title: "تم العثور على سائق", description: `قبل سائق طلبك ${ref} وسيستلمه من ${won.length} متاجر.` }
+    ),
+    ...storeOrders.map((o) => {
+      const storeRef = orderRef(o.id);
+      return notifyStoreOwner(
+        storeOwnerId(o),
+        o.id,
+        { title: `${names!.en} accepted order ${storeRef}`, description: "They're on the way to collect it." },
+        { title: `${names!.fr} a accepté la commande ${storeRef}`, description: "Il arrive pour la récupérer." },
+        { title: `قبل ${names!.ar} الطلب ${storeRef}`, description: "إنه في الطريق لاستلامه." }
+      );
+    }),
+  ]);
+}
+
 // ─── GET /jobs/offer — the best open job for this rider ──────────────
 // A store's request to this rider comes first (request_kind set). Otherwise
 // single orders and multi-store checkouts are ranked together by pickup
@@ -178,7 +229,15 @@ app.openapi(
       .order("offered_at", { ascending: true })
       .limit(1);
     const request = (requests ?? []).find((o) => isRequestVisibleTo(o, user.id, now));
-    if (request) {
+    if (request?.checkout_id) {
+      // A store's own-driver request for a whole checkout: shown as the bundle.
+      // A member that changed meanwhile ends it: the pool takes over after TTL + grace.
+      const members = bundleMembers(await loadBundle(request.checkout_id));
+      if (bundleRequestVisibleTo(members, user.id, now)) {
+        const job = await toBundleJob(members, { rider, viewerId: user.id, now });
+        return c.json({ job }, 200);
+      }
+    } else if (request) {
       // A scheduled request still warns about a clashing booked job.
       const conflict = request.scheduled_at
         ? findConflict(await bookedJobRows(user.id), request.scheduled_at)
@@ -210,7 +269,13 @@ app.openapi(
     // out of the pool; after TTL + grace it is an ordinary Blink job again.
     const singles = (open ?? []).filter(
       (o) =>
-        isOfferable(o) && isFreshOffer(o, now) && !isHeld(o, now) && !skip.has(o.id) && o.customer_id !== user.id
+        isOfferable(o) &&
+        isFreshOffer(o, now) &&
+        !isHeld(o, now) &&
+        !skip.has(o.id) &&
+        o.customer_id !== user.id &&
+        // A motorcycle courier request never goes to a bicycle.
+        (o.type !== "courier" || riderCanTake(o.vehicle_type, rider.vehicleType))
     );
 
     // Every checkout with an open member is loaded whole, including members
@@ -360,18 +425,97 @@ app.openapi(
 
     // ─── Multi-store checkout: one rider claims every store's order ──
     if (order.checkout_id) {
-      // Checkouts never carry a store request (one Blink rider takes them whole).
-      if (typeof shown === "string") return c.json({ error: "This request is no longer available" }, 409);
       const rows = await loadBundle(order.checkout_id);
+      const members = bundleMembers(rows);
+      // A store's own-driver request for the whole checkout, answered by its driver.
+      const requested =
+        typeof shown === "string"
+          ? bundleAnswersRequest(members, user.id, shown, now)
+          : shown === undefined && bundleOfferedTo(members, user.id, now);
+      if (typeof shown === "string" && !requested) {
+        return c.json({ error: "This request is no longer available" }, 409);
+      }
+      if (requested) {
+        if (await currentJobRow(user.id)) return c.json({ error: "Finish your current trip first" }, 400);
+        const lead = leadOrder(members);
+        // The store may have removed this driver since asking.
+        if (!(await isActiveCheckoutDriver(lead.offered_driver_id, members, user.id))) {
+          await supabaseAdmin
+            .from("orders")
+            .update(CLEAR_OFFER)
+            .eq("checkout_id", order.checkout_id)
+            .eq("offered_rider_id", user.id)
+            .eq("offered_at", lead.offered_at)
+            .is("rider_id", null);
+          return c.json({ error: "This request is no longer available" }, 409);
+        }
+        const { data: claimedOwn } = await supabaseAdmin
+          .from("orders")
+          .update({
+            rider_id: user.id,
+            rider_assigned_at: nowIso,
+            status: "heading_to_store",
+            delivery_mode: "own",
+            store_driver_id: lead.offered_driver_id,
+            ...CLEAR_OFFER,
+          })
+          .eq("checkout_id", order.checkout_id)
+          .is("rider_id", null)
+          .eq("status", "searching")
+          .eq("offered_rider_id", user.id)
+          .eq("offered_at", lead.offered_at)
+          .eq("offered_mode", "own")
+          .is("offer_declined_at", null)
+          .select(ORDER_SELECT);
+        const wonOwn = claimedOwn ?? [];
+        if (!bundleClaimComplete(wonOwn.length, members.length)) {
+          if (wonOwn.length) {
+            // Back to the request as read, so the driver can still answer it.
+            await supabaseAdmin
+              .from("orders")
+              .update({
+                rider_id: null,
+                rider_assigned_at: null,
+                status: "searching",
+                delivery_mode: null,
+                store_driver_id: null,
+                offered_rider_id: lead.offered_rider_id,
+                offered_driver_id: lead.offered_driver_id,
+                offered_mode: lead.offered_mode,
+                offered_at: lead.offered_at,
+                offer_declined_at: null,
+              })
+              .in("id", wonOwn.map((o) => o.id))
+              .eq("rider_id", user.id)
+              .eq("status", "heading_to_store");
+          }
+          return c.json({ error: "This request is no longer available" }, 409);
+        }
+        // Own driver: no trip (no Blink commission), like a single own delivery.
+        if (!(await claimStillHeld(wonOwn.map((o) => o.id as string), user.id))) {
+          return c.json({ error: "This job is no longer available" }, 409);
+        }
+        await releaseRiderRequests(user.id);
+        await notifyBundleAccepted(wonOwn, user.id);
+        const job = await toBundleJob(wonOwn, { rider: await riderPosition(user.id) });
+        return c.json({ job }, 200);
+      }
+      // A pool claim never takes a checkout a store asked a driver for.
+      if (shown === null && bundleOfferedTo(members, user.id, now)) {
+        return c.json({ error: "This job changed — check the new request" }, 409);
+      }
+      if (bundleHeldForOtherRider(members, user.id, now)) {
+        return c.json({ error: "This job is no longer available" }, 409);
+      }
       if (!isBundleOfferable(rows)) return c.json({ error: "This job is no longer available" }, 409);
       if (await currentJobRow(user.id)) return c.json({ error: "Finish your current trip first" }, 400);
-      const members = bundleMembers(rows);
 
       // A single conditional update is the atomic claim. Rejected and canceled
       // stores are never `searching`, so only members can match.
       const { data: claimed } = await supabaseAdmin
         .from("orders")
-        .update({ rider_id: user.id, rider_assigned_at: nowIso, status: "heading_to_store" })
+        // Stale (declined / expired) request columns go with the claim.
+        .update({ rider_id: user.id, rider_assigned_at: nowIso, status: "heading_to_store", ...CLEAR_OFFER })
         .eq("checkout_id", order.checkout_id)
         .is("rider_id", null)
         .eq("status", "searching")
@@ -411,30 +555,7 @@ app.openapi(
       }
       // On a job now: stores still waiting on this rider can pick someone else.
       await releaseRiderRequests(user.id);
-
-      const lead = leadOrder(won);
-      const ref = orderRef(lead.id);
-      // Each store (not shopper hand-overs) hears who's coming for its order.
-      const storeOrders = won.filter((o) => o.type === "merchant");
-      const names = storeOrders.length ? await riderNames(user.id) : null;
-      await Promise.all([
-        notifyCustomer(
-          lead.customer_id,
-          { title: "Rider found", description: `A rider accepted your order ${ref} and will collect it from ${won.length} stores.` },
-          { title: "Livreur trouvé", description: `Un livreur a accepté votre commande ${ref} et la récupérera dans ${won.length} magasins.` },
-          { title: "تم العثور على سائق", description: `قبل سائق طلبك ${ref} وسيستلمه من ${won.length} متاجر.` }
-        ),
-        ...storeOrders.map((o) => {
-          const storeRef = orderRef(o.id);
-          return notifyStoreOwner(
-            storeOwnerId(o),
-            o.id,
-            { title: `${names!.en} accepted order ${storeRef}`, description: "They're on the way to collect it." },
-            { title: `${names!.fr} a accepté la commande ${storeRef}`, description: "Il arrive pour la récupérer." },
-            { title: `قبل ${names!.ar} الطلب ${storeRef}`, description: "إنه في الطريق لاستلامه." }
-          );
-        }),
-      ]);
+      await notifyBundleAccepted(won, user.id);
       const job = await toBundleJob(won, { rider: await riderPosition(user.id) });
       return c.json({ job }, 200);
     }
@@ -467,6 +588,13 @@ app.openapi(
         .eq("rider_id", user.id)
         .maybeSingle();
       if (declined) return c.json({ error: "This job is no longer available" }, 409);
+      if (order.type === "courier") {
+        // Past its search window the request is being canceled (no_rider).
+        if (isCourierSearchExpired(order, now)) return c.json({ error: "This job is no longer available" }, 409);
+        if (!riderCanTake(order.vehicle_type, (await riderPosition(user.id)).vehicleType)) {
+          return c.json({ error: "This delivery needs a motorcycle" }, 409);
+        }
+      }
     }
     if (!scheduled && (await currentJobRow(user.id))) {
       return c.json({ error: "Finish your current trip first" }, 400);
@@ -560,12 +688,14 @@ app.openapi(
     // rider took its order from the pool (its screen updates via realtime).
     const names = order.type === "merchant" ? await riderNames(user.id) : null;
     await Promise.all([
-      notifyCustomer(
-        claimed.customer_id,
-        { title: "Rider found", description: `A rider accepted your order ${ref}.` },
-        { title: "Livreur trouvé", description: `Un livreur a accepté votre commande ${ref}.` },
-        { title: "تم العثور على سائق", description: `قبل سائق طلبك ${ref}.` }
-      ),
+      order.type === "courier"
+        ? notifyCourier(claimed as { id: string; customer_id: string }, { kind: "accepted", scheduled })
+        : notifyCustomer(
+            claimed.customer_id,
+            { title: "Rider found", description: `A rider accepted your order ${ref}.` },
+            { title: "Livreur trouvé", description: `Un livreur a accepté votre commande ${ref}.` },
+            { title: "تم العثور على سائق", description: `قبل سائق طلبك ${ref}.` }
+          ),
       names &&
         notifyStoreOwner(
           storeOwnerId(order),
@@ -610,7 +740,7 @@ app.openapi(
     const now = Date.now();
     const { data: order } = await supabaseAdmin
       .from("orders")
-      .select("id, status, rider_id, offered_rider_id, offered_at, offer_declined_at, store:stores(owner_id)")
+      .select("id, status, rider_id, checkout_id, offered_rider_id, offered_at, offer_declined_at, store:stores(owner_id)")
       .eq("id", id)
       .maybeSingle();
     const { error } = await supabaseAdmin
@@ -622,6 +752,38 @@ app.openapi(
     // never declines a store request that arrived meanwhile (older apps send
     // nothing: the open request, if any).
     const shown = body.request_expires_at;
+    // A store's own-driver request for a whole checkout: declined on every member.
+    if (order?.checkout_id) {
+      const members = bundleMembers(await loadBundle(order.checkout_id));
+      const answersAll =
+        typeof shown === "string"
+          ? bundleAnswersRequest(members, user.id, shown, now)
+          : shown === undefined && bundleOfferedTo(members, user.id, now);
+      if (answersAll) {
+        const lead = leadOrder(members);
+        const { data: declined } = await supabaseAdmin
+          .from("orders")
+          .update({ offer_declined_at: new Date(now).toISOString() })
+          .eq("checkout_id", order.checkout_id)
+          .eq("offered_rider_id", user.id)
+          .eq("offered_at", lead.offered_at)
+          .is("rider_id", null)
+          .eq("status", "searching")
+          .is("offer_declined_at", null)
+          .select("id");
+        if (declined?.length) {
+          const [names, ref] = [await riderNames(user.id), orderRef(lead.id)];
+          await notifyStoreOwner(
+            storeOwnerId(order),
+            lead.id,
+            { title: `${names.en} declined order ${ref}`, description: "Choose another rider." },
+            { title: `${names.fr} a refusé la commande ${ref}`, description: "Choisissez un autre livreur." },
+            { title: `رفض ${names.ar} الطلب ${ref}`, description: "اختر سائقًا آخر." }
+          );
+        }
+      }
+      return c.json({ success: true }, 200);
+    }
     const answers = order
       ? typeof shown === "string"
         ? answersRequest(order, user.id, shown, now)
@@ -681,6 +843,7 @@ app.openapi(
     if (!data) return c.json({ error: "Job not found" }, 404);
     // On a job now: stores still waiting on this rider can pick someone else.
     await releaseRiderRequests(user.id, { keepOrderId: id });
+    if (data.type === "courier") await notifyCourier(data as { id: string; customer_id: string }, { kind: "started" });
     const [job] = await toJobs([data], { rider: await riderPosition(user.id) });
     return c.json({ job }, 200);
   }
@@ -756,7 +919,7 @@ app.openapi(
 
     const { data: order } = await supabaseAdmin
       .from("orders")
-      .select("id, status, customer_id, checkout_id, type, merchant_status")
+      .select("id, status, customer_id, checkout_id, type, merchant_status, courier, updated_at, destination_address")
       .eq("id", id)
       .eq("rider_id", user.id)
       .maybeSingle();
@@ -847,9 +1010,41 @@ app.openapi(
     }
 
     const now = new Date().toISOString();
+    const courier = order.type === "courier" ? courierOf(order) : null;
+
+    // ─── Courier with drop-offs left after this one: deliver this stop only ──
+    if (step === "delivered" && courier && remainingDropOffs(courier) > 1) {
+      const done = deliverCurrentDropOff(courier, now)!;
+      // Conditional on the row as read, so a double tap can't skip a stop.
+      const { data: updated, error } = await supabaseAdmin
+        .from("orders")
+        .update({ courier: done.courier })
+        .eq("id", id)
+        .eq("rider_id", user.id)
+        .eq("status", "on_the_way")
+        .eq("updated_at", order.updated_at)
+        .select(ORDER_SELECT)
+        .maybeSingle();
+      if (error) return c.json({ error: error.message }, 400);
+      if (!updated) return c.json({ error: "Job changed, try again" }, 409);
+      await notifyCourier(order, {
+        kind: "dropped_off",
+        to: dropOffName(order, done.index),
+        done: done.index + 1,
+        total: courier.drop_offs.length,
+      });
+      const [job] = await toJobs([updated], { rider: await riderPosition(user.id) });
+      return c.json({ job }, 200);
+    }
+
     const patch: Record<string, unknown> =
       move.to === "on_the_way" ? pickedUpPatch(order, now) : { status: move.to };
     if (move.to === "delivered") patch.delivered_at = now;
+    // The last drop-off of a courier route is delivered with the order.
+    if (move.to === "delivered" && courier) {
+      const done = deliverCurrentDropOff(courier, now);
+      if (done) patch.courier = done.courier;
+    }
     const { data: updated, error } = await supabaseAdmin
       .from("orders")
       .update(patch)
@@ -863,7 +1058,11 @@ app.openapi(
 
     const ref = orderRef(id);
     let summary: z.infer<typeof TripSummarySchema> | undefined;
-    if (step === "arrived") {
+    if (courier && step === "arrived") {
+      await notifyCourier(order, { kind: "arrived" });
+    } else if (courier && step === "picked_up") {
+      await notifyCourier(order, { kind: "picked_up", to: dropOffName(order, 0) });
+    } else if (step === "arrived") {
       await notifyCustomer(
         order.customer_id,
         { title: "Rider at pickup", description: `Your rider arrived to collect order ${ref}.` },
@@ -891,12 +1090,16 @@ app.openapi(
         .select("*")
         .maybeSingle();
       if (trip) summary = tripSummary(trip);
-      await notifyCustomer(
-        order.customer_id,
-        { title: "Delivered", description: `Order ${ref} has been delivered.` },
-        { title: "Livrée", description: `La commande ${ref} a été livrée.` },
-        { title: "تم التوصيل", description: `تم توصيل الطلب ${ref}.` }
-      );
+      if (courier) {
+        await notifyCourier(order, { kind: "delivered", to: dropOffName(order, courier.drop_offs.length - 1) });
+      } else {
+        await notifyCustomer(
+          order.customer_id,
+          { title: "Delivered", description: `Order ${ref} has been delivered.` },
+          { title: "Livrée", description: `La commande ${ref} a été livrée.` },
+          { title: "تم التوصيل", description: `تم توصيل الطلب ${ref}.` }
+        );
+      }
     }
 
     const [job] = await toJobs([updated], { rider: await riderPosition(user.id) });
@@ -946,8 +1149,15 @@ app.openapi(
 
       const { data: released } = await supabaseAdmin
         .from("orders")
-        // delivery_mode goes back to null. Shopper members never had one.
-        .update({ rider_id: null, rider_assigned_at: null, status: "searching", delivery_mode: null })
+        // delivery_mode (and an own driver) go back to null. Shopper members never had one.
+        .update({
+          rider_id: null,
+          rider_assigned_at: null,
+          status: "searching",
+          delivery_mode: null,
+          store_driver_id: null,
+          ...CLEAR_OFFER,
+        })
         .in("id", ids)
         .eq("rider_id", user.id)
         // Never revive an order the customer canceled meanwhile.
@@ -997,6 +1207,9 @@ app.openapi(
         // A store order is the store's to place again: Blink pool or a new
         // request, with no driver of its own still attached.
         ...(order.type === "merchant" ? { delivery_mode: null, store_driver_id: null } : {}),
+        // A courier is live again from now: its search window (offers +
+        // no_rider expiry, src/lib/courier.ts) restarts instead of running out.
+        ...(order.type === "courier" ? { accepted_at: new Date().toISOString() } : {}),
         ...CLEAR_OFFER,
       })
       .eq("id", id)
@@ -1029,12 +1242,14 @@ app.openapi(
     // The store sees its order back in "searching" and may ask another rider.
     const names = order.type === "merchant" ? await riderNames(user.id) : null;
     await Promise.all([
-      notifyCustomer(
-        order.customer_id,
-        { title: "Finding a new rider", description: `Your rider canceled order ${ref}. We're finding another one.` },
-        { title: "Recherche d'un nouveau livreur", description: `Votre livreur a annulé la commande ${ref}. Nous en cherchons un autre.` },
-        { title: "البحث عن سائق جديد", description: `ألغى السائق الطلب ${ref}. نبحث عن سائق آخر.` }
-      ),
+      order.type === "courier"
+        ? notifyCourier(order as { id: string; customer_id: string }, { kind: "rider_canceled" })
+        : notifyCustomer(
+            order.customer_id,
+            { title: "Finding a new rider", description: `Your rider canceled order ${ref}. We're finding another one.` },
+            { title: "Recherche d'un nouveau livreur", description: `Votre livreur a annulé la commande ${ref}. Nous en cherchons un autre.` },
+            { title: "البحث عن سائق جديد", description: `ألغى السائق الطلب ${ref}. نبحث عن سائق آخر.` }
+          ),
       names &&
         notifyStoreOwner(
           storeOwnerId(order),

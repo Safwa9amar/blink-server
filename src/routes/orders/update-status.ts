@@ -36,7 +36,7 @@ app.openapi(route, async (c) => {
 
   const { data: order } = await supabaseAdmin
     .from("orders")
-    .select("id, customer_id, rider_id, status, checkout_id")
+    .select("id, customer_id, rider_id, status, checkout_id, type")
     .eq("id", orderId)
     .maybeSingle();
 
@@ -87,7 +87,7 @@ app.openapi(route, async (c) => {
     const now = new Date().toISOString();
     const { data: canceled, error } = await supabaseAdmin
       .from("orders")
-      .update({ status: "canceled", canceled_at: now, canceled_by: "customer", ...CLEAR_OFFER })
+      .update({ status: "canceled", canceled_at: now, canceled_by: "customer", ...cancelDetails(body), ...CLEAR_OFFER })
       .in("id", members.map((m) => m.id))
       .in("status", [...CUSTOMER_CANCELABLE])
       .select();
@@ -141,6 +141,7 @@ app.openapi(route, async (c) => {
   if (body.status === "canceled") {
     updatePayload.canceled_at = now;
     updatePayload.canceled_by = user.staff_role ? "system" : user.role === "customer" ? "customer" : "system";
+    Object.assign(updatePayload, cancelDetails(body));
   }
   // Moving the order on ends a store's pending rider request (the requested
   // rider's sheet closes through realtime).
@@ -184,9 +185,43 @@ app.openapi(route, async (c) => {
         .in("order_id", tripOrderIds)
         .eq("status", "upcoming");
     }
+    // The rider on it (or who booked it) is free again — say so instead of
+    // letting their job vanish with a generic "trip ended".
+    if (order.rider_id && !order.checkout_id) {
+      const ref = orderRef(orderId);
+      const parcel = order.type === "courier";
+      await createNotification({
+        userId: order.rider_id,
+        type: "order",
+        title: parcel ? "Delivery canceled" : "Order canceled",
+        description: parcel
+          ? `The customer canceled parcel delivery ${ref}. You're free for a new job.`
+          : `The customer canceled order ${ref}. You're free for a new job.`,
+        contentFr: {
+          title: parcel ? "Livraison annulée" : "Commande annulée",
+          description: parcel
+            ? `Le client a annulé la livraison de colis ${ref}. Vous êtes libre pour une nouvelle course.`
+            : `Le client a annulé la commande ${ref}. Vous êtes libre pour une nouvelle course.`,
+        },
+        contentAr: {
+          title: parcel ? "تم إلغاء التوصيل" : "تم إلغاء الطلب",
+          description: parcel
+            ? `ألغى الزبون توصيل الطرد ${ref}. أنت متاح لطلب جديد.`
+            : `ألغى الزبون الطلب ${ref}. أنت متاح لطلب جديد.`,
+        },
+      }).catch(() => null);
+    }
   }
 
   return c.json({ order: withoutOffer(data) }, 200);
 });
+
+/** The customer's cancel reason + details, when sent. */
+function cancelDetails(body: { cancel_reason?: string; cancel_note?: string }) {
+  return {
+    ...(body.cancel_reason ? { cancel_reason: body.cancel_reason } : {}),
+    ...(body.cancel_note ? { cancel_note: body.cancel_note } : {}),
+  };
+}
 
 export default app;

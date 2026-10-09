@@ -14,8 +14,14 @@ export const RiderCardSchema = z
     plate: z.string().nullable(),
     /** Orders this rider delivered. */
     deliveries: z.number().int(),
+    /** Average of customers' ratings (1-5); null when unrated. */
+    rating: z.number().nullable(),
     /** Only while the delivery is under way. */
     phone: z.string().nullable(),
+    /** Last known position, only while the rider is driving this delivery. */
+    location: z
+      .object({ lat: z.number(), lng: z.number(), updated_at: z.string().nullable() })
+      .nullable(),
   })
   .openapi("RiderCard");
 

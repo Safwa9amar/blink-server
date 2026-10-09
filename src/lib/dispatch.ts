@@ -5,6 +5,8 @@
 import { distanceKm, fullName, IN_DELIVERY, usersById } from "../routes/merchant/orders-shared";
 import { orderRef } from "../routes/merchant/shared";
 import { bundleMembers, bundleStatus, leadOrder, orderStops } from "./bundle";
+import { courierCopy, courierHref, type CourierEvent } from "./courier-copy";
+import { courierOf, currentDropOffIndex } from "./courier";
 import { createNotification } from "./notifications";
 import { heldSinceIso, requestFields } from "./rider-offer";
 import { supabaseAdmin } from "./supabase";
@@ -23,6 +25,8 @@ export const OFFER_RADIUS_KM = 15;
 export const OFFER_MAX_AGE_MS = 20 * 60 * 1000;
 /** Average urban speed used for ETA estimates. */
 const AVG_SPEED_KMH = 25;
+/** A courier rider's time at each drop-off (handover). */
+const COURIER_STOP_MINUTES = 3;
 /** A booked scheduled job this close to another one is a conflict. */
 const CONFLICT_WINDOW_MS = 60 * 60 * 1000;
 
@@ -39,6 +43,8 @@ const round1 = (n: number) => Math.round(n * 10) / 10;
 
 /** Pickup point — the order's own, else the store's. */
 function pickupOf(o: Row) {
+  const c = courierOf(o);
+  if (c) return { label: c.pickup.label, address: c.pickup.address, lat: c.pickup.lat, lng: c.pickup.lng };
   return {
     // Courier orders have no store ("Courier" is a placeholder name).
     label: o.type === "courier" ? o.pickup_address ?? "" : o.store_name ?? "",
@@ -48,7 +54,16 @@ function pickupOf(o: Row) {
   };
 }
 
-function destinationOf(o: Row) {
+/**
+ * Drop-off point. A courier route has several: `current` = the one the rider
+ * is heading to (job views), otherwise the last one (trips, totals).
+ */
+function destinationOf(o: Row, opts: { current?: boolean } = {}) {
+  const c = courierOf(o);
+  if (c?.drop_offs.length) {
+    const d = c.drop_offs[(opts.current ? currentDropOffIndex(c) : null) ?? c.drop_offs.length - 1];
+    return { label: d.label, address: d.address, lat: d.lat, lng: d.lng };
+  }
   return {
     label: o.destination_address ?? "",
     address: o.destination_address ?? "",
@@ -78,11 +93,14 @@ export function isOfferable(o: Row) {
   return true;
 }
 
-/** Live enough to offer: recent, or a scheduled order still ahead. */
+/**
+ * Live enough to offer: recent, or a scheduled order still ahead (or due
+ * within the window — it went live at its scheduled time).
+ */
 export function isFreshOffer(o: Row, now = Date.now()) {
   if (o.scheduled_at && new Date(o.scheduled_at).getTime() > now) return true;
   const liveAt = Math.max(
-    ...[o.created_at, o.accepted_at, o.prepared_at]
+    ...[o.created_at, o.accepted_at, o.prepared_at, o.scheduled_at]
       .filter(Boolean)
       .map((d: string) => new Date(d).getTime())
   );
@@ -92,11 +110,12 @@ export function isFreshOffer(o: Row, now = Date.now()) {
 export async function riderPosition(riderId: string) {
   const { data } = await supabaseAdmin
     .from("rider_profiles")
-    .select("is_available, latitude, longitude")
+    .select("is_available, latitude, longitude, vehicle_type")
     .eq("user_id", riderId)
     .maybeSingle();
   return {
     isAvailable: data?.is_available ?? false,
+    vehicleType: (data?.vehicle_type as string | null) ?? null,
     lat: (data?.latitude as number | null) ?? null,
     lng: (data?.longitude as number | null) ?? null,
   };
@@ -161,8 +180,10 @@ export async function toJobs(orders: Row[], ctx: JobCtx) {
   return Promise.all(
     orders.map(async (o) => {
       const pickup = pickupOf(o);
-      const destination = destinationOf(o);
-      const distance = kmBetween(pickup, destination) ?? 0;
+      const destination = destinationOf(o, { current: true });
+      const courier = courierOf(o);
+      // A courier route: the whole route as priced, stops included.
+      const distance = courier ? courier.distance_km : (kmBetween(pickup, destination) ?? 0);
       const customer = users.get(o.customer_id);
       const stat = stats.get(o.customer_id);
       const conflict = ctx.conflicts?.get(o.id);
@@ -186,7 +207,10 @@ export async function toJobs(orders: Row[], ctx: JobCtx) {
         order_total: Number(o.total ?? 0),
         commission_rate: COMMISSION_RATE,
         distance_km: round1(distance),
-        duration_minutes: Math.max(1, Math.round((distance / AVG_SPEED_KMH) * 60)),
+        duration_minutes: Math.max(
+          1,
+          Math.round((distance / AVG_SPEED_KMH) * 60) + (courier ? courier.drop_offs.length * COURIER_STOP_MINUTES : 0)
+        ),
         pickup_distance_km: (() => {
           const km = kmBetween(ctx.rider, pickup);
           return km == null ? null : round1(km);
@@ -212,6 +236,16 @@ export async function toJobs(orders: Row[], ctx: JobCtx) {
         // app tells an own-store delivery (no Blink fee / penalty) from a
         // Blink one after a restart too.
         delivery_mode: o.delivery_mode === "own" || o.delivery_mode === "blink" ? (o.delivery_mode as "own" | "blink") : null,
+        // Parcel, contacts and every drop-off; null for store orders.
+        courier: courier
+          ? {
+              parcel: courier.parcel,
+              paid_by: courier.paid_by,
+              pickup: courier.pickup,
+              drop_offs: courier.drop_offs,
+              current_drop_off: currentDropOffIndex(courier),
+            }
+          : null,
       };
     })
   );
@@ -307,11 +341,14 @@ export async function toBundleJob(rows: Row[], ctx: JobCtx) {
     trip_id: (trips ?? [])[0]?.id ?? base.trip_id,
     checkout_id: lead.checkout_id as string,
     stops,
-    // Stores can't request a rider for a checkout: one Blink rider takes it
-    // whole from the open pool.
-    request_kind: null,
-    request_expires_at: null,
-    delivery_mode: members.some((m) => m.rider_id) ? ("blink" as const) : null,
+    // request_kind / request_expires_at come from the lead (toJobs): a store's
+    // own-driver request lives on every member, so the lead carries it too.
+    delivery_mode:
+      lead.delivery_mode === "own"
+        ? ("own" as const)
+        : members.some((m) => m.rider_id)
+          ? ("blink" as const)
+          : null,
   };
 }
 
@@ -351,10 +388,11 @@ export function findConflict(booked: Row[], scheduledAt: string | null) {
 export async function createTripForOrder(o: Row, riderId: string) {
   const pickup = pickupOf(o);
   const destination = destinationOf(o);
+  const courier = courierOf(o);
   return upsertTrip(o, riderId, {
     pickup,
     destination,
-    distance: kmBetween(pickup, destination) ?? 0,
+    distance: courier ? courier.distance_km : (kmBetween(pickup, destination) ?? 0),
     fare: Number(o.delivery_fee ?? 0),
   });
 }
@@ -430,6 +468,26 @@ type Copy = { title: string; description: string };
 /** In-app + push "order" notification to the customer (best effort). */
 export const notifyCustomer = (userId: string, en: Copy, fr: Copy, ar: Copy) =>
   createNotification({ userId, type: "order", ...en, contentFr: fr, contentAr: ar }).catch(() => null);
+
+/** A courier event to the customer; tapping it opens the tracking screen (best effort). */
+export function notifyCourier(o: { id: string; customer_id: string }, event: CourierEvent) {
+  const { en, fr, ar } = courierCopy(orderRef(o.id), event);
+  return createNotification({
+    userId: o.customer_id,
+    type: "courier",
+    ...en,
+    contentFr: fr,
+    contentAr: ar,
+    href: courierHref(o.id),
+  }).catch(() => null);
+}
+
+/** Who a courier drop-off goes to, for customer copy: the recipient, else the place. */
+export function dropOffName(o: Row, index?: number | null) {
+  const c = courierOf(o);
+  const d = c?.drop_offs[index ?? (c ? (currentDropOffIndex(c) ?? c.drop_offs.length - 1) : 0)];
+  return d?.recipient_name || d?.label || d?.address || o.destination_address || "";
+}
 
 /** The same to a store owner; tapping it opens that order (best effort, no-op without an owner). */
 export const notifyStoreOwner = (

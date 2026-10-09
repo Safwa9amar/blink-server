@@ -19,6 +19,7 @@ import deepLinkRoutes from "./routes/deep-links";
 import libraryRoutes from "./routes/library";
 import emailRoutes from "./routes/email";
 import cronRoutes from "./routes/cron";
+import hookRoutes from "./routes/hooks";
 import supportChatRoutes from "./routes/support-chat";
 import supportContentRoutes from "./routes/support-content";
 import aiRoutes from "./routes/ai";
@@ -30,6 +31,7 @@ import promotionRoutes from "./routes/promotions";
 import couponRoutes from "./routes/coupons";
 import favoriteRoutes from "./routes/favorites";
 import merchantRoutes from "./routes/merchant";
+import courierRoutes from "./routes/courier";
 import { metricsMiddleware } from "./middleware/metrics";
 
 // __APP_VERSION__ is injected from package.json at build time by
@@ -66,6 +68,7 @@ app.route("/auth", authRoutes);
 app.route("/trips", tripRoutes);
 app.route("/transactions", transactionRoutes);
 app.route("/orders", orderRoutes);
+app.route("/courier", courierRoutes);
 app.route("/notifications", notificationRoutes);
 app.route("/addresses", addressRoutes);
 app.route("/marketplace", marketplaceRoutes);
@@ -87,6 +90,7 @@ app.route("/deep-links", deepLinkRoutes);
 app.route("/library", libraryRoutes);
 app.route("/email", emailRoutes);
 app.route("/cron", cronRoutes);
+app.route("/hooks", hookRoutes);
 
 // ─── OpenAPI spec (consumed by the mobile app's orval client) ────────
 mountDocs(app, VERSION);

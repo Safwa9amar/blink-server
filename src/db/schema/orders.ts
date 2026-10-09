@@ -11,6 +11,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { CourierDetails } from "../../lib/courier";
 import { orderStatus, orderType } from "./enums";
 import { timestamps } from "./_shared";
 import { users } from "./users";
@@ -91,6 +92,19 @@ export const orders = pgTable(
     offeredMode: text("offered_mode").$type<"own" | "blink">(),
     offeredAt: timestamp("offered_at", { withTimezone: true, mode: "string" }),
     offerDeclinedAt: timestamp("offer_declined_at", { withTimezone: true, mode: "string" }),
+    // Courier requests (20261009140000_courier_details.sql). `courier` holds
+    // the parcel, contacts and every drop-off (shape: CourierDetails in
+    // src/lib/courier.ts); the flat pickup_* / destination_* columns keep the
+    // pickup and the LAST drop-off. One order per route, grouped per request.
+    courier: jsonb("courier").$type<CourierDetails>(),
+    courierGroupId: uuid("courier_group_id"),
+    // Why it was canceled (customer reason key, or `no_rider`) + free text.
+    cancelReason: text("cancel_reason"),
+    cancelNote: text("cancel_note"),
+    // The customer's rating of the rider after delivery.
+    riderRating: smallint("rider_rating"),
+    riderReview: text("rider_review"),
+    riderTags: text("rider_tags").array(),
     ...timestamps,
   },
   (t) => [
@@ -100,6 +114,11 @@ export const orders = pgTable(
     index("idx_orders_checkout").on(t.checkoutId).where(sql`checkout_id is not null`),
     // 20261007180407_order_rider_offer.sql
     index("idx_orders_offered_rider").on(t.offeredRiderId).where(sql`offered_rider_id is not null`),
+    // 20261009140000_courier_details.sql
+    index("idx_orders_courier_group").on(t.courierGroupId).where(sql`courier_group_id is not null`),
+    index("idx_orders_courier_searching")
+      .on(t.createdAt)
+      .where(sql`type = 'courier' and status = 'searching' and rider_id is null`),
     index("idx_orders_rider").on(t.riderId),
     index("idx_orders_status").on(t.status),
     pgPolicy("orders_select_own", {

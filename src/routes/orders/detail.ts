@@ -1,4 +1,6 @@
-import { isActiveOrder } from "../../lib/rider-card";
+import { isCourierSearchExpired } from "../../lib/courier";
+import { expireCourierOrder } from "../../lib/courier-timeouts";
+import { isActiveOrder, isLiveOrder } from "../../lib/rider-card";
 import { attachRiders, attachStoreInfo } from "../../lib/rider-cards-load";
 import { withoutOffer } from "../../lib/rider-offer";
 import { supabaseAdmin } from "../../lib/supabase";
@@ -22,25 +24,30 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const { id: orderId } = c.req.valid("param");
 
-  const { data, error } = await supabaseAdmin
+  const { data: row, error } = await supabaseAdmin
     .from("orders")
     .select("*")
     .eq("id", orderId)
     .single();
 
-  if (error || !data) {
+  if (error || !row) {
     return c.json({ error: "Order not found" }, 404);
   }
 
-  if (data.customer_id !== user.id && data.rider_id !== user.id) {
+  if (row.customer_id !== user.id && row.rider_id !== user.id) {
     return c.json({ error: "Access denied" }, 403);
   }
+
+  // A courier request no rider took ends here even without the cron, so the
+  // customer's searching screen moves on (canceled, cancel_reason no_rider).
+  const data = isCourierSearchExpired(row) ? ((await expireCourierOrder(row)) ?? row) : row;
 
   // Which rider a store asked is the merchant's business only.
   const order = withoutOffer(data);
   if (data.customer_id !== user.id) return c.json({ order }, 200);
   // The customer sees who delivers (phone while under way) and the store card.
-  const [withRider] = await attachRiders([order], isActiveOrder);
+  // …and, while the rider is driving it, where they are.
+  const [withRider] = await attachRiders([order], isActiveOrder, isLiveOrder);
   const [full] = await attachStoreInfo([withRider]);
   return c.json({ order: full }, 200);
 });

@@ -1,4 +1,5 @@
 import { z } from "@hono/zod-openapi";
+import { CourierDetailsSchema } from "./orders";
 
 // ─── Rider dispatch (/riders/jobs/*) ─────────────────────────────────
 // A "job" is an order seen from the rider's side: where to pick up, where to
@@ -105,6 +106,22 @@ export const RiderJobSchema = z
      * null until a rider is assigned, and for shopper / courier jobs.
      */
     delivery_mode: z.enum(["own", "blink"]).nullable(),
+    /**
+     * Courier (parcel) job: the parcel, who pays, the pickup contact and every
+     * drop-off with its recipient. `destination` is the drop-off at
+     * `current_drop_off`; `advance delivered` completes it, and the job is done
+     * after the last one. null for store orders.
+     */
+    courier: z
+      .object({
+        parcel: CourierDetailsSchema.shape.parcel,
+        paid_by: CourierDetailsSchema.shape.paid_by,
+        pickup: CourierDetailsSchema.shape.pickup,
+        drop_offs: CourierDetailsSchema.shape.drop_offs,
+        /** Index in drop_offs of the next drop-off; null once all are delivered. */
+        current_drop_off: z.number().int().nullable(),
+      })
+      .nullable(),
   })
   .openapi("RiderJob");
 
@@ -145,7 +162,11 @@ export const cancelJobSchema = z
 
 export const advanceJobSchema = z
   .object({
-    /** arrived: at pickup · picked_up: parcel on board · delivered: done. */
+    /**
+     * arrived: at pickup · picked_up: parcel on board · delivered: done — for a
+     * courier job with several drop-offs, done at the CURRENT drop-off (the
+     * order is delivered after the last one).
+     */
     step: z.enum(["arrived", "picked_up", "delivered"]),
     /** Multi-store checkout: the store's order for `arrived` / `picked_up`. */
     order_id: z.string().uuid().optional(),

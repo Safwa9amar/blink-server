@@ -6,6 +6,7 @@ import { evaluateAlerts } from "../../lib/alerts";
 import { pollEmailInbox } from "../../lib/email/imap";
 import { runMerchantInsights } from "../merchant/strategy-shared";
 import { processBundleTimeouts } from "../../lib/bundle-timeouts";
+import { processCourierTimeouts } from "../../lib/courier-timeouts";
 
 // External cron entrypoints. NOT behind `auth` (a cron caller has no JWT) —
 // guarded by CRON_SECRET via the `x-cron-secret` header instead. Driven by
@@ -64,6 +65,17 @@ app.post("/merchant-insights", requireCronSecret, async (c) => {
 //   * * * * * curl -sS -X POST https://blink.greenpedal.net/cron/bundle-timeouts -H "x-cron-secret: $CRON_SECRET"
 app.post("/bundle-timeouts", requireCronSecret, async (c) => {
   const result = await processBundleTimeouts();
+  return c.json(result);
+});
+
+// POST /cron/courier-timeouts — a courier request no rider took within 20
+// minutes of going live is canceled (cancel_reason no_rider) and the customer
+// is told, instead of searching forever. Idempotent (only unclaimed
+// `searching` rows are touched). GET /orders/{id} also expires lazily. Wire a
+// cPanel Cron Job to hit this every minute:
+//   * * * * * curl -sS -X POST https://blink.greenpedal.net/cron/courier-timeouts -H "x-cron-secret: $CRON_SECRET"
+app.post("/courier-timeouts", requireCronSecret, async (c) => {
+  const result = await processCourierTimeouts();
   return c.json(result);
 });
 

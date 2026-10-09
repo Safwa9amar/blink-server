@@ -78,20 +78,276 @@
             "type": "boolean"
           },
           "user": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/User"
-              },
-              {
-                "$ref": "#/components/schemas/OtpStubUser"
-              }
-            ]
+            "$ref": "#/components/schemas/NullableUser"
           }
         },
         "required": [
           "access_token",
           "refresh_token",
           "is_new_user",
+          "user"
+        ]
+      },
+      "NullableUser": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "phone_number": {
+            "type": "string",
+            "nullable": true
+          },
+          "first_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "middle_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "rider",
+              "merchant",
+              "agent"
+            ]
+          },
+          "staff_role": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "super_admin",
+              "ops_admin",
+              "finance_admin",
+              "support_admin",
+              "commerce_admin",
+              "hr_admin",
+              null
+            ]
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "male",
+              "female",
+              null
+            ]
+          },
+          "birthday": {
+            "type": "string",
+            "nullable": true
+          },
+          "profile_picture": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "wilaya": {
+            "type": "string",
+            "nullable": true
+          },
+          "wilaya_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "bank_rib": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "phone_number",
+          "first_name",
+          "last_name",
+          "middle_name",
+          "email",
+          "role",
+          "staff_role",
+          "gender",
+          "birthday",
+          "profile_picture",
+          "address",
+          "wilaya",
+          "wilaya_code",
+          "bank_rib",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "VerifyOtpBody": {
+        "type": "object",
+        "properties": {
+          "phone_number": {
+            "type": "string",
+            "pattern": "^\\+\\d{9,15}$"
+          },
+          "otp": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 6
+          }
+        },
+        "required": [
+          "phone_number",
+          "otp"
+        ]
+      },
+      "SocialSyncResponse": {
+        "type": "object",
+        "properties": {
+          "is_new_user": {
+            "type": "boolean"
+          },
+          "user": {
+            "$ref": "#/components/schemas/NullableUser"
+          }
+        },
+        "required": [
+          "is_new_user",
+          "user"
+        ]
+      },
+      "RegisterPhoneBody": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "rider",
+              "merchant",
+              "agent"
+            ]
+          },
+          "first_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "last_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "middle_name": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "role",
+          "first_name",
+          "last_name"
+        ]
+      },
+      "SocialSyncBody": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string"
+          }
+        }
+      },
+      "SessionTokens": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "refresh_token"
+        ]
+      },
+      "RefreshTokenBody": {
+        "type": "object",
+        "properties": {
+          "refresh_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refresh_token"
+        ]
+      },
+      "SelectRoleResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "rider",
+              "merchant",
+              "agent"
+            ]
+          }
+        },
+        "required": [
+          "message",
+          "role"
+        ]
+      },
+      "SelectRoleBody": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "rider",
+              "merchant",
+              "agent"
+            ]
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "AuthUserResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "required": [
           "user"
         ]
       },
@@ -202,144 +458,6 @@
           "bank_rib",
           "created_at",
           "updated_at"
-        ]
-      },
-      "OtpStubUser": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "phone_number": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "phone_number"
-        ]
-      },
-      "VerifyOtpBody": {
-        "type": "object",
-        "properties": {
-          "phone_number": {
-            "type": "string",
-            "pattern": "^\\+\\d{9,15}$"
-          },
-          "otp": {
-            "type": "string",
-            "minLength": 6,
-            "maxLength": 6
-          }
-        },
-        "required": [
-          "phone_number",
-          "otp"
-        ]
-      },
-      "SocialSyncResponse": {
-        "type": "object",
-        "properties": {
-          "is_new_user": {
-            "type": "boolean"
-          },
-          "user": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/User"
-              },
-              {
-                "nullable": true
-              }
-            ]
-          }
-        },
-        "required": [
-          "is_new_user",
-          "user"
-        ]
-      },
-      "SocialSyncBody": {
-        "type": "object",
-        "properties": {
-          "role": {
-            "type": "string"
-          }
-        }
-      },
-      "SessionTokens": {
-        "type": "object",
-        "properties": {
-          "access_token": {
-            "type": "string"
-          },
-          "refresh_token": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "access_token",
-          "refresh_token"
-        ]
-      },
-      "RefreshTokenBody": {
-        "type": "object",
-        "properties": {
-          "refresh_token": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "refresh_token"
-        ]
-      },
-      "SelectRoleResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "role": {
-            "type": "string",
-            "enum": [
-              "customer",
-              "rider",
-              "merchant",
-              "agent"
-            ]
-          }
-        },
-        "required": [
-          "message",
-          "role"
-        ]
-      },
-      "SelectRoleBody": {
-        "type": "object",
-        "properties": {
-          "role": {
-            "type": "string",
-            "enum": [
-              "customer",
-              "rider",
-              "merchant",
-              "agent"
-            ]
-          }
-        },
-        "required": [
-          "role"
-        ]
-      },
-      "AuthUserResponse": {
-        "type": "object",
-        "properties": {
-          "user": {
-            "$ref": "#/components/schemas/User"
-          }
-        },
-        "required": [
-          "user"
         ]
       },
       "UpdateAuthProfileBody": {
@@ -1176,9 +1294,34 @@
           "deliveries": {
             "type": "integer"
           },
+          "rating": {
+            "type": "number",
+            "nullable": true
+          },
           "phone": {
             "type": "string",
             "nullable": true
+          },
+          "location": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "lat": {
+                "type": "number"
+              },
+              "lng": {
+                "type": "number"
+              },
+              "updated_at": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "lat",
+              "lng",
+              "updated_at"
+            ]
           }
         },
         "required": [
@@ -1190,7 +1333,9 @@
           "vehicle_color",
           "plate",
           "deliveries",
-          "phone"
+          "rating",
+          "phone",
+          "location"
         ]
       },
       "TripCosts": {
@@ -1861,6 +2006,118 @@
           "unit_price"
         ]
       },
+      "CourierPickup": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "contact_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "contact_phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "label",
+          "address",
+          "lat",
+          "lng",
+          "contact_name",
+          "contact_phone",
+          "note"
+        ]
+      },
+      "CourierDropOff": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "recipient_name": {
+            "type": "string"
+          },
+          "recipient_phone": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "delivered_at": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "label",
+          "address",
+          "lat",
+          "lng",
+          "recipient_name",
+          "recipient_phone",
+          "note",
+          "delivered_at"
+        ]
+      },
+      "CourierParcel": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "documents",
+              "food",
+              "clothes",
+              "electronics",
+              "fragile",
+              "other"
+            ]
+          },
+          "size": {
+            "type": "string",
+            "enum": [
+              "small",
+              "medium",
+              "large"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "type",
+          "size",
+          "note"
+        ]
+      },
       "OrderStoreInfo": {
         "type": "object",
         "properties": {
@@ -2110,6 +2367,71 @@
             "type": "string",
             "nullable": true
           },
+          "courier": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "pickup": {
+                "$ref": "#/components/schemas/CourierPickup"
+              },
+              "drop_offs": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CourierDropOff"
+                }
+              },
+              "parcel": {
+                "$ref": "#/components/schemas/CourierParcel"
+              },
+              "paid_by": {
+                "type": "string",
+                "enum": [
+                  "sender",
+                  "recipient"
+                ]
+              },
+              "distance_km": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "pickup",
+              "drop_offs",
+              "parcel",
+              "paid_by",
+              "distance_km"
+            ]
+          },
+          "courier_group_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "cancel_reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancel_note": {
+            "type": "string",
+            "nullable": true
+          },
+          "rider_rating": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": -32768,
+            "maximum": 32767
+          },
+          "rider_review": {
+            "type": "string",
+            "nullable": true
+          },
+          "rider_tags": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string"
+            }
+          },
           "created_at": {
             "type": "string"
           },
@@ -2163,6 +2485,13 @@
           "offered_mode",
           "offered_at",
           "offer_declined_at",
+          "courier",
+          "courier_group_id",
+          "cancel_reason",
+          "cancel_note",
+          "rider_rating",
+          "rider_review",
+          "rider_tags",
           "created_at",
           "updated_at"
         ]
@@ -2291,6 +2620,15 @@
           "rider_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "cancel_reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "cancel_note": {
+            "type": "string",
+            "maxLength": 500
           }
         },
         "required": [
@@ -2312,6 +2650,391 @@
         },
         "required": [
           "rating"
+        ]
+      },
+      "RateRiderBody": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "review": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "maxItems": 8
+          }
+        },
+        "required": [
+          "rating"
+        ]
+      },
+      "CourierQuoteResponse": {
+        "type": "object",
+        "properties": {
+          "routes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourierQuoteRouteResult"
+            }
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourierQuoteOption"
+            }
+          },
+          "coupon": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "valid": {
+                "type": "boolean"
+              },
+              "reason": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "code",
+              "valid",
+              "reason"
+            ]
+          }
+        },
+        "required": [
+          "routes",
+          "options"
+        ]
+      },
+      "CourierQuoteRouteResult": {
+        "type": "object",
+        "properties": {
+          "distance_km": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "distance_km"
+        ]
+      },
+      "CourierQuoteOption": {
+        "type": "object",
+        "properties": {
+          "vehicle_type": {
+            "type": "string",
+            "enum": [
+              "bicycle",
+              "motorcycle"
+            ]
+          },
+          "fare": {
+            "type": "number"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "duration_minutes": {
+            "type": "integer"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "pickup_eta_minutes": {
+            "type": "integer",
+            "nullable": true
+          },
+          "nearby_riders": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "vehicle_type",
+          "fare",
+          "discount",
+          "total",
+          "duration_minutes",
+          "available",
+          "pickup_eta_minutes",
+          "nearby_riders"
+        ]
+      },
+      "CourierQuoteBody": {
+        "type": "object",
+        "properties": {
+          "routes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourierQuoteRoute"
+            },
+            "minItems": 1,
+            "maxItems": 3
+          },
+          "coupon_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "routes"
+        ]
+      },
+      "CourierQuoteRoute": {
+        "type": "object",
+        "properties": {
+          "pickup": {
+            "$ref": "#/components/schemas/CourierLatLng"
+          },
+          "drop_offs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourierLatLng"
+            },
+            "minItems": 1,
+            "maxItems": 5
+          }
+        },
+        "required": [
+          "pickup",
+          "drop_offs"
+        ]
+      },
+      "CourierLatLng": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          }
+        },
+        "required": [
+          "lat",
+          "lng"
+        ]
+      },
+      "CourierRequestResponse": {
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            }
+          }
+        },
+        "required": [
+          "orders"
+        ]
+      },
+      "CreateCourierRequestBody": {
+        "type": "object",
+        "properties": {
+          "routes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourierRouteInput"
+            },
+            "minItems": 1,
+            "maxItems": 3
+          },
+          "vehicle_type": {
+            "type": "string",
+            "enum": [
+              "bicycle",
+              "motorcycle"
+            ]
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "coupon_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "paid_by": {
+            "type": "string",
+            "enum": [
+              "sender",
+              "recipient"
+            ],
+            "default": "sender"
+          }
+        },
+        "required": [
+          "routes",
+          "vehicle_type"
+        ]
+      },
+      "CourierRouteInput": {
+        "type": "object",
+        "properties": {
+          "pickup": {
+            "$ref": "#/components/schemas/CourierPickupInput"
+          },
+          "drop_offs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourierDropOffInput"
+            },
+            "minItems": 1,
+            "maxItems": 5
+          },
+          "parcel": {
+            "$ref": "#/components/schemas/CourierParcelInput"
+          }
+        },
+        "required": [
+          "pickup",
+          "drop_offs",
+          "parcel"
+        ]
+      },
+      "CourierPickupInput": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 200,
+            "default": ""
+          },
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "contact_name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100
+          },
+          "contact_phone": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\+?[0-9 ()-]{6,20}$"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "address",
+          "lat",
+          "lng"
+        ]
+      },
+      "CourierDropOffInput": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 200,
+            "default": ""
+          },
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "recipient_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "recipient_phone": {
+            "type": "string",
+            "pattern": "^\\+?[0-9 ()-]{6,20}$"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "address",
+          "lat",
+          "lng",
+          "recipient_name",
+          "recipient_phone"
+        ]
+      },
+      "CourierParcelInput": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "documents",
+              "food",
+              "clothes",
+              "electronics",
+              "fragile",
+              "other"
+            ]
+          },
+          "size": {
+            "type": "string",
+            "enum": [
+              "small",
+              "medium",
+              "large"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "type",
+          "size"
         ]
       },
       "DeviceResponse": {
@@ -3073,6 +3796,11 @@
                 "items": {
                   "$ref": "#/components/schemas/StoreMenuCategory"
                 }
+              },
+              "next_open_at": {
+                "type": "string",
+                "nullable": true,
+                "description": "While closed: when the weekly schedule next opens (ISO). Null when open, or closed until the merchant reopens."
               }
             }
           }
@@ -3368,12 +4096,10 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/StoreProduct"
-                }
+                },
+                "description": "Every available product — absent with `?products=false`"
               }
-            },
-            "required": [
-              "products"
-            ]
+            }
           }
         ]
       },
@@ -3509,6 +4235,109 @@
           "suggestion_status",
           "created_at",
           "updated_at"
+        ]
+      },
+      "StoreProductListResponse": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StoreProduct"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "products",
+          "pagination"
+        ]
+      },
+      "BranchSuggestionResponse": {
+        "type": "object",
+        "properties": {
+          "suggestion": {
+            "$ref": "#/components/schemas/BranchSuggestion"
+          }
+        },
+        "required": [
+          "suggestion"
+        ]
+      },
+      "BranchSuggestion": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "to_store": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "from_store_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "swaps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "from_product_id": {
+                  "type": "string"
+                },
+                "to_product": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "price": {
+                      "type": "number"
+                    },
+                    "image": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "price",
+                    "image"
+                  ]
+                }
+              },
+              "required": [
+                "from_product_id",
+                "to_product"
+              ]
+            }
+          },
+          "saving": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "to_store",
+          "from_store_ids",
+          "swaps",
+          "saving"
         ]
       },
       "PromotionListResponse": {
@@ -4673,6 +5502,17 @@
               },
               "has_pack": {
                 "type": "boolean"
+              },
+              "own_siblings": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MerchantOrderSibling"
+                },
+                "description": "The other parts of this order's checkout in stores with the same owner (one checkout across several of the merchant's stores); empty otherwise"
+              },
+              "checkout_own_only": {
+                "type": "boolean",
+                "description": "Every store in this order's checkout is the merchant's: one of its own drivers may collect the whole checkout"
               }
             },
             "required": [
@@ -4683,9 +5523,89 @@
               "offered_rider_name",
               "offer_status",
               "offer_expires_at",
-              "has_pack"
+              "has_pack",
+              "own_siblings",
+              "checkout_own_only"
             ]
           }
+        ]
+      },
+      "MerchantOrderSibling": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "store_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "store_name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "searching",
+              "heading_to_store",
+              "preparation",
+              "pickup",
+              "on_the_way",
+              "delivered",
+              "canceled",
+              "merchant_rejected",
+              "processing"
+            ]
+          },
+          "merchant_status": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "merchant",
+              "shopper",
+              "courier"
+            ]
+          },
+          "subtotal": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "accepted_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "prepared_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "rider_assigned_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "item_count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "store_name",
+          "status",
+          "merchant_status",
+          "type",
+          "subtotal",
+          "total",
+          "accepted_at",
+          "prepared_at",
+          "rider_assigned_at",
+          "item_count"
         ]
       },
       "OrderRidersResponse": {
@@ -7974,6 +8894,42 @@
               "blink",
               null
             ]
+          },
+          "courier": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "parcel": {
+                "$ref": "#/components/schemas/CourierParcel"
+              },
+              "paid_by": {
+                "type": "string",
+                "enum": [
+                  "sender",
+                  "recipient"
+                ]
+              },
+              "pickup": {
+                "$ref": "#/components/schemas/CourierPickup"
+              },
+              "drop_offs": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CourierDropOff"
+                }
+              },
+              "current_drop_off": {
+                "type": "integer",
+                "nullable": true
+              }
+            },
+            "required": [
+              "parcel",
+              "paid_by",
+              "pickup",
+              "drop_offs",
+              "current_drop_off"
+            ]
           }
         },
         "required": [
@@ -8001,7 +8957,8 @@
           "stops",
           "request_kind",
           "request_expires_at",
-          "delivery_mode"
+          "delivery_mode",
+          "courier"
         ]
       },
       "RiderJobCustomer": {
@@ -9638,6 +10595,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
           }
         }
       }
@@ -9672,6 +10639,92 @@
           },
           "400": {
             "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/otp/register": {
+      "post": {
+        "operationId": "registerPhoneUser",
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterPhoneBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocialSyncResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Account already exists under a different role, or phone already in use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Supabase unreachable — safe to retry",
             "content": {
               "application/json": {
                 "schema": {
@@ -11198,6 +12251,15 @@
           },
           {
             "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "courier_group_id",
+            "in": "query"
+          },
+          {
+            "schema": {
               "type": "integer",
               "minimum": 0,
               "exclusiveMinimum": true,
@@ -11504,6 +12566,194 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/rate-rider": {
+      "post": {
+        "operationId": "rateOrderRider",
+        "tags": [
+          "orders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RateRiderBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/courier/quote": {
+      "post": {
+        "operationId": "quoteCourier",
+        "tags": [
+          "courier"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourierQuoteBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierQuoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/courier/requests": {
+      "post": {
+        "operationId": "createCourierRequest",
+        "tags": [
+          "courier"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourierRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierRequestResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -12317,6 +13567,20 @@
             "required": true,
             "name": "id",
             "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "`false` leaves out `products` (page them with GET /stores/{id}/products). Defaults to `true` for older app builds."
+            },
+            "required": false,
+            "description": "`false` leaves out `products` (page them with GET /stores/{id}/products). Defaults to `true` for older app builds.",
+            "name": "products",
+            "in": "query"
           }
         ],
         "responses": {
@@ -12332,6 +13596,153 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/marketplace/stores/{id}/products": {
+      "get": {
+        "operationId": "listStoreProducts",
+        "tags": [
+          "marketplace"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 50,
+              "default": 20
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Menu category id (`Store.menu_categories[].id`); omit or `all` for every category"
+            },
+            "required": false,
+            "description": "Menu category id (`Store.menu_categories[].id`); omit or `all` for every category",
+            "name": "category",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Search title, description and unit"
+            },
+            "required": false,
+            "description": "Search title, description and unit",
+            "name": "q",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreProductListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/marketplace/branch-suggestion": {
+      "get": {
+        "operationId": "getBranchSuggestion",
+        "tags": [
+          "marketplace"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 3000,
+              "description": "The cart as `product_id:quantity` pairs, comma-separated (up to 60)"
+            },
+            "required": true,
+            "description": "The cart as `product_id:quantity` pairs, comma-separated (up to 60)",
+            "name": "items",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BranchSuggestionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
