@@ -17,12 +17,16 @@ set granted_roles = array['customer'::public.user_role, role]
 where role <> 'customer'
   and not (granted_roles @> array[role]);
 
+-- Roles are only ever ADDED. Any future demote/revoke must write role and
+-- granted_roles in ONE statement and pick a new active role.
+--
 -- Keep the invariant for every writer (auth routes, seed scripts, the
 -- dashboard's user inserts): granted_roles ⊇ {role, customer}, deduplicated,
 -- in enum order.
 create or replace function public.normalize_users_granted_roles()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
   new.granted_roles := (
@@ -42,6 +46,10 @@ create or replace trigger trg_users_normalize_granted_roles
   before insert or update of role, granted_roles on public.users
   for each row execute function public.normalize_users_granted_roles();
 
+-- ORDERING: the guard must run before this normalize trigger. Postgres fires
+-- same-event triggers by name, so trg_users_guard_privileged <
+-- trg_users_normalize_granted_roles must hold: don't rename either.
+--
 -- granted_roles is service-role only, like role. authenticated already can't
 -- write it: its column-level UPDATE grant (20261006215408) lists display
 -- fields only. The guard trigger adds defence in depth.
@@ -50,6 +58,7 @@ create or replace trigger trg_users_normalize_granted_roles
 create or replace function public.guard_users_privileged_columns()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
   if current_user in ('anon', 'authenticated') and (
@@ -72,6 +81,8 @@ begin
           old.role = 'rider'
        or new.role = 'rider'
        or exists (select 1 from public.rider_profiles rp where rp.user_id = old.id)
+       or 'rider' = any(old.granted_roles)
+       or 'rider' = any(new.granted_roles)
      ) then
     raise exception 'permission denied: a rider''s gender can''t be changed once set' using errcode = '42501';
   end if;
