@@ -54,11 +54,29 @@ app.openapi(route, async (c) => {
 
   await ensureRoleProfile(user.id, role);
 
+  // A newly unlocked agent must go through staff review. ensureRoleProfile
+  // reuses ANY existing shop, including one left approved from before the
+  // lockdown or from the old self-serve /auth/role, which would grant instant
+  // cash access. Existing agents already hold the role (added=false), so they
+  // are unaffected.
+  if (added && role === "agent") {
+    const { error: shopError } = await supabaseAdmin
+      .from("agent_shops")
+      .update({ review_status: "under_review" })
+      .eq("user_id", user.id);
+    if (shopError) return c.json({ error: shopError.message }, 400);
+  }
+
   // rider_profiles.is_available defaults to true and dispatch offers jobs on
-  // that flag alone: a rider role unlocked from another role starts offline
-  // until the person goes online as a rider.
-  if (added && role === "rider") {
-    await supabaseAdmin.from("rider_profiles").update({ is_available: false }).eq("user_id", user.id);
+  // that flag alone: a non-active rider must always be offline. Keyed on the
+  // active role (not `added`) so a retry after a partial failure repairs it.
+  // Runs after ensureRoleProfile so a freshly created row starts offline too.
+  if (role === "rider" && user.role !== "rider") {
+    const { error: offlineError } = await supabaseAdmin
+      .from("rider_profiles")
+      .update({ is_available: false })
+      .eq("user_id", user.id);
+    if (offlineError) return c.json({ error: offlineError.message }, 400);
   }
 
   return c.json(await authProfilePayload(row), 200);
