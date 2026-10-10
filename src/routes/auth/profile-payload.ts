@@ -54,6 +54,14 @@ export async function authProfilePayload(user: UserRow) {
     roleData = { customer_profile: data };
   }
 
+  // The Become a Partner rider card shows this in any active role.
+  const { data: riderRow } = await supabaseAdmin
+    .from("rider_profiles")
+    .select("verification_status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  roleData.rider_verification_status = riderRow?.verification_status ?? null;
+
   return {
     user: { ...publicUser(user), granted_roles: normalizeGranted(user.granted_roles, user.role) },
     ...roleData,
