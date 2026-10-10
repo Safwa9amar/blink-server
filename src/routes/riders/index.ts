@@ -9,10 +9,20 @@ import storeInvitations from "./store-invitations";
 import jobs from "./jobs";
 import wallet from "./wallet";
 import perks from "./perks";
+import uploads from "./uploads";
+import documents from "./documents";
+import requiredActions from "./required-actions";
+import adminReview from "./admin-review";
 
 const app = router();
 
-app.use("/*", auth, requireRole("rider"));
+app.use("/*", auth);
+// /admin/* carries its own requireStaff guard (staff aren't riders);
+// everything else is the rider app.
+app.use("/*", async (c, next) => {
+  if (c.req.path.includes("/riders/admin/")) return next();
+  return requireRole("rider")(c, next);
+});
 
 // Each endpoint lives in its own file and is mounted at the router root.
 app.route("/", getProfile);
@@ -24,5 +34,9 @@ app.route("/", storeInvitations);
 app.route("/", jobs);
 app.route("/", wallet);
 app.route("/", perks);
+app.route("/", uploads);
+app.route("/", documents);
+app.route("/", requiredActions);
+app.route("/", adminReview);
 
 export default app;
