@@ -30,7 +30,7 @@ export const ACTIVE_JOB = "active_job";
  */
 export const FINAL_ORDER_STATUSES = ["delivered", "canceled", "merchant_rejected"] as const;
 
-function isAppRole(role: unknown): role is AppRole {
+export function isAppRole(role: unknown): role is AppRole {
   return typeof role === "string" && (APP_ROLES as readonly string[]).includes(role);
 }
 
@@ -52,18 +52,25 @@ export function initialGrantedRoles(chosen: AppRole): AppRole[] {
   return normalizeGranted([chosen]);
 }
 
-/** Unlock `role`. `added` is false when the account already held it (idempotent). */
+/**
+ * Unlock a partner `role`. `added` is false when the account already held it
+ * (idempotent) or when `role` isn't a partner role (self-unlock is partner-only).
+ */
 export function grantRole(
   granted: readonly string[] | null | undefined,
-  role: AppRole,
+  role: PartnerRole,
 ): { granted: AppRole[]; added: boolean } {
   const current = normalizeGranted(granted);
+  if (!(PARTNER_ROLES as readonly string[]).includes(role)) return { granted: current, added: false };
   if (current.includes(role)) return { granted: current, added: false };
   return { granted: normalizeGranted([...current, role]), added: true };
 }
 
-/** May the account make `role` its active role? */
-export function canActivate(granted: readonly string[] | null | undefined, role: string): role is AppRole {
+/**
+ * May the account make `role` its active role? Callers must pass the
+ * normalised granted set: `normalizeGranted(granted, activeRole)`.
+ */
+export function canActivate(granted: readonly string[] | null | undefined, role: string): boolean {
   return isAppRole(role) && normalizeGranted(granted).includes(role);
 }
 
@@ -98,5 +105,5 @@ export function signUpConflict(
 
 /** 409 copy for a sign-up that names a role the account doesn't hold. */
 export function roleConflictMessage(existingRole: string, chosen: string): string {
-  return `This account already exists as ${existingRole}. Sign in, then add ${chosen} from Profile → Become a Partner.`;
+  return `This account already exists. Sign in, switch to Customer if needed, then add ${chosen} from Profile → Become a Partner.`;
 }

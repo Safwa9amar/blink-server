@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { orderStatus, userRole } from "../db/schema/enums";
 import {
+  APP_ROLES,
   canActivate,
   canLeaveRole,
   FINAL_ORDER_STATUSES,
@@ -88,8 +90,32 @@ describe("canLeaveRole", () => {
     assert.equal(canLeaveRole("customer", "rider", { activeJobCount: 2 }), true);
     assert.equal(canLeaveRole("merchant", "customer", { activeJobCount: 5 }), true);
   });
-  it("final order statuses are the order_status enum's terminal values", () => {
-    assert.deepEqual([...FINAL_ORDER_STATUSES], ["delivered", "canceled", "merchant_rejected"]);
+  it("final order statuses are real order_status enum values", () => {
+    for (const status of FINAL_ORDER_STATUSES) {
+      assert.ok((orderStatus.enumValues as readonly string[]).includes(status), status);
+    }
+  });
+});
+
+describe("enum alignment", () => {
+  it("APP_ROLES matches the user_role enum", () => {
+    assert.deepEqual([...APP_ROLES], [...userRole.enumValues]);
+  });
+});
+
+describe("edge cases", () => {
+  it("normalizeGranted ignores an unknown active role and wrong-case values", () => {
+    assert.deepEqual(normalizeGranted([], "super_admin"), ["customer"]);
+    assert.deepEqual(normalizeGranted(["Rider"]), ["customer"]);
+  });
+  it("grantRole refuses non-partner roles", () => {
+    assert.deepEqual(grantRole(["customer"], "customer" as any), { granted: ["customer"], added: false });
+    assert.deepEqual(grantRole(["customer"], "admin" as any), { granted: ["customer"], added: false });
+  });
+  it("canActivate: customer always; callers must normalise with the active role", () => {
+    assert.equal(canActivate(null, "customer"), true);
+    assert.equal(canActivate(["customer"], "rider"), false);
+    assert.equal(canActivate(normalizeGranted(["customer"], "rider"), "rider"), true);
   });
 });
 
@@ -103,6 +129,6 @@ describe("signUpConflict", () => {
   });
   it("its message points to Become a Partner", () => {
     assert.match(roleConflictMessage("customer", "rider"), /Become a Partner/);
-    assert.match(roleConflictMessage("customer", "rider"), /customer/);
+    assert.match(roleConflictMessage("customer", "rider"), /Customer/);
   });
 });
