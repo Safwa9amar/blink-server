@@ -5,7 +5,7 @@ import { createNotification } from "../../lib/notifications";
 import { withRider } from "../../lib/transactions";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { processTransactionSchema, TransactionResponse } from "../../validators/transactions";
-import { ownedShop, primaryShop } from "../agents/shared";
+import { processingShop } from "../agents/shared";
 
 const app = router();
 
@@ -61,21 +61,6 @@ async function notifyRider(tx: Row) {
     contentAr: copy.ar,
     href: "/(rider)/blink-cash",
   });
-}
-
-/**
- * The shop an operation goes through (counts toward its volume): the one the
- * agent chose, else the one the rider picked when this agent owns it, else
- * the agent's primary shop. Null when the agent's choice isn't theirs (or
- * they have no shop at all).
- */
-async function processingShop(
-  agentId: string,
-  chosen: string | undefined,
-  riderPick: string | null
-): Promise<Row | null> {
-  if (chosen) return ownedShop(agentId, chosen);
-  return (riderPick ? await ownedShop(agentId, riderPick) : null) ?? primaryShop(agentId);
 }
 
 // ─── Process transaction (agent confirms/cancels via QR) ─────────────

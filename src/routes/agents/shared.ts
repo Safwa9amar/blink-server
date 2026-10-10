@@ -64,6 +64,22 @@ export async function ownedShop(userId: string, shopId: string): Promise<Row | n
   return data ?? null;
 }
 
+/**
+ * The shop a rider's operation goes through when this agent handles it (it
+ * counts toward that shop's volume): the one the agent chose, else the one the
+ * rider picked when this agent owns it, else the agent's primary shop. Null
+ * when the agent's choice isn't theirs (or they have no shop at all). Used by
+ * /transactions/process and /transactions/scan-qr (no choice there).
+ */
+export async function processingShop(
+  agentId: string,
+  chosen: string | undefined,
+  riderPick: string | null
+): Promise<Row | null> {
+  if (chosen) return ownedShop(agentId, chosen);
+  return (riderPick ? await ownedShop(agentId, riderPick) : null) ?? primaryShop(agentId);
+}
+
 /** Completed-operation volume + count per shop. */
 export async function shopStats(shopIds: string[]) {
   const stats = new Map<string, { total_volume: number; operations_count: number }>(

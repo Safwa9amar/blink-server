@@ -1,5 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { transactions } from "../db/schema";
+import { AGENT_ACCESS_CODES } from "../lib/agent-access";
 import { PaginationSchema, rowSchema } from "../openapi";
 
 export const createDepositSchema = z
@@ -90,3 +91,17 @@ export const TransactionResponse = z
 export const TransactionListResponse = z
   .object({ transactions: z.array(TransactionSchema), pagination: PaginationSchema })
   .openapi("TransactionListResponse");
+
+/**
+ * 403 of POST /transactions/scan-qr and /transactions/process.
+ * `code: shop_not_approved` — the agent's processing shop isn't staff-approved
+ * (agent_shops.review_status ≠ active) or they have no shop.
+ * `code: not_your_transaction` — the rider sent the operation to another agent.
+ * A 403 without `code`: wrong PIN (/process) or the caller isn't an agent.
+ */
+export const AgentAccessError = z
+  .object({
+    error: z.string(),
+    code: z.enum(AGENT_ACCESS_CODES).optional(),
+  })
+  .openapi("AgentAccessError");
