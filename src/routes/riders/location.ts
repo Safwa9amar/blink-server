@@ -1,10 +1,9 @@
 import { releaseRiderRequests } from "../../lib/dispatch";
-import { RIDER_NOT_VERIFIED, riderCanWork } from "../../lib/rider-access";
+import { RIDER_NOT_VERIFIED } from "../../lib/rider-access";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, OkSchema, router } from "../../openapi";
 import { riderLocationSchema } from "../../validators/merchant";
 import { RiderNotVerifiedError } from "../../validators/riders";
-import { loadRiderVerification, RiderDataUnavailableError } from "./verification-shared";
 
 const app = router();
 
@@ -30,21 +29,27 @@ const route = createRoute({
 app.openapi(route, async (c) => {
   const user = c.get("user");
   const body = c.req.valid("json");
-  // A ping must not be a second way to go online for an unverified rider.
-  if (body.is_available === true) {
-    try {
-      if (!riderCanWork(await loadRiderVerification(user.id))) return c.json(RIDER_NOT_VERIFIED, 403);
-    } catch (e) {
-      if (e instanceof RiderDataUnavailableError) return c.json({ error: "Service unavailable, please retry" }, 503);
-      throw e;
-    }
-  }
   const patch: Record<string, unknown> = {
     latitude: body.latitude,
     longitude: body.longitude,
     location_updated_at: new Date().toISOString(),
   };
   if (body.is_available !== undefined) patch.is_available = body.is_available;
+
+  // Going online is one conditional write (approved riders only): a ping must
+  // not be a second way online, and there's no check-then-write race.
+  if (body.is_available === true) {
+    const { data: on, error: onError } = await supabaseAdmin
+      .from("rider_profiles")
+      .update(patch)
+      .eq("user_id", user.id)
+      .eq("verification_status", "approved")
+      .select("user_id")
+      .maybeSingle();
+    if (onError) return c.json({ error: "Service unavailable, please retry" }, 503);
+    if (!on) return c.json(RIDER_NOT_VERIFIED, 403);
+    return c.json({ success: true }, 200);
+  }
 
   const { error } = await supabaseAdmin
     .from("rider_profiles")

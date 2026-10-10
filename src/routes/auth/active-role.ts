@@ -111,7 +111,7 @@ app.openapi(route, async (c) => {
     await releaseRiderRequests(user.id);
   }
 
-  // rider_profiles.is_available defaults to true and dispatch offers jobs on
+  // rider_profiles.is_available now defaults to false, but dispatch offers jobs on
   // that flag alone: someone entering rider must start offline.
   if (role === "rider" && user.role !== "rider") {
     const { error: createError } = await supabaseAdmin

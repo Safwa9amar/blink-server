@@ -53,6 +53,10 @@ IF NOT EXISTS (SELECT 1 FROM information_schema.columns
 END IF;
 END $$;
 
+-- online ⇒ approved for every row (idempotent; also fixes rows set online since).
+UPDATE public.rider_profiles SET is_available = false
+ WHERE is_available AND verification_status <> 'approved';
+
 -- A new (unverified) rider starts offline; going online is gated server-side.
 ALTER TABLE "rider_profiles" ALTER COLUMN "is_available" SET DEFAULT false;
 

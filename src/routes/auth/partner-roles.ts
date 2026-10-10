@@ -52,7 +52,7 @@ app.openapi(route, async (c) => {
     if (shopError) return c.json({ error: shopError.message }, 400);
   }
 
-  // rider_profiles.is_available defaults to true and dispatch offers jobs on
+  // rider_profiles.is_available now defaults to false, but dispatch offers jobs on
   // that flag alone: a non-active rider must always be offline. Create the row
   // offline if missing, then force it offline if it already existed.
   if (role === "rider" && user.role !== "rider") {

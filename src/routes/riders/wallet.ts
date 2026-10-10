@@ -1,5 +1,5 @@
 import { releaseRiderRequests, riderWallet } from "../../lib/dispatch";
-import { RIDER_NOT_VERIFIED, riderCanWork } from "../../lib/rider-access";
+import { RIDER_NOT_VERIFIED } from "../../lib/rider-access";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import {
@@ -9,7 +9,6 @@ import {
   RiderWalletResponse,
 } from "../../validators/rider-jobs";
 import { RiderNotVerifiedError } from "../../validators/riders";
-import { loadRiderVerification, RiderDataUnavailableError } from "./verification-shared";
 
 const app = router();
 
@@ -92,13 +91,18 @@ app.openapi(
     const user = c.get("user");
     const { is_available } = c.req.valid("json");
     // Only a verified rider may go online (going offline is always allowed).
+    // One conditional write: no check-then-write race with a staff un-approval.
     if (is_available) {
-      try {
-        if (!riderCanWork(await loadRiderVerification(user.id))) return c.json(RIDER_NOT_VERIFIED, 403);
-      } catch (e) {
-        if (e instanceof RiderDataUnavailableError) return c.json({ error: "Service unavailable, please retry" }, 503);
-        throw e;
-      }
+      const { data: on, error: onError } = await supabaseAdmin
+        .from("rider_profiles")
+        .update({ is_available: true })
+        .eq("user_id", user.id)
+        .eq("verification_status", "approved")
+        .select("user_id")
+        .maybeSingle();
+      if (onError) return c.json({ error: "Service unavailable, please retry" }, 503);
+      if (!on) return c.json(RIDER_NOT_VERIFIED, 403);
+      return c.json({ is_available: true }, 200);
     }
     const { data, error } = await supabaseAdmin
       .from("rider_profiles")

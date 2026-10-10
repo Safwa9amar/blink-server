@@ -113,10 +113,11 @@ export async function writeRiderDocumentsCAS(
 
 /** riderCanWork for a user id (false when there is no rider profile). */
 export async function riderAccess(userId: string) {
-  const { data } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from("rider_profiles")
     .select("verification_status")
     .eq("user_id", userId)
     .maybeSingle();
+  if (error) throw new RiderDataUnavailableError(error.message);
   return riderCanWork(data);
 }
