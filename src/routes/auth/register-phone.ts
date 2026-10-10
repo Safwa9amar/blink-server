@@ -1,7 +1,7 @@
 import { isAuthOutage } from "../../lib/auth-outage";
 import { retryOnNetworkError } from "../../lib/db-retry";
 import { supabaseAdmin } from "../../lib/supabase";
-import { initialGrantedRoles, roleConflictMessage, signUpConflict } from "../../lib/roles";
+import { initialGrantedRoles, PHONE_IN_USE, ROLE_NOT_HELD, roleConflictMessage, signUpConflict, type AppRole } from "../../lib/roles";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { registerPhoneSchema, SocialSyncResponse, publicUser } from "../../validators/auth";
 import { ensureRoleProfile } from "./shared";
@@ -24,7 +24,7 @@ const route = createRoute({
     200: json(SocialSyncResponse),
     400: errorResponses[400],
     401: errorResponses[401],
-    409: json(ErrorSchema, "Account doesn't hold this role (add it from Become a Partner), or phone already in use"),
+    409: json(ErrorSchema, "Account doesn't hold this role (add it from Become a Partner; code: role_not_held), or phone already in use (code: phone_in_use)"),
     503: json(ErrorSchema, "Supabase unreachable — safe to retry"),
   },
 });
@@ -67,9 +67,9 @@ app.openapi(route, async (c) => {
   // to Become a Partner, where the signed-in account unlocks more roles.
   const finishExisting = async (row: NonNullable<Awaited<ReturnType<typeof findOwnRow>>["data"]>, isNewUser: boolean) => {
     if (signUpConflict(row, body.role)) {
-      return c.json({ error: roleConflictMessage(row.role, body.role) }, 409);
+      return c.json({ error: roleConflictMessage(row.role, body.role), code: ROLE_NOT_HELD }, 409);
     }
-    await ensureRoleProfile(row.id, body.role);
+    await ensureRoleProfile(row.id, row.role as AppRole);
     return c.json({ is_new_user: isNewUser, user: publicUser(row) }, 200);
   };
 
@@ -112,7 +112,7 @@ app.openapi(route, async (c) => {
       const { data: ownRow } = await findOwnRow();
       if (ownRow) return finishExisting(ownRow, true);
       // phone_number is UNIQUE — another account (e.g. OAuth) already claimed it.
-      return c.json({ error: "This phone number is already linked to another account" }, 409);
+      return c.json({ error: "This phone number is already linked to another account", code: PHONE_IN_USE }, 409);
     }
     return c.json({ error: insertError.message }, 400);
   }

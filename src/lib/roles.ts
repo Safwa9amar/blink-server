@@ -19,6 +19,12 @@ export type PartnerRole = (typeof PARTNER_ROLES)[number];
 /** `code` of the 403 body when switching to a role the account doesn't hold. */
 export const ROLE_NOT_GRANTED = "role_not_granted";
 
+/** `code` of the 409 body when a sign-up names a role the account doesn't hold. */
+export const ROLE_NOT_HELD = "role_not_held";
+
+/** `code` of the 409 body when a phone number is already linked to another account. */
+export const PHONE_IN_USE = "phone_in_use";
+
 /** `code` of the 409 body when a rider with assigned work tries to leave rider. */
 export const ACTIVE_JOB = "active_job";
 

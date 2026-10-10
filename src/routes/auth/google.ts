@@ -1,7 +1,7 @@
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { SocialSyncResponse, socialSyncSchema, publicUser } from "../../validators/auth";
-import { initialGrantedRoles, roleConflictMessage, signUpConflict } from "../../lib/roles";
+import { initialGrantedRoles, ROLE_NOT_HELD, roleConflictMessage, signUpConflict } from "../../lib/roles";
 import { VALID_ROLES, ensureRoleProfile, type ServerRole } from "./shared";
 
 const app = router();
@@ -29,7 +29,7 @@ const route = createRoute({
     200: json(SocialSyncResponse),
     400: errorResponses[400],
     401: errorResponses[401],
-    409: json(ErrorSchema, "Account doesn't hold this role — add it from Become a Partner"),
+    409: json(ErrorSchema, "Account doesn't hold this role — add it from Become a Partner (code: role_not_held)"),
   },
 });
 
@@ -71,7 +71,7 @@ app.openapi(route, async (c) => {
       return c.json({ error: `Invalid role: ${role}` }, 400);
     }
     if (role && signUpConflict(existingUser, role)) {
-      return c.json({ error: roleConflictMessage(existingUser.role, role) }, 409);
+      return c.json({ error: roleConflictMessage(existingUser.role, role), code: ROLE_NOT_HELD }, 409);
     }
     // Backfill the role profile if missing (e.g. account predates its role
     // table), then return the existing profile.
