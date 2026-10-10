@@ -1,4 +1,5 @@
 import { auth, requireRole } from "../../middleware/auth";
+import { requireVerifiedPartner, AGENT_ONBOARDING } from "../../lib/verified-account";
 import { router } from "../../openapi";
 import nearby from "./nearby";
 import profile from "./profile";
@@ -20,6 +21,7 @@ app.use("/*", async (c, next) => {
   if (c.req.path.endsWith("/agents/nearby") || c.req.path.includes("/agents/admin/")) return next();
   return requireRole("agent")(c, next);
 });
+app.use("/*", requireVerifiedPartner({ prefix: "/agents", allow: AGENT_ONBOARDING, skip: "/admin/" }));
 
 // Each endpoint lives in its own file and is mounted at the router root.
 app.route("/", nearby);

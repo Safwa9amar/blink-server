@@ -1,5 +1,6 @@
 import { env } from "../../config/env";
 import { auth, requireRole, requireStaff } from "../../middleware/auth";
+import { requireVerifiedPartner, RIDER_ONBOARDING } from "../../lib/verified-account";
 import { router } from "../../openapi";
 import getProfile from "./get-profile";
 import updateProfile from "./update-profile";
@@ -24,6 +25,7 @@ app.use("/*", async (c, next) => {
   if (c.req.path.startsWith(`${env.BASE_PATH}/riders/admin/`)) return requireStaff()(c, next);
   return requireRole("rider")(c, next);
 });
+app.use("/*", requireVerifiedPartner({ prefix: "/riders", allow: RIDER_ONBOARDING, skip: "/admin/" }));
 
 // Each endpoint lives in its own file and is mounted at the router root.
 app.route("/", getProfile);

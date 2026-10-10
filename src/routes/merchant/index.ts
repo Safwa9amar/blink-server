@@ -1,4 +1,5 @@
 import { auth, requireRole } from "../../middleware/auth";
+import { requireVerifiedPartner, MERCHANT_ONBOARDING } from "../../lib/verified-account";
 import { router } from "../../openapi";
 import storesList from "./stores-list";
 import storesCreate from "./stores-create";
@@ -40,6 +41,7 @@ app.use("/*", async (c, next) => {
   if (c.req.path.includes("/merchant/admin/")) return next();
   return requireRole("merchant")(c, next);
 });
+app.use("/*", requireVerifiedPartner({ prefix: "/merchant", allow: MERCHANT_ONBOARDING, skip: "/admin/" }));
 
 // Each endpoint lives in its own file and is mounted at the router root.
 app.route("/", storesList);
