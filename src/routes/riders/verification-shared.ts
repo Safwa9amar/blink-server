@@ -4,6 +4,7 @@
 import { riderCanWork } from "../../lib/rider-access";
 import {
   RIDER_DOCUMENT_KEYS,
+  requiredDocumentKeys,
   type RiderDocumentKey,
   type RiderStoredDocuments,
   type RiderVerificationState,
@@ -51,7 +52,7 @@ type DocumentView = {
 const isUrl = (p: string) => /^https?:\/\//i.test(p);
 
 /** Stored documents → RiderDocumentsResponse, with 1-hour signed preview URLs. */
-export async function documentsView(state: RiderVerificationState) {
+export async function documentsView(state: RiderVerificationState, vehicleType?: string | null) {
   const toSign = RIDER_DOCUMENT_KEYS.map((k) => state.documents[k]?.path).filter(
     (p): p is string => !!p && !isUrl(p)
   );
@@ -74,7 +75,11 @@ export async function documentsView(state: RiderVerificationState) {
       return [k, view];
     })
   ) as Record<RiderDocumentKey, DocumentView | null>;
-  return { verification_status: state.verification_status, documents };
+  return {
+    verification_status: state.verification_status,
+    required_documents: requiredDocumentKeys(vehicleType),
+    documents,
+  };
 }
 
 /** True when the object exists; throws RiderDataUnavailableError on a storage error. */

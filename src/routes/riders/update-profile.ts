@@ -1,6 +1,10 @@
+import { releaseRiderRequests } from "../../lib/dispatch";
+import { releaseBookedJobs } from "../../lib/rider-release";
+import { deriveVerificationStatus, requiredDocumentKeys } from "../../lib/rider-verification";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { RiderProfileResponse, updateRiderProfileSchema } from "../../validators/riders";
+import { loadRiderVerification, writeRiderDocumentsCAS } from "./verification-shared";
 
 const app = router();
 
@@ -33,6 +37,9 @@ app.openapi(route, async (c) => {
     .eq("user_id", user.id)
     .single();
 
+  // The required documents depend on the vehicle type (bicycle: ID only).
+  const before = existing && body.vehicle_type ? await loadRiderVerification(user.id).catch(() => null) : null;
+
   let result;
   if (existing) {
     result = await supabaseAdmin
@@ -57,7 +64,47 @@ app.openapi(route, async (c) => {
     );
   }
 
+  if (before && body.vehicle_type && body.vehicle_type !== before.vehicle_type) {
+    await syncVerificationToVehicle(user.id, before, body.vehicle_type);
+    const { data: fresh } = await supabaseAdmin
+      .from("rider_profiles")
+      .select()
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (fresh) return c.json({ profile: fresh }, 200);
+  }
+
   return c.json({ profile: result.data }, 200);
 });
+
+/**
+ * The vehicle type changed: re-derive verification_status over the new
+ * required documents. A rider who stops being approved goes offline and
+ * releases their requests and booked jobs (same as a staff de-approval).
+ */
+async function syncVerificationToVehicle(
+  userId: string,
+  before: NonNullable<Awaited<ReturnType<typeof loadRiderVerification>>>,
+  vehicleType: string,
+) {
+  const oldKeys = requiredDocumentKeys(before.vehicle_type);
+  const widened = !requiredDocumentKeys(vehicleType).every((k) => oldKeys.includes(k));
+  // An approval carried over without documents (migrated riders) doesn't
+  // cover a newly required licence.
+  const previous = widened && before.verification_status === "approved" ? "not_submitted" : before.verification_status;
+  const next = deriveVerificationStatus(before.documents, previous, vehicleType);
+  if (next === before.verification_status) return;
+  const res = await writeRiderDocumentsCAS(userId, before.documents, before.documents, next);
+  if (res !== "ok") {
+    console.error(`[riders] could not re-derive verification for ${userId} after vehicle change: ${res}`);
+    return;
+  }
+  if (before.verification_status === "approved" && next !== "approved") {
+    const { error } = await supabaseAdmin.from("rider_profiles").update({ is_available: false }).eq("user_id", userId);
+    if (error) console.error(`[riders] could not set rider ${userId} offline after vehicle change:`, error.message);
+    await releaseRiderRequests(userId).catch(() => {});
+    await releaseBookedJobs(userId);
+  }
+}
 
 export default app;

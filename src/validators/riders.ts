@@ -77,6 +77,8 @@ export const RiderDocumentViewSchema = z
 export const RiderDocumentsResponse = z
   .object({
     verification_status: RiderVerificationStatusSchema,
+    /** Documents this rider must provide (bicycle: ID card only). */
+    required_documents: z.array(RiderDocumentKeySchema),
     documents: z.object({
       license_front: RiderDocumentViewSchema.nullable(),
       license_back: RiderDocumentViewSchema.nullable(),
@@ -111,6 +113,7 @@ export const RiderRequiredActionSchema = z
 export const RiderRequiredActionsResponse = z
   .object({
     verification_status: RiderVerificationStatusSchema,
+    required_documents: z.array(RiderDocumentKeySchema),
     actions: z.array(RiderRequiredActionSchema),
     completed: z.number().int(),
     total: z.number().int(),

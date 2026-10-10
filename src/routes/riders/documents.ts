@@ -32,7 +32,7 @@ app.openapi(
     try {
       const current = await loadRiderVerification(user.id);
       if (!current) return c.json({ error: "Rider profile not found" }, 404);
-      return c.json(await documentsView(current), 200);
+      return c.json(await documentsView(current, current.vehicle_type), 200);
     } catch (e) {
       if (e instanceof RiderDataUnavailableError) return c.json({ error: "Service unavailable, please retry" }, 503);
       throw e;
@@ -82,15 +82,15 @@ app.openapi(
 
       // Compare-and-swap; on a lost race reload, re-apply and retry once.
       for (let attempt = 0; attempt < 2; attempt++) {
-        const next = applyUploads(current, body, new Date().toISOString());
-        if (next === current) return c.json(await documentsView(current), 200);
+        const next = applyUploads(current, body, new Date().toISOString(), current.vehicle_type);
+        if (next === current) return c.json(await documentsView(current, current.vehicle_type), 200);
         const result = await writeRiderDocumentsCAS(
           user.id,
           current.documents,
           next.documents,
           next.verification_status
         );
-        if (result === "ok") return c.json(await documentsView(next), 200);
+        if (result === "ok") return c.json(await documentsView(next, current.vehicle_type), 200);
         if (result === "error") return c.json({ error: "Service unavailable, please retry" }, 503);
         if (attempt === 0) {
           const reloaded = await loadRiderVerification(user.id);

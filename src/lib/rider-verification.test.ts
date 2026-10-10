@@ -6,6 +6,7 @@ import {
   deriveVerificationStatus,
   hasPendingDocuments,
   isOwnDocumentPath,
+  requiredDocumentKeys,
   reviewNoticeKind,
   riderRequiredActions,
   type RiderStoredDocument,
@@ -247,5 +248,48 @@ describe("riderRequiredActions", () => {
     const res = riderRequiredActions({ vehicleType: "motorcycle", documents: {}, verificationStatus: "approved" });
     assert.ok(res.actions.every((a) => a.status === "done"));
     assert.equal(res.completed, 4);
+  });
+});
+
+describe("bicycle riders (national ID only)", () => {
+  const id = (status: RiderStoredDocument["status"]): RiderStoredDocuments => ({ id_front: doc(status), id_back: doc(status) });
+  it("requiredDocumentKeys", () => {
+    assert.deepEqual(requiredDocumentKeys("bicycle"), ["id_front", "id_back"]);
+    assert.equal(requiredDocumentKeys("motorcycle").length, 4);
+    assert.equal(requiredDocumentKeys(null).length, 4);
+    assert.equal(requiredDocumentKeys(undefined).length, 4);
+  });
+  it("is pending with only the ID uploaded, approved once verified", () => {
+    assert.equal(deriveVerificationStatus(id("pending"), "not_submitted", "bicycle"), "pending");
+    assert.equal(deriveVerificationStatus(id("verified"), "pending", "bicycle"), "approved");
+    assert.equal(deriveVerificationStatus(id("pending"), "not_submitted", "motorcycle"), "not_submitted");
+  });
+  it("is not_submitted with one ID side, rejected on a rejected ID", () => {
+    assert.equal(deriveVerificationStatus({ id_front: doc("pending") }, "not_submitted", "bicycle"), "not_submitted");
+    assert.equal(deriveVerificationStatus({ ...id("verified"), id_back: doc("rejected") }, "approved", "bicycle"), "rejected");
+  });
+  it("ignores a rejected licence", () => {
+    assert.equal(deriveVerificationStatus({ ...id("verified"), license_front: doc("rejected") }, "pending", "bicycle"), "approved");
+  });
+  it("applyUploads moves to pending with just the ID", () => {
+    const next = applyUploads(state({}), { id_front: "u1/id_front/1-1.jpg", id_back: "u1/id_back/1-1.jpg" }, NOW, "bicycle");
+    assert.equal(next.verification_status, "pending");
+  });
+  it("applyReview approves on the last ID verification", () => {
+    const res = applyReview(state({ id_front: doc("verified"), id_back: doc("pending") }, "pending"), "id_back",
+      { status: "verified", path: doc("pending").path }, "bicycle");
+    assert.ok(res.ok && res.state.verification_status === "approved");
+  });
+  it("checklist has no driving_license and lists only ID keys", () => {
+    const r = riderRequiredActions({ vehicleType: "bicycle", documents: {}, verificationStatus: "not_submitted" });
+    assert.deepEqual(r.actions.map((a) => a.key), ["vehicle_type", "national_id", "verification"]);
+    assert.deepEqual(r.actions[2].missing, ["id_front", "id_back"]);
+    assert.deepEqual(r.required_documents, ["id_front", "id_back"]);
+    assert.equal(r.total, 3);
+  });
+  it("motorcycle checklist keeps all four", () => {
+    const r = riderRequiredActions({ vehicleType: "motorcycle", documents: {}, verificationStatus: "not_submitted" });
+    assert.equal(r.actions.length, 4);
+    assert.equal(r.required_documents.length, 4);
   });
 });

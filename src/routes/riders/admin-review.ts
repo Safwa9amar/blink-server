@@ -186,7 +186,7 @@ app.openapi(
           note,
           path,
           reviewer,
-        });
+        }, current.vehicle_type);
         if (!res.ok) {
           if (res.error === "stale") {
             return c.json(
@@ -201,7 +201,7 @@ app.openapi(
           return c.json({ error: "Document not uploaded" }, 400);
         }
         // Same decision already recorded: no write, no second notification.
-        if (res.unchanged) return c.json(await documentsView(current), 200);
+        if (res.unchanged) return c.json(await documentsView(current, current.vehicle_type), 200);
 
         const next = res.state;
         const write = await writeRiderDocumentsCAS(
@@ -252,7 +252,7 @@ app.openapi(
           ),
           href: "/(rider)/profile/required-actions",
         }).catch(() => {});
-        return c.json(await documentsView(next), 200);
+        return c.json(await documentsView(next, current.vehicle_type), 200);
       }
       return c.json(
         {

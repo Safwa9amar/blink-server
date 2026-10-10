@@ -31,21 +31,32 @@ export interface RiderVerificationState {
 }
 
 /**
- * Overall status from the documents. An approved rider stays approved while a
+ * Documents a rider must provide. A bicycle needs only the national ID; the
+ * driving licence is for motorcycles (and an unknown vehicle keeps all four).
+ */
+export function requiredDocumentKeys(vehicleType: string | null | undefined): RiderDocumentKey[] {
+  return vehicleType === "bicycle" ? ["id_front", "id_back"] : [...RIDER_DOCUMENT_KEYS];
+}
+
+/**
+ * Overall status from the REQUIRED documents (see requiredDocumentKeys; other
+ * stored documents are ignored). An approved rider stays approved while a
  * replacement waits for review (migrated riders have no documents at all):
  * only a staff rejection revokes an approval.
  */
 export function deriveVerificationStatus(
   docs: RiderStoredDocuments,
-  previous: RiderVerificationStatus
+  previous: RiderVerificationStatus,
+  vehicleType?: string | null
 ): RiderVerificationStatus {
-  const present = RIDER_DOCUMENT_KEYS.map((k) => docs[k]).filter((d): d is RiderStoredDocument => !!d);
+  const keys = requiredDocumentKeys(vehicleType);
+  const present = keys.map((k) => docs[k]).filter((d): d is RiderStoredDocument => !!d);
   if (present.some((d) => d.status === "rejected")) return "rejected";
-  if (present.length === RIDER_DOCUMENT_KEYS.length && present.every((d) => d.status === "verified")) {
+  if (present.length === keys.length && present.every((d) => d.status === "verified")) {
     return "approved";
   }
   if (previous === "approved") return "approved";
-  if (present.length === RIDER_DOCUMENT_KEYS.length) return "pending";
+  if (present.length === keys.length) return "pending";
   return "not_submitted";
 }
 
@@ -53,7 +64,8 @@ export function deriveVerificationStatus(
 export function applyUploads(
   state: RiderVerificationState,
   paths: Partial<Record<RiderDocumentKey, string>>,
-  nowIso: string
+  nowIso: string,
+  vehicleType?: string | null
 ): RiderVerificationState {
   const documents: RiderStoredDocuments = { ...state.documents };
   let changed = false;
@@ -64,7 +76,7 @@ export function applyUploads(
     changed = true;
   }
   if (!changed) return state;
-  return { documents, verification_status: deriveVerificationStatus(documents, state.verification_status) };
+  return { documents, verification_status: deriveVerificationStatus(documents, state.verification_status, vehicleType) };
 }
 
 /** `path` is the document path the reviewer actually saw; it guards against a concurrent replacement. */
@@ -89,7 +101,8 @@ export function hasPendingDocuments(docs: RiderStoredDocuments): boolean {
 export function applyReview(
   state: RiderVerificationState,
   key: RiderDocumentKey,
-  decision: ReviewDecision
+  decision: ReviewDecision,
+  vehicleType?: string | null
 ): ReviewResult {
   const current = state.documents[key];
   if (!current) return { ok: false, error: "not_uploaded" };
@@ -106,7 +119,7 @@ export function applyReview(
   return {
     ok: true,
     unchanged,
-    state: { documents, verification_status: deriveVerificationStatus(documents, state.verification_status) },
+    state: { documents, verification_status: deriveVerificationStatus(documents, state.verification_status, vehicleType) },
   };
 }
 
@@ -173,6 +186,7 @@ export function riderRequiredActions(input: {
 }) {
   const docs = input.documents;
   const approved = input.verificationStatus === "approved";
+  const required = requiredDocumentKeys(input.vehicleType);
   const verification: RiderRequiredAction = (() => {
     switch (input.verificationStatus) {
       case "approved":
@@ -183,14 +197,14 @@ export function riderRequiredActions(input: {
         return {
           key: "verification",
           status: "rejected",
-          missing: RIDER_DOCUMENT_KEYS.filter((k) => docs[k]?.status === "rejected"),
+          missing: required.filter((k) => docs[k]?.status === "rejected"),
           reason: null,
         };
       default:
         return {
           key: "verification",
           status: "missing_info",
-          missing: RIDER_DOCUMENT_KEYS.filter((k) => !docs[k]),
+          missing: required.filter((k) => !docs[k]),
           reason: null,
         };
     }
@@ -202,12 +216,15 @@ export function riderRequiredActions(input: {
       missing: input.vehicleType ? [] : ["vehicle_type"],
       reason: null,
     },
-    documentPair("driving_license", docs.license_front, docs.license_back, approved),
+    ...(required.includes("license_front")
+      ? [documentPair("driving_license", docs.license_front, docs.license_back, approved)]
+      : []),
     documentPair("national_id", docs.id_front, docs.id_back, approved),
     verification,
   ];
   return {
     verification_status: input.verificationStatus,
+    required_documents: required,
     actions,
     completed: actions.filter((a) => a.status === "done").length,
     total: actions.length,
