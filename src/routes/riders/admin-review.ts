@@ -76,7 +76,7 @@ function noticeCopy(
   const pronoun = l.frFem ? "la" : "le";
   const offline = {
     en: " You're now offline and can't take jobs until you re-upload it and it's approved.",
-    fr: ` Vous êtes maintenant hors ligne et ne pouvez plus accepter de courses tant que vous ne l'avez pas téléversé${e} à nouveau et que ${l.frFem ? "elle" : "il"} n'a pas été approuvé${e}.`,
+    fr: ` Vous êtes maintenant hors ligne et ne pouvez plus accepter de courses jusqu'à ce que vous ${pronoun} téléversiez à nouveau et qu'${l.frFem ? "elle" : "il"} soit approuvé${e}.`,
     ar: " أصبحت الآن غير متصل ولا يمكنك قبول الطلبات حتى تعيد رفعها ويتم قبولها.",
   };
   switch (kind) {

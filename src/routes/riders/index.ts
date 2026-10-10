@@ -18,8 +18,8 @@ import adminReview from "./admin-review";
 const app = router();
 
 app.use("/*", auth);
-// /admin/* carries its own requireStaff guard (staff aren't riders);
-// everything else is the rider app.
+// /riders/admin/* is staff-only (requireStaff here, and again on the route);
+// everything else is the rider app (requireRole("rider")).
 app.use("/*", async (c, next) => {
   if (c.req.path.startsWith(`${env.BASE_PATH}/riders/admin/`)) return requireStaff()(c, next);
   return requireRole("rider")(c, next);
