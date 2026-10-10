@@ -1,7 +1,10 @@
 import { releaseRiderRequests } from "../../lib/dispatch";
+import { RIDER_NOT_VERIFIED, riderCanWork } from "../../lib/rider-access";
 import { supabaseAdmin } from "../../lib/supabase";
-import { bearer, createRoute, errorResponses, json, OkSchema, router } from "../../openapi";
+import { bearer, createRoute, ErrorSchema, errorResponses, json, OkSchema, router } from "../../openapi";
 import { riderLocationSchema } from "../../validators/merchant";
+import { RiderNotVerifiedError } from "../../validators/riders";
+import { loadRiderVerification, RiderDataUnavailableError } from "./verification-shared";
 
 const app = router();
 
@@ -19,13 +22,23 @@ const route = createRoute({
     200: json(OkSchema),
     400: errorResponses[400],
     401: errorResponses[401],
-    403: errorResponses[403],
+    403: json(RiderNotVerifiedError, "Forbidden / rider not verified"),
+    503: json(ErrorSchema, "Service unavailable"),
   },
 });
 
 app.openapi(route, async (c) => {
   const user = c.get("user");
   const body = c.req.valid("json");
+  // A ping must not be a second way to go online for an unverified rider.
+  if (body.is_available === true) {
+    try {
+      if (!riderCanWork(await loadRiderVerification(user.id))) return c.json(RIDER_NOT_VERIFIED, 403);
+    } catch (e) {
+      if (e instanceof RiderDataUnavailableError) return c.json({ error: "Service unavailable, please retry" }, 503);
+      throw e;
+    }
+  }
   const patch: Record<string, unknown> = {
     latitude: body.latitude,
     longitude: body.longitude,

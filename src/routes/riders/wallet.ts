@@ -1,12 +1,15 @@
 import { releaseRiderRequests, riderWallet } from "../../lib/dispatch";
+import { RIDER_NOT_VERIFIED, riderCanWork } from "../../lib/rider-access";
 import { supabaseAdmin } from "../../lib/supabase";
-import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import {
   availabilitySchema,
   AvailabilityResponse,
   RiderShiftResponse,
   RiderWalletResponse,
 } from "../../validators/rider-jobs";
+import { RiderNotVerifiedError } from "../../validators/riders";
+import { loadRiderVerification, RiderDataUnavailableError } from "./verification-shared";
 
 const app = router();
 
@@ -78,11 +81,25 @@ app.openapi(
     tags: ["riders"],
     security: bearer,
     request: { body: { ...json(availabilitySchema), required: true } },
-    responses: { 200: json(AvailabilityResponse), 400: errorResponses[400] },
+    responses: {
+      200: json(AvailabilityResponse),
+      400: errorResponses[400],
+      403: json(RiderNotVerifiedError, "Rider not verified"),
+      503: json(ErrorSchema, "Service unavailable"),
+    },
   }),
   async (c) => {
     const user = c.get("user");
     const { is_available } = c.req.valid("json");
+    // Only a verified rider may go online (going offline is always allowed).
+    if (is_available) {
+      try {
+        if (!riderCanWork(await loadRiderVerification(user.id))) return c.json(RIDER_NOT_VERIFIED, 403);
+      } catch (e) {
+        if (e instanceof RiderDataUnavailableError) return c.json({ error: "Service unavailable, please retry" }, 503);
+        throw e;
+      }
+    }
     const { data, error } = await supabaseAdmin
       .from("rider_profiles")
       .update({ is_available })
