@@ -1,6 +1,7 @@
 import { isAuthOutage } from "../../lib/auth-outage";
 import { retryOnNetworkError } from "../../lib/db-retry";
 import { supabaseAdmin } from "../../lib/supabase";
+import { initialGrantedRoles, roleConflictMessage, signUpConflict } from "../../lib/roles";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { registerPhoneSchema, SocialSyncResponse, publicUser } from "../../validators/auth";
 import { ensureRoleProfile } from "./shared";
@@ -23,7 +24,7 @@ const route = createRoute({
     200: json(SocialSyncResponse),
     400: errorResponses[400],
     401: errorResponses[401],
-    409: json(ErrorSchema, "Account already exists under a different role, or phone already in use"),
+    409: json(ErrorSchema, "Account doesn't hold this role (add it from Become a Partner), or phone already in use"),
     503: json(ErrorSchema, "Supabase unreachable — safe to retry"),
   },
 });
@@ -61,16 +62,12 @@ app.openapi(route, async (c) => {
   const findOwnRow = () =>
     supabaseAdmin.from("users").select("*").eq("id", supaUser.id).maybeSingle();
 
-  // Already registered: same role → finish (backfill the role profile), other
-  // role → refuse. One account = one role (same rule as /auth/google).
+  // Already registered: a role the account holds → finish (backfill the role
+  // profile; the active role is left alone), any other role → refuse and point
+  // to Become a Partner, where the signed-in account unlocks more roles.
   const finishExisting = async (row: NonNullable<Awaited<ReturnType<typeof findOwnRow>>["data"]>, isNewUser: boolean) => {
-    if (row.role !== body.role) {
-      return c.json(
-        {
-          error: `This number is already registered as ${row.role}. Sign in as ${row.role}, or use another number to register as ${body.role}.`,
-        },
-        409
-      );
+    if (signUpConflict(row, body.role)) {
+      return c.json({ error: roleConflictMessage(row.role, body.role) }, 409);
     }
     await ensureRoleProfile(row.id, body.role);
     return c.json({ is_new_user: isNewUser, user: publicUser(row) }, 200);
@@ -98,6 +95,7 @@ app.openapi(route, async (c) => {
         middle_name: body.middle_name || null,
         email: body.email ?? null,
         role: body.role,
+        granted_roles: initialGrantedRoles(body.role),
       })
       .select("*")
       .single()

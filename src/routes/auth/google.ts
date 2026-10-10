@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { SocialSyncResponse, socialSyncSchema, publicUser } from "../../validators/auth";
+import { initialGrantedRoles, roleConflictMessage, signUpConflict } from "../../lib/roles";
 import { VALID_ROLES, ensureRoleProfile, type ServerRole } from "./shared";
 
 const app = router();
@@ -28,7 +29,7 @@ const route = createRoute({
     200: json(SocialSyncResponse),
     400: errorResponses[400],
     401: errorResponses[401],
-    409: json(ErrorSchema, "Account already exists under a different role"),
+    409: json(ErrorSchema, "Account doesn't hold this role — add it from Become a Partner"),
   },
 });
 
@@ -61,17 +62,16 @@ app.openapi(route, async (c) => {
 
   // Existing user.
   if (existingUser) {
-    // Option A: an account is ONE role. Re-registering the same identity under a
-    // different role is rejected — this was the bug where "create merchant" with
-    // an Apple/Google ID that had already signed up as a rider silently returned
-    // the old rider account.
-    if (role && role !== existingUser.role) {
-      return c.json(
-        {
-          error: `This account already exists as ${existingUser.role}. Sign in as ${existingUser.role}, or use a different account to register as ${role}.`,
-        },
-        409,
-      );
+    // A role the account doesn't hold is refused (the bug where "create
+    // merchant" with an identity already signed up as a rider silently
+    // returned the rider account); the message points to Become a Partner,
+    // where the signed-in account unlocks more roles. A held role signs in.
+    // An unknown role is a 400, never a 409 echoing the client's string.
+    if (role && !VALID_ROLES.includes(role as ServerRole)) {
+      return c.json({ error: `Invalid role: ${role}` }, 400);
+    }
+    if (role && signUpConflict(existingUser, role)) {
+      return c.json({ error: roleConflictMessage(existingUser.role, role) }, 409);
     }
     // Backfill the role profile if missing (e.g. account predates its role
     // table), then return the existing profile.
@@ -98,6 +98,7 @@ app.openapi(route, async (c) => {
       first_name: meta.given_name ?? meta.name ?? null,
       last_name: meta.family_name ?? null,
       role: role as ServerRole,
+      granted_roles: initialGrantedRoles(role as ServerRole),
     })
     .select("*")
     .single();

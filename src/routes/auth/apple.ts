@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { SocialSyncResponse, socialSyncSchema, publicUser } from "../../validators/auth";
+import { initialGrantedRoles, roleConflictMessage, signUpConflict } from "../../lib/roles";
 import { VALID_ROLES, ensureRoleProfile, type ServerRole } from "./shared";
 
 const app = router();
@@ -23,7 +24,7 @@ const route = createRoute({
     200: json(SocialSyncResponse),
     400: errorResponses[400],
     401: errorResponses[401],
-    409: json(ErrorSchema, "Account already exists under a different role"),
+    409: json(ErrorSchema, "Account doesn't hold this role — add it from Become a Partner"),
   },
 });
 
@@ -55,15 +56,14 @@ app.openapi(route, async (c) => {
 
   // Existing user.
   if (existingUser) {
-    // Option A: an account is ONE role. Reject re-registering the same Apple ID
-    // under a different role (the bug where it silently returned the old role).
-    if (role && role !== existingUser.role) {
-      return c.json(
-        {
-          error: `This account already exists as ${existingUser.role}. Sign in as ${existingUser.role}, or use a different account to register as ${role}.`,
-        },
-        409,
-      );
+    // A role the account doesn't hold is refused (the bug where it silently
+    // returned the old role); the message points to Become a Partner. A held
+    // role signs in. An unknown role is a 400, never a 409.
+    if (role && !VALID_ROLES.includes(role as ServerRole)) {
+      return c.json({ error: `Invalid role: ${role}` }, 400);
+    }
+    if (role && signUpConflict(existingUser, role)) {
+      return c.json({ error: roleConflictMessage(existingUser.role, role) }, 409);
     }
     // Backfill the role profile if missing, then return the existing profile.
     await ensureRoleProfile(existingUser.id, existingUser.role as ServerRole);
@@ -97,6 +97,7 @@ app.openapi(route, async (c) => {
       first_name: firstName,
       last_name: lastName,
       role: role as ServerRole,
+      granted_roles: initialGrantedRoles(role as ServerRole),
     })
     .select("*")
     .single();
