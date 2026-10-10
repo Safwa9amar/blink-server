@@ -14,7 +14,8 @@ export const upsertVehicleSchema = z
   .object({
     brand: z.string().min(1),
     model: z.string().min(1),
-    license_plate: z.string().min(1),
+    // Empty for a bicycle (no plate); the route requires it for other vehicle types.
+    license_plate: z.string().trim().max(20),
     year: z.string().min(1),
     color: z.string().min(1),
     category: z.enum(["standard", "electric", "hybrid"]),

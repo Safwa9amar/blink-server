@@ -25,6 +25,18 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const body = c.req.valid("json");
 
+  // A bicycle has no plate; every other vehicle type needs one.
+  if (!body.license_plate) {
+    const { data: rider } = await supabaseAdmin
+      .from("rider_profiles")
+      .select("vehicle_type")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (rider?.vehicle_type !== "bicycle") {
+      return c.json({ error: "A license plate is required for this vehicle" }, 400);
+    }
+  }
+
   // Check if vehicle exists
   const { data: existing } = await supabaseAdmin
     .from("vehicles")
