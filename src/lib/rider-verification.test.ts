@@ -83,6 +83,24 @@ describe("applyUploads", () => {
   });
 });
 
+describe("review audit fields", () => {
+  it("records reviewer on a decision and uploads clear it", () => {
+    const before = state(all("pending"), "pending");
+    const res = applyReview(before, "id_front", {
+      status: "verified",
+      path: doc("pending").path,
+      reviewer: { id: "staff1", at: NOW },
+    });
+    assert.equal(res.ok, true);
+    if (!res.ok) return;
+    assert.equal(res.state.documents.id_front?.reviewed_by, "staff1");
+    assert.equal(res.state.documents.id_front?.reviewed_at, NOW);
+    const up = applyUploads(res.state, { id_front: "u1/id_front/9-9.jpg" }, NOW);
+    assert.equal(up.documents.id_front?.reviewed_by, undefined);
+    assert.equal(up.documents.id_front?.reviewed_at, undefined);
+  });
+});
+
 describe("applyReview", () => {
   it("refuses a document that was never uploaded", () => {
     assert.deepEqual(applyReview(state({}), "id_front", { status: "verified", path: "p" }), {

@@ -1,7 +1,6 @@
-import { z } from "@hono/zod-openapi";
 import { applyUploads, isOwnDocumentPath, type RiderDocumentKey } from "../../lib/rider-verification";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
-import { RiderDocumentsResponse, updateRiderDocumentsSchema } from "../../validators/riders";
+import { RiderDocumentsConflict, RiderDocumentsResponse, updateRiderDocumentsSchema } from "../../validators/riders";
 import {
   documentObjectExists,
   documentsView,
@@ -9,10 +8,6 @@ import {
   RiderDataUnavailableError,
   writeRiderDocumentsCAS,
 } from "./verification-shared";
-
-const DocumentsConflictSchema = z
-  .object({ error: z.string(), code: z.literal("documents_conflict") })
-  .openapi("RiderDocumentsConflict");
 
 const app = router();
 
@@ -63,7 +58,7 @@ app.openapi(
       401: errorResponses[401],
       403: errorResponses[403],
       404: errorResponses[404],
-      409: json(DocumentsConflictSchema, "Documents changed concurrently"),
+      409: json(RiderDocumentsConflict, "Documents changed concurrently"),
       503: json(ErrorSchema, "Service unavailable"),
     },
   }),

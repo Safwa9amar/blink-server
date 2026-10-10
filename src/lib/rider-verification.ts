@@ -19,6 +19,9 @@ export interface RiderStoredDocument {
   /** Staff note, kept only on a rejection. */
   note: string | null;
   uploaded_at: string;
+  /** Staff audit: who made the last verified/rejected decision, and when. Cleared by a new upload. */
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
 }
 export type RiderStoredDocuments = Partial<Record<RiderDocumentKey, RiderStoredDocument>>;
 
@@ -65,7 +68,7 @@ export function applyUploads(
 }
 
 /** `path` is the document path the reviewer actually saw; it guards against a concurrent replacement. */
-export type ReviewDecision = { status: "verified" | "rejected"; note?: string | null; path: string };
+export type ReviewDecision = { status: "verified" | "rejected"; note?: string | null; path: string; reviewer?: { id: string; at: string } };
 export type ReviewResult =
   | { ok: true; state: RiderVerificationState; unchanged: boolean }
   | { ok: false; error: "not_uploaded" | "stale" };
@@ -93,7 +96,13 @@ export function applyReview(
   if (current.path !== decision.path) return { ok: false, error: "stale" };
   const note = decision.status === "rejected" ? decision.note?.trim() || null : null;
   const unchanged = current.status === decision.status && current.note === note;
-  const documents: RiderStoredDocuments = { ...state.documents, [key]: { ...current, status: decision.status, note } };
+  const documents: RiderStoredDocuments = { ...state.documents, [key]: {
+      ...current,
+      status: decision.status,
+      note,
+      ...(decision.reviewer ? { reviewed_by: decision.reviewer.id, reviewed_at: decision.reviewer.at } : {}),
+    },
+  };
   return {
     ok: true,
     unchanged,

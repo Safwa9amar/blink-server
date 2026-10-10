@@ -1,4 +1,5 @@
-import { auth, requireRole } from "../../middleware/auth";
+import { env } from "../../config/env";
+import { auth, requireRole, requireStaff } from "../../middleware/auth";
 import { router } from "../../openapi";
 import getProfile from "./get-profile";
 import updateProfile from "./update-profile";
@@ -20,7 +21,7 @@ app.use("/*", auth);
 // /admin/* carries its own requireStaff guard (staff aren't riders);
 // everything else is the rider app.
 app.use("/*", async (c, next) => {
-  if (c.req.path.includes("/riders/admin/")) return next();
+  if (c.req.path.startsWith(`${env.BASE_PATH}/riders/admin/`)) return requireStaff()(c, next);
   return requireRole("rider")(c, next);
 });
 

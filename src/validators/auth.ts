@@ -137,6 +137,8 @@ const riderStoredDocSchema = z
     status: z.enum(["pending", "verified", "rejected"]),
     note: z.string().nullable(),
     uploaded_at: z.string(),
+    reviewed_by: z.string().nullable().optional(),
+    reviewed_at: z.string().nullable().optional(),
   })
   .openapi("RiderStoredDocument");
 

@@ -125,3 +125,8 @@ export const RiderNotVerifiedError = z
 export const RiderStaleReviewError = z
   .object({ error: z.string(), code: z.enum(["stale_review"]) })
   .openapi("RiderStaleReviewError");
+
+/** 409 when the rider's documents changed under a concurrent write. */
+export const RiderDocumentsConflict = z
+  .object({ error: z.string(), code: z.literal("documents_conflict") })
+  .openapi("RiderDocumentsConflict");
