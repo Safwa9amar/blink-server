@@ -1,10 +1,15 @@
+import { AGENT_ACCESS_MESSAGE, canAgentProcess } from "../../lib/agent-access";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
 import { verifyPin } from "../../lib/pin";
 import { createNotification } from "../../lib/notifications";
 import { withRider } from "../../lib/transactions";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
-import { processTransactionSchema, TransactionResponse } from "../../validators/transactions";
+import {
+  AgentAccessError,
+  processTransactionSchema,
+  TransactionResponse,
+} from "../../validators/transactions";
 import { processingShop } from "../agents/shared";
 
 const app = router();
@@ -76,7 +81,10 @@ const route = createRoute({
     200: json(TransactionResponse),
     400: errorResponses[400],
     401: errorResponses[401],
-    403: errorResponses[403],
+    403: json(
+      AgentAccessError,
+      "Forbidden: wrong PIN (no code), or code shop_not_approved | not_your_transaction"
+    ),
   },
 });
 
@@ -95,10 +103,11 @@ app.openapi(route, async (c) => {
     return c.json({ error: "Invalid PIN" }, 403);
   }
 
-  // The pending operation; its shop_id is the shop the rider picked, if any.
+  // The pending operation; agent_id / shop_id are the agent and shop the rider
+  // picked, if any (both null for a walk-in).
   const { data: tx } = await supabaseAdmin
     .from("transactions")
-    .select("id, status, shop_id")
+    .select("id, status, agent_id, shop_id")
     .eq("id", body.transaction_id)
     .maybeSingle();
   if (!tx || tx.status !== "pending") {
@@ -110,12 +119,24 @@ app.openapi(route, async (c) => {
     return c.json({ error: "Shop not found" }, 400);
   }
 
+  // Only through an approved shop of this agent, and only this agent's (or a
+  // walk-in) operation — src/lib/agent-access.ts.
+  const access = canAgentProcess({ shop, tx, agentId: user.id });
+  if (!access.ok) {
+    return c.json({ error: AGENT_ACCESS_MESSAGE[access.code], code: access.code }, 403);
+  }
+
   const newStatus = body.action === "confirm" ? "completed" : "cancelled";
-  const { data, error } = await supabaseAdmin
+  const pending = supabaseAdmin
     .from("transactions")
     .update({ status: newStatus, agent_id: user.id, shop_id: shop?.id ?? null })
     .eq("id", body.transaction_id)
-    .eq("status", "pending") // only update pending transactions
+    .eq("status", "pending"); // only update pending transactions
+  // …and only while it is still assigned as checked above: a rider re-picking
+  // a shop in between can't slip another agent's operation past the check.
+  const { data, error } = await (
+    tx.agent_id ? pending.eq("agent_id", tx.agent_id) : pending.is("agent_id", null)
+  )
     .select()
     .single();
 
