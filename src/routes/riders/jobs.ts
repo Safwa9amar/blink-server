@@ -81,8 +81,10 @@ import {
   RIDE_NO_SHOW_WAIT_MS,
   startNoShowClock,
 } from "../../lib/ride";
+import { RIDER_NOT_VERIFIED, riderCanWork } from "../../lib/rider-access";
 import { supabaseAdmin } from "../../lib/supabase";
 import { orderRef } from "../merchant/shared";
+import { RiderDataUnavailableError, riderAccess } from "./verification-shared";
 import { bearer, createRoute, ErrorSchema, z, errorResponses, IdParam, json, OkSchema, router } from "../../openapi";
 import {
   acceptJobSchema,
@@ -97,6 +99,7 @@ import {
   RiderJobResponse,
   TripSummarySchema,
 } from "../../validators/rider-jobs";
+import { RiderNotVerifiedError } from "../../validators/riders";
 
 const app = router();
 
@@ -231,7 +234,14 @@ app.openapi(
     const user = c.get("user");
     const now = Date.now();
     const rider = await riderPosition(user.id);
-    if (!rider.isAvailable || (await currentJobRow(user.id))) return c.json({}, 200);
+    // Offline or not verified yet (src/lib/rider-access.ts): no offer at all.
+    if (
+      !rider.isAvailable ||
+      !riderCanWork({ verification_status: rider.verificationStatus }) ||
+      (await currentJobRow(user.id))
+    ) {
+      return c.json({}, 200);
+    }
 
     // The store asked for this rider by name, so the pool's filters (radius,
     // freshness, an earlier decline) don't apply: a store may ask again.
@@ -433,12 +443,22 @@ app.openapi(
     responses: {
       200: json(RiderJobResponse),
       400: errorResponses[400],
+      403: json(RiderNotVerifiedError, "Rider not verified"),
       404: errorResponses[404],
       409: json(ErrorSchema, "Job already taken"),
+      503: json(ErrorSchema, "Service unavailable"),
     },
   }),
   async (c) => {
     const user = c.get("user");
+    // Every job type (store, courier, ride, a store's own-driver request)
+    // needs a verified rider. A failed lookup never lets a rider through.
+    try {
+      if (!(await riderAccess(user.id))) return c.json(RIDER_NOT_VERIFIED, 403);
+    } catch (e) {
+      if (e instanceof RiderDataUnavailableError) return c.json({ error: "Service unavailable, please retry" }, 503);
+      throw e;
+    }
     const { id } = c.req.valid("param");
     // The store request the rider was shown, if they're answering one.
     const shown = (c.req.valid("json") ?? {}).request_expires_at;

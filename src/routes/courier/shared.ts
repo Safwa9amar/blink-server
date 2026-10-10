@@ -33,6 +33,7 @@ export async function freeRidersNear(point: LatLng): Promise<MapCandidate[]> {
     .from("rider_profiles")
     .select("user_id, latitude, longitude, vehicle_type, location_updated_at")
     .eq("is_available", true)
+    .eq("verification_status", "approved")
     .not("latitude", "is", null)
     .not("longitude", "is", null);
   const near = (profiles ?? [])

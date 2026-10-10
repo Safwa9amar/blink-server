@@ -126,12 +126,14 @@ export async function riderGender(riderId: string) {
 export async function riderPosition(riderId: string) {
   const { data } = await supabaseAdmin
     .from("rider_profiles")
-    .select("is_available, latitude, longitude, vehicle_type")
+    .select("is_available, latitude, longitude, vehicle_type, verification_status")
     .eq("user_id", riderId)
     .maybeSingle();
   return {
     isAvailable: data?.is_available ?? false,
     vehicleType: (data?.vehicle_type as string | null) ?? null,
+    // null (also on a failed read) counts as not verified: fail closed.
+    verificationStatus: (data?.verification_status as string | null) ?? null,
     lat: (data?.latitude as number | null) ?? null,
     lng: (data?.longitude as number | null) ?? null,
   };
@@ -165,7 +167,9 @@ async function nearbyRiderCount(point: { lat: number | null; lng: number | null 
   const { data } = await supabaseAdmin
     .from("rider_profiles")
     .select("latitude, longitude")
-    .eq("is_available", true);
+    .eq("is_available", true)
+    // Unverified riders can't work (src/lib/rider-access.ts).
+    .eq("verification_status", "approved");
   return (data ?? []).filter((p) => {
     const km = kmBetween(point, { lat: p.latitude, lng: p.longitude });
     return km != null && km <= OFFER_RADIUS_KM;
