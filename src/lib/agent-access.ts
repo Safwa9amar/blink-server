@@ -27,8 +27,8 @@ export interface AccessShop {
 
 /** The pending operation (a transactions row). */
 export interface AccessTx {
-  agent_id?: string | null;
-  shop_id?: string | null;
+  agent_id: string | null;
+  shop_id: string | null;
 }
 
 export type AgentAccess = { ok: true } | { ok: false; code: AgentAccessCode };
@@ -50,7 +50,8 @@ export function canAgentProcess({
   if (!shop || !sameId(shop.user_id, agentId) || shop.review_status !== "active") {
     return { ok: false, code: "shop_not_approved" };
   }
-  const walkIn = !tx.agent_id && !tx.shop_id;
+  // Strict: a missing column (undefined) must NOT read as a walk-in.
+  const walkIn = tx.agent_id === null && tx.shop_id === null;
   if (walkIn || sameId(tx.agent_id, agentId) || sameId(tx.shop_id, shop.id)) {
     return { ok: true };
   }

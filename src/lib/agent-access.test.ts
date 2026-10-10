@@ -76,6 +76,39 @@ describe("canAgentProcess — the agent's shop", () => {
       NOT_APPROVED
     );
   });
+
+  it("refuses a shop with no review status", () => {
+    assert.deepEqual(
+      canAgentProcess({
+        shop: shop({ review_status: null }),
+        tx: tx({ agent_id: ME }),
+        agentId: ME,
+      }),
+      NOT_APPROVED
+    );
+  });
+
+  it("refuses an unknown review status", () => {
+    assert.deepEqual(
+      canAgentProcess({
+        shop: shop({ review_status: "suspended" }),
+        tx: tx({ agent_id: ME }),
+        agentId: ME,
+      }),
+      NOT_APPROVED
+    );
+  });
+
+  it("refuses a walk-in through a shop that is not approved", () => {
+    assert.deepEqual(
+      canAgentProcess({
+        shop: shop({ review_status: "under_review" }),
+        tx: tx(),
+        agentId: ME,
+      }),
+      NOT_APPROVED
+    );
+  });
 });
 
 describe("canAgentProcess — whose operation", () => {
@@ -131,6 +164,23 @@ describe("canAgentProcess — whose operation", () => {
       }),
       OK
     );
+  });
+
+  it("compares the shop id case-insensitively", () => {
+    assert.deepEqual(
+      canAgentProcess({ shop: shop(), tx: tx({ shop_id: MY_SHOP.toUpperCase() }), agentId: ME }),
+      OK
+    );
+  });
+
+  it("a row without agent_id is not a walk-in", () => {
+    const untyped = { shop_id: null } as unknown as AccessTx;
+    assert.deepEqual(canAgentProcess({ shop: shop(), tx: untyped, agentId: ME }), NOT_YOURS);
+  });
+
+  it("a row without shop_id is not a walk-in", () => {
+    const untyped = { agent_id: null } as unknown as AccessTx;
+    assert.deepEqual(canAgentProcess({ shop: shop(), tx: untyped, agentId: ME }), NOT_YOURS);
   });
 });
 
