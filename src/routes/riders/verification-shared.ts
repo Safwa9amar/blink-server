@@ -17,13 +17,20 @@ const SIGNED_URL_TTL_S = 60 * 60;
 
 export type RiderVerificationRow = RiderVerificationState & { vehicle_type: string | null };
 
-/** The rider's verification state; null when the user has no rider profile. */
+/** A transient DB/storage failure (not a client mistake): routes answer 503. */
+export class RiderDataUnavailableError extends Error {}
+
+/**
+ * The rider's verification state; null when the user has no rider profile.
+ * Throws RiderDataUnavailableError on a DB error (do not report it as 404).
+ */
 export async function loadRiderVerification(userId: string): Promise<RiderVerificationRow | null> {
-  const { data } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from("rider_profiles")
     .select("documents, verification_status, vehicle_type")
     .eq("user_id", userId)
     .maybeSingle();
+  if (error) throw new RiderDataUnavailableError(error.message);
   if (!data) return null;
   return {
     documents: (data.documents ?? {}) as RiderStoredDocuments,
@@ -70,14 +77,37 @@ export async function documentsView(state: RiderVerificationState) {
   return { verification_status: state.verification_status, documents };
 }
 
-/** True when the object exists in the private bucket. */
+/** True when the object exists; throws RiderDataUnavailableError on a storage error. */
 export async function documentObjectExists(path: string): Promise<boolean> {
-  const slash = path.lastIndexOf("/");
-  const { data, error } = await supabaseAdmin.storage
-    .from(RIDER_DOCS_BUCKET)
-    .list(path.slice(0, slash), { search: path.slice(slash + 1), limit: 5 });
-  if (error) return false;
-  return (data ?? []).some((o) => o.name === path.slice(slash + 1));
+  try {
+    const { data, error } = await supabaseAdmin.storage.from(RIDER_DOCS_BUCKET).exists(path);
+    if (error) throw error;
+    return data;
+  } catch (e) {
+    throw new RiderDataUnavailableError(e instanceof Error ? e.message : "storage error");
+  }
+}
+
+/**
+ * Compare-and-swap write of documents + status: only applies if `documents`
+ * still equals what the caller loaded (jsonb equality, key order irrelevant;
+ * `documents` is NOT NULL DEFAULT '{}'). updated_at is deliberately not used —
+ * a trigger bumps it on location updates. Reused by the staff review route.
+ */
+export async function writeRiderDocumentsCAS(
+  userId: string,
+  expectedDocs: RiderStoredDocuments,
+  nextDocs: RiderStoredDocuments,
+  nextStatus: RiderVerificationStatus
+): Promise<"ok" | "conflict" | "error"> {
+  const { data, error } = await supabaseAdmin
+    .from("rider_profiles")
+    .update({ documents: nextDocs, verification_status: nextStatus })
+    .eq("user_id", userId)
+    .eq("documents", JSON.stringify(expectedDocs))
+    .select("user_id");
+  if (error) return "error";
+  return data && data.length > 0 ? "ok" : "conflict";
 }
 
 /** riderCanWork for a user id (false when there is no rider profile). */

@@ -1,3 +1,4 @@
+import { matchesDeclaredType } from "../../lib/file-signature";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { riderUploadSchema, RiderUploadResponse } from "../../validators/riders";
@@ -30,6 +31,7 @@ const route = createRoute({
     401: errorResponses[401],
     403: errorResponses[403],
     413: json(ErrorSchema, "File too large"),
+    503: json(ErrorSchema, "Storage unavailable"),
   },
 });
 
@@ -44,12 +46,21 @@ app.openapi(route, async (c) => {
   if (bytes.length === 0) return c.json({ error: "Empty file" }, 400);
   if (bytes.length > MAX_BYTES) return c.json({ error: "File too large (max 8MB)" }, 413);
 
+  if (!matchesDeclaredType(bytes, body.content_type)) {
+    return c.json({ error: "File content doesn't match its type" }, 400);
+  }
+
   // Shape must satisfy isOwnDocumentPath (src/lib/rider-verification.ts).
   const path = `${userId}/${body.document}/${Date.now()}-${Math.round(Math.random() * 1e6)}.${ext}`;
   const { error } = await supabaseAdmin.storage
     .from(RIDER_DOCS_BUCKET)
     .upload(path, bytes, { contentType: body.content_type, upsert: false });
-  if (error) return c.json({ error: error.message }, 400);
+  if (error) {
+    // 4xx from storage = client mistake; anything else (5xx / network) is transient.
+    const status = Number((error as { statusCode?: string | number }).statusCode);
+    if (status >= 400 && status < 500) return c.json({ error: error.message }, 400);
+    return c.json({ error: "Storage unavailable, please retry" }, 503);
+  }
   return c.json({ path }, 200);
 });
 
