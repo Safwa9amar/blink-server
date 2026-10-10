@@ -4,6 +4,7 @@
 import { z } from "@hono/zod-openapi";
 import { releaseRiderRequests } from "../../lib/dispatch";
 import { createNotification } from "../../lib/notifications";
+import { releaseBookedJobs } from "../../lib/rider-release";
 import {
   applyReview,
   reviewNoticeKind,
@@ -219,7 +220,8 @@ app.openapi(
           continue;
         }
 
-        // Written. A rider who is no longer approved can't stay online.
+        // Written. A rider who is no longer approved can't stay online, nor
+        // keep the jobs they booked for later.
         if (next.verification_status !== "approved") {
           const { error: offlineErr } = await supabaseAdmin
             .from("rider_profiles")
@@ -231,6 +233,7 @@ app.openapi(
               offlineErr.message,
             );
           await releaseRiderRequests(userId).catch(() => {});
+          await releaseBookedJobs(userId);
         }
         const kind = reviewNoticeKind(
           current.verification_status,

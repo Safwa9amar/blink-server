@@ -883,10 +883,25 @@ app.openapi(
     tags: ["riders"],
     security: bearer,
     request: { params: IdParam },
-    responses: { 200: json(RiderJobResponse), 400: errorResponses[400], 404: errorResponses[404] },
+    responses: {
+      200: json(RiderJobResponse),
+      400: errorResponses[400],
+      403: json(RiderNotVerifiedError, "Rider not verified"),
+      404: errorResponses[404],
+      503: json(ErrorSchema, "Service unavailable"),
+    },
   }),
   async (c) => {
     const user = c.get("user");
+    // Like accept: staff may have revoked the approval since the job was
+    // booked (de-approval also releases booked jobs, src/lib/rider-release.ts).
+    // A failed lookup never lets a rider through.
+    try {
+      if (!(await riderAccess(user.id))) return c.json(RIDER_NOT_VERIFIED, 403);
+    } catch (e) {
+      if (e instanceof RiderDataUnavailableError) return c.json({ error: "Service unavailable, please retry" }, 503);
+      throw e;
+    }
     const { id } = c.req.valid("param");
     if (await currentJobRow(user.id)) return c.json({ error: "Finish your current trip first" }, 400);
     const { data } = await supabaseAdmin
