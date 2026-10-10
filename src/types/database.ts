@@ -145,8 +145,6 @@ export interface RiderProfileRow {
   wilaya_code: string | null;
   bank_rib: string | null;
   vehicle_type: VehicleType | null;
-  license_front_url: string | null;
-  license_back_url: string | null;
   created_at: string;
   updated_at: string;
 }

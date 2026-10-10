@@ -29,7 +29,7 @@ IF NOT EXISTS (SELECT 1 FROM information_schema.columns
 
   -- Legacy licence URLs (never filled by the app, 0 rows today) are carried
   -- into documents as pending; the columns are dropped in a later migration
-  -- once nothing reads them (20261010150500_rider_profiles_drop_license_urls.sql).
+  -- once nothing reads them (20261010220000_rider_profiles_drop_license_urls.sql).
   UPDATE "rider_profiles"
   SET "documents" = "documents"
   || CASE WHEN "license_front_url" IS NOT NULL THEN jsonb_build_object('license_front',

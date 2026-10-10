@@ -41,8 +41,6 @@ export const riderProfiles = pgTable(
       .default(sql`'BK-RR-' || nextval('rider_id_seq')`),
     // wilaya / bank_rib are common fields and live on users (see users.ts).
     vehicleType: vehicleType("vehicle_type"),
-    licenseFrontUrl: text("license_front_url"),
-    licenseBackUrl: text("license_back_url"),
     // Verification (20261010210000_rider_verification.sql): licence + national
     // ID scans in the private `rider-documents` bucket, each reviewed by staff,
     // and the overall status the server gates rider work on. Service role only.
