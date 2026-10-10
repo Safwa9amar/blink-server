@@ -1,11 +1,13 @@
 // Shared helpers/constants for the auth endpoints.
 
 import { retryOnNetworkError } from "../../lib/db-retry";
+import { APP_ROLES, type AppRole } from "../../lib/roles";
 import { supabaseAdmin } from "../../lib/supabase";
 
-// Roles a brand-new OAuth user may choose when their profile row is created.
-export const VALID_ROLES = ["customer", "rider", "merchant", "agent"] as const;
-export type ServerRole = (typeof VALID_ROLES)[number];
+// Roles a brand-new OAuth user may choose when their profile row is created
+// (one list for the whole server: src/lib/roles.ts).
+export const VALID_ROLES = APP_ROLES;
+export type ServerRole = AppRole;
 
 // Maps each role to the table(s) holding its role-specific row. Every role now
 // has a profile table (rider/agent existed; merchant/customer added in
