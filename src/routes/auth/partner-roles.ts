@@ -36,6 +36,40 @@ app.openapi(route, async (c) => {
   const { role } = c.req.valid("json");
   const { granted, added } = grantRole(normalizeGranted(user.granted_roles, user.role), role);
 
+  // Safety writes run BEFORE the grant: if one fails nothing is granted yet,
+  // so a retry computes the same `added`/`user.role` and repeats them.
+
+  // A newly unlocked agent must go through staff review. ensureRoleProfile
+  // reuses ANY existing shop, including one left approved from before the
+  // lockdown or from the old self-serve /auth/role, which would grant instant
+  // cash access. Resetting all shops is intended: rejected shops are re-queued
+  // as a fresh application. Existing agents (added=false) are unaffected.
+  if (added && role === "agent") {
+    const { error: shopError } = await supabaseAdmin
+      .from("agent_shops")
+      .update({ review_status: "under_review" })
+      .eq("user_id", user.id);
+    if (shopError) return c.json({ error: shopError.message }, 400);
+  }
+
+  // rider_profiles.is_available defaults to true and dispatch offers jobs on
+  // that flag alone: a non-active rider must always be offline. Create the row
+  // offline if missing, then force it offline if it already existed.
+  if (role === "rider" && user.role !== "rider") {
+    const { error: createError } = await supabaseAdmin
+      .from("rider_profiles")
+      .upsert(
+        { user_id: user.id, is_available: false },
+        { onConflict: "user_id", ignoreDuplicates: true },
+      );
+    if (createError) return c.json({ error: createError.message }, 400);
+    const { error: offlineError } = await supabaseAdmin
+      .from("rider_profiles")
+      .update({ is_available: false })
+      .eq("user_id", user.id);
+    if (offlineError) return c.json({ error: offlineError.message }, 400);
+  }
+
   // Use the row the DB hands back (normalised by the trigger), not an
   // in-memory copy: the payload must reflect what was actually persisted.
   let row: UserRow = user;
@@ -52,32 +86,8 @@ app.openapi(route, async (c) => {
     row = data as UserRow;
   }
 
+  // Idempotent; for agent this creates the blank shop (defaults to under_review).
   await ensureRoleProfile(user.id, role);
-
-  // A newly unlocked agent must go through staff review. ensureRoleProfile
-  // reuses ANY existing shop, including one left approved from before the
-  // lockdown or from the old self-serve /auth/role, which would grant instant
-  // cash access. Existing agents already hold the role (added=false), so they
-  // are unaffected.
-  if (added && role === "agent") {
-    const { error: shopError } = await supabaseAdmin
-      .from("agent_shops")
-      .update({ review_status: "under_review" })
-      .eq("user_id", user.id);
-    if (shopError) return c.json({ error: shopError.message }, 400);
-  }
-
-  // rider_profiles.is_available defaults to true and dispatch offers jobs on
-  // that flag alone: a non-active rider must always be offline. Keyed on the
-  // active role (not `added`) so a retry after a partial failure repairs it.
-  // Runs after ensureRoleProfile so a freshly created row starts offline too.
-  if (role === "rider" && user.role !== "rider") {
-    const { error: offlineError } = await supabaseAdmin
-      .from("rider_profiles")
-      .update({ is_available: false })
-      .eq("user_id", user.id);
-    if (offlineError) return c.json({ error: offlineError.message }, 400);
-  }
 
   return c.json(await authProfilePayload(row), 200);
 });
