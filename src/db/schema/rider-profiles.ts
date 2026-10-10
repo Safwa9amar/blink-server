@@ -3,6 +3,8 @@ import {
   boolean,
   doublePrecision,
   index,
+  jsonb,
+  pgEnum,
   pgPolicy,
   pgSequence,
   pgTable,
@@ -11,9 +13,14 @@ import {
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
+import { RIDER_VERIFICATION_STATUSES, type RiderStoredDocuments } from "../../lib/rider-verification";
 import { vehicleType } from "./enums";
 import { timestamps } from "./_shared";
 import { users } from "./users";
+
+// Lives with its table (like news_status in news.ts) — added by
+// 20261010210000_rider_verification.sql.
+export const riderVerificationStatus = pgEnum("rider_verification_status", RIDER_VERIFICATION_STATUSES);
 
 // Backs the rider_id column default below. Starts high (100000) so DB-generated
 // IDs never collide with the 4-digit random IDs created by app code before this
@@ -36,9 +43,15 @@ export const riderProfiles = pgTable(
     vehicleType: vehicleType("vehicle_type"),
     licenseFrontUrl: text("license_front_url"),
     licenseBackUrl: text("license_back_url"),
+    // Verification (20261010210000_rider_verification.sql): licence + national
+    // ID scans in the private `rider-documents` bucket, each reviewed by staff,
+    // and the overall status the server gates rider work on. Service role only.
+    documents: jsonb("documents").$type<RiderStoredDocuments>().notNull().default({}),
+    verificationStatus: riderVerificationStatus("verification_status").notNull().default("not_submitted"),
     // Dispatch: availability + last known position, sent by the rider app
-    // (PATCH /riders/location) — 00036_merchant_flows.sql.
-    isAvailable: boolean("is_available").notNull().default(true),
+    // (PATCH /riders/location) — 00036_merchant_flows.sql. New riders start
+    // offline (default false since 20261010210000).
+    isAvailable: boolean("is_available").notNull().default(false),
     latitude: doublePrecision("latitude"),
     longitude: doublePrecision("longitude"),
     locationUpdatedAt: timestamp("location_updated_at", { withTimezone: true, mode: "string" }),
@@ -48,6 +61,5 @@ export const riderProfiles = pgTable(
     unique("rider_profiles_user_id_key").on(t.userId),
     index("idx_rider_profiles_user").on(t.userId),
     pgPolicy("rider_profiles_select_own", { for: "select", using: sql`auth.uid() = user_id` }),
-    pgPolicy("rider_profiles_update_own", { for: "update", using: sql`auth.uid() = user_id` }),
   ]
 );

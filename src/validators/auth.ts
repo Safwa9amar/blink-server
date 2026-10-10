@@ -130,7 +130,33 @@ export function publicUser<T extends { pin_hash?: unknown } | null | undefined>(
   const { pin_hash: _omit, ...rest } = row as { pin_hash?: unknown } & Record<string, unknown>;
   return rest as Omit<NonNullable<T>, "pin_hash">;
 }
-export const RiderProfileSchema = rowSchema(riderProfiles, "RiderProfile");
+const riderStoredDocSchema = z
+  .object({
+    path: z.string(),
+    status: z.enum(["pending", "verified", "rejected"]),
+    note: z.string().nullable(),
+    uploaded_at: z.string(),
+  })
+  .openapi("RiderStoredDocument");
+
+/** rider_profiles.documents — licence + national ID scans (private bucket paths). */
+export const RiderStoredDocumentsSchema = z
+  .object({
+    license_front: riderStoredDocSchema.optional(),
+    license_back: riderStoredDocSchema.optional(),
+    id_front: riderStoredDocSchema.optional(),
+    id_back: riderStoredDocSchema.optional(),
+  })
+  .openapi("RiderStoredDocuments");
+
+export const RiderVerificationStatusSchema = z
+  .enum(["not_submitted", "pending", "approved", "rejected"])
+  .openapi("RiderVerificationStatus");
+
+export const RiderProfileSchema = rowSchema(riderProfiles, "RiderProfile", {
+  documents: RiderStoredDocumentsSchema,
+  verification_status: RiderVerificationStatusSchema,
+});
 export const VehicleSchema = rowSchema(vehicles, "Vehicle");
 export const AgentShopSchema = rowSchema(agentShops, "AgentShop", {
   hours: weekHoursSchema.nullable(),
@@ -201,6 +227,9 @@ export const AuthProfileResponse = z
     agent_profile: AgentProfileSchema.nullable().optional(),
     merchant_profile: MerchantProfileSchema.nullable().optional(),
     customer_profile: CustomerProfileSchema.nullable().optional(),
+    /** Set whenever the user has a rider profile, whatever the active role —
+     *  the Become a Partner rider card shows it. Null: rider never unlocked. */
+    rider_verification_status: RiderVerificationStatusSchema.nullable().optional(),
   })
   .openapi("AuthProfileResponse");
 
