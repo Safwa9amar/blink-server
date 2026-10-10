@@ -22,12 +22,16 @@ const app = router();
 // Sets users.role to a role the account already holds (granted_roles). Every
 // requireRole / RLS / realtime check reads users.role, so this is the whole
 // switch; the last switch wins across devices. Nobody stops being a rider
-// mid-delivery: leaving rider is refused (409 active_job) while any order is
-// assigned to them unfinished, in progress or booked. Otherwise leaving rider
-// takes the rider offline (rider_profiles.is_available = false) and frees any
-// store request held for them, so dispatch stops offering jobs; switching back
-// keeps them offline until they go online. Leaving merchant or agent changes
-// nothing else: stores and shops keep their own open/closed state.
+// mid-delivery. Order of work, safety writes first so a failure leaves the
+// role unchanged and a retry can finish:
+//   leaving rider:  active-job check (409 active_job) -> rider offline ->
+//                   release held store requests
+//   entering rider: create the rider row offline / force it offline
+//   then ensureRoleProfile, then the users.role write.
+// Leaving rider re-counts jobs after the role write (an accept that passed
+// requireRole("rider") before the switch can still claim an order in between)
+// and rolls the role back to rider with 409 if one landed. The rider stays
+// offline either way. Leaving merchant or agent changes nothing else.
 
 /**
  * Orders assigned to this rider that aren't finished: in progress or booked.
@@ -107,6 +111,27 @@ app.openapi(route, async (c) => {
     await releaseRiderRequests(user.id);
   }
 
+  // rider_profiles.is_available defaults to true and dispatch offers jobs on
+  // that flag alone: someone entering rider must start offline.
+  if (role === "rider" && user.role !== "rider") {
+    const { error: createError } = await supabaseAdmin
+      .from("rider_profiles")
+      .upsert(
+        { user_id: user.id, is_available: false },
+        { onConflict: "user_id", ignoreDuplicates: true },
+      );
+    if (createError) return c.json({ error: createError.message }, 400);
+    const { error: offlineError } = await supabaseAdmin
+      .from("rider_profiles")
+      .update({ is_available: false })
+      .eq("user_id", user.id);
+    if (offlineError) return c.json({ error: offlineError.message }, 400);
+  }
+
+  // Before the role write: a failure leaves the role unchanged and a retry
+  // repairs it. Idempotent.
+  await ensureRoleProfile(user.id, role);
+
   const { data, error } = await supabaseAdmin
     .from("users")
     .update({ role })
@@ -117,9 +142,33 @@ app.openapi(route, async (c) => {
     return c.json({ error: error?.message ?? "User profile not found" }, 400);
   }
 
-  // Accounts from before multi-role may lack the profile row of a role they
-  // hold implicitly (customer): create it on first use. Idempotent.
-  await ensureRoleProfile(user.id, role);
+  // An accept that passed requireRole("rider") before the switch may have
+  // claimed an order since the first count: re-check and roll back.
+  if (leaving) {
+    const recount = await activeRiderJobCount(user.id);
+    if (recount === null || recount > 0) {
+      const { error: rollbackError } = await supabaseAdmin
+        .from("users")
+        .update({ role: "rider" })
+        .eq("id", user.id);
+      if (rollbackError) {
+        return c.json(
+          { error: `Couldn't confirm your jobs and couldn't undo the switch: ${rollbackError.message}` },
+          400,
+        );
+      }
+      if (recount === null) {
+        return c.json({ error: "Couldn't check your current jobs, please retry" }, 400);
+      }
+      return c.json(
+        {
+          error: "Finish your job in progress (or cancel your booked jobs) before switching role.",
+          code: ACTIVE_JOB,
+        },
+        409,
+      );
+    }
+  }
 
   return c.json(await authProfilePayload(data as UserRow), 200);
 });
