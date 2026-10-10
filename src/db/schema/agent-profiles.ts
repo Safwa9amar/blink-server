@@ -54,6 +54,9 @@ export const agentProfiles = pgTable(
     unique("agent_profiles_user_id_key").on(t.userId),
     index("idx_agent_profiles_user").on(t.userId),
     pgPolicy("agent_profiles_select_own", { for: "select", using: sql`auth.uid() = user_id` }),
+    // Clients hold no write grant (supabase/migrations/*_verification_columns_lockdown.sql):
+    // writes go through blink-server (service role); a guard trigger also rejects
+    // client changes to documents / agent_id / user_id.
     pgPolicy("agent_profiles_update_own", { for: "update", using: sql`auth.uid() = user_id` }),
   ]
 );

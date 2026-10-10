@@ -62,6 +62,9 @@ export const agentShops = pgTable(
     index("idx_agent_shops_status").on(t.status),
     index("idx_agent_shops_location").on(t.latitude, t.longitude),
     pgPolicy("agent_shops_select_all", { for: "select", using: sql`true` }),
+    // Clients hold no write grant (supabase/migrations/*_verification_columns_lockdown.sql):
+    // writes go through blink-server (service role); a guard trigger also rejects
+    // client changes to review_status / documents / rating / user_id.
     pgPolicy("agent_shops_update_own", { for: "update", using: sql`auth.uid() = user_id` }),
   ]
 );
