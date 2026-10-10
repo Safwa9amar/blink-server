@@ -54,9 +54,8 @@ export const agentProfiles = pgTable(
     unique("agent_profiles_user_id_key").on(t.userId),
     index("idx_agent_profiles_user").on(t.userId),
     pgPolicy("agent_profiles_select_own", { for: "select", using: sql`auth.uid() = user_id` }),
-    // Clients hold no write grant (supabase/migrations/*_verification_columns_lockdown.sql):
-    // writes go through blink-server (service role); a guard trigger also rejects
-    // client changes to documents / agent_id / user_id.
-    pgPolicy("agent_profiles_update_own", { for: "update", using: sql`auth.uid() = user_id` }),
+    // No client write policy or grant: the *_own write policy was dropped in
+    // supabase/migrations/*_verification_columns_lockdown.sql. Writes go through
+    // blink-server (service role); guard triggers also reject client changes to the review columns.
   ]
 );

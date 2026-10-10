@@ -31,9 +31,8 @@ export const vehicles = pgTable(
     unique("vehicles_user_id_key").on(t.userId),
     index("idx_vehicles_user").on(t.userId),
     pgPolicy("vehicles_select_own", { for: "select", using: sql`auth.uid() = user_id` }),
-    // Clients hold no write grant (supabase/migrations/*_verification_columns_lockdown.sql):
-    // writes go through blink-server (service role); a guard trigger also rejects
-    // client changes to the *_status columns / user_id.
-    pgPolicy("vehicles_all_own", { for: "all", using: sql`auth.uid() = user_id` }),
+    // No client write policy or grant: the *_own write policy was dropped in
+    // supabase/migrations/*_verification_columns_lockdown.sql. Writes go through
+    // blink-server (service role); guard triggers also reject client changes to the review columns.
   ]
 );

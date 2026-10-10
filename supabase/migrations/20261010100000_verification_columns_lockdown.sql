@@ -23,11 +23,26 @@
 -- service-role only, and one guard trigger per review table rejects client
 -- changes to the review columns even if a broad GRANT is re-added later.
 -- Reads (the select policies) are unchanged.
+--
+-- blink-dashboard writes agent_profiles.documents and vehicles in
+-- src/app/d/deletion-requests/action.ts through the SERVICE-ROLE client, which
+-- bypasses grants and RLS (unaffected).
+--
+-- Beyond the revoke, the owner write policies are dropped too, so a re-added
+-- broad GRANT alone could not reopen the hole. Every table keeps an owner
+-- SELECT policy (vehicles_select_own, agent_shops_select_all,
+-- agent_profiles_select_own, merchant_profiles_select_own); vehicles_all_own was
+-- FOR ALL but vehicles_select_own is separate, so owners keep read access.
 
 revoke insert, update, delete, truncate on public.vehicles          from anon, authenticated;
 revoke insert, update, delete, truncate on public.agent_shops       from anon, authenticated;
 revoke insert, update, delete, truncate on public.agent_profiles    from anon, authenticated;
 revoke insert, update, delete, truncate on public.merchant_profiles from anon, authenticated;
+
+drop policy if exists vehicles_all_own on public.vehicles;
+drop policy if exists agent_shops_update_own on public.agent_shops;
+drop policy if exists agent_profiles_update_own on public.agent_profiles;
+drop policy if exists merchant_profiles_update_own on public.merchant_profiles;
 
 create or replace function public.guard_agent_shops_review_columns()
 returns trigger
@@ -93,14 +108,3 @@ $$;
 create or replace trigger trg_vehicles_guard_status
   before update on public.vehicles
   for each row execute function public.guard_vehicles_document_status();
-
--- The seeded dev agents (blink: data/dev-users.ts; blink-server:
--- scripts/seed-dev-users.ts + scripts/seed-dev-agents.ts) keep processing
--- Blink Cash operations now that /transactions/scan-qr and /process require an
--- approved shop. Matches nothing where those accounts don't exist.
-update public.agent_shops s
-set review_status = 'active'
-from public.users u
-where u.id = s.user_id
-  and u.email in ('dev.agent@blink.dev', 'dev.agent2@blink.dev', 'dev.agent3@blink.dev')
-  and s.review_status <> 'active';
