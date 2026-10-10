@@ -10,6 +10,7 @@ import {
 } from "../db/schema";
 import { rowSchema } from "../openapi";
 import { documentsSchema, weekHoursSchema } from "./merchant";
+import { APP_ROLES, PARTNER_ROLES } from "../lib/roles";
 
 export const sendOtpSchema = z
   .object({
@@ -35,6 +36,16 @@ export const selectRoleSchema = z
     role: z.enum(["customer", "rider", "merchant", "agent"]),
   })
   .openapi("SelectRoleBody");
+
+/** POST /auth/partner-roles — a role a signed-in account unlocks (Become a Partner). */
+export const partnerRoleSchema = z
+  .object({ role: z.enum(PARTNER_ROLES) })
+  .openapi("PartnerRoleBody");
+
+/** POST /auth/active-role — the role to make active (must already be granted). */
+export const activeRoleSchema = z
+  .object({ role: z.enum(APP_ROLES) })
+  .openapi("ActiveRoleBody");
 
 export const updateProfileSchema = z.object({
   first_name: z.string().min(1).optional(),
@@ -103,7 +114,12 @@ export const uploadAvatarSchema = z
  * A `public.users` row as the API returns it — `pin_hash` is stripped by
  * `publicUser()` before any user row leaves the server.
  */
-export const UserSchema = rowSchema(users, "UserRow").omit({ pin_hash: true }).openapi("User");
+export const UserSchema = rowSchema(users, "UserRow", {
+  // Every role unlocked on the account; `role` is the active one.
+  granted_roles: z.array(z.enum(APP_ROLES)),
+})
+  .omit({ pin_hash: true })
+  .openapi("User");
 /** Named nullable wrapper: reusing a bare `UserSchema.nullable()` makes the
  *  OpenAPI generator mark the `User` component itself nullable app-wide. */
 const NullableUser = UserSchema.nullable().openapi("NullableUser");

@@ -1,12 +1,14 @@
-import { supabaseAdmin } from "../../lib/supabase";
-import { primaryShop } from "../agents/shared";
 import { auth } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
-import { AuthProfileResponse, publicUser } from "../../validators/auth";
+import { AuthProfileResponse } from "../../validators/auth";
+import { authProfilePayload } from "./profile-payload";
 
 const app = router();
 
 // ─── Get Profile ─────────────────────────────────────────────────────
+// The user row (incl. granted_roles) plus the rows of the ACTIVE role. The app
+// refetches this on every foreground to pick up a role switch made on another
+// device.
 const route = createRoute({
   method: "get",
   path: "/profile",
@@ -22,52 +24,7 @@ const route = createRoute({
 });
 
 app.openapi(route, async (c) => {
-  const user = c.get("user");
-
-  // Attach role-specific data
-  let roleData: Record<string, unknown> = {};
-
-  if (user.role === "rider") {
-    const { data } = await supabaseAdmin
-      .from("rider_profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-    roleData = { rider_profile: data };
-
-    const { data: vehicle } = await supabaseAdmin
-      .from("vehicles")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-    roleData.vehicle = vehicle;
-  } else if (user.role === "agent") {
-    const data = await primaryShop(user.id);
-    roleData = { shop: data ? { ...data, documents: data.documents ?? {} } : null };
-
-    const { data: agentProfile } = await supabaseAdmin
-      .from("agent_profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-    roleData.agent_profile = agentProfile;
-  } else if (user.role === "merchant") {
-    const { data } = await supabaseAdmin
-      .from("merchant_profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-    roleData = { merchant_profile: data };
-  } else if (user.role === "customer") {
-    const { data } = await supabaseAdmin
-      .from("customer_profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-    roleData = { customer_profile: data };
-  }
-
-  return c.json({ user: publicUser(user), ...roleData }, 200);
+  return c.json(await authProfilePayload(c.get("user")), 200);
 });
 
 export default app;
