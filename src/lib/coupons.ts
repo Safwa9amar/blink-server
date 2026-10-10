@@ -127,3 +127,42 @@ export async function priceCoupon(
   return { ok: true, coupon, discount };
 }
 
+
+/**
+ * Mark a coupon used, only if it still isn't: of two requests racing on one
+ * coupon, one wins and the other gets false. Done BEFORE the order is
+ * inserted (the order doesn't exist yet: `order_id` is set by linkCoupon).
+ */
+export async function claimCoupon(couponId: string, nowIso = new Date().toISOString()) {
+  const { data, error } = await supabaseAdmin
+    .from("customer_coupons")
+    .update({ used_at: nowIso })
+    .eq("id", couponId)
+    .is("used_at", null)
+    .select("id")
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return !!data;
+}
+
+/** Record which order used a coupon claimed with claimCoupon (best effort: the order keeps coupon_id). */
+export async function linkCoupon(couponId: string, orderId: string) {
+  const { error } = await supabaseAdmin.from("customer_coupons").update({ order_id: orderId }).eq("id", couponId);
+  if (error) console.error("[coupons] linking coupon failed", couponId, error.message);
+}
+
+/**
+ * Hand a coupon back to its customer: usable again. `orderId`: only if that
+ * order is the one using it (null = a claim whose order was never created),
+ * so a coupon already reused on another order is left alone. Best effort.
+ */
+export async function releaseCoupon(couponId: string, orderId: string | null) {
+  try {
+    let q = supabaseAdmin.from("customer_coupons").update({ used_at: null, order_id: null }).eq("id", couponId);
+    q = orderId ? q.eq("order_id", orderId) : q.is("order_id", null);
+    const { error } = await q;
+    if (error) throw new Error(error.message);
+  } catch (e) {
+    console.error("[coupons] releasing coupon failed", couponId, (e as Error).message);
+  }
+}

@@ -5,14 +5,17 @@
 import { distanceKm, fullName, IN_DELIVERY, usersById } from "../routes/merchant/orders-shared";
 import { orderRef } from "../routes/merchant/shared";
 import { bundleMembers, bundleStatus, leadOrder, orderStops } from "./bundle";
+import { blinkFundedDiscount, CASH_FARE_TYPES, COMMISSION_RATE, tripPayout, tripWalletDelta } from "./cash-jobs";
 import { courierCopy, courierHref, type CourierEvent } from "./courier-copy";
 import { courierOf, currentDropOffIndex } from "./courier";
 import { createNotification } from "./notifications";
+import { rideCopy, rideHref, type RideEvent } from "./ride-copy";
+import { rideOf, ridePassenger } from "./ride";
 import { heldSinceIso, requestFields } from "./rider-offer";
 import { supabaseAdmin } from "./supabase";
 
-/** Blink's cut of each delivery fee. */
-export const COMMISSION_RATE = 0.15;
+/** Blink's cut of each delivery fee (src/lib/cash-jobs.ts). */
+export { COMMISSION_RATE };
 /** Charged when a rider drops a job after accepting it (design: "200 DA"). */
 export const POST_ACCEPT_PENALTY = 200;
 /** Offers are limited to pickups within this radius when the rider's position is known. */
@@ -42,12 +45,14 @@ export const ORDER_SELECT =
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
 /** Pickup point — the order's own, else the store's. */
-function pickupOf(o: Row) {
+export function pickupOf(o: Row) {
   const c = courierOf(o);
   if (c) return { label: c.pickup.label, address: c.pickup.address, lat: c.pickup.lat, lng: c.pickup.lng };
+  const r = rideOf(o);
+  if (r) return { label: r.pickup.label, address: r.pickup.address, lat: r.pickup.lat, lng: r.pickup.lng };
   return {
-    // Courier orders have no store ("Courier" is a placeholder name).
-    label: o.type === "courier" ? o.pickup_address ?? "" : o.store_name ?? "",
+    // Courier and ride orders have no store ("Courier" / "Ride" are placeholder names).
+    label: o.type === "courier" || o.type === "ride" ? o.pickup_address ?? "" : o.store_name ?? "",
     address: o.pickup_address ?? o.store?.location ?? o.store_name ?? "",
     lat: o.pickup_lat ?? o.store?.latitude ?? null,
     lng: o.pickup_lng ?? o.store?.longitude ?? null,
@@ -62,6 +67,11 @@ function destinationOf(o: Row, opts: { current?: boolean } = {}) {
   const c = courierOf(o);
   if (c?.drop_offs.length) {
     const d = c.drop_offs[(opts.current ? currentDropOffIndex(c) : null) ?? c.drop_offs.length - 1];
+    return { label: d.label, address: d.address, lat: d.lat, lng: d.lng };
+  }
+  const r = rideOf(o);
+  if (r) {
+    const d = r.destination;
     return { label: d.label, address: d.address, lat: d.lat, lng: d.lng };
   }
   return {
@@ -105,6 +115,12 @@ export function isFreshOffer(o: Row, now = Date.now()) {
       .map((d: string) => new Date(d).getTime())
   );
   return now - liveAt <= OFFER_MAX_AGE_MS;
+}
+
+/** users.gender of a rider (rides a customer reserved for a female rider). */
+export async function riderGender(riderId: string) {
+  const { data } = await supabaseAdmin.from("users").select("gender").eq("id", riderId).maybeSingle();
+  return (data?.gender as string | null) ?? null;
 }
 
 export async function riderPosition(riderId: string) {
@@ -182,8 +198,9 @@ export async function toJobs(orders: Row[], ctx: JobCtx) {
       const pickup = pickupOf(o);
       const destination = destinationOf(o, { current: true });
       const courier = courierOf(o);
-      // A courier route: the whole route as priced, stops included.
-      const distance = courier ? courier.distance_km : (kmBetween(pickup, destination) ?? 0);
+      const ride = rideOf(o);
+      // A courier route: the whole route as priced, stops included. A ride: as priced.
+      const distance = courier ? courier.distance_km : ride ? ride.distance_km : (kmBetween(pickup, destination) ?? 0);
       const customer = users.get(o.customer_id);
       const stat = stats.get(o.customer_id);
       const conflict = ctx.conflicts?.get(o.id);
@@ -207,10 +224,12 @@ export async function toJobs(orders: Row[], ctx: JobCtx) {
         order_total: Number(o.total ?? 0),
         commission_rate: COMMISSION_RATE,
         distance_km: round1(distance),
-        duration_minutes: Math.max(
-          1,
-          Math.round((distance / AVG_SPEED_KMH) * 60) + (courier ? courier.drop_offs.length * COURIER_STOP_MINUTES : 0)
-        ),
+        duration_minutes: ride
+          ? ride.duration_minutes
+          : Math.max(
+              1,
+              Math.round((distance / AVG_SPEED_KMH) * 60) + (courier ? courier.drop_offs.length * COURIER_STOP_MINUTES : 0)
+            ),
         pickup_distance_km: (() => {
           const km = kmBetween(ctx.rider, pickup);
           return km == null ? null : round1(km);
@@ -245,6 +264,24 @@ export async function toJobs(orders: Row[], ctx: JobCtx) {
               drop_offs: courier.drop_offs,
               current_drop_off: currentDropOffIndex(courier),
             }
+          : null,
+        // Who to pick up (the customer unless they booked for someone else);
+        // null for every other job.
+        ride: ride
+          ? (() => {
+              const passenger = ridePassenger(ride, {
+                name: fullName(customer) ?? null,
+                phone: customer?.phone_number ?? null,
+              });
+              return {
+                passenger_name: passenger.name,
+                passenger_phone: passenger.phone,
+                for_someone_else: passenger.for_someone_else,
+                pickup_note: ride.pickup.note ?? null,
+                arrived_at: ride.arrived_at ?? null,
+                female_rider_only: ride.female_rider_only === true,
+              };
+            })()
           : null,
       };
     })
@@ -389,11 +426,14 @@ export async function createTripForOrder(o: Row, riderId: string) {
   const pickup = pickupOf(o);
   const destination = destinationOf(o);
   const courier = courierOf(o);
+  const ride = rideOf(o);
   return upsertTrip(o, riderId, {
     pickup,
     destination,
-    distance: courier ? courier.distance_km : (kmBetween(pickup, destination) ?? 0),
+    distance: courier ? courier.distance_km : ride ? ride.distance_km : (kmBetween(pickup, destination) ?? 0),
     fare: Number(o.delivery_fee ?? 0),
+    // A ride's trip lasts what the offer said (priced estimate), not a re-estimate.
+    durationMinutes: ride ? ride.duration_minutes : undefined,
   });
 }
 
@@ -429,9 +469,15 @@ async function upsertTrip(
     destination: ReturnType<typeof destinationOf>;
     distance: number;
     fare: number;
+    /** Default: the distance at the average urban speed. */
+    durationMinutes?: number;
   }
 ) {
   const { pickup, destination, distance, fare } = route;
+  const duration =
+    route.durationMinutes != null && Number.isFinite(route.durationMinutes)
+      ? Math.max(1, Math.round(route.durationMinutes))
+      : Math.max(1, Math.round((distance / AVG_SPEED_KMH) * 60));
   const { data, error } = await supabaseAdmin
     .from("trips")
     .upsert(
@@ -449,10 +495,9 @@ async function upsertTrip(
         dropoff_address: destination.address || "—",
         dropoff_lat: destination.lat ?? pickup.lat ?? 0,
         dropoff_lng: destination.lng ?? pickup.lng ?? 0,
-        estimated_payout: fare,
-        net_payout: Math.round(fare * (1 - COMMISSION_RATE)),
+        ...tripPayout(fare),
         distance_km: round1(distance),
-        duration_minutes: Math.max(1, Math.round((distance / AVG_SPEED_KMH) * 60)),
+        duration_minutes: duration,
         cancellation_reason: null,
         penalty_amount: null,
       },
@@ -479,6 +524,19 @@ export function notifyCourier(o: { id: string; customer_id: string }, event: Cou
     contentFr: fr,
     contentAr: ar,
     href: courierHref(o.id),
+  }).catch(() => null);
+}
+
+/** A ride event to the customer; tapping it opens the ride's tracking screen (best effort). */
+export function notifyRide(o: { id: string; customer_id: string }, event: RideEvent) {
+  const { en, fr, ar } = rideCopy(orderRef(o.id), event);
+  return createNotification({
+    userId: o.customer_id,
+    type: "ride",
+    ...en,
+    contentFr: fr,
+    contentAr: ar,
+    href: rideHref(o.id),
   }).catch(() => null);
 }
 
@@ -565,9 +623,14 @@ export async function releaseRiderRequests(riderId: string, opts: { keepOrderId?
   }
 }
 
-/** Blink Cash balance derived from transactions, trips and challenge rewards (no wallet table). */
+/**
+ * Blink Cash balance derived from transactions, trips and challenge rewards
+ * (no wallet table). A completed trip charges Blink's commission, minus the
+ * coupon discount Blink funds on a cash job (courier / ride: the rider
+ * collected fare − discount) — see tripWalletDelta in src/lib/cash-jobs.ts.
+ */
 export async function riderWallet(riderId: string) {
-  const [{ data: txs }, { data: trips }, { data: rewards }] = await Promise.all([
+  const [{ data: txs }, { data: trips }, { data: rewards }, { data: discounted }] = await Promise.all([
     supabaseAdmin
       .from("transactions")
       .select("type, status, amount")
@@ -575,14 +638,23 @@ export async function riderWallet(riderId: string) {
       .in("status", ["completed", "pending"]),
     supabaseAdmin
       .from("trips")
-      .select("status, estimated_payout, net_payout, penalty_amount")
+      .select("status, estimated_payout, net_payout, penalty_amount, order_id")
       .eq("rider_id", riderId),
     supabaseAdmin
       .from("rider_challenge_participants")
       .select("reward_amount")
       .eq("rider_id", riderId)
       .eq("status", "won"),
+    // Cash jobs this rider delivered with a coupon on them.
+    supabaseAdmin
+      .from("orders")
+      .select("id, type, discount, delivery_fee")
+      .eq("rider_id", riderId)
+      .eq("status", "delivered")
+      .in("type", [...CASH_FARE_TYPES])
+      .gt("discount", 0),
   ]);
+  const fundedDiscount = new Map((discounted ?? []).map((o) => [o.id as string, blinkFundedDiscount(o)]));
   let total = 0;
   let pending = 0;
   for (const t of txs ?? []) {
@@ -591,10 +663,7 @@ export async function riderWallet(riderId: string) {
     else if (t.type === "withdrawal") pending += amount;
   }
   for (const t of trips ?? []) {
-    if (t.status === "completed") {
-      total -= Math.max(0, Number(t.estimated_payout ?? 0) - Number(t.net_payout ?? 0));
-    }
-    total -= Number(t.penalty_amount ?? 0);
+    total += tripWalletDelta(t, t.order_id ? (fundedDiscount.get(t.order_id as string) ?? 0) : 0);
   }
   // Challenge rewards are credited to Blink Cash.
   for (const r of rewards ?? []) total += Number(r.reward_amount ?? 0);

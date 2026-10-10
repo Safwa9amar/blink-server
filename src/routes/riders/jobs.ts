@@ -28,7 +28,6 @@ import {
 } from "../../lib/bundle";
 import {
   bookedJobRows,
-  COMMISSION_RATE,
   createTripForBundle,
   createTripForOrder,
   currentJobRow,
@@ -39,12 +38,14 @@ import {
   loadBundle,
   notifyCourier,
   notifyCustomer,
+  notifyRide,
   notifyStoreOwner,
   dropOffName,
   OFFER_RADIUS_KM,
   ORDER_SELECT,
   POST_ACCEPT_PENALTY,
   releaseRiderRequests,
+  riderGender,
   riderNames,
   riderPosition,
   toBundleJob,
@@ -64,7 +65,22 @@ import {
   poolClaimPatch,
 } from "../../lib/rider-offer";
 import { pickedUpPatch } from "../../lib/order-steps";
+import { tripPayout } from "../../lib/cash-jobs";
 import { courierOf, deliverCurrentDropOff, isCourierSearchExpired, remainingDropOffs, riderCanTake } from "../../lib/courier";
+import {
+  isPassengerNoShow,
+  isRideSearchExpired,
+  markRideArrived,
+  NO_SHOW_TOO_EARLY,
+  noShowWaitLeftMs,
+  PASSENGER_NO_SHOW_REASON,
+  rideCanPickUp,
+  rideOf,
+  rideRiderProblem,
+  riderCanTakeRide,
+  RIDE_NO_SHOW_WAIT_MS,
+  startNoShowClock,
+} from "../../lib/ride";
 import { supabaseAdmin } from "../../lib/supabase";
 import { orderRef } from "../merchant/shared";
 import { bearer, createRoute, ErrorSchema, z, errorResponses, IdParam, json, OkSchema, router } from "../../openapi";
@@ -73,6 +89,7 @@ import {
   advanceJobSchema,
   AdvanceJobResponse,
   cancelJobSchema,
+  CancelRiderJobError,
   declineJobSchema,
   rateCustomerSchema,
   RiderJobListResponse,
@@ -263,6 +280,10 @@ app.openapi(
       bookedJobRows(user.id),
     ]);
     const skip = new Set((declined ?? []).map((d) => d.order_id));
+    // A ride reserved for a female rider needs this rider's gender (read only then).
+    const gender = (open ?? []).some((o) => o.type === "ride" && rideOf(o)?.female_rider_only)
+      ? await riderGender(user.id)
+      : null;
 
     // isOfferable() is false for checkout members, so a member is never offered alone.
     // An order held for a store's request (anyone's, this rider's too) stays
@@ -275,7 +296,11 @@ app.openapi(
         !skip.has(o.id) &&
         o.customer_id !== user.id &&
         // A motorcycle courier request never goes to a bicycle.
-        (o.type !== "courier" || riderCanTake(o.vehicle_type, rider.vehicleType))
+        (o.type !== "courier" || riderCanTake(o.vehicle_type, rider.vehicleType)) &&
+        // A ride needs a motorcycle (and a woman, when the customer asked for
+        // one), and is never offered past its 10-minute search window.
+        (o.type !== "ride" ||
+          (riderCanTakeRide(o, { vehicleType: rider.vehicleType, gender }) && !isRideSearchExpired(o, now)))
     );
 
     // Every checkout with an open member is loaded whole, including members
@@ -595,6 +620,16 @@ app.openapi(
           return c.json({ error: "This delivery needs a motorcycle" }, 409);
         }
       }
+      if (order.type === "ride") {
+        // Past its search window the ride is being canceled (no_rider).
+        if (isRideSearchExpired(order, now)) return c.json({ error: "This job is no longer available" }, 409);
+        const problem = rideRiderProblem(order, {
+          vehicleType: (await riderPosition(user.id)).vehicleType,
+          gender: rideOf(order)?.female_rider_only ? await riderGender(user.id) : null,
+        });
+        if (problem === "vehicle") return c.json({ error: "This ride needs a motorcycle" }, 409);
+        if (problem === "gender") return c.json({ error: "This passenger asked for a female rider" }, 409);
+      }
     }
     if (!scheduled && (await currentJobRow(user.id))) {
       return c.json({ error: "Finish your current trip first" }, 400);
@@ -690,12 +725,14 @@ app.openapi(
     await Promise.all([
       order.type === "courier"
         ? notifyCourier(claimed as { id: string; customer_id: string }, { kind: "accepted", scheduled })
-        : notifyCustomer(
-            claimed.customer_id,
-            { title: "Rider found", description: `A rider accepted your order ${ref}.` },
-            { title: "Livreur trouvé", description: `Un livreur a accepté votre commande ${ref}.` },
-            { title: "تم العثور على سائق", description: `قبل سائق طلبك ${ref}.` }
-          ),
+        : order.type === "ride"
+          ? notifyRide(claimed as { id: string; customer_id: string }, { kind: "accepted", scheduled })
+          : notifyCustomer(
+              claimed.customer_id,
+              { title: "Rider found", description: `A rider accepted your order ${ref}.` },
+              { title: "Livreur trouvé", description: `Un livreur a accepté votre commande ${ref}.` },
+              { title: "تم العثور على سائق", description: `قبل سائق طلبك ${ref}.` }
+            ),
       names &&
         notifyStoreOwner(
           storeOwnerId(order),
@@ -844,6 +881,7 @@ app.openapi(
     // On a job now: stores still waiting on this rider can pick someone else.
     await releaseRiderRequests(user.id, { keepOrderId: id });
     if (data.type === "courier") await notifyCourier(data as { id: string; customer_id: string }, { kind: "started" });
+    if (data.type === "ride") await notifyRide(data as { id: string; customer_id: string }, { kind: "started" });
     const [job] = await toJobs([data], { rider: await riderPosition(user.id) });
     return c.json({ job }, 200);
   }
@@ -881,11 +919,7 @@ async function completeBundleTrip(checkoutOrderIds: string[], delivered: BundleR
   const fare = delivered.reduce((sum, o) => sum + Number(o.delivery_fee ?? 0), 0);
   const { data: trip } = await supabaseAdmin
     .from("trips")
-    .update({
-      status: "completed",
-      estimated_payout: fare,
-      net_payout: Math.round(fare * (1 - COMMISSION_RATE)),
-    })
+    .update({ status: "completed", ...tripPayout(fare) })
     .in("order_id", checkoutOrderIds)
     .eq("rider_id", riderId)
     .eq("status", "upcoming")
@@ -919,7 +953,7 @@ app.openapi(
 
     const { data: order } = await supabaseAdmin
       .from("orders")
-      .select("id, status, customer_id, checkout_id, type, merchant_status, courier, updated_at, destination_address")
+      .select("id, status, customer_id, checkout_id, type, merchant_status, courier, ride, updated_at, destination_address")
       .eq("id", id)
       .eq("rider_id", user.id)
       .maybeSingle();
@@ -1008,9 +1042,16 @@ app.openapi(
     if (!move.from.includes(order.status)) {
       return c.json({ error: `Can't mark ${step} while ${order.status}` }, 409);
     }
+    // A ride's passenger boards only after "I've arrived" (it starts the
+    // passenger's waiting clock and tells them the rider is there).
+    if (step === "picked_up" && order.type === "ride" && !rideCanPickUp(order.status)) {
+      return c.json({ error: "Report your arrival at the pickup before the passenger boards" }, 409);
+    }
 
     const now = new Date().toISOString();
     const courier = order.type === "courier" ? courierOf(order) : null;
+    const isRide = order.type === "ride";
+    const ride = isRide ? rideOf(order) : null;
 
     // ─── Courier with drop-offs left after this one: deliver this stop only ──
     if (step === "delivered" && courier && remainingDropOffs(courier) > 1) {
@@ -1045,6 +1086,9 @@ app.openapi(
       const done = deliverCurrentDropOff(courier, now);
       if (done) patch.courier = done.courier;
     }
+    // A ride's "I've arrived" starts the passenger's waiting clock. Written
+    // with the status, conditional on the status as read.
+    if (move.to === "pickup" && ride) patch.ride = markRideArrived(ride, now);
     const { data: updated, error } = await supabaseAdmin
       .from("orders")
       .update(patch)
@@ -1062,6 +1106,13 @@ app.openapi(
       await notifyCourier(order, { kind: "arrived" });
     } else if (courier && step === "picked_up") {
       await notifyCourier(order, { kind: "picked_up", to: dropOffName(order, 0) });
+    } else if (isRide && step === "arrived") {
+      await notifyRide(order, { kind: "arrived" });
+    } else if (isRide && step === "picked_up") {
+      await notifyRide(order, {
+        kind: "picked_up",
+        to: ride?.destination.label || ride?.destination.address || order.destination_address || "",
+      });
     } else if (step === "arrived") {
       await notifyCustomer(
         order.customer_id,
@@ -1092,6 +1143,8 @@ app.openapi(
       if (trip) summary = tripSummary(trip);
       if (courier) {
         await notifyCourier(order, { kind: "delivered", to: dropOffName(order, courier.drop_offs.length - 1) });
+      } else if (isRide) {
+        await notifyRide(order, { kind: "delivered" });
       } else {
         await notifyCustomer(
           order.customer_id,
@@ -1109,7 +1162,10 @@ app.openapi(
 
 // ─── POST /jobs/{id}/cancel — drop an accepted job before pickup ─────
 // The order goes back to `searching` for another rider; the trip is marked
-// canceled with the cancellation penalty.
+// canceled with the cancellation penalty. Except a ride whose passenger never
+// showed up (reason passenger_no_show, rider at the pickup for at least
+// RIDE_NO_SHOW_WAIT_MS — else 400 no_show_too_early): that ride ends —
+// canceled by the rider, no penalty, the coupon stays used.
 /** A single order the rider may still drop: booked, or not yet picked up. */
 const DROPPABLE = ["searching", "heading_to_store", "preparation", "pickup"];
 
@@ -1121,7 +1177,11 @@ app.openapi(
     tags: ["riders"],
     security: bearer,
     request: { params: IdParam, body: { ...json(cancelJobSchema), required: true } },
-    responses: { 200: json(OkSchema), 400: errorResponses[400], 404: errorResponses[404] },
+    responses: {
+      200: json(OkSchema),
+      400: json(CancelRiderJobError, "Bad request (code no_show_too_early: wait seconds_remaining more)"),
+      404: errorResponses[404],
+    },
   }),
   async (c) => {
     const user = c.get("user");
@@ -1130,7 +1190,7 @@ app.openapi(
 
     const { data: order } = await supabaseAdmin
       .from("orders")
-      .select("id, status, type, customer_id, checkout_id, store:stores(owner_id)")
+      .select("id, status, type, customer_id, checkout_id, ride, updated_at, store:stores(owner_id)")
       .eq("id", id)
       .eq("rider_id", user.id)
       .maybeSingle();
@@ -1193,10 +1253,81 @@ app.openapi(
       return c.json({ success: true }, 200);
     }
 
+    // ─── Ride: the passenger didn't show up at the pickup → it ends here ──
+    if (isPassengerNoShow(order, reason)) {
+      const tooEarly = (leftMs: number) =>
+        c.json(
+          {
+            error: "It's too early to report a no-show: wait for the passenger a little longer",
+            code: NO_SHOW_TOO_EARLY,
+            seconds_remaining: Math.ceil(leftMs / 1000),
+          },
+          400
+        );
+      // At the pickup without an arrival time (the "I've arrived" write never
+      // stamped it): start the waiting clock now, so this refusal isn't
+      // repeated forever. Conditional on the row as read, like an advance.
+      const ride = rideOf(order);
+      const started = startNoShowClock(ride, new Date().toISOString());
+      if (started) {
+        const { data: stamped } = await supabaseAdmin
+          .from("orders")
+          .update({ ride: started })
+          .eq("id", id)
+          .eq("rider_id", user.id)
+          .eq("status", "pickup")
+          .eq("updated_at", order.updated_at)
+          .select("id")
+          .maybeSingle();
+        if (!stamped) return c.json({ error: "Job changed, try again" }, 400);
+        return tooEarly(RIDE_NO_SHOW_WAIT_MS);
+      }
+      // Only after waiting RIDE_NO_SHOW_WAIT_MS at the pickup (server clock).
+      const leftMs = noShowWaitLeftMs(ride);
+      if (leftMs > 0) return tooEarly(leftMs);
+      const { data: ended } = await supabaseAdmin
+        .from("orders")
+        .update({
+          status: "canceled",
+          canceled_at: new Date().toISOString(),
+          canceled_by: "rider",
+          cancel_reason: PASSENGER_NO_SHOW_REASON,
+          ...CLEAR_OFFER,
+        })
+        .eq("id", id)
+        .eq("rider_id", user.id)
+        // Still waiting at the pickup: not a ride the customer canceled or that left meanwhile.
+        .eq("status", "pickup")
+        .select("id")
+        .maybeSingle();
+      if (!ended) return c.json({ error: "Job changed, try again" }, 400);
+      // The rider waited for nothing: the trip closes without a penalty.
+      await supabaseAdmin
+        .from("trips")
+        .update({ status: "canceled", cancellation_reason: PASSENGER_NO_SHOW_REASON, penalty_amount: null })
+        .eq("order_id", id)
+        .eq("rider_id", user.id)
+        .eq("status", "upcoming");
+      await notifyRide(order as { id: string; customer_id: string }, { kind: "canceled_by_rider" });
+      return c.json({ success: true }, 200);
+    }
+    if (reason === PASSENGER_NO_SHOW_REASON && order.type === "ride") {
+      return c.json({ error: "Report a no-show once you've arrived at the pickup" }, 400);
+    }
+
     if (!DROPPABLE.includes(order.status)) {
-      return c.json({ error: "The parcel is already on board — report an issue instead" }, 400);
+      return c.json(
+        {
+          error:
+            order.type === "ride"
+              ? "The passenger is already on board — report an issue instead"
+              : "The parcel is already on board — report an issue instead",
+        },
+        400
+      );
     }
     const started = order.status !== "searching";
+    const ride = order.type === "ride" ? rideOf(order) : null;
 
     const { data: released } = await supabaseAdmin
       .from("orders")
@@ -1207,9 +1338,12 @@ app.openapi(
         // A store order is the store's to place again: Blink pool or a new
         // request, with no driver of its own still attached.
         ...(order.type === "merchant" ? { delivery_mode: null, store_driver_id: null } : {}),
-        // A courier is live again from now: its search window (offers +
-        // no_rider expiry, src/lib/courier.ts) restarts instead of running out.
-        ...(order.type === "courier" ? { accepted_at: new Date().toISOString() } : {}),
+        // A courier or ride is live again from now: its search window (offers +
+        // no_rider expiry, src/lib/courier.ts / ride.ts) restarts instead of
+        // running out.
+        ...(order.type === "courier" || order.type === "ride" ? { accepted_at: new Date().toISOString() } : {}),
+        // The next rider hasn't arrived yet.
+        ...(ride ? { ride: { ...ride, arrived_at: null } } : {}),
         ...CLEAR_OFFER,
       })
       .eq("id", id)
@@ -1244,12 +1378,14 @@ app.openapi(
     await Promise.all([
       order.type === "courier"
         ? notifyCourier(order as { id: string; customer_id: string }, { kind: "rider_canceled" })
-        : notifyCustomer(
-            order.customer_id,
-            { title: "Finding a new rider", description: `Your rider canceled order ${ref}. We're finding another one.` },
-            { title: "Recherche d'un nouveau livreur", description: `Votre livreur a annulé la commande ${ref}. Nous en cherchons un autre.` },
-            { title: "البحث عن سائق جديد", description: `ألغى السائق الطلب ${ref}. نبحث عن سائق آخر.` }
-          ),
+        : order.type === "ride"
+          ? notifyRide(order as { id: string; customer_id: string }, { kind: "rider_canceled" })
+          : notifyCustomer(
+              order.customer_id,
+              { title: "Finding a new rider", description: `Your rider canceled order ${ref}. We're finding another one.` },
+              { title: "Recherche d'un nouveau livreur", description: `Votre livreur a annulé la commande ${ref}. Nous en cherchons un autre.` },
+              { title: "البحث عن سائق جديد", description: `ألغى السائق الطلب ${ref}. نبحث عن سائق آخر.` }
+            ),
       names &&
         notifyStoreOwner(
           storeOwnerId(order),

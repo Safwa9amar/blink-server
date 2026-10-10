@@ -10,10 +10,11 @@ import { OrderSchema } from "./orders";
 // 2026-10-09-courier-requests-design.md
 
 const vehicle = z.enum(COURIER_VEHICLES as [string, ...string[]]);
-const lat = z.number().min(-90).max(90);
-const lng = z.number().min(-180).max(180);
+// lat / lng / phone / couponCode are shared with rides (src/validators/ride.ts).
+export const lat = z.number().min(-90).max(90);
+export const lng = z.number().min(-180).max(180);
 /** Digits, spaces, dashes, parentheses, optional leading +. */
-const phone = z
+export const phone = z
   .string()
   .trim()
   .regex(/^\+?[0-9 ()-]{6,20}$/, "Invalid phone number");
@@ -65,7 +66,7 @@ const RouteInputSchema = z
   })
   .openapi("CourierRouteInput");
 
-const couponCode = z.string().trim().min(1).max(64).optional();
+export const couponCode = z.string().trim().min(1).max(64).optional();
 
 export const courierQuoteSchema = z
   .object({
@@ -97,6 +98,29 @@ export const createCourierRequestSchema = z
 
 // ─── Responses ───────────────────────────────────────────────────────
 
+/**
+ * A free rider drawn on the request map (ride + courier quotes). Never the
+ * rider's id, name or exact position: src/lib/nearby-riders-map.ts.
+ */
+export const NearbyRiderMarkerSchema = z
+  .object({
+    /** Opaque token, stable for the day (key markers on it); not a user id. */
+    id: z.string(),
+    /** Rounded to ~100 m plus a small per-rider offset. */
+    lat: z.number(),
+    lng: z.number(),
+    vehicle_type: vehicle.nullable(),
+    /** Degrees clockwise from north; null when unknown (always, for now). */
+    heading: z.number().nullable(),
+  })
+  .openapi("NearbyRiderMarker");
+
+/**
+ * Up to 12 free riders near the pickup, nearest first, with a position from
+ * the last 10 minutes — drawn on the map; counted in options[].nearby_riders.
+ */
+export const nearbyRidersMap = z.array(NearbyRiderMarkerSchema);
+
 export const CourierQuoteOptionSchema = z
   .object({
     vehicle_type: vehicle,
@@ -121,6 +145,8 @@ export const CourierQuoteResponse = z
     /** Per route, in request order. */
     routes: z.array(z.object({ distance_km: z.number() }).openapi("CourierQuoteRouteResult")),
     options: z.array(CourierQuoteOptionSchema),
+    /** Free couriers (any vehicle) near the first pickup, for the map. */
+    nearby_riders_map: nearbyRidersMap,
     /** The coupon_code sent, priced; omitted without one. */
     coupon: z
       .object({

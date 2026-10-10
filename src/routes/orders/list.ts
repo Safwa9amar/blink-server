@@ -1,5 +1,4 @@
-import { isCourierSearchExpired } from "../../lib/courier";
-import { expireCourierOrder } from "../../lib/courier-timeouts";
+import { expireSearchingOrder, isSearchExpired } from "../../lib/search-timeouts";
 import { isActiveOrder, isLiveOrder } from "../../lib/rider-card";
 import { attachRiders, attachStoreInfo } from "../../lib/rider-cards-load";
 import { withoutOffer } from "../../lib/rider-offer";
@@ -52,11 +51,12 @@ app.openapi(route, async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  // A courier request no rider took is canceled as soon as anyone looks, so
-  // the list never shows it searching past its window (the cron does the rest).
+  // A courier request or ride no rider took is canceled as soon as anyone
+  // looks, so the list never shows it searching past its window (the cron
+  // does the rest).
   const now = Date.now();
   const rows = await Promise.all(
-    (data ?? []).map(async (o) => (isCourierSearchExpired(o, now) ? ((await expireCourierOrder(o, now)) ?? o) : o))
+    (data ?? []).map(async (o) => (isSearchExpired(o, now) ? ((await expireSearchingOrder(o, now)) ?? o) : o))
   );
 
   // Which rider a store asked is the merchant's business only.

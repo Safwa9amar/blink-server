@@ -6,10 +6,11 @@ import {
   scheduleError,
 } from "../../lib/courier";
 import { COURIER_RATES, courierFare, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
+import { claimCoupon, linkCoupon, releaseCoupon } from "../../lib/coupons";
 import { withoutOffer } from "../../lib/rider-offer";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
-import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { CourierRequestResponse, createCourierRequestSchema } from "../../validators/courier";
 import { priceCourierCoupon } from "./shared";
 
@@ -31,6 +32,7 @@ const route = createRoute({
     201: json(CourierRequestResponse, "Created"),
     400: errorResponses[400],
     403: errorResponses[403],
+    409: json(ErrorSchema, "The coupon was just used by another request"),
   },
 });
 
@@ -65,6 +67,11 @@ app.openapi(route, async (c) => {
     couponId = coupon.coupon.id;
   }
 
+  // Claimed first, only if still unused (see POST /ride/requests).
+  if (couponId && !(await claimCoupon(couponId))) {
+    return c.json({ error: "This coupon was just used — remove it and try again" }, 409);
+  }
+
   const groupId = randomUUID();
   const rows = priced.map((p, i) => {
     const courier = buildCourierDetails(p.route, body.paid_by, p.km);
@@ -97,15 +104,11 @@ app.openapi(route, async (c) => {
 
   // One INSERT: every route is created, or none is.
   const { data, error } = await supabaseAdmin.from("orders").insert(rows).select();
-  if (error || !data?.length) return c.json({ error: error?.message ?? "Couldn't create the request" }, 400);
-
-  if (couponId) {
-    const used = data.find((o) => o.coupon_id === couponId) ?? data[0];
-    await supabaseAdmin
-      .from("customer_coupons")
-      .update({ used_at: new Date().toISOString(), order_id: used.id })
-      .eq("id", couponId);
+  if (error || !data?.length) {
+    if (couponId) await releaseCoupon(couponId, null);
+    return c.json({ error: error?.message ?? "Couldn't create the request" }, 400);
   }
+  if (couponId) await linkCoupon(couponId, (data.find((o) => o.coupon_id === couponId) ?? data[0]).id);
 
   // INSERT … RETURNING keeps the routes' order.
   return c.json({ orders: data.map((o) => withoutOffer(o)) }, 201);

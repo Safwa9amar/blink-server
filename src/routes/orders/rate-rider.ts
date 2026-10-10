@@ -7,8 +7,9 @@ import { OrderResponse, rateRiderSchema } from "../../validators/orders";
 const app = router();
 
 // ─── Customer: rate the rider of a delivered order ───────────────────
-// Courier requests rate the rider (there is no store); any delivered order
-// with a rider may. Re-rating replaces. The average shows on RiderCard.rating.
+// Courier requests and rides rate the rider (there is no store); any
+// delivered order with a rider may. Re-rating replaces. The average shows on
+// RiderCard.rating.
 const route = createRoute({
   method: "post",
   path: "/{id}/rate-rider",

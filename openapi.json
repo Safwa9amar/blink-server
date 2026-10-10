@@ -1868,6 +1868,24 @@
           "method"
         ]
       },
+      "AgentAccessError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "shop_not_approved",
+              "not_your_transaction"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
       "ProcessTransactionBody": {
         "type": "object",
         "properties": {
@@ -2118,6 +2136,57 @@
           "note"
         ]
       },
+      "RidePickup": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "label",
+          "address",
+          "lat",
+          "lng",
+          "note"
+        ]
+      },
+      "RideDestination": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "label",
+          "address",
+          "lat",
+          "lng"
+        ]
+      },
       "OrderStoreInfo": {
         "type": "object",
         "properties": {
@@ -2173,7 +2242,8 @@
             "enum": [
               "merchant",
               "shopper",
-              "courier"
+              "courier",
+              "ride"
             ]
           },
           "status": {
@@ -2432,6 +2502,56 @@
               "type": "string"
             }
           },
+          "ride": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "pickup": {
+                "$ref": "#/components/schemas/RidePickup"
+              },
+              "destination": {
+                "$ref": "#/components/schemas/RideDestination"
+              },
+              "passenger": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "phone"
+                ]
+              },
+              "distance_km": {
+                "type": "number"
+              },
+              "duration_minutes": {
+                "type": "integer"
+              },
+              "female_rider_only": {
+                "type": "boolean"
+              },
+              "arrived_at": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "pickup",
+              "destination",
+              "passenger",
+              "distance_km",
+              "duration_minutes",
+              "female_rider_only",
+              "arrived_at"
+            ]
+          },
           "created_at": {
             "type": "string"
           },
@@ -2492,6 +2612,7 @@
           "rider_rating",
           "rider_review",
           "rider_tags",
+          "ride",
           "created_at",
           "updated_at"
         ]
@@ -2693,6 +2814,12 @@
               "$ref": "#/components/schemas/CourierQuoteOption"
             }
           },
+          "nearby_riders_map": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NearbyRiderMarker"
+            }
+          },
           "coupon": {
             "type": "object",
             "properties": {
@@ -2716,7 +2843,8 @@
         },
         "required": [
           "routes",
-          "options"
+          "options",
+          "nearby_riders_map"
         ]
       },
       "CourierQuoteRouteResult": {
@@ -2772,6 +2900,40 @@
           "available",
           "pickup_eta_minutes",
           "nearby_riders"
+        ]
+      },
+      "NearbyRiderMarker": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "vehicle_type": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "bicycle",
+              "motorcycle",
+              null
+            ]
+          },
+          "heading": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "lat",
+          "lng",
+          "vehicle_type",
+          "heading"
         ]
       },
       "CourierQuoteBody": {
@@ -3037,6 +3199,278 @@
           "size"
         ]
       },
+      "RideQuoteResponse": {
+        "type": "object",
+        "properties": {
+          "distance_km": {
+            "type": "number"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RideQuoteOption"
+            }
+          },
+          "nearby_riders_map": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NearbyRiderMarker"
+            }
+          },
+          "coupon": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "valid": {
+                "type": "boolean"
+              },
+              "reason": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "code",
+              "valid",
+              "reason"
+            ]
+          }
+        },
+        "required": [
+          "distance_km",
+          "options",
+          "nearby_riders_map"
+        ]
+      },
+      "RideQuoteOption": {
+        "type": "object",
+        "properties": {
+          "vehicle_type": {
+            "type": "string",
+            "enum": [
+              "motorcycle"
+            ]
+          },
+          "fare": {
+            "type": "number"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "duration_minutes": {
+            "type": "integer"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "unavailable_reason": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "too_close",
+              "too_far",
+              "no_female_rider",
+              null
+            ]
+          },
+          "pickup_eta_minutes": {
+            "type": "integer",
+            "nullable": true
+          },
+          "nearby_riders": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "vehicle_type",
+          "fare",
+          "discount",
+          "total",
+          "duration_minutes",
+          "available",
+          "unavailable_reason",
+          "pickup_eta_minutes",
+          "nearby_riders"
+        ]
+      },
+      "RideQuoteBody": {
+        "type": "object",
+        "properties": {
+          "pickup": {
+            "$ref": "#/components/schemas/RideLatLng"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/RideLatLng"
+          },
+          "coupon_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "female_rider_only": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "pickup",
+          "destination"
+        ]
+      },
+      "RideLatLng": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          }
+        },
+        "required": [
+          "lat",
+          "lng"
+        ]
+      },
+      "RideRequestResponse": {
+        "type": "object",
+        "properties": {
+          "order": {
+            "$ref": "#/components/schemas/Order"
+          }
+        },
+        "required": [
+          "order"
+        ]
+      },
+      "CreateRideRequestBody": {
+        "type": "object",
+        "properties": {
+          "pickup": {
+            "$ref": "#/components/schemas/RidePickupInput"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/RideDestinationInput"
+          },
+          "passenger": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "phone": {
+                "type": "string",
+                "pattern": "^\\+?[0-9 ()-]{6,20}$"
+              }
+            },
+            "required": [
+              "name",
+              "phone"
+            ]
+          },
+          "vehicle_type": {
+            "type": "string",
+            "enum": [
+              "motorcycle"
+            ],
+            "default": "motorcycle"
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "coupon_code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "female_rider_only": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "pickup",
+          "destination"
+        ]
+      },
+      "RidePickupInput": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 200,
+            "default": ""
+          },
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 300
+          }
+        },
+        "required": [
+          "address",
+          "lat",
+          "lng"
+        ]
+      },
+      "RideDestinationInput": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 200,
+            "default": ""
+          },
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          }
+        },
+        "required": [
+          "address",
+          "lat",
+          "lng"
+        ]
+      },
       "DeviceResponse": {
         "type": "object",
         "properties": {
@@ -3156,7 +3590,8 @@
               "announcement",
               "benefit",
               "deposit",
-              "improvement"
+              "improvement",
+              "ride"
             ]
           },
           "title": {
@@ -3271,7 +3706,8 @@
               "announcement",
               "benefit",
               "deposit",
-              "improvement"
+              "improvement",
+              "ride"
             ],
             "default": "announcement"
           },
@@ -3393,7 +3829,8 @@
               "announcement",
               "benefit",
               "deposit",
-              "improvement"
+              "improvement",
+              "ride"
             ]
           },
           "title": {
@@ -5568,7 +6005,8 @@
             "enum": [
               "merchant",
               "shopper",
-              "courier"
+              "courier",
+              "ride"
             ]
           },
           "subtotal": {
@@ -8805,7 +9243,8 @@
             "enum": [
               "merchant",
               "shopper",
-              "courier"
+              "courier",
+              "ride"
             ]
           },
           "status": {
@@ -8930,6 +9369,41 @@
               "drop_offs",
               "current_drop_off"
             ]
+          },
+          "ride": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "passenger_name": {
+                "type": "string"
+              },
+              "passenger_phone": {
+                "type": "string",
+                "nullable": true
+              },
+              "for_someone_else": {
+                "type": "boolean"
+              },
+              "pickup_note": {
+                "type": "string",
+                "nullable": true
+              },
+              "arrived_at": {
+                "type": "string",
+                "nullable": true
+              },
+              "female_rider_only": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "passenger_name",
+              "passenger_phone",
+              "for_someone_else",
+              "pickup_note",
+              "arrived_at",
+              "female_rider_only"
+            ]
           }
         },
         "required": [
@@ -8958,7 +9432,8 @@
           "request_kind",
           "request_expires_at",
           "delivery_mode",
-          "courier"
+          "courier",
+          "ride"
         ]
       },
       "RiderJobCustomer": {
@@ -9217,6 +9692,27 @@
         },
         "required": [
           "step"
+        ]
+      },
+      "CancelRiderJobError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "no_show_too_early"
+            ]
+          },
+          "seconds_remaining": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "error"
         ]
       },
       "CancelRiderJobBody": {
@@ -10923,7 +11419,7 @@
       "post": {
         "operationId": "selectRole",
         "tags": [
-          "auth"
+          "admin-auth"
         ],
         "security": [
           {
@@ -10964,6 +11460,16 @@
           },
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -11923,11 +12429,11 @@
             }
           },
           "403": {
-            "description": "Forbidden",
+            "description": "Forbidden: wrong PIN (no code), or code shop_not_approved | not_your_transaction",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/AgentAccessError"
                 }
               }
             }
@@ -11979,11 +12485,11 @@
             }
           },
           "403": {
-            "description": "Forbidden",
+            "description": "Forbidden: code shop_not_approved | not_your_transaction (no code: not an agent)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/AgentAccessError"
                 }
               }
             }
@@ -12754,6 +13260,138 @@
           },
           "403": {
             "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The coupon was just used by another request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ride/quote": {
+      "post": {
+        "operationId": "quoteRide",
+        "tags": [
+          "ride"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RideQuoteBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RideQuoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ride/requests": {
+      "post": {
+        "operationId": "createRideRequest",
+        "tags": [
+          "ride"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRideRequestBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RideRequestResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The coupon was just used by another request",
             "content": {
               "application/json": {
                 "schema": {
@@ -19485,11 +20123,11 @@
             }
           },
           "400": {
-            "description": "Bad request",
+            "description": "Bad request (code no_show_too_early: wait seconds_remaining more)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/CancelRiderJobError"
                 }
               }
             }

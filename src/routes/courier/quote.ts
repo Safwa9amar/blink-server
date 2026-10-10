@@ -48,7 +48,7 @@ app.openapi(route, async (c) => {
           couponReason ??= priced.reason;
         }
       }
-      const riders = nearby(vehicle);
+      const riders = nearby.count(vehicle);
       return {
         vehicle_type: vehicle,
         fare,
@@ -66,6 +66,7 @@ app.openapi(route, async (c) => {
     {
       routes: quotes.map((q) => ({ distance_km: q.distance_km })),
       options,
+      nearby_riders_map: nearby.map,
       ...(coupon_code
         ? { coupon: { code: coupon_code, valid: couponValid, reason: couponValid ? null : couponReason } }
         : {}),

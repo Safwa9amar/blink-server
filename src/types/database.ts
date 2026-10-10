@@ -27,7 +27,7 @@ export type OrderStatus =
   | "canceled"
   | "merchant_rejected"
   | "processing";
-export type OrderType = "merchant" | "shopper";
+export type OrderType = "merchant" | "shopper" | "courier" | "ride";
 export type NotificationType =
   | "courier"
   | "promo"
@@ -38,7 +38,9 @@ export type NotificationType =
   | "alert"
   | "announcement"
   | "benefit"
-  | "deposit";
+  | "deposit"
+  | "improvement"
+  | "ride";
 export type AddressType = "home" | "work" | "other";
 export type AgentShopStatus = "open" | "closed";
 

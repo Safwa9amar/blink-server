@@ -7,7 +7,7 @@ import { startLibraryCron } from "./scrapers/cron";
 import { startScheduledNotificationsCron } from "./lib/scheduled-notifications";
 import { startNewsCron } from "./lib/news-cron";
 import { startAlertsEvaluator } from "./lib/alerts";
-import { startCourierTimeoutsCron } from "./lib/courier-timeouts";
+import { startSearchTimeoutsCron } from "./lib/search-timeouts";
 
 // Mirror console output into an in-memory ring buffer (super-admin Live Logs view).
 // Installed first so it captures everything the process prints from here on.
@@ -26,7 +26,7 @@ if (env.ENABLE_INPROCESS_CRON) {
   startScheduledNotificationsCron();
   startNewsCron();
   startAlertsEvaluator();
-  startCourierTimeoutsCron();
+  startSearchTimeoutsCron();
 } else {
   console.log(
     "[cron] in-process scheduler disabled (set ENABLE_INPROCESS_CRON=true to enable)"

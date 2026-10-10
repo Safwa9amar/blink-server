@@ -29,7 +29,9 @@
     "seed:dev-merchant": "tsx scripts/seed-dev-merchant.ts",
     "seed:dev-agents": "tsx scripts/seed-dev-agents.ts",
     "test:order": "tsx scripts/trigger-test-order.ts",
-    "test:checkout": "tsx scripts/trigger-test-checkout.ts"
+    "test:ride": "tsx scripts/trigger-test-ride.ts",
+    "test:checkout": "tsx scripts/trigger-test-checkout.ts",
+    "e2e:ride": "tsx scripts/e2e-ride.ts"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.2",

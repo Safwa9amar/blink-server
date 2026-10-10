@@ -1,5 +1,4 @@
-import { isCourierSearchExpired } from "../../lib/courier";
-import { expireCourierOrder } from "../../lib/courier-timeouts";
+import { expireSearchingOrder, isSearchExpired } from "../../lib/search-timeouts";
 import { isActiveOrder, isLiveOrder } from "../../lib/rider-card";
 import { attachRiders, attachStoreInfo } from "../../lib/rider-cards-load";
 import { withoutOffer } from "../../lib/rider-offer";
@@ -38,9 +37,9 @@ app.openapi(route, async (c) => {
     return c.json({ error: "Access denied" }, 403);
   }
 
-  // A courier request no rider took ends here even without the cron, so the
-  // customer's searching screen moves on (canceled, cancel_reason no_rider).
-  const data = isCourierSearchExpired(row) ? ((await expireCourierOrder(row)) ?? row) : row;
+  // A courier request or ride no rider took ends here even without the cron,
+  // so the customer's searching screen moves on (canceled, cancel_reason no_rider).
+  const data = isSearchExpired(row) ? ((await expireSearchingOrder(row)) ?? row) : row;
 
   // Which rider a store asked is the merchant's business only.
   const order = withoutOffer(data);

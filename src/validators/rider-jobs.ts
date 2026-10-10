@@ -59,7 +59,7 @@ export const RiderJobSchema = z
   .object({
     id: z.string(),
     display_id: z.string(),
-    type: z.enum(["merchant", "shopper", "courier"]),
+    type: z.enum(["merchant", "shopper", "courier", "ride"]),
     status: z.string(),
     store_name: z.string(),
     customer: JobCustomerSchema,
@@ -122,6 +122,27 @@ export const RiderJobSchema = z
         current_drop_off: z.number().int().nullable(),
       })
       .nullable(),
+    /**
+     * Ride (passenger moto-taxi) job: who to pick up and how to reach them.
+     * `pickup` / `destination` are the ride's two points; `fare` is collected
+     * in cash at the end. null for every other job.
+     */
+    ride: z
+      .object({
+        /** The passenger the customer named, else the customer. */
+        passenger_name: z.string(),
+        /** "Call the passenger"; null when unknown. */
+        passenger_phone: z.string().nullable(),
+        /** The customer booked it for someone else. */
+        for_someone_else: z.boolean(),
+        /** Where exactly to wait ("Gate B"…). */
+        pickup_note: z.string().nullable(),
+        /** Set by `advance arrived` (status `pickup`); "waiting since". */
+        arrived_at: z.string().nullable(),
+        /** The customer asked for a female rider. */
+        female_rider_only: z.boolean(),
+      })
+      .nullable(),
   })
   .openapi("RiderJob");
 
@@ -157,15 +178,38 @@ export const declineJobSchema = z
   .openapi("DeclineRiderJobBody");
 
 export const cancelJobSchema = z
-  .object({ reason: z.string().min(1).max(500) })
+  .object({
+    /**
+     * Reason key or text. On a ride the rider has arrived at (`pickup`),
+     * `passenger_no_show` ENDS the ride (canceled, no penalty) instead of
+     * handing it back to the pool — once the rider has waited 5 minutes
+     * since arriving (else 400 `no_show_too_early`, CancelRiderJobError).
+     */
+    reason: z.string().min(1).max(500),
+  })
   .openapi("CancelRiderJobBody");
+
+/**
+ * 400 of POST /riders/jobs/{id}/cancel. `code: no_show_too_early`: a ride's
+ * `passenger_no_show` before the rider has waited 5 minutes at the pickup
+ * (since `ride.arrived_at`, server clock); `seconds_remaining` = how long is
+ * left. Other 400s carry only `error`.
+ */
+export const CancelRiderJobError = z
+  .object({
+    error: z.string(),
+    code: z.enum(["no_show_too_early"]).optional(),
+    seconds_remaining: z.number().int().nonnegative().optional(),
+  })
+  .openapi("CancelRiderJobError");
 
 export const advanceJobSchema = z
   .object({
     /**
-     * arrived: at pickup · picked_up: parcel on board · delivered: done — for a
-     * courier job with several drop-offs, done at the CURRENT drop-off (the
-     * order is delivered after the last one).
+     * arrived: at pickup · picked_up: parcel (or passenger) on board — a
+     * ride only from `pickup`, i.e. after `arrived` (409 otherwise) ·
+     * delivered: done — for a courier job with several drop-offs, done at the
+     * CURRENT drop-off (the order is delivered after the last one).
      */
     step: z.enum(["arrived", "picked_up", "delivered"]),
     /** Multi-store checkout: the store's order for `arrived` / `picked_up`. */

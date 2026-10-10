@@ -34,6 +34,7 @@ export const testNotificationSchema = z
         "benefit",
         "deposit",
         "improvement",
+        "ride",
       ])
       .default("announcement"),
     title: z.string().min(1).default("Test notification"),
@@ -82,6 +83,7 @@ const notificationType = z.enum([
   "benefit",
   "deposit",
   "improvement",
+  "ride",
 ]);
 
 // jsonb columns typed to their real shapes (rowSchema would give the generic

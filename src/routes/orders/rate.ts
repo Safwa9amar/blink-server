@@ -39,9 +39,12 @@ app.openapi(route, async (c) => {
   if (order.status !== "delivered") {
     return c.json({ error: "Only delivered orders can be rated" }, 400);
   }
-  // A parcel has no store: its rider is rated (POST /orders/{id}/rate-rider).
+  // A parcel or a ride has no store: its rider is rated (POST /orders/{id}/rate-rider).
   if (order.type === "courier") {
     return c.json({ error: "Courier deliveries rate the rider instead" }, 400);
+  }
+  if (order.type === "ride") {
+    return c.json({ error: "Rides rate the rider instead" }, 400);
   }
 
   const { data, error } = await supabaseAdmin

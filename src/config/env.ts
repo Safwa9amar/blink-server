@@ -23,6 +23,12 @@ const envSchema = z.object({
   // via the /library/scrape endpoints. Leave empty in dev to disable the check.
   CRON_SECRET: z.string().default(""),
 
+  // Secret for the opaque rider tokens on the request maps (nearby_riders_map
+  // on POST /ride/quote and /courier/quote; src/lib/nearby-riders-map.ts).
+  // Empty = a hard-coded dev salt. Set a random value in production
+  // (openssl rand -hex 32) so tokens can't be linked back to rider ids.
+  RIDER_MAP_SALT: z.string().default(""),
+
   // AI bot (support live chat). OpenRouter is the default provider; the key is
   // optional so the server still boots without it (the bot then escalates).
   OPENROUTER_API_KEY: z.string().optional(),

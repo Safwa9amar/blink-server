@@ -28,6 +28,7 @@ export const createOrderSchema = z
   .object({
     store_name: z.string().min(1),
     store_logo: z.string().url().optional(),
+    /** No `ride`: rides are created priced, only through POST /ride/requests. */
     type: z.enum(["merchant", "shopper", "courier"]),
     items: z.array(orderItemSchema).min(1),
     subtotal: z.number().nonnegative(),
@@ -66,7 +67,10 @@ export const updateOrderStatusSchema = z
      * client gets an error instead of a status change with the rider dropped.
      */
     rider_id: z.string().uuid().optional(),
-    /** Customer cancel: reason key picked in the app (e.g. "changed_mind"). */
+    /**
+     * Customer cancel: reason key picked in the app (e.g. "changed_mind"; rides:
+     * rider_asked | changed_mind | accidental | waiting_too_long | other).
+     */
     cancel_reason: z.string().trim().min(1).max(64).optional(),
     /** Customer cancel: free-text details. */
     cancel_note: z.string().trim().max(500).optional(),
@@ -129,9 +133,34 @@ export const CourierDetailsSchema = z.object({
   distance_km: z.number(),
 });
 
+const ridePoint = { label: z.string(), address: z.string(), lat: z.number(), lng: z.number() };
+
+/** `orders.ride` (src/lib/ride.ts RideDetails). */
+export const RideDetailsSchema = z.object({
+  pickup: z
+    .object({
+      ...ridePoint,
+      /** For the rider: where exactly to wait. */
+      note: z.string().nullable(),
+    })
+    .openapi("RidePickup"),
+  destination: z.object(ridePoint).openapi("RideDestination"),
+  /** Someone else rides (the rider calls them); null = the customer rides. Inline: see OrderSchema. */
+  passenger: z.object({ name: z.string(), phone: z.string() }).nullable(),
+  /** Estimated road km. */
+  distance_km: z.number(),
+  /** Pickup → destination estimate. */
+  duration_minutes: z.number().int(),
+  /** Only a female rider may take it. */
+  female_rider_only: z.boolean(),
+  /** When the rider reached the pickup (status `pickup`); null before. */
+  arrived_at: z.string().nullable(),
+});
+
 export const OrderSchema = rowSchema(orders, "OrderRow", {
   // Inline + nullable: OpenAPI 3.0 drops `nullable` beside a $ref.
   courier: CourierDetailsSchema.nullable(),
+  ride: RideDetailsSchema.nullable(),
   rider_tags: z.array(z.string()).nullable(),
 })
   .extend({

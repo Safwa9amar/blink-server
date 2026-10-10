@@ -32,6 +32,7 @@ import couponRoutes from "./routes/coupons";
 import favoriteRoutes from "./routes/favorites";
 import merchantRoutes from "./routes/merchant";
 import courierRoutes from "./routes/courier";
+import rideRoutes from "./routes/ride";
 import { metricsMiddleware } from "./middleware/metrics";
 
 // __APP_VERSION__ is injected from package.json at build time by
@@ -69,6 +70,7 @@ app.route("/trips", tripRoutes);
 app.route("/transactions", transactionRoutes);
 app.route("/orders", orderRoutes);
 app.route("/courier", courierRoutes);
+app.route("/ride", rideRoutes);
 app.route("/notifications", notificationRoutes);
 app.route("/addresses", addressRoutes);
 app.route("/marketplace", marketplaceRoutes);

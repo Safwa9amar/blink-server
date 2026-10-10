@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { requireCronSecret } from "../library/shared";
 import { processDueScheduledNotifications } from "../../lib/scheduled-notifications";
 import { processNewsCron } from "../../lib/news-cron";
@@ -6,7 +6,7 @@ import { evaluateAlerts } from "../../lib/alerts";
 import { pollEmailInbox } from "../../lib/email/imap";
 import { runMerchantInsights } from "../merchant/strategy-shared";
 import { processBundleTimeouts } from "../../lib/bundle-timeouts";
-import { processCourierTimeouts } from "../../lib/courier-timeouts";
+import { processSearchTimeouts } from "../../lib/search-timeouts";
 
 // External cron entrypoints. NOT behind `auth` (a cron caller has no JWT) —
 // guarded by CRON_SECRET via the `x-cron-secret` header instead. Driven by
@@ -68,15 +68,17 @@ app.post("/bundle-timeouts", requireCronSecret, async (c) => {
   return c.json(result);
 });
 
-// POST /cron/courier-timeouts — a courier request no rider took within 20
-// minutes of going live is canceled (cancel_reason no_rider) and the customer
-// is told, instead of searching forever. Idempotent (only unclaimed
-// `searching` rows are touched). GET /orders/{id} also expires lazily. Wire a
-// cPanel Cron Job to hit this every minute:
-//   * * * * * curl -sS -X POST https://blink.greenpedal.net/cron/courier-timeouts -H "x-cron-secret: $CRON_SECRET"
-app.post("/courier-timeouts", requireCronSecret, async (c) => {
-  const result = await processCourierTimeouts();
-  return c.json(result);
-});
+// POST /cron/search-timeouts — a courier request no rider took within 20
+// minutes of going live, or a ride within 10, is canceled (cancel_reason
+// no_rider) and the customer is told, instead of searching forever.
+// Idempotent (only unclaimed `searching` rows are touched). GET /orders and
+// GET /orders/{id} also expire lazily. Wire a cPanel Cron Job to hit this
+// every minute:
+//   * * * * * curl -sS -X POST https://blink.greenpedal.net/cron/search-timeouts -H "x-cron-secret: $CRON_SECRET"
+// POST /cron/courier-timeouts is the same job under its earlier name, so
+// existing cron entries keep working.
+const searchTimeouts = async (c: Context) => c.json(await processSearchTimeouts());
+app.post("/search-timeouts", requireCronSecret, searchTimeouts);
+app.post("/courier-timeouts", requireCronSecret, searchTimeouts);
 
 export default app;
