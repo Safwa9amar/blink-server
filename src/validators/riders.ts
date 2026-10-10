@@ -93,7 +93,7 @@ export const reviewRiderDocumentSchema = z
     path: z.string().min(1).max(300),
     status: z.enum(["verified", "rejected"]),
     /** Shown to the rider on a rejection. */
-    note: z.string().max(300).optional(),
+    note: z.string().max(200).optional(),
   })
   .openapi("ReviewRiderDocumentBody");
 

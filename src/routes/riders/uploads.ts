@@ -57,7 +57,7 @@ app.openapi(route, async (c) => {
     .upload(path, bytes, { contentType: body.content_type, upsert: false });
   if (error) {
     // 4xx from storage = client mistake; anything else (5xx / network) is transient.
-    const status = Number((error as { statusCode?: string | number }).statusCode);
+    const status = Number((error as { status?: number }).status);
     if (status >= 400 && status < 500) return c.json({ error: error.message }, 400);
     return c.json({ error: "Storage unavailable, please retry" }, 503);
   }

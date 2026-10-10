@@ -80,8 +80,9 @@ export async function documentsView(state: RiderVerificationState) {
 /** True when the object exists; throws RiderDataUnavailableError on a storage error. */
 export async function documentObjectExists(path: string): Promise<boolean> {
   try {
-    const { data, error } = await supabaseAdmin.storage.from(RIDER_DOCS_BUCKET).exists(path);
-    if (error) throw error;
+    // storage-js returns { data: false } for HTTP 400/404 (= not uploaded) and
+    // THROWS for any other failure, so only real outages reach the catch.
+    const { data } = await supabaseAdmin.storage.from(RIDER_DOCS_BUCKET).exists(path);
     return data;
   } catch (e) {
     throw new RiderDataUnavailableError(e instanceof Error ? e.message : "storage error");

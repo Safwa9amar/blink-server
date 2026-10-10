@@ -105,7 +105,7 @@ app.openapi(
       }
       return c.json({ error: "Your documents changed, please retry", code: "documents_conflict" as const }, 409);
     } catch (e) {
-      if (e instanceof RiderDataUnavailableError) return c.json({ error: "Storage unavailable, please retry" }, 503);
+      if (e instanceof RiderDataUnavailableError) return c.json({ error: "Service unavailable, please retry" }, 503);
       throw e;
     }
   }
