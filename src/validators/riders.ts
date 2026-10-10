@@ -1,4 +1,5 @@
 import { z } from "@hono/zod-openapi";
+import { RIDER_DOCUMENT_KEYS } from "../lib/rider-verification";
 import { RiderProfileSchema, RiderVerificationStatusSchema, VehicleSchema } from "./auth";
 
 // Only rider-specific fields. Common fields (wilaya, bank_rib) are on users and
@@ -36,13 +37,14 @@ export const OptionalVehicleResponse = z
 // ─── Verification (licence + national ID) ────────────────────────────
 
 export const RiderDocumentKeySchema = z
-  .enum(["license_front", "license_back", "id_front", "id_back"])
+  .enum(RIDER_DOCUMENT_KEYS)
   .openapi("RiderDocumentKey");
 
 export const riderUploadSchema = z
   .object({
-    base64: z.string().min(1),
-    content_type: z.string().min(1),
+    // 8 MiB of bytes = 11_184_812 base64 chars — the bucket's file size limit.
+    base64: z.string().min(1).max(11_184_812),
+    content_type: z.enum(["image/jpeg", "image/png", "image/webp", "application/pdf"]),
     document: RiderDocumentKeySchema,
   })
   .openapi("RiderUploadBody");

@@ -8,6 +8,7 @@ import {
   users,
   vehicles,
 } from "../db/schema";
+import { RIDER_VERIFICATION_STATUSES } from "../lib/rider-verification";
 import { rowSchema } from "../openapi";
 import { documentsSchema, weekHoursSchema } from "./merchant";
 import { APP_ROLES, PARTNER_ROLES } from "../lib/roles";
@@ -150,7 +151,7 @@ export const RiderStoredDocumentsSchema = z
   .openapi("RiderStoredDocuments");
 
 export const RiderVerificationStatusSchema = z
-  .enum(["not_submitted", "pending", "approved", "rejected"])
+  .enum(RIDER_VERIFICATION_STATUSES)
   .openapi("RiderVerificationStatus");
 
 export const RiderProfileSchema = rowSchema(riderProfiles, "RiderProfile", {
