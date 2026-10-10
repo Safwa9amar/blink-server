@@ -107,6 +107,13 @@ export const RIDER_ONBOARDING: readonly AllowedRoute[] = [
   // Their own gates already refuse going online; going OFFLINE must always work.
   { method: "PATCH", path: "/availability" },
   { method: "PATCH", path: "/location" },
+  // A rider de-approved mid-delivery may still finish or drop the job they
+  // already hold (accept and start stay blocked): the customer's order must
+  // not get stuck.
+  { method: "POST", path: "/jobs/{id}/advance" },
+  { method: "POST", path: "/jobs/{id}/cancel" },
+  { method: "POST", path: "/jobs/{id}/rate-customer" },
+  { method: "POST", path: "/jobs/{id}/decline" },
 ];
 
 export const AGENT_ONBOARDING: readonly AllowedRoute[] = [
