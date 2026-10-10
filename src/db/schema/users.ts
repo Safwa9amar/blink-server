@@ -15,6 +15,10 @@ export const users = pgTable(
     middleName: text("middle_name"),
     email: text("email"),
     role: userRole("role").notNull().default("customer"),
+    // Multi-role: every role unlocked on the account (Become a Partner); `role`
+    // above is the ACTIVE one. Always ⊇ {role, customer} — the
+    // trg_users_normalize_granted_roles trigger (20261010200000_users_granted_roles.sql).
+    grantedRoles: userRole("granted_roles").array().notNull().default(sql`'{customer}'::user_role[]`),
     // Console / ERP authority, NULL for app users. Separate axis from `role`.
     staffRole: staffRole("staff_role"),
     gender: gender("gender"),
@@ -33,9 +37,9 @@ export const users = pgTable(
     index("idx_users_phone").on(t.phoneNumber),
     index("idx_users_role").on(t.role),
     pgPolicy("users_select_own", { for: "select", using: sql`auth.uid() = id` }),
-    // Column-level grants limit clients to display fields; role / staff_role /
-    // pin_hash / bank_rib / phone_number / email are service-role only
-    // (20261006215408_users_privileged_columns.sql).
+    // Column-level grants limit clients to display fields; role / granted_roles /
+    // staff_role / pin_hash / bank_rib / phone_number / email are service-role
+    // only (20261006215408_users_privileged_columns.sql, 20261010200000_users_granted_roles.sql).
     pgPolicy("users_update_own", {
       for: "update",
       to: "authenticated",

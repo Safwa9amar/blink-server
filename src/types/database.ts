@@ -122,6 +122,8 @@ export interface UserRow {
   middle_name: string | null;
   email: string | null;
   role: UserRole;
+  /** Every role unlocked on the account; `role` is the active one (src/lib/roles.ts). */
+  granted_roles: Array<"customer" | "rider" | "merchant" | "agent">;
   gender: Gender | null;
   birthday: string | null;
   profile_picture: string | null;
