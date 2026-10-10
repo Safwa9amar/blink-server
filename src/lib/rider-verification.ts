@@ -64,12 +64,25 @@ export function applyUploads(
   return { documents, verification_status: deriveVerificationStatus(documents, state.verification_status) };
 }
 
-export type ReviewDecision = { status: "verified" | "rejected"; note?: string | null };
+/** `path` is the document path the reviewer actually saw; it guards against a concurrent replacement. */
+export type ReviewDecision = { status: "verified" | "rejected"; note?: string | null; path: string };
 export type ReviewResult =
-  | { ok: true; state: RiderVerificationState }
-  | { ok: false; error: "not_uploaded" };
+  | { ok: true; state: RiderVerificationState; unchanged: boolean }
+  | { ok: false; error: "not_uploaded" | "stale" };
 
-/** Staff decision on one document (PATCH /riders/admin/riders/{id}/documents). */
+/** True when any stored document still waits for staff review (even for an approved rider). */
+export function hasPendingDocuments(docs: RiderStoredDocuments): boolean {
+  return RIDER_DOCUMENT_KEYS.some((k) => docs[k]?.status === "pending");
+}
+
+/**
+ * Staff decision on one document (PATCH /riders/admin/riders/{id}/documents).
+ * `stale` when the rider replaced the file after the reviewer loaded it.
+ * `unchanged` when the decision changes neither status nor note (skip write + notice).
+ *
+ * Note (deliberate): reversing the rejection of a migrated, document-less
+ * approved rider ends in `not_submitted` — they must upload the full set.
+ */
 export function applyReview(
   state: RiderVerificationState,
   key: RiderDocumentKey,
@@ -77,10 +90,13 @@ export function applyReview(
 ): ReviewResult {
   const current = state.documents[key];
   if (!current) return { ok: false, error: "not_uploaded" };
+  if (current.path !== decision.path) return { ok: false, error: "stale" };
   const note = decision.status === "rejected" ? decision.note?.trim() || null : null;
+  const unchanged = current.status === decision.status && current.note === note;
   const documents: RiderStoredDocuments = { ...state.documents, [key]: { ...current, status: decision.status, note } };
   return {
     ok: true,
+    unchanged,
     state: { documents, verification_status: deriveVerificationStatus(documents, state.verification_status) },
   };
 }
@@ -98,9 +114,15 @@ export function reviewNoticeKind(
   return "document_verified";
 }
 
-/** A rider may only attach objects from their own folder of the bucket. */
-export function isOwnDocumentPath(userId: string, path: string) {
-  return path.startsWith(`${userId}/`) && path.length > userId.length + 1 && !path.includes("..");
+const DOCUMENT_PATH_EXT = "(?:jpg|png|webp|pdf)";
+
+/**
+ * A rider may only attach the exact object shape POST /riders/uploads makes:
+ * `<userId>/<key>/<digits>-<digits>.<jpg|png|webp|pdf>`.
+ */
+export function isOwnDocumentPath(userId: string, key: RiderDocumentKey, path: string) {
+  const escaped = userId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`^${escaped}/${key}/\\d+-\\d+\\.${DOCUMENT_PATH_EXT}$`).test(path);
 }
 
 // ─── Activation checklist (GET /riders/required-actions) ─────────────

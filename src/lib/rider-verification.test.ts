@@ -4,6 +4,7 @@ import {
   applyReview,
   applyUploads,
   deriveVerificationStatus,
+  hasPendingDocuments,
   isOwnDocumentPath,
   reviewNoticeKind,
   riderRequiredActions,
@@ -84,14 +85,14 @@ describe("applyUploads", () => {
 
 describe("applyReview", () => {
   it("refuses a document that was never uploaded", () => {
-    assert.deepEqual(applyReview(state({}), "id_front", { status: "verified" }), {
+    assert.deepEqual(applyReview(state({}), "id_front", { status: "verified", path: "p" }), {
       ok: false,
       error: "not_uploaded",
     });
   });
   it("verifying the last pending document approves the rider", () => {
     const before = state({ ...all("verified"), id_back: doc("pending") }, "pending");
-    const res = applyReview(before, "id_back", { status: "verified", note: "ignored" });
+    const res = applyReview(before, "id_back", { status: "verified", note: "ignored", path: before.documents.id_back!.path });
     assert.equal(res.ok, true);
     if (!res.ok) return;
     assert.equal(res.state.verification_status, "approved");
@@ -101,6 +102,7 @@ describe("applyReview", () => {
     const res = applyReview(state(all("pending"), "pending"), "license_front", {
       status: "rejected",
       note: "  Photo is blurry  ",
+      path: doc("pending").path,
     });
     assert.equal(res.ok, true);
     if (!res.ok) return;
@@ -108,8 +110,42 @@ describe("applyReview", () => {
     assert.equal(res.state.documents.license_front?.note, "Photo is blurry");
   });
   it("rejecting an approved rider's document revokes the approval", () => {
-    const res = applyReview(state(all("verified"), "approved"), "id_front", { status: "rejected" });
+    const res = applyReview(state(all("verified"), "approved"), "id_front", { status: "rejected", path: doc("verified").path });
     assert.equal(res.ok && res.state.verification_status, "rejected");
+  });
+});
+
+describe("applyReview guards", () => {
+  it("refuses a decision made on a replaced document (stale)", () => {
+    const before = state(all("pending"), "pending");
+    assert.deepEqual(applyReview(before, "id_front", { status: "verified", path: "u1/id_front/old.jpg" }), {
+      ok: false,
+      error: "stale",
+    });
+  });
+  it("accepts a decision on the current path", () => {
+    const before = state(all("pending"), "pending");
+    const res = applyReview(before, "id_front", { status: "verified", path: before.documents.id_front!.path });
+    assert.equal(res.ok, true);
+    if (res.ok) assert.equal(res.unchanged, false);
+  });
+  it("flags a decision that changes nothing as unchanged", () => {
+    const before = state(all("verified"), "approved");
+    const res = applyReview(before, "id_front", { status: "verified", path: before.documents.id_front!.path });
+    assert.equal(res.ok && res.unchanged, true);
+    const rej = state({ ...all("pending"), id_back: doc("rejected", "Blurry") }, "rejected");
+    const same = applyReview(rej, "id_back", { status: "rejected", note: " Blurry ", path: rej.documents.id_back!.path });
+    assert.equal(same.ok && same.unchanged, true);
+    const diff = applyReview(rej, "id_back", { status: "rejected", note: "Other", path: rej.documents.id_back!.path });
+    assert.equal(diff.ok && diff.unchanged, false);
+  });
+});
+
+describe("hasPendingDocuments", () => {
+  it("is true when any stored document is pending", () => {
+    assert.equal(hasPendingDocuments({ ...all("verified"), id_back: doc("pending") }), true);
+    assert.equal(hasPendingDocuments(all("verified")), false);
+    assert.equal(hasPendingDocuments({}), false);
   });
 });
 
@@ -127,11 +163,30 @@ describe("reviewNoticeKind", () => {
 });
 
 describe("isOwnDocumentPath", () => {
-  it("accepts a path in the rider's folder only", () => {
-    assert.equal(isOwnDocumentPath("u1", "u1/license_front/1.jpg"), true);
-    assert.equal(isOwnDocumentPath("u1", "u2/license_front/1.jpg"), false);
-    assert.equal(isOwnDocumentPath("u1", "u1/../u2/a.jpg"), false);
-    assert.equal(isOwnDocumentPath("u1", "u1"), false);
+  const U = "0b9c1f0e-1234-4abc-9def-0123456789ab";
+  it("accepts exactly the shape the upload route produces", () => {
+    assert.equal(isOwnDocumentPath(U, "license_front", `${U}/license_front/1760000000000-4242.jpg`), true);
+    assert.equal(isOwnDocumentPath(U, "id_back", `${U}/id_back/1-0.pdf`), true);
+    assert.equal(isOwnDocumentPath("u1", "id_front", "u1/id_front/12-34.webp"), true);
+  });
+  it("rejects anything else", () => {
+    const bad = [
+      `${U}/license_front/%2e%2e/x.jpg`,
+      `${U}/license_front/%2E%2E-1.jpg`,
+      `${U}/license_front/.%2e-1.jpg`,
+      `${U}/license_front/./1-1.jpg`,
+      `${U}/license_front/1-1.jpg?x=1`,
+      `${U}/license_front/1-1.jpg#frag`,
+      `/${U}/license_front/1-1.jpg`,
+      `${U}/license_back/1-1.jpg`,
+      `other/license_front/1-1.jpg`,
+      `${U}/license_front/1-1.JPG`,
+      `${U.toUpperCase()}/license_front/1-1.jpg`,
+      `${U}/license_front/1-1.gif`,
+      `${U}/license_front/a-1.jpg`,
+      `${U}`,
+    ];
+    for (const p of bad) assert.equal(isOwnDocumentPath(U, "license_front", p), false, p);
   });
 });
 
