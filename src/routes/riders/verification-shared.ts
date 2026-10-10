@@ -11,7 +11,7 @@ import {
 } from "../../lib/rider-verification";
 import { supabaseAdmin } from "../../lib/supabase";
 
-/** Private bucket (20261010210000 migration). */
+/** Private bucket (20261010232027 migration). */
 export const RIDER_DOCS_BUCKET = "rider-documents";
 const SIGNED_URL_TTL_S = 60 * 60;
 

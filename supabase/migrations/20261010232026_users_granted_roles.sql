@@ -1,3 +1,7 @@
+-- (Applied with psql on 2026-10-10 and recorded as version 20261010232026 in
+-- supabase_migrations.schema_migrations; the filename matches so
+-- `supabase db push` sees local == remote.)
+--
 -- Multi-role accounts (Become a Partner, piece 2).
 --
 -- users.role stays the ACTIVE role (requireRole, RLS and realtime keep reading

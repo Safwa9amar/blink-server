@@ -19,7 +19,7 @@ import { timestamps } from "./_shared";
 import { users } from "./users";
 
 // Lives with its table (like news_status in news.ts) — added by
-// 20261010210000_rider_verification.sql.
+// 20261010232027_rider_verification.sql.
 export const riderVerificationStatus = pgEnum("rider_verification_status", RIDER_VERIFICATION_STATUSES);
 
 // Backs the rider_id column default below. Starts high (100000) so DB-generated
@@ -41,14 +41,14 @@ export const riderProfiles = pgTable(
       .default(sql`'BK-RR-' || nextval('rider_id_seq')`),
     // wilaya / bank_rib are common fields and live on users (see users.ts).
     vehicleType: vehicleType("vehicle_type"),
-    // Verification (20261010210000_rider_verification.sql): licence + national
+    // Verification (20261010232027_rider_verification.sql): licence + national
     // ID scans in the private `rider-documents` bucket, each reviewed by staff,
     // and the overall status the server gates rider work on. Service role only.
     documents: jsonb("documents").$type<RiderStoredDocuments>().notNull().default({}),
     verificationStatus: riderVerificationStatus("verification_status").notNull().default("not_submitted"),
     // Dispatch: availability + last known position, sent by the rider app
     // (PATCH /riders/location) — 00036_merchant_flows.sql. New riders start
-    // offline (default false since 20261010210000).
+    // offline (default false since 20261010232027).
     isAvailable: boolean("is_available").notNull().default(false),
     latitude: doublePrecision("latitude"),
     longitude: doublePrecision("longitude"),

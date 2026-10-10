@@ -1,3 +1,7 @@
+-- (Applied with psql on 2026-10-10 and recorded as version 20261010232025 in
+-- supabase_migrations.schema_migrations; the filename matches so
+-- `supabase db push` sees local == remote.)
+--
 -- Partner piece 1 (security): no client-side self-approval on the partner
 -- verification tables.
 --

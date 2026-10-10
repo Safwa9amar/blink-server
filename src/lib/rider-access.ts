@@ -1,6 +1,6 @@
 // Can this rider do rider work (go online, see offers, accept jobs, count as a
 // nearby rider)? Only once staff approved their documents. Existing riders
-// were migrated as approved (20261010210000_rider_verification.sql).
+// were migrated as approved (20261010232027_rider_verification.sql).
 
 export function riderCanWork(
   profile: { verification_status?: string | null } | null | undefined

@@ -5,7 +5,7 @@
  * the account and `users.role` is the ACTIVE one, which requireRole, RLS and
  * realtime keep reading. Every account always holds `customer`, and the active
  * role is always granted. The DB keeps the same invariant for every writer
- * (trigger in 20261010200000_users_granted_roles.sql).
+ * (trigger in 20261010232026_users_granted_roles.sql).
  */
 
 /** The app personas, in `user_role` enum order. */

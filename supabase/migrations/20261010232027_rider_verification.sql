@@ -1,3 +1,7 @@
+-- (Applied with psql on 2026-10-10 and recorded as version 20261010232027 in
+-- supabase_migrations.schema_migrations; the filename matches so
+-- `supabase db push` sees local == remote.)
+--
 -- =====================================================================
 -- Rider verification (Become a Partner piece 3)
 -- =====================================================================
@@ -29,7 +33,7 @@ IF NOT EXISTS (SELECT 1 FROM information_schema.columns
 
   -- Legacy licence URLs (never filled by the app, 0 rows today) are carried
   -- into documents as pending; the columns are dropped in a later migration
-  -- once nothing reads them (20261010220000_rider_profiles_drop_license_urls.sql).
+  -- once nothing reads them (20261010232028_rider_profiles_drop_license_urls.sql).
   UPDATE "rider_profiles"
   SET "documents" = "documents"
   || CASE WHEN "license_front_url" IS NOT NULL THEN jsonb_build_object('license_front',
@@ -71,7 +75,7 @@ REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public.rider_profiles FROM anon, auth
 DROP POLICY IF EXISTS rider_profiles_update_own ON public.rider_profiles;
 
 -- Defence in depth, as for the sibling guards in
--- 20261010100000_verification_columns_lockdown.sql: even if a broad grant
+-- 20261010232025_verification_columns_lockdown.sql: even if a broad grant
 -- comes back, client roles can't touch these columns. Server writes
 -- (service_role / postgres) are exempt.
 CREATE OR REPLACE FUNCTION public.guard_rider_profiles_privileged_columns()
