@@ -14,15 +14,24 @@ END $$;
 -- { license_front|license_back|id_front|id_back:
 --   { path, status pending|verified|rejected, note, uploaded_at } }
 ALTER TABLE "rider_profiles"
-  ADD COLUMN IF NOT EXISTS "documents" jsonb DEFAULT '{}'::jsonb NOT NULL,
-  ADD COLUMN IF NOT EXISTS "verification_status" "rider_verification_status"
-    DEFAULT 'not_submitted' NOT NULL;
+  ADD COLUMN IF NOT EXISTS "documents" jsonb DEFAULT '{}'::jsonb NOT NULL;
 
--- Legacy licence URLs (never filled by the app, 0 rows today) are carried
--- into documents as pending; the columns are dropped in a later migration
--- once nothing reads them (20261010150500_rider_profiles_drop_license_urls.sql).
-UPDATE "rider_profiles"
-SET "documents" = "documents"
+-- Run-once block: verification_status is added, legacy URLs carried over and
+-- existing riders approved only on the run that creates the column, so a
+-- re-run can never re-approve or re-stamp rows.
+DO $$ BEGIN
+IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+               WHERE table_schema = 'public' AND table_name = 'rider_profiles'
+                 AND column_name = 'verification_status') THEN
+  ALTER TABLE "rider_profiles"
+    ADD COLUMN "verification_status" "rider_verification_status"
+      DEFAULT 'not_submitted' NOT NULL;
+
+  -- Legacy licence URLs (never filled by the app, 0 rows today) are carried
+  -- into documents as pending; the columns are dropped in a later migration
+  -- once nothing reads them (20261010150500_rider_profiles_drop_license_urls.sql).
+  UPDATE "rider_profiles"
+  SET "documents" = "documents"
   || CASE WHEN "license_front_url" IS NOT NULL THEN jsonb_build_object('license_front',
        jsonb_build_object('path', "license_front_url", 'status', 'pending', 'note', NULL,
                           'uploaded_at', to_char("updated_at" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')))
@@ -31,16 +40,18 @@ SET "documents" = "documents"
        jsonb_build_object('path', "license_back_url", 'status', 'pending', 'note', NULL,
                           'uploaded_at', to_char("updated_at" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')))
      ELSE '{}'::jsonb END
-WHERE "license_front_url" IS NOT NULL OR "license_back_url" IS NOT NULL;
+  WHERE "license_front_url" IS NOT NULL OR "license_back_url" IS NOT NULL;
 
--- Only riders whose active role is rider at migration time predate
--- verification and are grandfathered as approved. rider_profiles rows that
--- belong to other roles (customers who unlocked rider, or stray rows from
--- the old /auth/role) keep the column default 'not_submitted'.
-UPDATE public.rider_profiles rp
-   SET verification_status = 'approved'
-  FROM public.users u
- WHERE u.id = rp.user_id AND u.role = 'rider';
+  -- Only riders whose active role is rider at migration time predate
+  -- verification and are grandfathered as approved. rider_profiles rows that
+  -- belong to other roles (customers who unlocked rider, or stray rows from
+  -- the old /auth/role) keep the column default 'not_submitted'.
+  UPDATE public.rider_profiles rp
+     SET verification_status = 'approved'
+    FROM public.users u
+   WHERE u.id = rp.user_id AND u.role = 'rider';
+END IF;
+END $$;
 
 -- A new (unverified) rider starts offline; going online is gated server-side.
 ALTER TABLE "rider_profiles" ALTER COLUMN "is_available" SET DEFAULT false;
@@ -50,6 +61,10 @@ ALTER TABLE "rider_profiles" ALTER COLUMN "is_available" SET DEFAULT false;
 -- go through blink-server with the service role). Without this, a rider
 -- could PATCH is_available / verification_status / documents via PostgREST.
 REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public.rider_profiles FROM anon, authenticated;
+
+-- Owners keep SELECT via rider_profiles_select_own (00001_initial_schema.sql);
+-- the owner UPDATE policy goes away with the write privileges.
+DROP POLICY IF EXISTS rider_profiles_update_own ON public.rider_profiles;
 
 -- Defence in depth, as for the sibling guards in
 -- 20261010100000_verification_columns_lockdown.sql: even if a broad grant
@@ -86,7 +101,9 @@ CREATE TRIGGER trg_rider_profiles_guard_privileged
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 VALUES ('rider-documents', 'rider-documents', false, 8388608,
         ARRAY['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
-ON CONFLICT (id) DO UPDATE SET public = false;
+ON CONFLICT (id) DO UPDATE SET public = false,
+  file_size_limit = EXCLUDED.file_size_limit,
+  allowed_mime_types = EXCLUDED.allowed_mime_types;
 
 -- A rider may read objects in their own folder (<uid>/...); no client writes.
 DROP POLICY IF EXISTS "rider_documents_select_own" ON storage.objects;
