@@ -79,13 +79,18 @@
           },
           "user": {
             "$ref": "#/components/schemas/NullableUser"
+          },
+          "link_provider": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "access_token",
           "refresh_token",
           "is_new_user",
-          "user"
+          "user",
+          "link_provider"
         ]
       },
       "NullableUser": {
@@ -290,6 +295,18 @@
         },
         "required": [
           "available"
+        ]
+      },
+      "LinkPhoneBody": {
+        "type": "object",
+        "properties": {
+          "phone_token": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "phone_token"
         ]
       },
       "SocialSyncBody": {
@@ -12790,6 +12807,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Supabase unreachable — safe to retry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
           }
         }
       }
@@ -12917,6 +12944,92 @@
           },
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Supabase unreachable — safe to retry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/phone/link": {
+      "post": {
+        "operationId": "linkPhone",
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkPhoneBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthMessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The number is saved on a different account (code: phone_owner_mismatch)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The phone session belongs to a real account, not an empty OTP login",
             "content": {
               "application/json": {
                 "schema": {

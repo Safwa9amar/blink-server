@@ -114,3 +114,8 @@ export async function isEmailTaken(email: string, exceptUserId: string): Promise
   if (error) throw error;
   return data.length > 0;
 }
+
+/** auth.users stores phones without the "+"; public.users keeps E.164. */
+export function e164(authPhone: string): string {
+  return authPhone.startsWith("+") ? authPhone : `+${authPhone}`;
+}

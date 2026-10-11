@@ -102,6 +102,11 @@ export const registerPhoneSchema = z
   })
   .openapi("RegisterPhoneBody");
 
+/** POST /auth/phone/link — the access token from POST /auth/otp/verify, as proof of the number. */
+export const linkPhoneSchema = z
+  .object({ phone_token: z.string().min(1) })
+  .openapi("LinkPhoneBody");
+
 /** GET /auth/email-available — the address typed on the sign-up details form. */
 export const emailAvailableQuerySchema = z.object({
   email: z.string().trim().email().openapi({ description: "Email to check" }),
@@ -216,6 +221,11 @@ export const VerifyOtpResponse = z
     refresh_token: z.string(),
     is_new_user: z.boolean(),
     user: NullableUser,
+    // Set when the number is saved, unverified, on an account that signs in
+    // another way ("google", "apple", …). Then the tokens are only proof of the
+    // number: sign in with that provider and send the access token to
+    // POST /auth/phone/link, after which OTP logins open that account directly.
+    link_provider: z.string().nullable(),
   })
   .openapi("VerifyOtpResponse");
 
