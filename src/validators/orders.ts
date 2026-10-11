@@ -199,6 +199,13 @@ export const OrderSchema = rowSchema(orders, "OrderRow", {
   courier: CourierDetailsSchema.nullable(),
   ride: RideDetailsSchema.nullable(),
   rider_tags: z.array(z.string()).nullable(),
+  route_path: z
+    .array(z.tuple([z.number(), z.number()]))
+    .nullable()
+    .openapi({
+      description:
+        "Road driven while carrying the order: [lat, lng] pairs, oldest first. Null until picked up.",
+    }),
 })
   .extend({
     items: z.array(OrderLineSchema),

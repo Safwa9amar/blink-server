@@ -26,6 +26,17 @@ const route = createRoute({
   },
 });
 
+// Best-effort: the road driven so far is appended to the orders the rider is
+// carrying; a failure must never fail the ping.
+async function saveRoutePath(riderId: string, path: [number, number][] | undefined) {
+  if (!path?.length) return;
+  const { error } = await supabaseAdmin.rpc("append_rider_route_path", {
+    p_rider: riderId,
+    p_points: path,
+  });
+  if (error) console.warn("[riders/location] route path not saved:", error.message);
+}
+
 app.openapi(route, async (c) => {
   const user = c.get("user");
   const body = c.req.valid("json");
@@ -48,6 +59,7 @@ app.openapi(route, async (c) => {
       .maybeSingle();
     if (onError) return c.json({ error: "Service unavailable, please retry" }, 503);
     if (!on) return c.json(RIDER_NOT_VERIFIED, 403);
+    await saveRoutePath(user.id, body.path);
     return c.json({ success: true }, 200);
   }
 
@@ -58,6 +70,7 @@ app.openapi(route, async (c) => {
   if (error) return c.json({ error: error.message }, 400);
   // Going offline: stores waiting on this rider can pick someone else.
   if (body.is_available === false) await releaseRiderRequests(user.id);
+  await saveRoutePath(user.id, body.path);
   return c.json({ success: true }, 200);
 });
 

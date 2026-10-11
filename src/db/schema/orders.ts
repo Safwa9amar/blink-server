@@ -125,6 +125,10 @@ export const orders = pgTable(
     // wish and when the rider arrived (shape: RideDetails in src/lib/ride.ts).
     // The flat pickup_* / destination_* columns mirror the two points.
     ride: jsonb("ride").$type<RideDetails>(),
+    // Road driven while carrying the order: [lat, lng] pairs, oldest first,
+    // appended from rider location pings (20261011103926_route_path.sql).
+    // Null until picked up.
+    routePath: jsonb("route_path").$type<[number, number][]>(),
     ...timestamps,
   },
   (t) => [

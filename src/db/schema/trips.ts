@@ -3,6 +3,7 @@ import {
   doublePrecision,
   index,
   integer,
+  jsonb,
   numeric,
   pgPolicy,
   pgTable,
@@ -52,6 +53,10 @@ export const trips = pgTable(
     // rider's 1-5 rating of the customer from the trip summary.
     orderId: uuid("order_id").unique(),
     customerRating: smallint("customer_rating"),
+    // Road driven while carrying the order: [lat, lng] pairs, oldest first,
+    // appended from rider location pings (20261011103926_route_path.sql).
+    // Null until picked up.
+    routePath: jsonb("route_path").$type<[number, number][]>(),
     ...timestamps,
   },
   (t) => [

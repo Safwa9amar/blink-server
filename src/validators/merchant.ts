@@ -1173,6 +1173,14 @@ export const riderLocationSchema = z
     latitude: z.number().min(-90).max(90),
     longitude: z.number().min(-180).max(180),
     is_available: z.boolean().optional(),
+    path: z
+      .array(z.tuple([z.number().min(-90).max(90), z.number().min(-180).max(180)]))
+      .max(200)
+      .optional()
+      .openapi({
+        description:
+          "GPS points recorded since the last ping during a trip, [lat, lng], oldest first. Appended to the route of the orders the rider is carrying.",
+      }),
   })
   .openapi("RiderLocationBody");
 

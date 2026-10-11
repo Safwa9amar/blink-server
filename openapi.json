@@ -1651,6 +1651,19 @@
             "minimum": -32768,
             "maximum": 32767
           },
+          "route_path": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "description": "Road driven while carrying the order: [lat, lng] pairs, oldest first. Null until picked up."
+          },
           "created_at": {
             "type": "string"
           },
@@ -1683,6 +1696,7 @@
           "fraud_notice",
           "order_id",
           "customer_rating",
+          "route_path",
           "created_at",
           "updated_at"
         ]
@@ -2763,6 +2777,19 @@
               "arrived_at"
             ]
           },
+          "route_path": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "description": "Road driven while carrying the order: [lat, lng] pairs, oldest first. Null until picked up."
+          },
           "created_at": {
             "type": "string"
           },
@@ -2824,6 +2851,7 @@
           "rider_review",
           "rider_tags",
           "ride",
+          "route_path",
           "created_at",
           "updated_at"
         ]
@@ -10432,6 +10460,30 @@
           },
           "is_available": {
             "type": "boolean"
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "maxItems": 200,
+            "description": "GPS points recorded since the last ping during a trip, [lat, lng], oldest first. Appended to the route of the orders the rider is carrying."
           }
         },
         "required": [

@@ -18,7 +18,15 @@ export const TripCustomerSchema = z
   })
   .openapi("TripCustomer");
 
-export const TripSchema = rowSchema(trips, "TripRow")
+export const TripSchema = rowSchema(trips, "TripRow", {
+  route_path: z
+    .array(z.tuple([z.number(), z.number()]))
+    .nullable()
+    .openapi({
+      description:
+        "Road driven while carrying the order: [lat, lng] pairs, oldest first. Null until picked up.",
+    }),
+})
   .extend({
     customer: TripCustomerSchema.nullable().optional(),
     // For the trip's customer only (omitted otherwise).
