@@ -26,6 +26,16 @@ export const RiderProfileResponse = z
   .object({ profile: RiderProfileSchema })
   .openapi("RiderProfileResponse");
 
+/** GET /riders/profile: the profile plus the rider's own customer rating. */
+export const RiderProfileDetailResponse = z
+  .object({
+    profile: RiderProfileSchema,
+    /** Average of `orders.rider_rating` (customers rating this rider), 1 decimal; null until rated. */
+    rating: z.number().nullable(),
+    ratings_count: z.number().int(),
+  })
+  .openapi("RiderProfileDetailResponse");
+
 export const VehicleResponse = z
   .object({ vehicle: VehicleSchema })
   .openapi("VehicleResponse");

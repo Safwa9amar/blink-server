@@ -10294,6 +10294,26 @@
           "status"
         ]
       },
+      "RiderProfileDetailResponse": {
+        "type": "object",
+        "properties": {
+          "profile": {
+            "$ref": "#/components/schemas/RiderProfile"
+          },
+          "rating": {
+            "type": "number",
+            "nullable": true
+          },
+          "ratings_count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "profile",
+          "rating",
+          "ratings_count"
+        ]
+      },
       "RiderProfileResponse": {
         "type": "object",
         "properties": {
@@ -21548,7 +21568,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RiderProfileResponse"
+                  "$ref": "#/components/schemas/RiderProfileDetailResponse"
                 }
               }
             }
