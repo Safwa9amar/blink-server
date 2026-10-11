@@ -3,10 +3,20 @@ import { z } from "zod";
 
 config();
 
+// Supabase keys go into request headers. A key pasted into a hosting dashboard
+// together with the lines under it (Render primary, 2026-10-11) made every
+// header invalid, and the error echoed the whole value, other secrets included.
+// Keys never contain whitespace, so keep only the first token.
+const supabaseKey = z
+  .string()
+  .trim()
+  .min(1)
+  .transform((v) => v.split(/\s+/)[0]);
+
 const envSchema = z.object({
   SUPABASE_URL: z.string().url(),
-  SUPABASE_ANON_KEY: z.string().min(1),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  SUPABASE_ANON_KEY: supabaseKey,
+  SUPABASE_SERVICE_ROLE_KEY: supabaseKey,
   JWT_SECRET: z.string().min(32),
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
