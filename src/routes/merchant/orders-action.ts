@@ -9,6 +9,7 @@ import {
 } from "../../validators/merchant";
 import { SHOPPER_HANDOVER_PATCH, shopperHandoverCopy } from "./orders-shared";
 import { orderRef, ownedStore } from "./shared";
+import { pushNewOffer } from "../../lib/offer-push";
 
 const app = router();
 
@@ -176,6 +177,9 @@ app.openapi(route, async (c) => {
   const { data, error } = await write.select().maybeSingle();
   if (error) return c.json({ error: error.message }, 400);
   if (!data) return c.json({ error: "Order changed, refresh and try again" }, 400);
+
+  // Accepting (or handing over to a shopper) puts a Blink order in the pool.
+  if (action === "accept" || (action === "reject" && reason === "too_busy")) void pushNewOffer(id);
 
   // Keep the customer in the loop.
   if (action === "accept") {

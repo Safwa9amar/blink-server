@@ -106,6 +106,10 @@ async function pushToUser(
 ): Promise<void> {
   const href =
     hrefOverride ?? (role ? detailHref(role, notif.type, notif.id) : null);
+  // A merchant notification about one store's product / pack names the store:
+  // the app makes it current before opening the href (those screens resolve
+  // ids against the current store).
+  const storeId = notif.payload?.store_id;
   const tokens = await tokensForUser(userId);
   await sendPushToTokens(tokens, {
     title: notif.title,
@@ -113,6 +117,7 @@ async function pushToUser(
     data: {
       type: notif.type,
       ...(href ? { href } : {}),
+      ...(typeof storeId === "string" && storeId ? { store_id: storeId } : {}),
       notificationId: notif.id,
     },
   });

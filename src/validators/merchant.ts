@@ -77,9 +77,42 @@ export const updateMerchantStoreSchema = z
   })
   .openapi("UpdateMerchantStoreBody");
 
-export const MerchantStoreSchema = StoreSchema.extend({
+const storeDocStateSchema = z
+  .object({
+    status: z.enum(["missing", "pending", "verified", "rejected"]).openapi({
+      description:
+        "missing: not provided; pending: provided but Blink hasn't verified it in its current form (a new upload / edit is pending again); verified / rejected: Blink's verdict on the current value",
+    }),
+    reason: z.string().nullable().openapi({ description: "Why Blink rejected it (rejected only)" }),
+  })
+  .openapi("StoreDocumentState");
+
+/** Computed from stores.documents + stores.document_review (src/lib/store-documents.ts). */
+export const StoreDocumentsStatusSchema = z
+  .object({
+    commercial_register_front: storeDocStateSchema,
+    commercial_register_back: storeDocStateSchema,
+    nif: storeDocStateSchema,
+    nis: storeDocStateSchema,
+    all_verified: z.boolean().openapi({ description: "Every required document is verified in its current form" }),
+  })
+  .openapi("StoreDocumentsStatus");
+
+// The raw `document_review` (it carries staff ids) never reaches the merchant:
+// they get `documents_status` (routes/merchant/shared.ts normalizeStore).
+// Inlined (`z.object`, not an allOf on Store): hours / documents replace Store's
+// loose jsonb columns, and an allOf would intersect the two (dropping hours' null).
+export const MerchantStoreSchema = z.object(StoreSchema.shape).extend({
   hours: weekHoursSchema.nullable(),
   documents: documentsSchema,
+  documents_status: StoreDocumentsStatusSchema.openapi({
+    description:
+      "Blink's verification of each required document. A document only counts as verified once Blink staff verified it — an uploaded file alone is `pending`",
+  }),
+  review_note: z.string().nullable().openapi({
+    description:
+      "Why staff rejected / deactivated the store. Set on an inactive store = fix it, then POST /merchant/stores/{id}/resubmit; kept while it is back in review (the earlier reason); cleared on approval. Null on an inactive store = taken offline for another reason (can't be resubmitted)",
+  }),
   total_sales: z.number(),
   orders_count: z.number().int(),
 }).openapi("MerchantStore");
@@ -110,6 +143,9 @@ export const createMerchantProductSchema = z
   .object({
     ...productFields,
     title: productFields.title.optional(),
+    price: productFields.price.openapi({
+      description: "Required (> 0) for every new product, library ones included (400 price_invalid otherwise)",
+    }),
     /** Add from the Blink Library — copies its name/brand/barcode/photos. */
     library_product_id: z.string().uuid().optional(),
   })
@@ -123,6 +159,10 @@ export const updateMerchantProductSchema = z
   .object({
     ...productFields,
     title: productFields.title.optional(),
+    price: productFields.price.openapi({
+      description:
+        "Never written directly: a price different from the current one is handled like suggested_price; an unchanged one is ignored",
+    }),
     /** Propose a new selling price; auto-accepted within ±20% of blink_price. */
     suggested_price: z.number().positive().optional(),
   })
@@ -194,6 +234,46 @@ export const PackSchema = rowSchema(storePacks, "PackRow")
   .openapi("Pack");
 export const PackListResponse = z.object({ packs: z.array(PackSchema) }).openapi("PackListResponse");
 export const PackResponse = z.object({ pack: PackSchema }).openapi("PackResponse");
+
+export const PackSuggestionSchema = z
+  .object({
+    /** Stable for the same idea (kind + products). */
+    id: z.string(),
+    kind: z.enum(["bought_together", "top_sellers", "category_multibuy", "starter"]).openapi({
+      description: "The app localizes the idea's title/description from this",
+    }),
+    product_ids: z.array(z.string()),
+    items: z.array(
+      z
+        .object({
+          product_id: z.string(),
+          name: z.string(),
+          image: z.string().nullable(),
+          unit_price: z.number(),
+          quantity: z.number().int(),
+          qty_promo_enabled: z.boolean(),
+          buy_qty: z.number().int(),
+          get_qty: z.number().int(),
+        })
+        .openapi("PackSuggestionItem")
+    ),
+    discount_percent: z.number().int(),
+    /** Σ unit_price × quantity. */
+    original_price: z.number(),
+    /** What one pack would cost. */
+    price: z.number(),
+    params: z
+      .object({
+        category: z.string().optional(),
+        /** Delivered orders (last 60 days) behind the idea. */
+        orders_count: z.number().int().optional(),
+      })
+      .openapi("PackSuggestionParams"),
+  })
+  .openapi("PackSuggestion");
+export const PackSuggestionsResponse = z
+  .object({ suggestions: z.array(PackSuggestionSchema) })
+  .openapi("PackSuggestionsResponse");
 
 // ─── Orders ──────────────────────────────────────────────────────────
 
@@ -642,22 +722,282 @@ export const MerchantUploadResponse = z
 
 // ─── Staff review (admin-merchant tag; excluded from the app client) ─
 
+/** An ISO timestamp as read from the row (any offset / sub-second precision). */
+const isoTimestamp = z
+  .string()
+  .refine((v) => !Number.isNaN(Date.parse(v)), { message: "must be an ISO timestamp" });
+
 export const reviewStoreSchema = z
-  .object({ status: z.enum(["active", "inactive", "under_review"]) })
+  .object({
+    status: z.enum(["active", "inactive"]).openapi({
+      description:
+        "active: approve a store in review, or re-approve one staff rejected / deactivated (opens it on its opening hours — clears the merchant's manual open/closed override — clears its note, and verifies every document it has at that moment, i.e. what the reviewer saw at expected_updated_at; already active → 200, nothing changes); refused with 409 code owner_leaving while the owner has an account deletion request pending or completed. inactive: reject a store in review or deactivate a live one (note required; closes it; allowed even while the owner is leaving). Otherwise 409 code invalid_state",
+    }),
+    /** Why — stored as the store's review_note when it is turned off, shown to the merchant. */
+    note: z.string().trim().max(300).optional().openapi({ description: "Required for inactive" }),
+    expected_updated_at: isoTimestamp.optional().openapi({
+      description: "The store's updated_at the reviewer saw: another instant → 409 code stale",
+    }),
+  })
   .openapi("ReviewStoreBody");
+
+/** `code` of a refused store review / resubmit (src/lib/store-review.ts). */
+export const STORE_REVIEW_ERROR_CODES = ["note_required", "stale", "invalid_state", "owner_leaving"] as const;
+
+/**
+ * 400 / 409 of the store review (staff) and resubmit (merchant). `code`:
+ * - note_required (400): a rejection / deactivation needs a note;
+ * - stale (409): the store changed since it was read / since the reviewer saw it — reload;
+ * - invalid_state (409): the store can't take that decision in its current status;
+ * - owner_leaving (409): the owner has an account deletion request pending or
+ *   completed — no approval / resubmit (rejecting / deactivating stays allowed).
+ * A request-validation 400 carries `details` and no `code`.
+ */
+export const StoreReviewError = z
+  .object({
+    error: z.string(),
+    code: z.enum(STORE_REVIEW_ERROR_CODES).optional(),
+    details: z.array(z.object({ path: z.string(), message: z.string() })).optional(),
+  })
+  .openapi("StoreReviewError");
+
+/** A store as staff see it after a decision: the row + the computed document states. */
+export const AdminReviewedStoreSchema = StoreSchema.extend({
+  // Staff only (left out of the public Store): the raw per-document verdicts, with reviewer ids.
+  document_review: z.record(z.string(), z.unknown()).optional().openapi({
+    description: "stores.document_review — staff's verdict per document (src/lib/store-documents.ts)",
+  }),
+  documents_status: StoreDocumentsStatusSchema,
+}).openapi("AdminReviewedStore");
+
+export const reviewStoreDocumentSchema = z
+  .object({
+    document: z.enum(["commercial_register_front", "commercial_register_back", "nif", "nis"]),
+    status: z.enum(["verified", "rejected"]).openapi({
+      description:
+        "Blink's verdict on the document's current value (the scan URL / the NIF or NIS number). It stops counting once the merchant replaces that value (the document is pending again). The same verdict (and reason) on the same value → 200, nothing changes",
+    }),
+    reason: z.string().trim().max(300).optional().openapi({ description: "Required to reject; shown to the merchant" }),
+    expected_value: z.string().optional().openapi({
+      description:
+        "The document value the reviewer looked at (stores.documents: commercial_register_front_url / commercial_register_back_url / nif / nis): another current value → 409 code stale",
+    }),
+  })
+  .openapi("ReviewStoreDocumentBody");
+
+/**
+ * 400 / 409 of PATCH /merchant/admin/stores/{id}/documents. `code`:
+ * - note_required (400): a rejection needs a reason;
+ * - document_missing (400): the store hasn't provided that document;
+ * - stale (409): the document (expected_value) or the store changed since the reviewer saw it — reload.
+ * A request-validation 400 carries `details` and no `code`.
+ */
+export const StoreDocumentReviewError = z
+  .object({
+    error: z.string(),
+    code: z.enum(["note_required", "document_missing", "stale"]).optional(),
+    details: z.array(z.object({ path: z.string(), message: z.string() })).optional(),
+  })
+  .openapi("StoreDocumentReviewError");
 
 export const reviewProductSchema = z
   .object({
-    review_status: z.enum(["approved", "pending", "rejected"]).optional(),
-    suggestion_status: z.enum(["accepted", "rejected"]).optional(),
+    review_status: z.enum(["approved", "pending", "rejected"]).optional().openapi({
+      description:
+        "approved: from pending / rejected; rejected: from pending / approved (note required). Anything else changes nothing (200, no notification)",
+    }),
+    suggestion_status: z.enum(["accepted", "rejected"]).optional().openapi({
+      description:
+        "accepted: a pending or declined suggestion becomes the live price; rejected: a pending one only (note required). Otherwise 409",
+    }),
+    /** Why — stored as the product's review_note on a rejection, shown to the merchant. */
+    note: z.string().trim().max(300).optional().openapi({ description: "Required to reject a product or a price" }),
+    expected_suggested_price: z.number().optional().openapi({
+      description:
+        "The suggested price the reviewer saw. Checked on suggestion decisions: a different (or no) suggestion now → 409 code stale",
+    }),
+    expected_updated_at: isoTimestamp.optional().openapi({
+      description:
+        "The product's updated_at the reviewer saw. Checked on review_status decisions only (stock sales bump it): another instant → 409 code stale",
+    }),
   })
   .openapi("ReviewProductBody");
+
+export const reviewPackSchema = z
+  .object({
+    status: z.enum(["active", "inactive"]).openapi({
+      description:
+        "active: approve a pack in review; inactive: reject one in review or deactivate a live one (note required). Otherwise 409 code invalid_state",
+    }),
+    /** Why — stored as the pack's review_note when it is turned off, shown to the merchant. */
+    note: z.string().trim().max(300).optional().openapi({ description: "Required for inactive" }),
+    expected_updated_at: isoTimestamp.optional().openapi({
+      description: "The pack's updated_at the reviewer saw: another instant → 409 code stale",
+    }),
+  })
+  .openapi("ReviewPackBody");
+
+/** `code` of a refused catalog write (merchant edits + staff review). */
+export const CATALOG_ERROR_CODES = [
+  "price_invalid",
+  "note_required",
+  "stale",
+  "not_pending",
+  "no_suggestion",
+  "invalid_state",
+] as const;
+
+/**
+ * 400 / 409 of the catalog writes. `code`:
+ * - price_invalid (400): the price must be > 0;
+ * - note_required (400): a rejection / deactivation needs a note;
+ * - stale (409): the row changed since it was read / since the reviewer saw it — reload;
+ * - not_pending (409): the price suggestion isn't waiting for that decision;
+ * - no_suggestion (409): there is no suggested price to accept;
+ * - invalid_state (409): the pack can't take that decision in its current status.
+ * A request-validation 400 carries `details` and no `code`.
+ */
+export const CatalogError = z
+  .object({
+    error: z.string(),
+    code: z.enum(CATALOG_ERROR_CODES).optional(),
+    details: z.array(z.object({ path: z.string(), message: z.string() })).optional(),
+  })
+  .openapi("CatalogError");
+
+/**
+ * 409 / 429 of POST /merchant/admin/dues/{store_id}/remind. `code`:
+ * nothing_outstanding (409) — the store owes nothing; recently_reminded (429) —
+ * its owner was already reminded in the last 24 h.
+ */
+export const DuesReminderError = z
+  .object({ error: z.string(), code: z.enum(["nothing_outstanding", "recently_reminded"]) })
+  .openapi("DuesReminderError");
+
+export const AdminMerchantDuesResponse = z
+  .object({
+    /** One row per merchant store, most outstanding first. */
+    dues: z.array(
+      z
+        .object({
+          store_id: z.string(),
+          store_name: z.string(),
+          merchant_id: z.string(),
+          merchant_name: z.string().nullable(),
+          merchant_phone: z.string().nullable(),
+          /** Commission on the store's lifetime delivered sales. */
+          commission_total: z.number(),
+          /** Completed payments counted against the store (incl. its share of all-stores payments). */
+          paid_total: z.number(),
+          outstanding: z.number(),
+          last_payment_at: z.string().nullable(),
+        })
+        .openapi("AdminStoreDues")
+    ),
+    /** Latest 100 dues payments, newest first. */
+    payments: z.array(
+      z
+        .object({
+          id: z.string(),
+          store_id: z.string().nullable(),
+          store_name: z.string().nullable(),
+          merchant_id: z.string(),
+          merchant_name: z.string().nullable(),
+          amount: z.number(),
+          fees: z.number(),
+          method: z.string(),
+          status: z.string(),
+          created_at: z.string(),
+        })
+        .openapi("AdminDuesPayment")
+    ),
+  })
+  .openapi("AdminMerchantDuesResponse");
+
+export const StoreIdParam = z.object({
+  store_id: z.string().uuid().openapi({ param: { name: "store_id", in: "path" } }),
+});
+
+export const RemindDuesResponse = z.object({ ok: z.literal(true) }).openapi("RemindDuesResponse");
 
 // ─── Customer: rate a delivered order's store ────────────────────────
 
 export const rateOrderSchema = z
   .object({ rating: z.number().int().min(1).max(5), review: z.string().max(1000).optional() })
   .openapi("RateOrderBody");
+
+// ─── Required actions (what the merchant must / should fix) ─────────
+
+export const requiredActionsQuerySchema = z.object({
+  store_id: z.string().uuid().optional().openapi({ description: "Only this store (default: every owned store)" }),
+});
+
+export const MerchantRequiredActionSchema = z
+  .object({
+    /** Stable: `<kind>` or `<kind>:<store_id>`. */
+    id: z.string(),
+    kind: z.enum([
+      "store_under_review",
+      "store_rejected",
+      "store_documents_missing",
+      "store_documents_rejected",
+      "store_documents_pending",
+      "hours_not_set",
+      "no_products",
+      "products_rejected",
+      "price_suggestions_rejected",
+      "packs_rejected",
+      "pin_not_set",
+      "dues_outstanding",
+    ]),
+    severity: z.enum(["blocking", "warning", "info"]),
+    status: z.enum(["todo", "in_review", "rejected"]),
+    params: z
+      .object({
+        store_name: z.string().optional(),
+        /** store_documents_missing: commercial_register_front_url | commercial_register_back_url | nif | nis. */
+        missing: z.array(z.string()).optional(),
+        documents: z
+          .union([
+            z.array(
+              z
+                .object({
+                  key: z.enum(["commercial_register_front", "commercial_register_back", "nif", "nis"]),
+                  reason: z.string().nullable(),
+                })
+                .openapi("MerchantRejectedDocument")
+            ),
+            z.array(z.enum(["commercial_register_front", "commercial_register_back", "nif", "nis"])),
+          ])
+          .optional()
+          .openapi({
+            description:
+              "store_documents_rejected: [{ key, reason }] — the documents Blink rejected, with why (upload / correct them); store_documents_pending: [key] — documents Blink is still checking. Keys: commercial_register_front | commercial_register_back | nif | nis",
+          }),
+        count: z.number().int().optional(),
+        /**
+         * The latest staff note (products / prices / packs rejected), the store's
+         * rejection reason (store_rejected), or the earlier reason of a resubmitted
+         * store (store_under_review).
+         */
+        note: z.string().nullable().optional(),
+        /** dues_outstanding: Da owed. */
+        amount: z.number().optional(),
+      })
+      .openapi("MerchantRequiredActionParams"),
+    /** Set on store-scoped actions. */
+    store_id: z.string().optional(),
+  })
+  .openapi("MerchantRequiredAction");
+
+export const MerchantRequiredActionsResponse = z
+  .object({
+    /** Blocking first, then warnings, then info. */
+    actions: z.array(MerchantRequiredActionSchema),
+    total: z.number().int(),
+    blocking: z.number().int(),
+  })
+  .openapi("MerchantRequiredActionsResponse");
 
 // ─── Strategy ────────────────────────────────────────────────────────
 

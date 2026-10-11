@@ -1,6 +1,8 @@
+import { merchantWritableFields, newProductPriceError } from "../../lib/product-review";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
 import {
+  CatalogError,
   createMerchantProductSchema,
   MerchantProductResponse,
 } from "../../validators/merchant";
@@ -9,7 +11,9 @@ import { ownedStore } from "./shared";
 const app = router();
 
 // ─── Merchant: add a product (from the Blink Library or manual) ──────
-// Library products go live immediately; manual ones wait for staff review.
+// Library products go live immediately with the library's content (the
+// merchant only sets price, stock, availability and store category); manual
+// ones wait for staff review.
 const route = createRoute({
   method: "post",
   path: "/stores/{id}/products",
@@ -22,7 +26,7 @@ const route = createRoute({
   },
   responses: {
     201: json(MerchantProductResponse, "Created"),
-    400: errorResponses[400],
+    400: json(CatalogError, "Bad request (code price_invalid: the price must be > 0)"),
     401: errorResponses[401],
     403: errorResponses[403],
     404: errorResponses[404],
@@ -34,6 +38,10 @@ app.openapi(route, async (c) => {
   const { id: storeId } = c.req.valid("param");
   const body = c.req.valid("json");
   if (!(await ownedStore(user.id, storeId))) return c.json({ error: "Store not found" }, 404);
+  // Every new product needs a price > 0: a manual one's becomes its Blink
+  // reference price, and a library one is approved (live) at once.
+  const priceError = newProductPriceError(!!body.library_product_id, body.price);
+  if (priceError) return c.json({ error: priceError, code: "price_invalid" as const }, 400);
 
   let base: Record<string, unknown> = {};
   if (body.library_product_id) {
@@ -68,10 +76,12 @@ app.openapi(route, async (c) => {
     base = { review_status: "pending" };
   }
 
-  const { library_product_id: _lib, ...fields } = body;
-  const row = { ...base, ...Object.fromEntries(Object.entries(fields).filter(([, v]) => v !== undefined)) } as Record<string, any>;
+  // A library product keeps the library's title / photos / description /
+  // brand / barcode / unit: it is approved because that content is Blink's.
+  const { library_product_id: _lib, price: _price, ...fields } = body;
+  const row = { ...base, ...merchantWritableFields(!!body.library_product_id, fields) } as Record<string, any>;
   const photos: string[] = row.photos ?? [];
-  const price = row.price ?? 0;
+  const price = body.price as number; // > 0, checked above
 
   const { data, error } = await supabaseAdmin
     .from("store_products")

@@ -5,11 +5,14 @@ import { priceCourierCoupon } from "../courier/shared";
 import { createNotification } from "../../lib/notifications";
 import { withoutOffer } from "../../lib/rider-offer";
 import { storeOpenState } from "../../lib/store-categories";
+import { packStockUsage, priceStoreOrder, type CustomerPack, type PricedOrderLine } from "../../lib/pack-pricing";
+import { loadVisiblePacks } from "../../lib/store-packs";
 import { LOW_STOCK } from "../merchant/strategy-shared";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
-import { createOrderSchema, OrderResponse } from "../../validators/orders";
+import { createOrderSchema, OrderResponse, PackChangedError } from "../../validators/orders";
+import { pushNewOffer } from "../../lib/offer-push";
 
 const app = router();
 
@@ -26,6 +29,7 @@ const route = createRoute({
     201: json(OrderResponse, "Created"),
     400: errorResponses[400],
     403: errorResponses[403],
+    409: json(PackChangedError, "A pack line's pack changed or is gone (code pack_changed): refetch the store's packs"),
   },
 });
 
@@ -44,10 +48,11 @@ app.openapi(route, async (c) => {
   // schedule, or the merchant's manual override. The app matches the
   // "Store closed" / "Store unavailable" prefixes.
   let storeOwnerId: string | null = null;
+  let storeDeliveryFee: number | null = null;
   if (body.store_id) {
     const { data: store } = await supabaseAdmin
       .from("stores")
-      .select("name, owner_id, status, is_open, hours, manual_override")
+      .select("name, owner_id, status, is_open, hours, manual_override, delivery_fee")
       .eq("id", body.store_id)
       .maybeSingle();
     if (!store || store.status !== "active") {
@@ -57,6 +62,7 @@ app.openapi(route, async (c) => {
       return c.json({ error: `Store closed: ${store.name} is closed right now` }, 400);
     }
     storeOwnerId = store.owner_id;
+    storeDeliveryFee = Number(store.delivery_fee ?? 0);
   }
 
   // Courier requests from older apps (new ones use POST /courier/requests):
@@ -82,8 +88,46 @@ app.openapi(route, async (c) => {
     serviceFee = 0;
   }
 
-  // A coupon code is priced here, never trusted from the client.
-  let discount = body.type === "courier" ? 0 : body.discount;
+  // Store orders: pack lines are priced here from live product prices (409
+  // pack_changed when the pack is gone or its price moved), the subtotal is
+  // summed from the lines and the delivery fee is the store's. When every line
+  // is a free-delivery pack the customer doesn't pay it: `deliveryWaived` is
+  // taken off as a discount the merchant funds (earnings subtract discounts),
+  // while `delivery_fee` stays the rider's fare (src/lib/pack-pricing.ts).
+  // Product lines still keep the client's price. Other orders can't carry packs.
+  let items: PricedOrderLine[] = body.items.map(({ pack_id: _packId, ...line }) => line);
+  let deliveryWaived = 0;
+  let packStock = new Map<string, number>();
+  if (body.type === "merchant" && body.store_id && storeDeliveryFee != null) {
+    const packIds = [...new Set(body.items.flatMap((i) => (i.pack_id ? [i.pack_id] : [])))];
+    let packs: CustomerPack[];
+    try {
+      packs = await loadVisiblePacks(body.store_id, packIds);
+    } catch (e) {
+      return c.json({ error: (e as Error).message }, 400);
+    }
+    const priced = priceStoreOrder(body.items, packs, storeDeliveryFee);
+    if (!priced.ok) {
+      return c.json(
+        {
+          error: "Pack changed: a pack in this order changed or is no longer available",
+          code: "pack_changed" as const,
+          pack_id: priced.pack_id,
+        },
+        409
+      );
+    }
+    items = priced.items;
+    subtotal = priced.subtotal;
+    deliveryFee = priced.delivery_fee;
+    deliveryWaived = priced.delivery_waived;
+    packStock = packStockUsage(priced.items, packs);
+  }
+
+  // A coupon code is priced here, never trusted from the client. A store
+  // order's discount only ever comes from its coupon (the app sends none
+  // without one), so a client can't cancel the server's fees with `discount`.
+  let discount = body.type === "courier" || body.type === "merchant" ? 0 : body.discount;
   let couponId: string | null = null;
   if (body.coupon_code && body.type === "courier") {
     const priced = await priceCourierCoupon(user.id, body.coupon_code, deliveryFee);
@@ -93,14 +137,19 @@ app.openapi(route, async (c) => {
     discount = priced.discount;
     couponId = priced.coupon.id;
   } else if (body.coupon_code) {
-    const priced = await priceCoupon(user.id, body.coupon_code, body.subtotal, body.delivery_fee);
+    // Priced on the delivery the customer actually pays, so a free-delivery
+    // coupon can't take a waived fee off twice.
+    const priced = await priceCoupon(user.id, body.coupon_code, subtotal, deliveryFee - deliveryWaived);
     if (!priced.ok) {
       return c.json({ error: `Coupon not applicable: ${priced.reason}` }, 400);
     }
     discount = priced.discount;
-    couponId = priced.coupon.id;
+    // A coupon that takes nothing off (e.g. free delivery on a store order of
+    // free-delivery packs, which already ships free) isn't used up.
+    couponId = priced.discount > 0 ? priced.coupon.id : null;
   }
 
+  discount += deliveryWaived;
   const total = Math.max(0, subtotal + deliveryFee + serviceFee - discount);
 
   const { data, error } = await supabaseAdmin
@@ -111,7 +160,7 @@ app.openapi(route, async (c) => {
       store_logo: body.store_logo ?? null,
       type: body.type,
       status: body.type === "courier" ? "searching" : "processing",
-      items: body.items,
+      items,
       subtotal,
       delivery_fee: deliveryFee,
       service_fee: serviceFee,
@@ -147,9 +196,11 @@ app.openapi(route, async (c) => {
   }
 
   // Decrement stock for the store's products in this order; alert the
-  // merchant when an item runs low.
+  // merchant when an item runs low. Product lines match by title; a pack line
+  // (named after the pack, never matched by title) takes its contents'
+  // charged + free units, by product id.
   if (body.store_id) {
-    await decrementStock(body.store_id, body.items).catch(() => null);
+    await decrementStock(body.store_id, items.filter((i) => !i.pack_id), packStock).catch(() => null);
   }
 
   // Tell the store's merchant a new order is waiting for them.
@@ -169,20 +220,35 @@ app.openapi(route, async (c) => {
     }).catch(() => null);
   }
 
+  // A courier order is in the pool from the start (store orders wait for the store).
+  if (data.status === "searching") void pushNewOffer(data.id);
   return c.json({ order: withoutOffer(data) }, 201);
 });
 
 export default app;
 
-async function decrementStock(storeId: string, items: { name: string; quantity: number }[]) {
+async function decrementStock(
+  storeId: string,
+  items: { name: string; quantity: number }[],
+  packUsage: Map<string, number> = new Map()
+) {
   const names = [...new Set(items.map((i) => i.name))];
-  const { data: products } = await supabaseAdmin
-    .from("store_products")
-    .select("id, title, stock, store:stores(owner_id, name)")
-    .eq("store_id", storeId)
-    .in("title", names);
-  for (const p of (products ?? []) as any[]) {
-    const qty = items.filter((i) => i.name === p.title).reduce((t, i) => t + i.quantity, 0);
+  const ids = [...packUsage.keys()];
+  const find = (column: "title" | "id", values: string[]) =>
+    values.length
+      ? supabaseAdmin
+          .from("store_products")
+          .select("id, title, stock, store:stores(owner_id, name)")
+          .eq("store_id", storeId)
+          .in(column, values)
+          .then(({ data }) => (data ?? []) as any[])
+      : Promise.resolve([] as any[]);
+  const [byTitle, byId] = await Promise.all([find("title", names), find("id", ids)]);
+  // A product can be both ordered on its own and inside a pack: one update.
+  const products = new Map<string, any>([...byTitle, ...byId].map((p) => [p.id, p]));
+  for (const p of products.values()) {
+    const qty =
+      items.filter((i) => i.name === p.title).reduce((t, i) => t + i.quantity, 0) + (packUsage.get(p.id) ?? 0);
     const stock = Math.max(0, (p.stock ?? 0) - qty);
     await supabaseAdmin.from("store_products").update({ stock }).eq("id", p.id);
     if (p.stock > LOW_STOCK && stock <= LOW_STOCK && p.store?.owner_id) {

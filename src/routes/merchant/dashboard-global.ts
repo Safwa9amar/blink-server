@@ -1,4 +1,3 @@
-import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import {
   dashboardQuerySchema,
@@ -32,15 +31,9 @@ app.openapi(route, async (c) => {
 
   const stores = await ownedStores(user.id);
   const ids = stores.map((s) => s.id);
-  const [orders, { data: packs }] = await Promise.all([
-    storeOrders(ids, range.prevStart, range.end),
-    ids.length
-      ? supabaseAdmin.from("store_packs").select("store_id, name").in("store_id", ids)
-      : Promise.resolve({ data: [] as { store_id: string; name: string }[] }),
-  ]);
+  const orders = await storeOrders(ids, range.prevStart, range.end);
 
   const stats: GlobalStoreStat[] = stores.map((s) => {
-    const packNames = new Set((packs ?? []).filter((p) => p.store_id === s.id).map((p) => p.name));
     const mine = orders.filter((o) => o.store_id === s.id);
     const cur = mine.filter((o) => new Date(o.created_at) >= range.start);
     const prev = mine.filter((o) => new Date(o.created_at) < range.start);
@@ -58,11 +51,12 @@ app.openapi(route, async (c) => {
       rating: rated.length
         ? rated.reduce((t, o) => t + (o.store_rating ?? 0), 0) / rated.length
         : Number(s.rating) || 0,
+      // Pack lines carry a pack_id (their name is the pack's).
       bundle: delivered.reduce(
         (t, o) =>
           t +
           (o.items ?? [])
-            .filter((it) => packNames.has(it.name))
+            .filter((it) => !!it.pack_id)
             .reduce((x, it) => x + it.quantity * it.unit_price, 0),
         0
       ),

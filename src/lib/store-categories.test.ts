@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   menuCategoryFilter,
+  PRIVATE_STORE_FIELDS,
   productSearchFilter,
   storeOpenState,
+  stripPrivateStoreFields,
   toStorefront,
 } from "./store-categories";
 
@@ -127,6 +129,69 @@ describe("toStorefront", () => {
     assert.equal(out.next_open_at, "2026-10-10T08:00:00.000Z");
     assert.deepEqual(out.category_slugs, ["grocery", "supermarket"]);
     assert.equal(out.is_supermarket, true);
+  });
+});
+
+describe("store privacy", () => {
+  // A full stores row as select("*") returns it (the columns customers may see
+  // plus the staff/merchant-only ones).
+  const row = {
+    id: "store-1",
+    owner_id: "merchant-1",
+    name: "Kouba Market",
+    phone: "+213555000000",
+    whatsapp: "+213555000001",
+    email: "kouba@example.com",
+    category_slugs: ["grocery"],
+    is_supermarket: false,
+    is_open: false,
+    manual_override: true,
+    hours: week("09:00", "21:00"),
+    opening_hours: null,
+    status: "active",
+    documents: {
+      commercial_register: "https://cdn.example/rc.jpg",
+      nif: "000016001234567",
+      nis: "000116001234567",
+      additional: ["https://cdn.example/extra.pdf"],
+    },
+    document_review: { nif: { status: "approved", reviewed_by: "staff-7" } },
+    review_note: "Owner called — RC scan blurry, accepted anyway",
+    weekly_goal: 50000,
+  };
+
+  it("lists exactly the four private columns", () => {
+    assert.deepEqual([...PRIVATE_STORE_FIELDS].sort(), [
+      "document_review",
+      "documents",
+      "review_note",
+      "weekly_goal",
+    ]);
+  });
+
+  it("stripPrivateStoreFields drops them and keeps every other column", () => {
+    const out = stripPrivateStoreFields(row);
+    for (const key of PRIVATE_STORE_FIELDS) assert.equal(key in out, false, key);
+    const { documents, document_review, review_note, weekly_goal, ...rest } = row;
+    assert.deepEqual(out, rest);
+    // The input row is left alone.
+    assert.equal(row.weekly_goal, 50000);
+    assert.ok(row.documents.nif);
+  });
+
+  it("toStorefront never returns them, still honours manual_override", () => {
+    const out = toStorefront(row, at("2026-10-10T10:00:00Z"));
+    for (const key of PRIVATE_STORE_FIELDS) assert.equal(key in out, false, key);
+    for (const key of ["id", "owner_id", "name", "phone", "whatsapp", "email", "manual_override", "hours", "status"]) {
+      assert.ok(key in out, key);
+    }
+    // Inside the schedule, but the merchant forced the store closed.
+    assert.equal(out.is_open, false);
+    assert.equal(out.next_open_at, null);
+    assert.equal(out.manual_override, true);
+    assert.equal(out.opening_hours, "09:00 - 21:00");
+    assert.equal(out.is_supermarket, true);
+    assert.equal(JSON.stringify(out).includes("staff-7"), false);
   });
 });
 

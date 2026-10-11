@@ -1,3 +1,4 @@
+import { newPackStatus } from "../../lib/pack-review";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
 import { createPackSchema, PackResponse } from "../../validators/merchant";
@@ -42,7 +43,13 @@ app.openapi(route, async (c) => {
   const { data, error } = await supabaseAdmin
     .from("store_packs")
     // Free delivery is paid by Blink, so those packs wait for staff review.
-    .insert({ ...body, store_id: storeId, status: body.free_delivery ? "under_review" : "active" })
+    .insert({
+      ...body,
+      store_id: storeId,
+      status: newPackStatus(body.free_delivery),
+      reviewed_at: null,
+      review_note: null,
+    })
     .select()
     .single();
 

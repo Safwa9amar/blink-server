@@ -206,23 +206,47 @@ export function storeOpenState(store: StoreLike, now = new Date()): StoreOpenSta
   return { is_open, next_open_at: is_open ? null : nextOpenAt(hours, now) };
 }
 
+// ─── Privacy: staff/merchant-only store columns ──────────────────────
+
+/**
+ * `stores` columns only the merchant and Blink staff may see: the legal
+ * documents (commercial register scans, NIF, NIS…), the per-document staff
+ * verdicts (with reviewer ids), the internal review note and the merchant's
+ * sales goal. Never send them to customers or riders.
+ */
+export const PRIVATE_STORE_FIELDS = [
+  "documents",
+  "document_review",
+  "review_note",
+  "weekly_goal",
+] as const;
+export type PrivateStoreField = (typeof PRIVATE_STORE_FIELDS)[number];
+
+/** A copy of a stores row without PRIVATE_STORE_FIELDS (every other column kept). */
+export function stripPrivateStoreFields<S extends object>(row: S): Omit<S, PrivateStoreField> {
+  const out = { ...row } as Record<string, unknown>;
+  for (const key of PRIVATE_STORE_FIELDS) delete out[key];
+  return out as Omit<S, PrivateStoreField>;
+}
+
 /**
  * Shape a stores row for the customer marketplace: map merchant store types
  * onto marketplace slugs, derive today's `opening_hours` from the weekly
  * schedule, and the live `is_open` / `next_open_at` (see storeOpenState).
+ * Staff/merchant-only columns are dropped (stripPrivateStoreFields).
  */
 export function toStorefront<S extends StoreLike>(
   store: S,
   now = new Date()
-): S & StoreOpenState & { is_supermarket: boolean } {
+): Omit<S, PrivateStoreField> & StoreOpenState & { is_supermarket: boolean } {
   const category_slugs = marketplaceSlugs(store.category_slugs);
-  const out = {
-    ...store,
+  const hours = scheduleOf(store.hours);
+  return {
+    ...stripPrivateStoreFields(store),
     category_slugs,
     is_supermarket: !!store.is_supermarket || category_slugs.includes("supermarket"),
+    // From the full row: the schedule and the merchant's manual override.
     ...storeOpenState(store, now),
+    ...(hours ? { opening_hours: store.opening_hours ?? todayLabel(hours, localNow(now).day) } : {}),
   };
-  const hours = scheduleOf(store.hours);
-  if (hours) out.opening_hours = store.opening_hours ?? todayLabel(hours, localNow(now).day);
-  return out;
 }

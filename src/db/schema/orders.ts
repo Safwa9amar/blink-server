@@ -17,10 +17,22 @@ import { orderStatus, orderType } from "./enums";
 import { timestamps } from "./_shared";
 import { users } from "./users";
 
+/** What one pack contains, snapshotted on a pack line when the order was placed. */
+export interface OrderPackItem {
+  name: string;
+  quantity: number;
+  /** Free units given on top (buy-X-get-Y). */
+  free_qty: number;
+}
+
 export interface OrderItem {
   name: string;
   quantity: number;
   unit_price: number;
+  /** A pack line: the store_packs id (quantity = number of packs, unit_price = pack price). */
+  pack_id?: string;
+  /** Server-written on pack lines (src/lib/pack-pricing.ts priceStoreOrder). */
+  pack_items?: OrderPackItem[];
 }
 
 const money = (name: string) => numeric(name, { precision: 10, scale: 2 }).$type<number>();

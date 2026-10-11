@@ -1,5 +1,6 @@
 // Shared helpers for the merchant endpoints: ownership checks, period ranges,
 // store sales stats and money constants.
+import { withDocumentsStatus } from "../../lib/store-documents";
 import { supabaseAdmin } from "../../lib/supabase";
 
 /** Blink's commission on a store's delivered sales — what the merchant owes as dues. */
@@ -8,8 +9,8 @@ export const COMMISSION_RATE = 0.05;
 export const TAX_STAMP_RATE = 0.01;
 /** Processing fee on outstanding dues. */
 export const DUES_FEE_RATE = 0.002;
-/** A suggested price within ±20% of the Blink reference is auto-accepted. */
-export const PRICE_TOLERANCE = 0.2;
+/** A suggested price within ±20% of the Blink reference is auto-accepted (src/lib/product-review.ts). */
+export { PRICE_TOLERANCE } from "../../lib/product-review";
 
 /** Orders the merchant still has to act on or that are on their way. */
 export const ACTIVE_ORDER_STATUSES = [
@@ -82,14 +83,19 @@ export async function ownedPack(userId: string, packId: string) {
   return pack as Record<string, any>;
 }
 
-/** Stored rows may predate the merchant columns — normalize for the response schema. */
+/**
+ * A store row as the merchant gets it (MerchantStore): stored rows may predate
+ * the merchant columns, and Blink's raw per-document verdicts
+ * (`document_review`, with staff ids) are replaced by the computed
+ * `documents_status` (src/lib/store-documents.ts).
+ */
 export function normalizeStore<T extends Record<string, unknown>>(row: T) {
-  return {
+  return withDocumentsStatus({
     ...row,
     hours: (row.hours as unknown) ?? null,
     documents: (row.documents as unknown) ?? {},
     menu_categories: (row.menu_categories as unknown) ?? [],
-  };
+  });
 }
 
 // ─── Periods ─────────────────────────────────────────────────────────
@@ -149,7 +155,8 @@ export interface StoreOrder {
   subtotal: number;
   discount: number;
   total: number;
-  items: { name: string; quantity: number; unit_price: number }[];
+  /** `pack_id` marks a pack line (its name is the pack's name). */
+  items: { name: string; quantity: number; unit_price: number; pack_id?: string }[];
   store_rating: number | null;
   created_at: string;
 }

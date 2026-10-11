@@ -89,17 +89,21 @@ export async function attachTripCosts<T extends Row>(trips: T[]): Promise<T[]> {
   });
 }
 
-/** Adds `store_info` (description + rating) to store orders. */
+/**
+ * Adds `store_info` (description + rating) to store orders, and fills
+ * `store_logo` with the store's current logo — checkout doesn't snapshot one.
+ */
 export async function attachStoreInfo<T extends Row>(orders: T[]): Promise<T[]> {
   const storeIds = uniq(orders.map((o) => o.store_id));
   if (!storeIds.length) return orders;
-  const { data } = await supabaseAdmin.from("stores").select("id, description, rating").in("id", storeIds);
+  const { data } = await supabaseAdmin.from("stores").select("id, description, rating, logo").in("id", storeIds);
   const byId = new Map((data ?? []).map((s) => [s.id, s]));
   return orders.map((o) => {
     const s = byId.get(o.store_id);
     return s
       ? {
           ...o,
+          store_logo: (typeof s.logo === "string" && s.logo.trim()) || o.store_logo,
           store_info: {
             description: typeof s.description === "string" && s.description.trim() ? s.description.trim() : null,
             rating: s.rating == null ? null : Number(s.rating),

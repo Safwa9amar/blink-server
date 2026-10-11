@@ -28,6 +28,7 @@
     "seed:dev-users": "tsx scripts/seed-dev-users.ts",
     "seed:dev-merchant": "tsx scripts/seed-dev-merchant.ts",
     "seed:dev-agents": "tsx scripts/seed-dev-agents.ts",
+    "seed:dev-riders": "tsx scripts/seed-dev-riders.ts",
     "test:order": "tsx scripts/trigger-test-order.ts",
     "test:ride": "tsx scripts/trigger-test-ride.ts",
     "test:checkout": "tsx scripts/trigger-test-checkout.ts",

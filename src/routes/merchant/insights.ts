@@ -249,10 +249,11 @@ export function buildStoreTabs(
     ),
   };
 
-  // ── Products (by revenue from order items)
+  // ── Products (by revenue from order items; pack lines are Bundles)
   const byProduct = new Map<string, { units: number; revenue: number }>();
   for (const o of dCur) {
     for (const it of o.items ?? []) {
+      if (it.pack_id) continue;
       const p = byProduct.get(it.name) ?? { units: 0, revenue: 0 };
       p.units += it.quantity;
       p.revenue += it.quantity * it.unit_price;
@@ -411,26 +412,29 @@ export function buildStoreTabs(
     ),
   };
 
-  // ── Bundles (order items matching one of the store's pack names)
-  const packNames = new Set(ctx.packs.map((p) => p.name));
+  // ── Bundles (pack lines: order items with a pack_id), grouped per pack and
+  // labelled with its newest name (dCur is newest first).
   const activePacks = ctx.packs.filter((p) => p.status === "active").length;
-  const byPack = new Map<string, { units: number; revenue: number }>();
+  const byPackId = new Map<string, { name: string; units: number; revenue: number }>();
   let ordersWithPack = 0;
   for (const o of dCur) {
     let has = false;
     for (const it of o.items ?? []) {
-      if (!packNames.has(it.name)) continue;
+      if (!it.pack_id) continue;
       has = true;
-      const p = byPack.get(it.name) ?? { units: 0, revenue: 0 };
+      const p = byPackId.get(it.pack_id) ?? { name: it.name, units: 0, revenue: 0 };
       p.units += it.quantity;
       p.revenue += it.quantity * it.unit_price;
-      byPack.set(it.name, p);
+      byPackId.set(it.pack_id, p);
     }
     if (has) ordersWithPack += 1;
   }
-  const packRanked = [...byPack.entries()].sort((a, b) => b[1].revenue - a[1].revenue).slice(0, 5);
-  const bundleRevenue = [...byPack.values()].reduce((s, p) => s + p.revenue, 0);
-  const withPackOrders = dCur.filter((o) => (o.items ?? []).some((it) => packNames.has(it.name)));
+  const packRanked = [...byPackId.values()]
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 5)
+    .map((p) => [p.name, p] as const);
+  const bundleRevenue = [...byPackId.values()].reduce((s, p) => s + p.revenue, 0);
+  const withPackOrders = dCur.filter((o) => (o.items ?? []).some((it) => !!it.pack_id));
   const withoutPackOrders = dCur.filter((o) => !withPackOrders.includes(o));
   const aovWith = withPackOrders.length
     ? withPackOrders.reduce((s, o) => s + orderSale(o), 0) / withPackOrders.length

@@ -5,6 +5,7 @@ import storesList from "./stores-list";
 import storesCreate from "./stores-create";
 import storesDetail from "./stores-detail";
 import storesUpdate from "./stores-update";
+import storesResubmit from "./stores-resubmit";
 import productsList from "./products-list";
 import productsCreate from "./products-create";
 import productsUpdate from "./products-update";
@@ -23,6 +24,10 @@ import dashboard from "./dashboard";
 import dashboardGlobal from "./dashboard-global";
 import uploads from "./uploads";
 import adminReview from "./admin-review";
+import adminCatalogReview from "./admin-catalog-review";
+import adminDues from "./admin-dues";
+import packsSuggestions from "./packs-suggestions";
+import requiredActions from "./required-actions";
 import ordersDetail from "./orders-detail";
 import ordersRiders from "./orders-riders";
 import ordersAssign from "./orders-assign";
@@ -35,8 +40,9 @@ import strategy from "./strategy";
 const app = router();
 
 app.use("/*", auth);
-// Staff review endpoints carry their own requireStaff guard; everything else
-// is the merchant app.
+// Staff endpoints (/merchant/admin/*) carry their own staff guard —
+// requireStaffRole (store review: ops / hr; catalog review: commerce;
+// dues: finance); everything else is the merchant app.
 app.use("/*", async (c, next) => {
   if (c.req.path.includes("/merchant/admin/")) return next();
   return requireRole("merchant")(c, next);
@@ -48,6 +54,7 @@ app.route("/", storesList);
 app.route("/", storesCreate);
 app.route("/", storesDetail);
 app.route("/", storesUpdate);
+app.route("/", storesResubmit);
 app.route("/", productsList);
 app.route("/", productsCreate);
 app.route("/", productsUpdate);
@@ -57,6 +64,7 @@ app.route("/", packsList);
 app.route("/", packsCreate);
 app.route("/", packsUpdate);
 app.route("/", packsDelete);
+app.route("/", packsSuggestions);
 app.route("/", ordersList);
 app.route("/", ordersRiders);
 app.route("/", ordersAssign);
@@ -73,6 +81,9 @@ app.route("/", duesPay);
 app.route("/", dashboardGlobal);
 app.route("/", dashboard);
 app.route("/", uploads);
+app.route("/", requiredActions);
 app.route("/", adminReview);
+app.route("/", adminCatalogReview);
+app.route("/", adminDues);
 
 export default app;

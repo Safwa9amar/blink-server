@@ -81,6 +81,7 @@ import {
   RIDE_NO_SHOW_WAIT_MS,
   startNoShowClock,
 } from "../../lib/ride";
+import { pushNewOffer } from "../../lib/offer-push";
 import { RIDER_NOT_VERIFIED, riderCanWork } from "../../lib/rider-access";
 import { supabaseAdmin } from "../../lib/supabase";
 import { orderRef } from "../merchant/shared";
@@ -1259,6 +1260,8 @@ app.openapi(
         .in("status", ["heading_to_store", "preparation", "pickup"])
         .select("id");
       if (!released?.length) return c.json({ error: "Job changed, try again" }, 400);
+      // Back in the pool: tell nearby riders whose app is in the background.
+      void pushNewOffer(ids[0], { exclude: user.id });
 
       await Promise.all([
         // There is one trip per checkout, so the penalty is charged once.
@@ -1388,6 +1391,8 @@ app.openapi(
       .select("id")
       .maybeSingle();
     if (!released) return c.json({ error: "Job changed, try again" }, 400);
+    // Back in the pool: tell nearby riders whose app is in the background.
+    void pushNewOffer(id, { exclude: user.id });
 
     await Promise.all([
       // This claim's open trip only. An own-driver delivery has none, and an

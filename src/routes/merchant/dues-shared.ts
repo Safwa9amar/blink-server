@@ -1,12 +1,116 @@
+import { allocateDues, type StoreDuesAllocation } from "../../lib/merchant-dues";
 import { supabaseAdmin } from "../../lib/supabase";
-import {
-  COMMISSION_RATE,
-  DUES_FEE_RATE,
-  orderSale,
-  ownedStores,
-  round2,
-  storeOrders,
-} from "./shared";
+import { COMMISSION_RATE, DUES_FEE_RATE, orderSale, round2 } from "./shared";
+
+const PAGE = 1000;
+const CHUNK = 100;
+
+const chunks = <T>(xs: readonly T[], n = CHUNK) =>
+  Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, i * n + n));
+
+type Page<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
+
+/**
+ * Every row of a query, by keyset pages on `id` (`page(after)` must filter
+ * `id > after` when given and order by id). A failed page THROWS: dues read
+ * short would look lower than they are (and could let an account be deleted
+ * with dues outstanding). Stops on an empty page, so a server row cap below
+ * PAGE can't end it early either.
+ */
+async function allRows<T extends { id: string }>(label: string, page: (after: string | null) => Page<T>) {
+  const rows: T[] = [];
+  let after: string | null = null;
+  for (;;) {
+    const { data, error } = await page(after);
+    if (error) throw new Error(`[dues] ${label} read failed: ${error.message}`);
+    if (!data?.length) return rows;
+    rows.push(...data);
+    after = data[data.length - 1].id;
+  }
+}
+
+/** Lifetime delivered sales (goods subtotal) per store. */
+async function deliveredSales(storeIds: string[]) {
+  const sales = new Map<string, number>();
+  for (const ids of chunks(storeIds)) {
+    const orders = await allRows<{ id: string; store_id: string; subtotal: number | string }>("orders", (after) => {
+      let q = supabaseAdmin.from("orders").select("id, store_id, subtotal").in("store_id", ids).eq("status", "delivered");
+      if (after) q = q.gt("id", after);
+      return q.order("id").limit(PAGE);
+    });
+    for (const o of orders) {
+      sales.set(o.store_id, (sales.get(o.store_id) ?? 0) + orderSale({ subtotal: Number(o.subtotal) }));
+    }
+  }
+  return sales;
+}
+
+/** Completed dues payments of the given merchants. */
+async function completedPayments(merchantIds: string[]) {
+  type Row = { id: string; merchant_id: string; store_id: string | null; amount: number; created_at: string };
+  const rows: Row[] = [];
+  for (const ids of chunks(merchantIds)) {
+    rows.push(
+      ...(await allRows<Row>("dues payments", (after) => {
+        let q = supabaseAdmin
+          .from("merchant_dues_payments")
+          .select("id, merchant_id, store_id, amount, created_at")
+          .in("merchant_id", ids)
+          .eq("status", "completed");
+        if (after) q = q.gt("id", after);
+        return q.order("id").limit(PAGE);
+      }))
+    );
+  }
+  return rows;
+}
+
+export interface DuesStoreRow {
+  id: string;
+  name: string;
+  owner_id: string | null;
+}
+
+export type OwnedStoreDues = StoreDuesAllocation & { merchant_id: string };
+
+/**
+ * Outstanding dues for a set of stores, each allocated within its owner's
+ * stores (see allocateDues). `stores` must be in allocation order — primary
+ * first, then oldest — as ownedStores returns them. Ownerless stores are skipped.
+ */
+export async function duesForStores(stores: readonly DuesStoreRow[]): Promise<OwnedStoreDues[]> {
+  const owned = stores.filter((s): s is DuesStoreRow & { owner_id: string } => !!s.owner_id);
+  const owners = [...new Set(owned.map((s) => s.owner_id))];
+  const [sales, payments] = await Promise.all([
+    deliveredSales(owned.map((s) => s.id)),
+    completedPayments(owners),
+  ]);
+
+  const rates = { commission: COMMISSION_RATE, fee: DUES_FEE_RATE };
+  return owners.flatMap((owner) =>
+    allocateDues(
+      owned.filter((s) => s.owner_id === owner),
+      sales,
+      payments.filter((p) => p.merchant_id === owner),
+      rates
+    ).map((row) => ({ ...row, merchant_id: owner }))
+  );
+}
+
+/**
+ * The merchant's stores in allocation order (primary first, then oldest).
+ * Throws on a failed read: no stores would mean no dues.
+ */
+async function duesStoresOf(userId: string): Promise<DuesStoreRow[]> {
+  const { data, error } = await supabaseAdmin
+    .from("stores")
+    .select("id, name, owner_id")
+    .eq("owner_id", userId)
+    .order("is_primary", { ascending: false })
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(`[dues] stores read failed: ${error.message}`);
+  return (data ?? []) as DuesStoreRow[];
+}
 
 /**
  * Outstanding dues per store: commission on all delivered sales minus every
@@ -14,52 +118,17 @@ import {
  * "all stores" payment) are spread across stores in order, oldest first.
  */
 export async function computeDues(userId: string) {
-  const stores = await ownedStores(userId);
+  const stores = await duesStoresOf(userId);
   const names = new Map(stores.map((s) => [s.id, s.name]));
-  const orders = await storeOrders([...names.keys()]);
+  const dues = await duesForStores(stores);
 
-  const profit = new Map<string, number>(stores.map((s) => [s.id, 0]));
-  for (const o of orders) {
-    if (o.status === "delivered") profit.set(o.store_id, profit.get(o.store_id)! + orderSale(o));
-  }
-
-  const { data: payments } = await supabaseAdmin
-    .from("merchant_dues_payments")
-    .select("store_id, amount, status")
-    .eq("merchant_id", userId)
-    .eq("status", "completed");
-
-  const owed = new Map<string, number>();
-  for (const s of stores) owed.set(s.id, round2(profit.get(s.id)! * COMMISSION_RATE));
-
-  let unassigned = 0;
-  for (const p of payments ?? []) {
-    const amount = Number(p.amount);
-    if (p.store_id && owed.has(p.store_id)) {
-      owed.set(p.store_id, owed.get(p.store_id)! - amount);
-    } else {
-      unassigned += amount;
-    }
-  }
-  for (const s of stores) {
-    if (unassigned <= 0) break;
-    const left = owed.get(s.id)!;
-    if (left <= 0) continue;
-    const take = Math.min(left, unassigned);
-    owed.set(s.id, left - take);
-    unassigned -= take;
-  }
-
-  const rows = stores.map((s) => {
-    const duesPayable = round2(Math.max(0, owed.get(s.id)!));
-    return {
-      store_id: s.id,
-      store_name: s.name,
-      total_profit: round2(profit.get(s.id)!),
-      dues_payable: duesPayable,
-      fees: round2(duesPayable * DUES_FEE_RATE),
-    };
-  });
+  const rows = dues.map((d) => ({
+    store_id: d.store_id,
+    store_name: d.store_name,
+    total_profit: d.total_profit,
+    dues_payable: d.dues_payable,
+    fees: d.fees,
+  }));
 
   return {
     total_dues: round2(rows.reduce((sum, r) => sum + r.dues_payable, 0)),

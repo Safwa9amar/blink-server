@@ -7,6 +7,7 @@ import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { createRideRequestSchema, RideRequestResponse } from "../../validators/ride";
+import { pushNewOffer } from "../../lib/offer-push";
 import { priceRideCoupon } from "./shared";
 
 const app = router();
@@ -97,6 +98,8 @@ app.openapi(route, async (c) => {
     return c.json({ error: error?.message ?? "Couldn't request the ride" }, 400);
   }
   if (couponId) await linkCoupon(couponId, data.id);
+  // Riders with the app in the background (the open app hears the socket).
+  void pushNewOffer(data.id);
 
   return c.json({ order: withoutOffer(data) }, 201);
 });

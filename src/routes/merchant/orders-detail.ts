@@ -1,7 +1,7 @@
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
 import { MerchantOrderDetailResponse } from "../../validators/merchant";
-import { deliveriesByRider, enrichOrders, fullName, packNamesByStore } from "./orders-shared";
+import { deliveriesByRider, enrichOrders, fullName } from "./orders-shared";
 import { ownedStore } from "./shared";
 
 const app = router();
@@ -37,7 +37,7 @@ app.openapi(route, async (c) => {
   const contactsHidden = !!closedAt && Date.now() - new Date(closedAt).getTime() > PRIVACY_MS;
   const hide = (v: string | null) => (contactsHidden ? null : v);
 
-  const [{ data: users }, { count: customerOrders }, packs, driverRes, vehicleRes, riderProfileRes] =
+  const [{ data: users }, { count: customerOrders }, driverRes, vehicleRes, riderProfileRes] =
     await Promise.all([
       supabaseAdmin
         .from("users")
@@ -48,7 +48,6 @@ app.openapi(route, async (c) => {
         .select("id", { count: "exact", head: true })
         .eq("customer_id", row.customer_id)
         .eq("store_id", row.store_id),
-      packNamesByStore([row.store_id]),
       row.store_driver_id
         ? supabaseAdmin.from("store_drivers").select("*").eq("id", row.store_driver_id).maybeSingle()
         : Promise.resolve({ data: null }),
@@ -64,7 +63,6 @@ app.openapi(route, async (c) => {
   const rider = row.rider_id ? users?.find((u) => u.id === row.rider_id) : undefined;
   const deliveries = rider ? (await deliveriesByRider([rider.id])).get(rider.id) ?? 0 : 0;
   const driver = driverRes.data as Record<string, any> | null;
-  const names = packs.get(row.store_id) ?? new Set<string>();
 
   const canceled = row.status === "canceled" || row.status === "merchant_rejected";
   const timeline = [
@@ -120,7 +118,10 @@ app.openapi(route, async (c) => {
           }
         : null,
       contacts_hidden: contactsHidden,
-      pack_names: (row.items ?? []).map((it: { name: string }) => it.name).filter((n: string) => names.has(n)),
+      // Pack lines carry pack_id (and their contents in pack_items).
+      pack_names: (row.items ?? [])
+        .filter((it: { pack_id?: string | null }) => !!it.pack_id)
+        .map((it: { name: string }) => it.name),
       // The merchant keeps the goods subtotal; fees are Blink's.
       earnings: canceled ? 0 : Number(row.subtotal),
       timeline,

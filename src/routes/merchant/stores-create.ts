@@ -24,7 +24,14 @@ const route = createRoute({
 
 app.openapi(route, async (c) => {
   const user = c.get("user");
-  const body = c.req.valid("json");
+  // Blink's verdicts aren't the merchant's to set (the body schema has no such
+  // column; drop it here too in case it ever grows one): documents start pending.
+  const valid = c.req.valid("json");
+  const {
+    document_review: _documentReview,
+    documents_status: _documentsStatus,
+    ...body
+  } = valid as typeof valid & { document_review?: unknown; documents_status?: unknown };
   const existing = await ownedStores(user.id);
 
   const { data, error } = await supabaseAdmin

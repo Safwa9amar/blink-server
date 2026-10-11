@@ -200,7 +200,10 @@ export async function computeStrategy(merchantId: string, store: StoreRow) {
   // ── Promotions (ready-to-create packs from the real catalog) ──────
   const sellers = new Map<string, number>();
   for (const o of delivered)
-    for (const it of o.items ?? []) sellers.set(it.name, (sellers.get(it.name) ?? 0) + it.quantity);
+    for (const it of o.items ?? []) {
+      if (it.pack_id) continue; // a pack line, named after the pack
+      sellers.set(it.name, (sellers.get(it.name) ?? 0) + it.quantity);
+    }
   const byTitle = new Map(live.filter((p) => p.is_available).map((p) => [p.title, p]));
   const top = [...sellers.entries()]
     .sort((a, b) => b[1] - a[1])

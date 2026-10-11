@@ -1,6 +1,8 @@
 import { createMiddleware } from "hono/factory";
 import type { Context } from "hono";
+import { env } from "../config/env";
 import { isAuthOutage } from "../lib/auth-outage";
+import { rejectedTokenMessage } from "../lib/token-issuer";
 import { supabaseAdmin } from "../lib/supabase";
 import type { UserRole, UserRow } from "../types/database";
 
@@ -32,7 +34,7 @@ export const auth = createMiddleware<AuthEnv>(async (c, next) => {
     return c.json({ error: "Authentication service unavailable, please retry" }, 503);
   }
   if (error || !supaUser) {
-    return c.json({ error: "Invalid or expired token" }, 401);
+    return c.json({ error: rejectedTokenMessage(token, env.SUPABASE_URL) }, 401);
   }
 
   // Fetch app user profile

@@ -1,4 +1,6 @@
+import { env } from "../../config/env";
 import { supabaseAdmin } from "../../lib/supabase";
+import { rejectedTokenMessage } from "../../lib/token-issuer";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { SocialSyncResponse, socialSyncSchema, publicUser } from "../../validators/auth";
 import { initialGrantedRoles, ROLE_NOT_HELD, roleConflictMessage, signUpConflict } from "../../lib/roles";
@@ -46,7 +48,7 @@ app.openapi(route, async (c) => {
   } = await supabaseAdmin.auth.getUser(token);
 
   if (error || !supaUser) {
-    return c.json({ error: "Invalid or expired token" }, 401);
+    return c.json({ error: rejectedTokenMessage(token, env.SUPABASE_URL) }, 401);
   }
 
   const { data: existingUser } = await supabaseAdmin

@@ -16,13 +16,50 @@ const orderStatus = z.enum([
   "processing",
 ]);
 
-const orderItemSchema = z
+const orderItemFields = {
+  name: z.string().min(1),
+  quantity: z.number().int().positive(),
+  unit_price: z.number().nonnegative(),
+  pack_id: z.string().uuid().optional().openapi({
+    description:
+      "A pack line (merchant orders): the pack's id from GET /marketplace/stores/{id}/packs, with quantity = number of packs and unit_price = the pack's price. The server re-prices it (409 pack_changed when the pack is gone or its price differs) and stores the pack name as `name`.",
+  }),
+};
+
+const orderItemSchema = z.object(orderItemFields).openapi("OrderItem");
+
+/** What one pack contains, snapshotted on the order line when it was placed. */
+const OrderPackItemSchema = z
   .object({
-    name: z.string().min(1),
-    quantity: z.number().int().positive(),
-    unit_price: z.number().nonnegative(),
+    name: z.string(),
+    quantity: z.number().int(),
+    /** Free units given on top (buy-X-get-Y). */
+    free_qty: z.number().int(),
   })
-  .openapi("OrderItem");
+  .openapi("OrderPackItem");
+
+/** An order's stored line: the request line plus, for a pack, its contents. */
+const OrderLineSchema = z
+  .object({
+    ...orderItemFields,
+    pack_items: z.array(OrderPackItemSchema).optional().openapi({
+      description: "Server-written on pack lines: the pack's contents when the order was placed, for the store to prepare",
+    }),
+  })
+  .openapi("OrderLine");
+
+/**
+ * 409 of POST /orders: `code: pack_changed` — a pack line's pack (`pack_id`)
+ * is no longer sold (deactivated, deleted, a product unavailable) or its
+ * price changed. Refetch the store's packs, fix the cart and retry.
+ */
+export const PackChangedError = z
+  .object({
+    error: z.string(),
+    code: z.enum(["pack_changed"]),
+    pack_id: z.string(),
+  })
+  .openapi("PackChangedError");
 
 export const createOrderSchema = z
   .object({
@@ -164,7 +201,7 @@ export const OrderSchema = rowSchema(orders, "OrderRow", {
   rider_tags: z.array(z.string()).nullable(),
 })
   .extend({
-    items: z.array(orderItemSchema),
+    items: z.array(OrderLineSchema),
     // For the order's customer only (omitted otherwise).
     rider: RiderCardSchema.optional(),
     store_info: OrderStoreInfoSchema.optional(),

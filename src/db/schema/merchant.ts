@@ -9,6 +9,7 @@ import {
   pgPolicy,
   pgTable,
   text,
+  timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
 import { transactionStatus } from "./enums";
@@ -48,6 +49,12 @@ export const storePacks = pgTable(
     discountPercent: integer("discount_percent").notNull().default(0),
     freeDelivery: boolean("free_delivery").notNull().default(false),
     status: packStatus("status").notNull().default("active"),
+    // Staff review of free-delivery packs (20261010130645_merchant_catalog_review.sql):
+    // a free-delivery pack may only be live while `reviewed_at` is set; a
+    // material edit clears it (src/lib/pack-review.ts). `review_note` = why
+    // staff rejected / deactivated it.
+    reviewNote: text("review_note"),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true, mode: "string" }),
     ...timestamps,
   },
   (t) => [

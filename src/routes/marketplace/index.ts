@@ -4,6 +4,7 @@ import categories from "./categories";
 import list from "./list";
 import detail from "./detail";
 import products from "./products";
+import packs from "./packs";
 import branchSuggestion from "./branch-suggestion";
 
 const app = router();
@@ -16,6 +17,7 @@ app.route("/", categories);
 app.route("/", list);
 app.route("/", detail);
 app.route("/", products);
+app.route("/", packs);
 app.route("/", branchSuggestion);
 
 export default app;

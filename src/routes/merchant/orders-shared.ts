@@ -37,7 +37,7 @@ export async function driversById(ids: (string | null | undefined)[]) {
   return map;
 }
 
-/** Pack names per store — an order item with a pack's name is a pack sale. */
+/** Pack names per store (any status). */
 export async function packNamesByStore(storeIds: string[]) {
   const map = new Map<string, Set<string>>();
   for (const id of storeIds) map.set(id, new Set());
@@ -50,13 +50,9 @@ export async function packNamesByStore(storeIds: string[]) {
   return map;
 }
 
-export const hasPack = (
-  order: { store_id: string | null; items: { name: string }[] | null },
-  packs: Map<string, Set<string>>
-) => {
-  const names = order.store_id ? packs.get(order.store_id) : undefined;
-  return !!names && (order.items ?? []).some((it) => names.has(it.name));
-};
+/** A pack sale: some line carries a `pack_id` (POST /orders writes it on pack lines). */
+export const hasPack = (order: { items: { pack_id?: string | null }[] | null }) =>
+  (order.items ?? []).some((it) => !!it.pack_id);
 
 /** Every order of these checkouts, with its store's owner. */
 async function checkoutRows(checkoutIds: string[]): Promise<SiblingRow[]> {
@@ -78,10 +74,9 @@ async function checkoutRows(checkoutIds: string[]): Promise<SiblingRow[]> {
 export async function enrichOrders<T extends Record<string, any>>(orders: T[]) {
   const now = Date.now();
   const checkoutIds = [...new Set(orders.map((o) => o.checkout_id).filter(Boolean))] as string[];
-  const [users, drivers, packs, siblingRows] = await Promise.all([
+  const [users, drivers, siblingRows] = await Promise.all([
     usersById(orders.flatMap((o) => [o.customer_id, o.rider_id, o.offered_rider_id])),
     driversById(orders.flatMap((o) => [o.store_driver_id, o.offered_driver_id])),
-    packNamesByStore([...new Set(orders.map((o) => o.store_id).filter(Boolean))]),
     checkoutRows(checkoutIds),
   ]);
   return orders.map((o) => {
@@ -99,7 +94,7 @@ export async function enrichOrders<T extends Record<string, any>>(orders: T[]) {
         (o.offered_driver_id ? drivers.get(o.offered_driver_id)?.full_name ?? null : null),
       offer_status: offerStatus(o, now),
       offer_expires_at: offerExpiresAt(o, now),
-      has_pack: hasPack(o as any, packs),
+      has_pack: hasPack(o as any),
       own_siblings: ownSiblings({ id: o.id, checkout_id: o.checkout_id ?? null }, siblingRows),
       checkout_own_only: ownsWholeCheckout({ id: o.id, checkout_id: o.checkout_id ?? null }, siblingRows),
     };

@@ -64,6 +64,21 @@ export interface StoreDocuments {
   additional_docs?: StoreAdditionalDoc[];
 }
 
+/** One staff verdict in `stores.document_review` (src/lib/store-documents.ts). */
+export interface StoreDocumentReviewEntry {
+  status: "verified" | "rejected";
+  reason: string | null;
+  /** The document value staff looked at (scan URL, or the NIF / NIS number). */
+  value: string;
+  reviewed_at: string;
+  reviewed_by: string | null;
+}
+
+/** Keyed by commercial_register_front | commercial_register_back | nif | nis. */
+export type StoreDocumentReview = Partial<
+  Record<"commercial_register_front" | "commercial_register_back" | "nif" | "nis", StoreDocumentReviewEntry>
+>;
+
 export const marketplaceCategories = pgTable(
   "marketplace_categories",
   {
@@ -126,6 +141,15 @@ export const stores = pgTable(
     isPrimary: boolean("is_primary").notNull().default(false),
     // Weekly revenue goal (Strategy → Weekly Goal), 00036_merchant_flows.sql.
     weeklyGoal: money("weekly_goal").notNull().default(0),
+    // Why staff rejected / deactivated the store — shown to the merchant, kept
+    // while they resubmit, cleared on approval. Null on an inactive store = hidden
+    // for another reason (20261010144215_store_review_note.sql, src/lib/store-review.ts).
+    reviewNote: text("review_note"),
+    // Staff's verdict per required document, valid only while it matches the
+    // current value in `documents` (20261010163208_store_document_review.sql,
+    // src/lib/store-documents.ts). Server-written only; never sent to the
+    // merchant raw (they get the computed `documents_status`).
+    documentReview: jsonb("document_review").$type<StoreDocumentReview>().notNull().default({}),
     ...timestamps,
   },
   (t) => [
@@ -170,6 +194,9 @@ export const storeProducts = pgTable(
     blinkPrice: money("blink_price").notNull().default(0),
     suggestedPrice: numeric("suggested_price", { precision: 10, scale: 2 }).$type<number>(),
     suggestionStatus: priceSuggestionStatus("suggestion_status"),
+    // Why staff rejected the product or its price suggestion — shown to the
+    // merchant, cleared when they resubmit (20261010130645_merchant_catalog_review.sql).
+    reviewNote: text("review_note"),
     ...timestamps,
   },
   (t) => [

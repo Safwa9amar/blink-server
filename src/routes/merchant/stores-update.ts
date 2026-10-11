@@ -43,7 +43,18 @@ app.openapi(route, async (c) => {
       .neq("id", id);
   }
 
-  const patch: Record<string, unknown> = { ...body };
+  // Review state isn't the merchant's to set: staff decide it (PATCH
+  // /merchant/admin/stores/{id}/status and …/documents) and the merchant only
+  // resubmits (POST /merchant/stores/{id}/resubmit). The body schema has none
+  // of these columns; drop them here too in case it ever grows them. A new
+  // document value is simply pending again (verdicts are matched by value).
+  const {
+    status: _status,
+    review_note: _reviewNote,
+    document_review: _documentReview,
+    documents_status: _documentsStatus,
+    ...patch
+  } = { ...body } as Record<string, unknown>;
   if (body.category_slugs) patch.is_supermarket = marketplaceSlugs(body.category_slugs).includes("supermarket");
 
   const { data, error } = await supabaseAdmin

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, pgPolicy, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { index, jsonb, pgPolicy, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { userRole } from "./enums";
 import { timestamps } from "./_shared";
 import { users } from "./users";
@@ -7,7 +7,16 @@ import { users } from "./users";
 // In-app "delete my account" requests (20261006230012_account_deletion_requests.sql).
 // The app files a request (POST /auth/account/deletion-request) and signs the
 // user out; staff complete it — so financial records (transactions, dues) are
-// never lost to a self-service hard delete.
+// never lost to a self-service hard delete. Completing wipes the user's personal
+// data, so the request keeps who it was (`user_snapshot`) and which staff member
+// processed it — the console's deletion history.
+
+/** Who the account belonged to, captured just before staff wiped it. */
+export interface DeletedUserSnapshot {
+  name: string | null;
+  phone_number: string | null;
+  email: string | null;
+}
 export const accountDeletionRequests = pgTable(
   "account_deletion_requests",
   {
@@ -23,6 +32,9 @@ export const accountDeletionRequests = pgTable(
       .notNull()
       .default("pending"),
     processedAt: timestamp("processed_at", { withTimezone: true, mode: "string" }),
+    // Staff member who completed or cancelled it.
+    processedBy: uuid("processed_by").references(() => users.id, { onDelete: "set null" }),
+    userSnapshot: jsonb("user_snapshot").$type<DeletedUserSnapshot>(),
     ...timestamps,
   },
   (t) => [

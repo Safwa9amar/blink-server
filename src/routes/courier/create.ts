@@ -12,6 +12,7 @@ import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { CourierRequestResponse, createCourierRequestSchema } from "../../validators/courier";
+import { pushNewOffer } from "../../lib/offer-push";
 import { priceCourierCoupon } from "./shared";
 
 const app = router();
@@ -109,6 +110,9 @@ app.openapi(route, async (c) => {
     return c.json({ error: error?.message ?? "Couldn't create the request" }, 400);
   }
   if (couponId) await linkCoupon(couponId, (data.find((o) => o.coupon_id === couponId) ?? data[0]).id);
+
+  // Riders with the app in the background (the open app hears the socket).
+  for (const o of data) void pushNewOffer(o.id);
 
   // INSERT … RETURNING keeps the routes' order.
   return c.json({ orders: data.map((o) => withoutOffer(o)) }, 201);

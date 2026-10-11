@@ -125,6 +125,18 @@
               "agent"
             ]
           },
+          "granted_roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "customer",
+                "rider",
+                "merchant",
+                "agent"
+              ]
+            }
+          },
           "staff_role": {
             "type": "string",
             "nullable": true,
@@ -186,6 +198,7 @@
           "middle_name",
           "email",
           "role",
+          "granted_roles",
           "staff_role",
           "gender",
           "birthday",
@@ -340,11 +353,39 @@
           "role"
         ]
       },
-      "AuthUserResponse": {
+      "AuthProfileResponse": {
         "type": "object",
         "properties": {
           "user": {
             "$ref": "#/components/schemas/User"
+          },
+          "rider_profile": {
+            "$ref": "#/components/schemas/RiderProfile"
+          },
+          "vehicle": {
+            "$ref": "#/components/schemas/Vehicle"
+          },
+          "shop": {
+            "$ref": "#/components/schemas/AgentShop"
+          },
+          "agent_profile": {
+            "$ref": "#/components/schemas/AgentProfile"
+          },
+          "merchant_profile": {
+            "$ref": "#/components/schemas/MerchantProfile"
+          },
+          "customer_profile": {
+            "$ref": "#/components/schemas/CustomerProfile"
+          },
+          "rider_verification_status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RiderVerificationStatus"
+              },
+              {
+                "nullable": true
+              }
+            ]
           }
         },
         "required": [
@@ -386,6 +427,18 @@
               "merchant",
               "agent"
             ]
+          },
+          "granted_roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "customer",
+                "rider",
+                "merchant",
+                "agent"
+              ]
+            }
           },
           "staff_role": {
             "type": "string",
@@ -448,6 +501,7 @@
           "middle_name",
           "email",
           "role",
+          "granted_roles",
           "staff_role",
           "gender",
           "birthday",
@@ -458,85 +512,6 @@
           "bank_rib",
           "created_at",
           "updated_at"
-        ]
-      },
-      "UpdateAuthProfileBody": {
-        "type": "object",
-        "properties": {
-          "first_name": {
-            "type": "string",
-            "minLength": 1
-          },
-          "last_name": {
-            "type": "string",
-            "minLength": 1
-          },
-          "middle_name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "phone_number": {
-            "type": "string",
-            "pattern": "^\\+\\d{9,15}$"
-          },
-          "gender": {
-            "type": "string",
-            "enum": [
-              "male",
-              "female"
-            ]
-          },
-          "birthday": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "wilaya": {
-            "type": "string"
-          },
-          "wilaya_code": {
-            "type": "string"
-          },
-          "bank_rib": {
-            "type": "string"
-          },
-          "profile_picture": {
-            "type": "string",
-            "format": "uri"
-          }
-        }
-      },
-      "AuthProfileResponse": {
-        "type": "object",
-        "properties": {
-          "user": {
-            "$ref": "#/components/schemas/User"
-          },
-          "rider_profile": {
-            "$ref": "#/components/schemas/RiderProfile"
-          },
-          "vehicle": {
-            "$ref": "#/components/schemas/Vehicle"
-          },
-          "shop": {
-            "$ref": "#/components/schemas/AgentShop"
-          },
-          "agent_profile": {
-            "$ref": "#/components/schemas/AgentProfile"
-          },
-          "merchant_profile": {
-            "$ref": "#/components/schemas/MerchantProfile"
-          },
-          "customer_profile": {
-            "$ref": "#/components/schemas/CustomerProfile"
-          }
-        },
-        "required": [
-          "user"
         ]
       },
       "RiderProfile": {
@@ -563,13 +538,11 @@
               null
             ]
           },
-          "license_front_url": {
-            "type": "string",
-            "nullable": true
+          "documents": {
+            "$ref": "#/components/schemas/RiderStoredDocuments"
           },
-          "license_back_url": {
-            "type": "string",
-            "nullable": true
+          "verification_status": {
+            "$ref": "#/components/schemas/RiderVerificationStatus"
           },
           "is_available": {
             "type": "boolean"
@@ -602,14 +575,77 @@
           "user_id",
           "rider_id",
           "vehicle_type",
-          "license_front_url",
-          "license_back_url",
+          "documents",
+          "verification_status",
           "is_available",
           "latitude",
           "longitude",
           "location_updated_at",
           "created_at",
           "updated_at"
+        ]
+      },
+      "RiderStoredDocuments": {
+        "type": "object",
+        "properties": {
+          "license_front": {
+            "$ref": "#/components/schemas/RiderStoredDocument"
+          },
+          "license_back": {
+            "$ref": "#/components/schemas/RiderStoredDocument"
+          },
+          "id_front": {
+            "$ref": "#/components/schemas/RiderStoredDocument"
+          },
+          "id_back": {
+            "$ref": "#/components/schemas/RiderStoredDocument"
+          }
+        }
+      },
+      "RiderStoredDocument": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "verified",
+              "rejected"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "uploaded_at": {
+            "type": "string"
+          },
+          "reviewed_by": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewed_at": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "path",
+          "status",
+          "note",
+          "uploaded_at"
+        ]
+      },
+      "RiderVerificationStatus": {
+        "type": "string",
+        "enum": [
+          "not_submitted",
+          "pending",
+          "approved",
+          "rejected"
         ]
       },
       "Vehicle": {
@@ -1039,6 +1075,100 @@
           "updated_at"
         ]
       },
+      "PartnerRoleBody": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "rider",
+              "merchant",
+              "agent"
+            ]
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "ActiveRoleBody": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "rider",
+              "merchant",
+              "agent"
+            ]
+          }
+        },
+        "required": [
+          "role"
+        ]
+      },
+      "AuthUserResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "required": [
+          "user"
+        ]
+      },
+      "UpdateAuthProfileBody": {
+        "type": "object",
+        "properties": {
+          "first_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "last_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "middle_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone_number": {
+            "type": "string",
+            "pattern": "^\\+\\d{9,15}$"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female"
+            ]
+          },
+          "birthday": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "wilaya": {
+            "type": "string"
+          },
+          "wilaya_code": {
+            "type": "string"
+          },
+          "bank_rib": {
+            "type": "string"
+          },
+          "profile_picture": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
       "AvatarUploadResponse": {
         "type": "object",
         "properties": {
@@ -1162,6 +1292,34 @@
             "type": "string",
             "nullable": true
           },
+          "processed_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "user_snapshot": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "name": {
+                "type": "string",
+                "nullable": true
+              },
+              "phone_number": {
+                "type": "string",
+                "nullable": true
+              },
+              "email": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "name",
+              "phone_number",
+              "email"
+            ]
+          },
           "created_at": {
             "type": "string"
           },
@@ -1177,8 +1335,30 @@
           "feedback",
           "status",
           "processed_at",
+          "processed_by",
+          "user_snapshot",
           "created_at",
           "updated_at"
+        ]
+      },
+      "AccountDeletionBlocked": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "dues",
+              "active_jobs",
+              "open_orders"
+            ]
+          }
+        },
+        "required": [
+          "error",
+          "code"
         ]
       },
       "AccountDeletionRequestBody": {
@@ -1988,7 +2168,7 @@
               "items": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/OrderItem"
+                  "$ref": "#/components/schemas/OrderLine"
                 }
               },
               "rider": {
@@ -2001,7 +2181,7 @@
           }
         ]
       },
-      "OrderItem": {
+      "OrderLine": {
         "type": "object",
         "properties": {
           "name": {
@@ -2016,12 +2196,43 @@
           "unit_price": {
             "type": "number",
             "minimum": 0
+          },
+          "pack_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A pack line (merchant orders): the pack's id from GET /marketplace/stores/{id}/packs, with quantity = number of packs and unit_price = the pack's price. The server re-prices it (409 pack_changed when the pack is gone or its price differs) and stores the pack name as `name`."
+          },
+          "pack_items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderPackItem"
+            },
+            "description": "Server-written on pack lines: the pack's contents when the order was placed, for the store to prepare"
           }
         },
         "required": [
           "name",
           "quantity",
           "unit_price"
+        ]
+      },
+      "OrderPackItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "free_qty": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "free_qty"
         ]
       },
       "CourierPickup": {
@@ -2628,6 +2839,28 @@
           "order"
         ]
       },
+      "PackChangedError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "pack_changed"
+            ]
+          },
+          "pack_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error",
+          "code",
+          "pack_id"
+        ]
+      },
       "CreateOrderBody": {
         "type": "object",
         "properties": {
@@ -2716,6 +2949,34 @@
           "subtotal",
           "delivery_fee",
           "service_fee"
+        ]
+      },
+      "OrderItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          },
+          "unit_price": {
+            "type": "number",
+            "minimum": 0
+          },
+          "pack_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A pack line (merchant orders): the pack's id from GET /marketplace/stores/{id}/packs, with quantity = number of packs and unit_price = the pack's price. The server re-prices it (409 pack_changed when the pack is gone or its price differs) and stores the pack name as `name`."
+          }
+        },
+        "required": [
+          "name",
+          "quantity",
+          "unit_price"
         ]
       },
       "UpdateOrderStatusBody": {
@@ -4466,6 +4727,10 @@
           "weekly_goal": {
             "type": "number"
           },
+          "review_note": {
+            "type": "string",
+            "nullable": true
+          },
           "created_at": {
             "type": "string"
           },
@@ -4506,6 +4771,7 @@
           "manual_override",
           "is_primary",
           "weekly_goal",
+          "review_note",
           "created_at",
           "updated_at"
         ]
@@ -4640,6 +4906,10 @@
               null
             ]
           },
+          "review_note": {
+            "type": "string",
+            "nullable": true
+          },
           "created_at": {
             "type": "string"
           },
@@ -4670,6 +4940,7 @@
           "blink_price",
           "suggested_price",
           "suggestion_status",
+          "review_note",
           "created_at",
           "updated_at"
         ]
@@ -4690,6 +4961,122 @@
         "required": [
           "products",
           "pagination"
+        ]
+      },
+      "CustomerPackListResponse": {
+        "type": "object",
+        "properties": {
+          "packs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerPack"
+            },
+            "description": "Best savings first, then newest"
+          }
+        },
+        "required": [
+          "packs"
+        ]
+      },
+      "CustomerPack": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "store_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "discount_percent": {
+            "type": "integer",
+            "description": "0 when the pack has no discount"
+          },
+          "free_delivery": {
+            "type": "boolean",
+            "description": "The store order ships free only when every line from that store is a pack with free_delivery; otherwise the store's delivery_fee applies (once per store order)"
+          },
+          "item_count": {
+            "type": "integer"
+          },
+          "original_price": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number",
+            "description": "What one pack costs (original_price − savings); send it as the order line's unit_price"
+          },
+          "savings": {
+            "type": "number"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerPackItem"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "name",
+          "description",
+          "image",
+          "discount_percent",
+          "free_delivery",
+          "item_count",
+          "original_price",
+          "price",
+          "savings",
+          "items"
+        ]
+      },
+      "CustomerPackItem": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "free_qty": {
+            "type": "integer",
+            "description": "Free units given on top (buy-X-get-Y), not charged"
+          }
+        },
+        "required": [
+          "product_id",
+          "name",
+          "image",
+          "unit",
+          "unit_price",
+          "quantity",
+          "free_qty"
         ]
       },
       "BranchSuggestionResponse": {
@@ -5211,31 +5598,259 @@
         ]
       },
       "MerchantStore": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Store"
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
           },
-          {
-            "type": "object",
-            "properties": {
-              "hours": {
-                "$ref": "#/components/schemas/StoreWeekHours"
-              },
-              "documents": {
-                "$ref": "#/components/schemas/StoreDocuments"
-              },
-              "total_sales": {
-                "type": "number"
-              },
-              "orders_count": {
-                "type": "integer"
-              }
-            },
-            "required": [
-              "total_sales",
-              "orders_count"
+          "owner_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": -8388608,
+            "maximum": 8388607
+          },
+          "review_count": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "latitude": {
+            "type": "number",
+            "nullable": true,
+            "minimum": -140737488355328,
+            "maximum": 140737488355327
+          },
+          "longitude": {
+            "type": "number",
+            "nullable": true,
+            "minimum": -140737488355328,
+            "maximum": 140737488355327
+          },
+          "opening_hours": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_open": {
+            "type": "boolean"
+          },
+          "delivery_fee": {
+            "type": "number"
+          },
+          "delivery_time": {
+            "type": "string",
+            "nullable": true
+          },
+          "min_order": {
+            "type": "number"
+          },
+          "category_slugs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "is_featured": {
+            "type": "boolean"
+          },
+          "is_supermarket": {
+            "type": "boolean"
+          },
+          "menu_categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StoreMenuCategory"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "under_review"
             ]
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "whatsapp": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "logo": {
+            "type": "string",
+            "nullable": true
+          },
+          "gallery": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "wilaya": {
+            "type": "string",
+            "nullable": true
+          },
+          "hours": {
+            "$ref": "#/components/schemas/StoreWeekHours"
+          },
+          "documents": {
+            "$ref": "#/components/schemas/StoreDocuments"
+          },
+          "manual_override": {
+            "type": "boolean"
+          },
+          "is_primary": {
+            "type": "boolean"
+          },
+          "weekly_goal": {
+            "type": "number"
+          },
+          "review_note": {
+            "type": "string",
+            "nullable": true,
+            "description": "Why staff rejected / deactivated the store. Set on an inactive store = fix it, then POST /merchant/stores/{id}/resubmit; kept while it is back in review (the earlier reason); cleared on approval. Null on an inactive store = taken offline for another reason (can't be resubmitted)"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "next_open_at": {
+            "type": "string",
+            "nullable": true,
+            "description": "While closed: when the weekly schedule next opens (ISO). Null when open, or closed until the merchant reopens."
+          },
+          "documents_status": {
+            "$ref": "#/components/schemas/StoreDocumentsStatus"
+          },
+          "total_sales": {
+            "type": "number"
+          },
+          "orders_count": {
+            "type": "integer"
           }
+        },
+        "required": [
+          "id",
+          "owner_id",
+          "name",
+          "image",
+          "rating",
+          "review_count",
+          "location",
+          "latitude",
+          "longitude",
+          "opening_hours",
+          "is_open",
+          "delivery_fee",
+          "delivery_time",
+          "min_order",
+          "category_slugs",
+          "is_featured",
+          "is_supermarket",
+          "menu_categories",
+          "status",
+          "description",
+          "phone",
+          "whatsapp",
+          "email",
+          "logo",
+          "gallery",
+          "city",
+          "wilaya",
+          "hours",
+          "documents",
+          "manual_override",
+          "is_primary",
+          "weekly_goal",
+          "review_note",
+          "created_at",
+          "updated_at",
+          "documents_status",
+          "total_sales",
+          "orders_count"
+        ]
+      },
+      "StoreDocumentsStatus": {
+        "type": "object",
+        "properties": {
+          "commercial_register_front": {
+            "$ref": "#/components/schemas/StoreDocumentState"
+          },
+          "commercial_register_back": {
+            "$ref": "#/components/schemas/StoreDocumentState"
+          },
+          "nif": {
+            "$ref": "#/components/schemas/StoreDocumentState"
+          },
+          "nis": {
+            "$ref": "#/components/schemas/StoreDocumentState"
+          },
+          "all_verified": {
+            "type": "boolean",
+            "description": "Every required document is verified in its current form"
+          }
+        },
+        "required": [
+          "commercial_register_front",
+          "commercial_register_back",
+          "nif",
+          "nis",
+          "all_verified"
+        ],
+        "description": "Blink's verification of each required document. A document only counts as verified once Blink staff verified it — an uploaded file alone is `pending`"
+      },
+      "StoreDocumentState": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "missing",
+              "pending",
+              "verified",
+              "rejected"
+            ],
+            "description": "missing: not provided; pending: provided but Blink hasn't verified it in its current form (a new upload / edit is pending again); verified / rejected: Blink's verdict on the current value"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Why Blink rejected it (rejected only)"
+          }
+        },
+        "required": [
+          "status",
+          "reason"
         ]
       },
       "MerchantStoreResponse": {
@@ -5419,6 +6034,44 @@
           }
         }
       },
+      "StoreReviewError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "note_required",
+              "stale",
+              "invalid_state",
+              "owner_leaving"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "message"
+              ]
+            }
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
       "MerchantProductListResponse": {
         "type": "object",
         "properties": {
@@ -5453,6 +6106,46 @@
         },
         "required": [
           "product"
+        ]
+      },
+      "CatalogError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "price_invalid",
+              "note_required",
+              "stale",
+              "not_pending",
+              "no_suggestion",
+              "invalid_state"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "message"
+              ]
+            }
+          }
+        },
+        "required": [
+          "error"
         ]
       },
       "CreateMerchantProductBody": {
@@ -5492,7 +6185,8 @@
           },
           "price": {
             "type": "number",
-            "minimum": 0
+            "minimum": 0,
+            "description": "Required (> 0) for every new product, library ones included (400 price_invalid otherwise)"
           },
           "is_available": {
             "type": "boolean"
@@ -5540,7 +6234,8 @@
           },
           "price": {
             "type": "number",
-            "minimum": 0
+            "minimum": 0,
+            "description": "Never written directly: a price different from the current one is handled like suggested_price; an unchanged one is ignored"
           },
           "is_available": {
             "type": "boolean"
@@ -5764,6 +6459,14 @@
               "archived"
             ]
           },
+          "review_note": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewed_at": {
+            "type": "string",
+            "nullable": true
+          },
           "created_at": {
             "type": "string"
           },
@@ -5782,6 +6485,8 @@
           "discount_percent",
           "free_delivery",
           "status",
+          "review_note",
+          "reviewed_at",
           "created_at",
           "updated_at"
         ]
@@ -5876,6 +6581,123 @@
               "inactive",
               "archived"
             ]
+          }
+        }
+      },
+      "PackSuggestionsResponse": {
+        "type": "object",
+        "properties": {
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackSuggestion"
+            }
+          }
+        },
+        "required": [
+          "suggestions"
+        ]
+      },
+      "PackSuggestion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "bought_together",
+              "top_sellers",
+              "category_multibuy",
+              "starter"
+            ],
+            "description": "The app localizes the idea's title/description from this"
+          },
+          "product_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PackSuggestionItem"
+            }
+          },
+          "discount_percent": {
+            "type": "integer"
+          },
+          "original_price": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number"
+          },
+          "params": {
+            "$ref": "#/components/schemas/PackSuggestionParams"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "product_ids",
+          "items",
+          "discount_percent",
+          "original_price",
+          "price",
+          "params"
+        ]
+      },
+      "PackSuggestionItem": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "qty_promo_enabled": {
+            "type": "boolean"
+          },
+          "buy_qty": {
+            "type": "integer"
+          },
+          "get_qty": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "product_id",
+          "name",
+          "image",
+          "unit_price",
+          "quantity",
+          "qty_promo_enabled",
+          "buy_qty",
+          "get_qty"
+        ]
+      },
+      "PackSuggestionParams": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "orders_count": {
+            "type": "integer"
           }
         }
       },
@@ -8005,6 +8827,176 @@
           "content_type"
         ]
       },
+      "MerchantRequiredActionsResponse": {
+        "type": "object",
+        "properties": {
+          "actions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MerchantRequiredAction"
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "blocking": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "actions",
+          "total",
+          "blocking"
+        ]
+      },
+      "MerchantRequiredAction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "store_under_review",
+              "store_rejected",
+              "store_documents_missing",
+              "store_documents_rejected",
+              "store_documents_pending",
+              "hours_not_set",
+              "no_products",
+              "products_rejected",
+              "price_suggestions_rejected",
+              "packs_rejected",
+              "pin_not_set",
+              "dues_outstanding"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "blocking",
+              "warning",
+              "info"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "todo",
+              "in_review",
+              "rejected"
+            ]
+          },
+          "params": {
+            "$ref": "#/components/schemas/MerchantRequiredActionParams"
+          },
+          "store_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "severity",
+          "status",
+          "params"
+        ]
+      },
+      "MerchantRequiredActionParams": {
+        "type": "object",
+        "properties": {
+          "store_name": {
+            "type": "string"
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "documents": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MerchantRejectedDocument"
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "commercial_register_front",
+                    "commercial_register_back",
+                    "nif",
+                    "nis"
+                  ]
+                }
+              }
+            ],
+            "description": "store_documents_rejected: [{ key, reason }] — the documents Blink rejected, with why (upload / correct them); store_documents_pending: [key] — documents Blink is still checking. Keys: commercial_register_front | commercial_register_back | nif | nis"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "MerchantRejectedDocument": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "enum": [
+              "commercial_register_front",
+              "commercial_register_back",
+              "nif",
+              "nis"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "key",
+          "reason"
+        ]
+      },
+      "AdminReviewedStore": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Store"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "document_review": {
+                "type": "object",
+                "additionalProperties": {
+                  "nullable": true
+                },
+                "description": "stores.document_review — staff's verdict per document (src/lib/store-documents.ts)"
+              },
+              "documents_status": {
+                "$ref": "#/components/schemas/StoreDocumentsStatus"
+              }
+            },
+            "required": [
+              "documents_status"
+            ]
+          }
+        ]
+      },
       "ReviewStoreBody": {
         "type": "object",
         "properties": {
@@ -8012,12 +9004,93 @@
             "type": "string",
             "enum": [
               "active",
-              "inactive",
-              "under_review"
-            ]
+              "inactive"
+            ],
+            "description": "active: approve a store in review, or re-approve one staff rejected / deactivated (opens it on its opening hours — clears the merchant's manual open/closed override — clears its note, and verifies every document it has at that moment, i.e. what the reviewer saw at expected_updated_at; already active → 200, nothing changes); refused with 409 code owner_leaving while the owner has an account deletion request pending or completed. inactive: reject a store in review or deactivate a live one (note required; closes it; allowed even while the owner is leaving). Otherwise 409 code invalid_state"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Required for inactive"
+          },
+          "expected_updated_at": {
+            "type": "string",
+            "description": "The store's updated_at the reviewer saw: another instant → 409 code stale"
           }
         },
         "required": [
+          "status"
+        ]
+      },
+      "StoreDocumentReviewError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "note_required",
+              "document_missing",
+              "stale"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "message"
+              ]
+            }
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "ReviewStoreDocumentBody": {
+        "type": "object",
+        "properties": {
+          "document": {
+            "type": "string",
+            "enum": [
+              "commercial_register_front",
+              "commercial_register_back",
+              "nif",
+              "nis"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "rejected"
+            ],
+            "description": "Blink's verdict on the document's current value (the scan URL / the NIF or NIS number). It stops counting once the merchant replaces that value (the document is pending again). The same verdict (and reason) on the same value → 200, nothing changes"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Required to reject; shown to the merchant"
+          },
+          "expected_value": {
+            "type": "string",
+            "description": "The document value the reviewer looked at (stores.documents: commercial_register_front_url / commercial_register_back_url / nif / nis): another current value → 409 code stale"
+          }
+        },
+        "required": [
+          "document",
           "status"
         ]
       },
@@ -8030,14 +9103,29 @@
               "approved",
               "pending",
               "rejected"
-            ]
+            ],
+            "description": "approved: from pending / rejected; rejected: from pending / approved (note required). Anything else changes nothing (200, no notification)"
           },
           "suggestion_status": {
             "type": "string",
             "enum": [
               "accepted",
               "rejected"
-            ]
+            ],
+            "description": "accepted: a pending or declined suggestion becomes the live price; rejected: a pending one only (note required). Otherwise 409"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Required to reject a product or a price"
+          },
+          "expected_suggested_price": {
+            "type": "number",
+            "description": "The suggested price the reviewer saw. Checked on suggestion decisions: a different (or no) suggestion now → 409 code stale"
+          },
+          "expected_updated_at": {
+            "type": "string",
+            "description": "The product's updated_at the reviewer saw. Checked on review_status decisions only (stock sales bump it): another instant → 409 code stale"
           }
         }
       },
@@ -8049,11 +9137,171 @@
             "enum": [
               "active",
               "inactive"
-            ]
+            ],
+            "description": "active: approve a pack in review; inactive: reject one in review or deactivate a live one (note required). Otherwise 409 code invalid_state"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Required for inactive"
+          },
+          "expected_updated_at": {
+            "type": "string",
+            "description": "The pack's updated_at the reviewer saw: another instant → 409 code stale"
           }
         },
         "required": [
           "status"
+        ]
+      },
+      "AdminMerchantDuesResponse": {
+        "type": "object",
+        "properties": {
+          "dues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminStoreDues"
+            }
+          },
+          "payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminDuesPayment"
+            }
+          }
+        },
+        "required": [
+          "dues",
+          "payments"
+        ]
+      },
+      "AdminStoreDues": {
+        "type": "object",
+        "properties": {
+          "store_id": {
+            "type": "string"
+          },
+          "store_name": {
+            "type": "string"
+          },
+          "merchant_id": {
+            "type": "string"
+          },
+          "merchant_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "merchant_phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "commission_total": {
+            "type": "number"
+          },
+          "paid_total": {
+            "type": "number"
+          },
+          "outstanding": {
+            "type": "number"
+          },
+          "last_payment_at": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "store_id",
+          "store_name",
+          "merchant_id",
+          "merchant_name",
+          "merchant_phone",
+          "commission_total",
+          "paid_total",
+          "outstanding",
+          "last_payment_at"
+        ]
+      },
+      "AdminDuesPayment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "store_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "store_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "merchant_id": {
+            "type": "string"
+          },
+          "merchant_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number"
+          },
+          "fees": {
+            "type": "number"
+          },
+          "method": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "store_id",
+          "store_name",
+          "merchant_id",
+          "merchant_name",
+          "amount",
+          "fees",
+          "method",
+          "status",
+          "created_at"
+        ]
+      },
+      "RemindDuesResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      },
+      "DuesReminderError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "nothing_outstanding",
+              "recently_reminded"
+            ]
+          }
+        },
+        "required": [
+          "error",
+          "code"
         ]
       },
       "RiderEarningsResponse": {
@@ -9104,7 +10352,7 @@
           },
           "license_plate": {
             "type": "string",
-            "minLength": 1
+            "maxLength": 20
           },
           "year": {
             "type": "string",
@@ -9130,6 +10378,23 @@
           "year",
           "color",
           "category"
+        ]
+      },
+      "RiderNotVerifiedError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "rider_not_verified"
+            ]
+          }
+        },
+        "required": [
+          "error"
         ]
       },
       "RiderLocationBody": {
@@ -10005,6 +11270,296 @@
         },
         "required": [
           "challenge"
+        ]
+      },
+      "RiderUploadResponse": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "RiderUploadBody": {
+        "type": "object",
+        "properties": {
+          "base64": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 11184812
+          },
+          "content_type": {
+            "type": "string",
+            "enum": [
+              "image/jpeg",
+              "image/png",
+              "image/webp",
+              "application/pdf"
+            ]
+          },
+          "document": {
+            "$ref": "#/components/schemas/RiderDocumentKey"
+          }
+        },
+        "required": [
+          "base64",
+          "content_type",
+          "document"
+        ]
+      },
+      "RiderDocumentKey": {
+        "type": "string",
+        "enum": [
+          "license_front",
+          "license_back",
+          "id_front",
+          "id_back"
+        ]
+      },
+      "RiderDocumentsResponse": {
+        "type": "object",
+        "properties": {
+          "verification_status": {
+            "$ref": "#/components/schemas/RiderVerificationStatus"
+          },
+          "required_documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiderDocumentKey"
+            }
+          },
+          "documents": {
+            "type": "object",
+            "properties": {
+              "license_front": {
+                "$ref": "#/components/schemas/RiderDocumentView"
+              },
+              "license_back": {
+                "$ref": "#/components/schemas/RiderDocumentView"
+              },
+              "id_front": {
+                "$ref": "#/components/schemas/RiderDocumentView"
+              },
+              "id_back": {
+                "$ref": "#/components/schemas/RiderDocumentView"
+              }
+            },
+            "required": [
+              "license_front",
+              "license_back",
+              "id_front",
+              "id_back"
+            ]
+          }
+        },
+        "required": [
+          "verification_status",
+          "required_documents",
+          "documents"
+        ]
+      },
+      "RiderDocumentView": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "verified",
+              "rejected"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "uploaded_at": {
+            "type": "string"
+          },
+          "preview_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "content_type": {
+            "type": "string",
+            "enum": [
+              "image",
+              "pdf"
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "note",
+          "uploaded_at",
+          "preview_url",
+          "content_type"
+        ]
+      },
+      "RiderDocumentsConflict": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "documents_conflict"
+            ]
+          }
+        },
+        "required": [
+          "error",
+          "code"
+        ]
+      },
+      "UpdateRiderDocumentsBody": {
+        "type": "object",
+        "properties": {
+          "license_front": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "license_back": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "id_front": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "id_back": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        }
+      },
+      "RiderRequiredActionsResponse": {
+        "type": "object",
+        "properties": {
+          "verification_status": {
+            "$ref": "#/components/schemas/RiderVerificationStatus"
+          },
+          "required_documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiderDocumentKey"
+            }
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiderRequiredAction"
+            }
+          },
+          "completed": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "verification_status",
+          "required_documents",
+          "actions",
+          "completed",
+          "total"
+        ]
+      },
+      "RiderRequiredAction": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "enum": [
+              "vehicle_type",
+              "driving_license",
+              "national_id",
+              "verification"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "done",
+              "missing_info",
+              "in_progress",
+              "rejected"
+            ]
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "key",
+          "status",
+          "missing",
+          "reason"
+        ]
+      },
+      "RiderStaleReviewError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "stale_review"
+            ]
+          }
+        },
+        "required": [
+          "error",
+          "code"
+        ]
+      },
+      "ReviewRiderDocumentBody": {
+        "type": "object",
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/RiderDocumentKey"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "rejected"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "document",
+          "path",
+          "status"
         ]
       },
       "NewsListResponse": {
@@ -11210,7 +12765,7 @@
             }
           },
           "409": {
-            "description": "Account already exists under a different role, or phone already in use",
+            "description": "Account doesn't hold this role (add it from Become a Partner; code: role_not_held), or phone already in use (code: phone_in_use)",
             "content": {
               "application/json": {
                 "schema": {
@@ -11286,7 +12841,7 @@
             }
           },
           "409": {
-            "description": "Account already exists under a different role",
+            "description": "Account doesn't hold this role — add it from Become a Partner (code: role_not_held)",
             "content": {
               "application/json": {
                 "schema": {
@@ -11352,7 +12907,7 @@
             }
           },
           "409": {
-            "description": "Account already exists under a different role",
+            "description": "Account doesn't hold this role — add it from Become a Partner (code: role_not_held)",
             "content": {
               "application/json": {
                 "schema": {
@@ -11480,6 +13035,158 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/partner-roles": {
+      "post": {
+        "operationId": "grantPartnerRole",
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartnerRoleBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/active-role": {
+      "post": {
+        "operationId": "setActiveRole",
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActiveRoleBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthProfileResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The account doesn't hold this role (body code: role_not_granted)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Leaving rider with a job in progress or booked (body code: active_job)",
             "content": {
               "application/json": {
                 "schema": {
@@ -11872,11 +13579,11 @@
             }
           },
           "409": {
-            "description": "Outstanding dues",
+            "description": "Outstanding dues, jobs or orders",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/AccountDeletionBlocked"
                 }
               }
             }
@@ -12859,6 +14566,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A pack line's pack changed or is gone (code pack_changed): refetch the store's packs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PackChangedError"
                 }
               }
             }
@@ -14343,6 +16060,61 @@
         }
       }
     },
+    "/marketplace/stores/{id}/packs": {
+      "get": {
+        "operationId": "listStorePacks",
+        "tags": [
+          "marketplace"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerPackListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/marketplace/branch-suggestion": {
       "get": {
         "operationId": "getBranchSuggestion",
@@ -15057,6 +16829,81 @@
         }
       }
     },
+    "/merchant/stores/{id}/resubmit": {
+      "post": {
+        "operationId": "resubmitMerchantStore",
+        "tags": [
+          "merchant"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Back in review (status under_review)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantStoreResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "invalid_state: not a store staff rejected / deactivated; owner_leaving: you have an account deletion request pending or completed; stale: it changed meanwhile — reload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreReviewError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/merchant/stores/{id}/products": {
       "get": {
         "operationId": "listMerchantProducts",
@@ -15164,11 +17011,11 @@
             }
           },
           "400": {
-            "description": "Bad request",
+            "description": "Bad request (code price_invalid: the price must be > 0)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/CatalogError"
                 }
               }
             }
@@ -15250,11 +17097,11 @@
             }
           },
           "400": {
-            "description": "Bad request",
+            "description": "Bad request (code price_invalid: the price must be > 0)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/CatalogError"
                 }
               }
             }
@@ -15285,6 +17132,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The product changed since it was read (code stale) — reload and retry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
                 }
               }
             }
@@ -15661,6 +17518,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "The pack changed since it was read (code stale) — reload and retry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
           }
         }
       },
@@ -15691,6 +17558,71 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/stores/{id}/pack-suggestions": {
+      "get": {
+        "operationId": "listMerchantPackSuggestions",
+        "tags": [
+          "merchant"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PackSuggestionsResponse"
                 }
               }
             }
@@ -17599,6 +19531,74 @@
         }
       }
     },
+    "/merchant/required-actions": {
+      "get": {
+        "operationId": "getMerchantRequiredActions",
+        "tags": [
+          "merchant"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Only this store (default: every owned store)"
+            },
+            "required": false,
+            "description": "Only this store (default: every owned store)",
+            "name": "store_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MerchantRequiredActionsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/merchant/admin/stores/{id}/status": {
       "patch": {
         "operationId": "reviewMerchantStore",
@@ -17633,19 +19633,29 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Decided (or nothing to change: the current row)",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "store": {
-                      "$ref": "#/components/schemas/Store"
+                      "$ref": "#/components/schemas/AdminReviewedStore"
                     }
                   },
                   "required": [
                     "store"
                   ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (code note_required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreReviewError"
                 }
               }
             }
@@ -17676,6 +19686,120 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refused against the current state (code stale | invalid_state), or an approval while the owner has an account deletion request pending or completed (code owner_leaving)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreReviewError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/admin/stores/{id}/documents": {
+      "patch": {
+        "operationId": "reviewMerchantStoreDocument",
+        "tags": [
+          "admin-merchant"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewStoreDocumentBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Recorded (or nothing to change: the current row)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "store": {
+                      "$ref": "#/components/schemas/AdminReviewedStore"
+                    }
+                  },
+                  "required": [
+                    "store"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (code note_required | document_missing)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreDocumentReviewError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The document or the store changed since the reviewer saw it (code stale)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreDocumentReviewError"
                 }
               }
             }
@@ -17717,7 +19841,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Decided (or nothing to change: the current row)",
             "content": {
               "application/json": {
                 "schema": {
@@ -17730,6 +19854,16 @@
                   "required": [
                     "product"
                   ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (code note_required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
                 }
               }
             }
@@ -17760,6 +19894,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refused against the current state (code stale | not_pending | no_suggestion)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
                 }
               }
             }
@@ -17818,6 +19962,16 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request (code note_required)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -17840,6 +19994,157 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Refused against the current state (code stale | invalid_state)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/admin/dues": {
+      "get": {
+        "operationId": "listMerchantDuesAdmin",
+        "tags": [
+          "admin-merchant"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMerchantDuesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/admin/dues/{store_id}/remind": {
+      "post": {
+        "operationId": "remindMerchantDues",
+        "tags": [
+          "admin-merchant"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "store_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemindDuesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Nothing outstanding (code nothing_outstanding)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DuesReminderError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Already reminded in the last 24 h (code recently_reminded)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DuesReminderError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The notification could not be saved",
             "content": {
               "application/json": {
                 "schema": {
@@ -19538,7 +21843,17 @@
             }
           },
           "403": {
-            "description": "Forbidden",
+            "description": "Forbidden / rider not verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderNotVerifiedError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
             "content": {
               "application/json": {
                 "schema": {
@@ -19869,6 +22184,16 @@
               }
             }
           },
+          "403": {
+            "description": "Rider not verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderNotVerifiedError"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -19881,6 +22206,16 @@
           },
           "409": {
             "description": "Job already taken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
             "content": {
               "application/json": {
                 "schema": {
@@ -19990,8 +22325,28 @@
               }
             }
           },
+          "403": {
+            "description": "Rider not verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderNotVerifiedError"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
             "content": {
               "application/json": {
                 "schema": {
@@ -20333,6 +22688,26 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Rider not verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderNotVerifiedError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
           }
         }
       }
@@ -20576,6 +22951,420 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/riders/uploads": {
+      "post": {
+        "operationId": "uploadRiderFile",
+        "tags": [
+          "riders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RiderUploadBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderUploadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "File too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Storage unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/riders/documents": {
+      "get": {
+        "operationId": "getRiderDocuments",
+        "tags": [
+          "riders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderDocumentsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateRiderDocuments",
+        "tags": [
+          "riders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRiderDocumentsBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderDocumentsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Documents changed concurrently",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderDocumentsConflict"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/riders/required-actions": {
+      "get": {
+        "operationId": "getRiderRequiredActions",
+        "tags": [
+          "riders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderRequiredActionsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/riders/admin/riders/{id}/documents": {
+      "patch": {
+        "operationId": "reviewRiderDocument",
+        "tags": [
+          "admin-riders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRiderDocumentBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderDocumentsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stale review or concurrent change",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/RiderStaleReviewError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RiderDocumentsConflict"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
             "content": {
               "application/json": {
                 "schema": {

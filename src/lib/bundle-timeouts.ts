@@ -6,6 +6,7 @@ import { SHOPPER_HANDOVER_PATCH, shopperHandoverCopy } from "../routes/merchant/
 import { orderRef } from "../routes/merchant/shared";
 import { BUNDLE_STORE_TIMEOUT_MS, isStoreTimedOut } from "./bundle";
 import { createNotification } from "./notifications";
+import { pushNewOffer } from "./offer-push";
 import { supabaseAdmin } from "./supabase";
 
 export async function processBundleTimeouts(now = Date.now()) {
@@ -35,6 +36,8 @@ export async function processBundleTimeouts(now = Date.now()) {
       .maybeSingle();
     if (!moved) continue;
     converted++;
+    // The shopper order is in the pool now (a no-op until its checkout is offerable).
+    await pushNewOffer(o.id);
 
     const ref = orderRef(o.id);
     const store: string = o.store_name ?? "";
