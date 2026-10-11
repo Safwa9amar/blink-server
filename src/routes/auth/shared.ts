@@ -1,8 +1,13 @@
 // Shared helpers/constants for the auth endpoints.
 
+import type { User } from "@supabase/supabase-js";
+import { env } from "../../config/env";
+import { isAuthOutage } from "../../lib/auth-outage";
 import { retryOnNetworkError } from "../../lib/db-retry";
+import { emailLikePattern } from "../../lib/email";
 import { APP_ROLES, type AppRole } from "../../lib/roles";
 import { supabaseAdmin } from "../../lib/supabase";
+import { rejectedTokenMessage } from "../../lib/token-issuer";
 
 // Roles a brand-new OAuth user may choose when their profile row is created
 // (one list for the whole server: src/lib/roles.ts).
@@ -66,4 +71,46 @@ export async function ensureRoleProfile(
       .from(ROLE_PROFILE_TABLE[role])
       .upsert({ user_id: userId }, { onConflict: "user_id", ignoreDuplicates: true })
   );
+}
+
+/**
+ * The Supabase user behind the request's bearer token, for sign-up routes that
+ * run before the `public.users` row exists (so not behind the `auth`
+ * middleware). 503, not 401, when Supabase can't be reached: the app signs the
+ * user out on a 401, which would throw away a half-finished sign-up.
+ */
+export async function getBearerUser(
+  header: string | undefined,
+): Promise<{ user: User } | { status: 401 | 503; error: string }> {
+  if (!header?.startsWith("Bearer ")) {
+    return { status: 401, error: "Missing or invalid authorization header" };
+  }
+
+  const token = header.slice(7);
+  let auth = await supabaseAdmin.auth.getUser(token);
+  // One retry: a network blip reaching Supabase Auth is common in dev.
+  if (isAuthOutage(auth.error)) auth = await supabaseAdmin.auth.getUser(token);
+
+  if (isAuthOutage(auth.error)) {
+    return { status: 503, error: "Service temporarily unavailable, please retry" };
+  }
+  if (auth.error || !auth.data.user) {
+    return { status: 401, error: rejectedTokenMessage(token, env.SUPABASE_URL) };
+  }
+  return { user: auth.data.user };
+}
+
+/**
+ * Whether another account's profile already uses `email` (case-insensitive).
+ * Throws when Supabase can't answer — callers turn that into a 503.
+ */
+export async function isEmailTaken(email: string, exceptUserId: string): Promise<boolean> {
+  const { data, error } = await supabaseAdmin
+    .from("users")
+    .select("id")
+    .ilike("email", emailLikePattern(email))
+    .neq("id", exceptUserId)
+    .limit(1);
+  if (error) throw error;
+  return data.length > 0;
 }

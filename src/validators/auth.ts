@@ -102,6 +102,11 @@ export const registerPhoneSchema = z
   })
   .openapi("RegisterPhoneBody");
 
+/** GET /auth/email-available — the address typed on the sign-up details form. */
+export const emailAvailableQuerySchema = z.object({
+  email: z.string().trim().email().openapi({ description: "Email to check" }),
+});
+
 export const uploadAvatarSchema = z
   .object({
     image_base64: z.string().min(1),
@@ -194,6 +199,10 @@ export const CustomerProfileSchema = rowSchema(customerProfiles, "CustomerProfil
 export const MessageResponse = z
   .object({ message: z.string() })
   .openapi("AuthMessageResponse");
+
+export const EmailAvailableResponse = z
+  .object({ available: z.boolean() })
+  .openapi("EmailAvailableResponse");
 
 export const SessionTokensResponse = z
   .object({ access_token: z.string(), refresh_token: z.string() })

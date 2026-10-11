@@ -1,12 +1,9 @@
-import { env } from "../../config/env";
-import { isAuthOutage } from "../../lib/auth-outage";
-import { rejectedTokenMessage } from "../../lib/token-issuer";
 import { retryOnNetworkError } from "../../lib/db-retry";
 import { supabaseAdmin } from "../../lib/supabase";
-import { initialGrantedRoles, PHONE_IN_USE, ROLE_NOT_HELD, roleConflictMessage, signUpConflict, type AppRole } from "../../lib/roles";
+import { EMAIL_IN_USE, initialGrantedRoles, PHONE_IN_USE, ROLE_NOT_HELD, roleConflictMessage, signUpConflict, type AppRole } from "../../lib/roles";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { registerPhoneSchema, SocialSyncResponse, publicUser } from "../../validators/auth";
-import { ensureRoleProfile } from "./shared";
+import { ensureRoleProfile, getBearerUser, isEmailTaken } from "./shared";
 
 const app = router();
 
@@ -26,35 +23,20 @@ const route = createRoute({
     200: json(SocialSyncResponse),
     400: errorResponses[400],
     401: errorResponses[401],
-    409: json(ErrorSchema, "Account doesn't hold this role (add it from Become a Partner; code: role_not_held), or phone already in use (code: phone_in_use)"),
+    409: json(ErrorSchema, "Account doesn't hold this role (add it from Become a Partner; code: role_not_held), phone already in use (code: phone_in_use), or email already used by another account (code: email_in_use)"),
     503: json(ErrorSchema, "Supabase unreachable — safe to retry"),
   },
 });
 
 app.openapi(route, async (c) => {
-  const header = c.req.header("Authorization");
-  if (!header?.startsWith("Bearer ")) {
-    return c.json({ error: "Missing or invalid authorization header" }, 401);
-  }
+  const bearerUser = await getBearerUser(c.req.header("Authorization"));
+  if ("error" in bearerUser) return c.json({ error: bearerUser.error }, bearerUser.status);
+  const supaUser = bearerUser.user;
 
-  // 503, not 401, when Supabase can't be reached: the app signs the user out
-  // on a 401, which would throw away a half-finished sign-up.
+  // 503, not 401, when Supabase can't be reached (see getBearerUser).
   const unavailable = () =>
     c.json({ error: "Service temporarily unavailable, please retry" }, 503);
 
-  const token = header.slice(7);
-  let auth = await supabaseAdmin.auth.getUser(token);
-  // One retry: a network blip reaching Supabase Auth is common in dev.
-  if (isAuthOutage(auth.error)) auth = await supabaseAdmin.auth.getUser(token);
-  const {
-    data: { user: supaUser },
-    error,
-  } = auth;
-
-  if (isAuthOutage(error)) return unavailable();
-  if (error || !supaUser) {
-    return c.json({ error: rejectedTokenMessage(token, env.SUPABASE_URL) }, 401);
-  }
   if (!supaUser.phone) {
     return c.json({ error: "This session has no verified phone number" }, 400);
   }
@@ -80,6 +62,20 @@ app.openapi(route, async (c) => {
   const { data: existingUser, error: lookupError } = await findOwnRow();
   if (lookupError) return unavailable();
   if (existingUser) return finishExisting(existingUser, false);
+
+  // The details screen checks this as the user types (GET /auth/email-available);
+  // this is the guarantee.
+  if (body.email) {
+    let taken: boolean;
+    try {
+      taken = await isEmailTaken(body.email, supaUser.id);
+    } catch {
+      return unavailable();
+    }
+    if (taken) {
+      return c.json({ error: "This email is already used by another account", code: EMAIL_IN_USE }, 409);
+    }
+  }
 
   // auth.users stores the phone without "+"; public.users keeps E.164.
   const phone = supaUser.phone.startsWith("+") ? supaUser.phone : `+${supaUser.phone}`;

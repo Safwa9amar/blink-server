@@ -25,6 +25,9 @@ export const ROLE_NOT_HELD = "role_not_held";
 /** `code` of the 409 body when a phone number is already linked to another account. */
 export const PHONE_IN_USE = "phone_in_use";
 
+/** `code` of the 409 body when a sign-up's email already belongs to another account. */
+export const EMAIL_IN_USE = "email_in_use";
+
 /** `code` of the 409 body when a rider with assigned work tries to leave rider. */
 export const ACTIVE_JOB = "active_job";
 

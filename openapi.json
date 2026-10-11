@@ -281,6 +281,17 @@
           "last_name"
         ]
       },
+      "EmailAvailableResponse": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "available"
+        ]
+      },
       "SocialSyncBody": {
         "type": "object",
         "properties": {
@@ -12837,7 +12848,75 @@
             }
           },
           "409": {
-            "description": "Account doesn't hold this role (add it from Become a Partner; code: role_not_held), or phone already in use (code: phone_in_use)",
+            "description": "Account doesn't hold this role (add it from Become a Partner; code: role_not_held), phone already in use (code: phone_in_use), or email already used by another account (code: email_in_use)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Supabase unreachable — safe to retry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/email-available": {
+      "get": {
+        "operationId": "checkEmailAvailable",
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "email",
+              "description": "Email to check"
+            },
+            "required": true,
+            "description": "Email to check",
+            "name": "email",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailAvailableResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
