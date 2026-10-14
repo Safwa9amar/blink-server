@@ -29,14 +29,16 @@ type CouponDbRow = Record<string, any>;
 
 /** PostgREST coupon row → API shape (adds `status` + `discount_label`). */
 export function presentCoupon(row: CouponDbRow) {
-  const status = row.used_at
-    ? "used"
-    : row.expires_at && new Date(row.expires_at).getTime() < Date.now()
-      ? "expired"
-      : "active";
+  const status = row.revoked_at
+    ? "revoked"
+    : row.used_at
+      ? "used"
+      : row.expires_at && new Date(row.expires_at).getTime() < Date.now()
+        ? "expired"
+        : "active";
   return {
     ...row,
-    status: status as "active" | "used" | "expired",
+    status: status as "active" | "used" | "expired" | "revoked",
     discount_label: discountLabel({
       discountType: row.discount_type,
       discountValue: row.discount_value,
@@ -47,15 +49,65 @@ export function presentCoupon(row: CouponDbRow) {
 /** Promotions that can currently be used (active + inside the date window). */
 export function isLive(p: Record<string, any>) {
   const now = Date.now();
+  if (p.archived_at) return false;
   if (!p.is_active) return false;
   if (p.starts_at && new Date(p.starts_at).getTime() > now) return false;
   if (p.ends_at && new Date(p.ends_at).getTime() < now) return false;
   return true;
 }
 
+export type PromotionAvailability =
+  | "archived"
+  | "paused"
+  | "scheduled"
+  | "ended"
+  | "sold_out"
+  | "budget_spent"
+  | "live";
+
+export type PromotionUsage = { issued: number; discount_given: number };
+
+/**
+ * Computed availability, first match wins: archived → paused → scheduled →
+ * ended → sold_out (max_coupons reached) → budget_spent → live. `usage` is
+ * all-time (promotion_usage / promotion_stats).
+ */
+export function promotionAvailability(
+  p: Record<string, any>,
+  usage: PromotionUsage,
+  now: number | Date = Date.now()
+): PromotionAvailability {
+  const t = typeof now === "number" ? now : now.getTime();
+  if (p.archived_at) return "archived";
+  if (!p.is_active) return "paused";
+  if (p.starts_at && new Date(p.starts_at).getTime() > t) return "scheduled";
+  if (p.ends_at && new Date(p.ends_at).getTime() < t) return "ended";
+  if (p.max_coupons != null && usage.issued >= Number(p.max_coupons)) return "sold_out";
+  if (p.discount_budget != null && Number(usage.discount_given) >= Number(p.discount_budget)) return "budget_spent";
+  return "live";
+}
+
+export type PromotionUnavailableCode = "not_live" | "sold_out" | "budget_spent";
+
+/** Thrown by issueCoupon when the promotion can't issue any more coupons. */
+export class PromotionUnavailableError extends Error {
+  constructor(public readonly code: PromotionUnavailableCode) {
+    super(
+      code === "sold_out"
+        ? "This promotion is sold out"
+        : code === "budget_spent"
+          ? "This promotion's budget is spent"
+          : "This promotion is not available"
+    );
+    this.name = "PromotionUnavailableError";
+  }
+}
+
 /**
  * Issue (or return the existing) coupon for `userId` from a promotion row.
- * Idempotent thanks to UNIQUE (user_id, promotion_id).
+ * Idempotent thanks to UNIQUE (user_id, promotion_id): an existing coupon is
+ * returned even if the promotion has since sold out. Otherwise throws
+ * PromotionUnavailableError when the promotion isn't live.
  */
 export async function issueCoupon(userId: string, p: Record<string, any>) {
   const { data: existing } = await supabaseAdmin
@@ -68,26 +120,23 @@ export async function issueCoupon(userId: string, p: Record<string, any>) {
 
   const byDays = Date.now() + (p.valid_days ?? 30) * DAY_MS;
   const endsAt = p.ends_at ? new Date(p.ends_at).getTime() : Infinity;
-  const { data, error } = await supabaseAdmin
-    .from("customer_coupons")
-    .insert({
-      user_id: userId,
-      promotion_id: p.id,
-      code: p.code ?? String(p.id).slice(0, 8).toUpperCase(),
-      type: COUPON_TYPE[p.category] ?? "others",
-      title: p.title,
-      description: p.subtitle ?? "",
-      discount_type: p.discount_type,
-      discount_value: p.discount_value,
-      min_order: p.min_order,
-      max_discount: p.max_discount,
-      image_url: p.image_url || null,
-      expires_at: new Date(Math.min(byDays, endsAt)).toISOString(),
-    })
-    .select()
-    .single();
-  if (error) throw new Error(error.message);
-  return { coupon: data, created: true };
+  // Atomic cap check + insert (locks the promotion row).
+  const { data, error } = await supabaseAdmin.rpc("issue_promotion_coupon", {
+    p_user: userId,
+    p_promotion: p.id,
+    p_code: p.code ?? String(p.id).slice(0, 8).toUpperCase(),
+    p_type: COUPON_TYPE[p.category] ?? "others",
+    p_expires_at: new Date(Math.min(byDays, endsAt)).toISOString(),
+  });
+  if (error) {
+    if (error.message === "sold_out" || error.message === "budget_spent" || error.message === "not_live") {
+      throw new PromotionUnavailableError(error.message);
+    }
+    throw new Error(error.message);
+  }
+  const coupon = Array.isArray(data) ? data[0] : data;
+  if (!coupon) throw new Error("Coupon was not issued");
+  return { coupon, created: true };
 }
 
 export type CouponPricingError = "not_found" | "used" | "expired" | "min_order";
@@ -108,6 +157,7 @@ export async function priceCoupon(
     .eq("user_id", userId)
     .ilike("code", code.trim())
     .is("used_at", null)
+    .is("revoked_at", null)
     .order("created_at", { ascending: false })
     .limit(1);
   const coupon = rows?.[0];
@@ -139,6 +189,7 @@ export async function claimCoupon(couponId: string, nowIso = new Date().toISOStr
     .update({ used_at: nowIso })
     .eq("id", couponId)
     .is("used_at", null)
+    .is("revoked_at", null)
     .select("id")
     .maybeSingle();
   if (error) throw new Error(error.message);

@@ -1,7 +1,7 @@
-import { isLive, issueCoupon, presentCoupon } from "../../lib/coupons";
+import { isLive, issueCoupon, presentCoupon, PromotionUnavailableError } from "../../lib/coupons";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
-import { CouponResponse, redeemCouponSchema } from "../../validators/promotions";
+import { CouponResponse, PromotionUnavailableResponse, redeemCouponSchema } from "../../validators/promotions";
 
 const app = router();
 
@@ -18,6 +18,7 @@ const route = createRoute({
     201: json(CouponResponse, "Redeemed"),
     400: errorResponses[400],
     404: errorResponses[404],
+    409: json(PromotionUnavailableResponse, "Sold out, budget spent or not live"),
   },
 });
 
@@ -38,8 +39,14 @@ app.openapi(route, async (c) => {
 
   try {
     const { coupon, created } = await issueCoupon(user.id, promotion);
+    if (coupon.revoked_at) {
+      return c.json({ error: "This coupon was revoked", code: "not_live" as const }, 409);
+    }
     return c.json({ coupon: presentCoupon(coupon) }, created ? 201 : 200);
   } catch (e) {
+    if (e instanceof PromotionUnavailableError) {
+      return c.json({ error: e.message, code: e.code }, 409);
+    }
     return c.json({ error: (e as Error).message }, 400);
   }
 });
