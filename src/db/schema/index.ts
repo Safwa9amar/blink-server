@@ -35,3 +35,4 @@ export * from "./customer-favorites";
 export * from "./merchant";
 export * from "./rider-order-declines";
 export * from "./rider-perks";
+export * from "./staff-access-events";
