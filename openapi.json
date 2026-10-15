@@ -5666,6 +5666,161 @@
           "code"
         ]
       },
+      "ReferralOverviewResponse": {
+        "type": "object",
+        "properties": {
+          "referral_code": {
+            "type": "string"
+          },
+          "invite_url": {
+            "type": "string"
+          },
+          "reward_amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/ReferralStats"
+          },
+          "referrals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReferralItem"
+            }
+          },
+          "applied_referral": {
+            "$ref": "#/components/schemas/AppliedReferral"
+          }
+        },
+        "required": [
+          "referral_code",
+          "invite_url",
+          "reward_amount",
+          "currency",
+          "stats",
+          "referrals",
+          "applied_referral"
+        ]
+      },
+      "ReferralStats": {
+        "type": "object",
+        "properties": {
+          "total_earned": {
+            "type": "number"
+          },
+          "successful_referrals": {
+            "type": "number"
+          },
+          "pending_invites": {
+            "type": "number"
+          },
+          "available_balance": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total_earned",
+          "successful_referrals",
+          "pending_invites",
+          "available_balance"
+        ]
+      },
+      "ReferralItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "friend_name": {
+            "type": "string"
+          },
+          "friend_phone": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "pending",
+              "cancelled"
+            ]
+          },
+          "reward": {
+            "type": "number"
+          },
+          "date": {
+            "type": "string"
+          },
+          "service": {
+            "type": "string"
+          },
+          "claimed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "friend_name",
+          "friend_phone",
+          "status",
+          "reward",
+          "date",
+          "service",
+          "claimed"
+        ]
+      },
+      "AppliedReferral": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "discount_amount": {
+            "type": "number"
+          },
+          "applied_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "discount_amount",
+          "applied_at"
+        ]
+      },
+      "ApplyReferralResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "discount_amount": {
+            "type": "number"
+          },
+          "coupon_code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "success",
+          "discount_amount"
+        ]
+      },
+      "ApplyReferralBody": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
       "FavoriteListResponse": {
         "type": "object",
         "properties": {
@@ -17294,6 +17449,87 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PromotionUnavailableResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/referrals": {
+      "get": {
+        "operationId": "getReferralOverview",
+        "tags": [
+          "referrals"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer referral overview and history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferralOverviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/referrals/apply": {
+      "post": {
+        "operationId": "applyReferralCode",
+        "tags": [
+          "referrals"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyReferralBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Referral code applied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyReferralResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
                 }
               }
             }
