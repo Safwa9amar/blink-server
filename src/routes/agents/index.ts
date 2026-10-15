@@ -11,6 +11,7 @@ import dues from "./dues";
 import perks from "./perks";
 import requiredActions from "./required-actions";
 import adminReview from "./admin-review";
+import adminDues from "./admin-dues";
 
 const app = router();
 
@@ -34,5 +35,6 @@ app.route("/", dues);
 app.route("/", perks);
 app.route("/", requiredActions);
 app.route("/", adminReview);
+app.route("/", adminDues);
 
 export default app;

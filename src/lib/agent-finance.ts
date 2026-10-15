@@ -42,6 +42,50 @@ export interface AgentDues {
   };
 }
 
+export interface DuesTxRow {
+  type: string;
+  amount: number | string | null;
+  fees?: number | string | null;
+}
+
+/**
+ * The dues math, shared by `computeAgentDues` (one agent) and
+ * `computeAgentDuesBatch` (many) so the two can never drift. `txs` must be the
+ * agent's COMPLETED operations, `rewards` the reward_amount of won challenges
+ * and `payments` the amount of COMPLETED dues payments.
+ */
+export function agentDuesFromRows(
+  txs: readonly DuesTxRow[],
+  rewards: readonly { reward_amount: number | string | null }[],
+  payments: readonly { amount: number | string | null }[]
+): AgentDues {
+  const b = { deposits: 0, withdrawals: 0, platform_fees: 0, taxes: 0, challenge_rewards: 0, payments: 0 };
+  for (const t of txs) {
+    const { platform, tax } = splitFee(Number(t.fees ?? 0));
+    if (t.type === "deposit") b.deposits += Number(t.amount);
+    else b.withdrawals += Number(t.amount);
+    b.platform_fees += platform;
+    b.taxes += tax;
+  }
+  for (const r of rewards) b.challenge_rewards += Number(r.reward_amount ?? 0);
+  for (const p of payments) b.payments += Number(p.amount);
+
+  const balance =
+    b.deposits - b.withdrawals + b.platform_fees + b.taxes - b.challenge_rewards - b.payments;
+  return {
+    total_dues: round2(Math.max(0, balance)),
+    credit: round2(Math.max(0, -balance)),
+    breakdown: {
+      deposits: round2(b.deposits),
+      withdrawals: round2(b.withdrawals),
+      platform_fees: round2(b.platform_fees),
+      taxes: round2(b.taxes),
+      challenge_rewards: round2(b.challenge_rewards),
+      payments: round2(b.payments),
+    },
+  };
+}
+
 /** Outstanding dues for an agent, derived from every completed operation. */
 export async function computeAgentDues(agentId: string): Promise<AgentDues> {
   const [{ data: txs }, { data: rewards }, { data: payments }] = await Promise.all([
@@ -61,32 +105,103 @@ export async function computeAgentDues(agentId: string): Promise<AgentDues> {
       .eq("agent_id", agentId)
       .eq("status", "completed"),
   ]);
+  return agentDuesFromRows(txs ?? [], rewards ?? [], payments ?? []);
+}
 
-  const b = { deposits: 0, withdrawals: 0, platform_fees: 0, taxes: 0, challenge_rewards: 0, payments: 0 };
-  for (const t of txs ?? []) {
-    const { platform, tax } = splitFee(Number(t.fees ?? 0));
-    if (t.type === "deposit") b.deposits += Number(t.amount);
-    else b.withdrawals += Number(t.amount);
-    b.platform_fees += platform;
-    b.taxes += tax;
+/** Every row of a query, paged past PostgREST's default 1000-row cap. */
+export async function fetchAllRows<T>(
+  page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>
+): Promise<T[]> {
+  const size = 1000;
+  const out: T[] = [];
+  for (let from = 0; ; from += size) {
+    const { data, error } = await page(from, from + size - 1);
+    if (error) throw new Error(`[agent-finance] read failed: ${error.message}`);
+    out.push(...(data ?? []));
+    if ((data?.length ?? 0) < size) return out;
   }
-  for (const r of rewards ?? []) b.challenge_rewards += Number(r.reward_amount ?? 0);
-  for (const p of payments ?? []) b.payments += Number(p.amount);
+}
 
-  const balance =
-    b.deposits - b.withdrawals + b.platform_fees + b.taxes - b.challenge_rewards - b.payments;
-  return {
-    total_dues: round2(Math.max(0, balance)),
-    credit: round2(Math.max(0, -balance)),
-    breakdown: {
-      deposits: round2(b.deposits),
-      withdrawals: round2(b.withdrawals),
-      platform_fees: round2(b.platform_fees),
-      taxes: round2(b.taxes),
-      challenge_rewards: round2(b.challenge_rewards),
-      payments: round2(b.payments),
-    },
-  };
+const chunks = <T>(xs: readonly T[], n: number) =>
+  Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, i * n + n));
+
+const pushTo = <T>(m: Map<string, T[]>, k: string | null | undefined, v: T) => {
+  if (!k) return;
+  const a = m.get(k);
+  if (a) a.push(v);
+  else m.set(k, [v]);
+};
+
+export interface AgentLedgerTx extends DuesTxRow {
+  id: string;
+  created_at: string;
+  rating: number | null;
+}
+
+/** The raw rows behind every agent's dues, grouped by agent (batched reads). */
+export async function loadAgentLedgers(agentIds: readonly string[]) {
+  const txs = new Map<string, AgentLedgerTx[]>();
+  const rewards = new Map<string, { reward_amount: number | string | null }[]>();
+  const payments = new Map<string, { amount: number | string | null; created_at: string }[]>();
+  for (const ids of chunks([...new Set(agentIds)], 100)) {
+    const [t, r, p] = await Promise.all([
+      fetchAllRows<AgentLedgerTx & { agent_id: string }>((from, to) =>
+        supabaseAdmin
+          .from("transactions")
+          .select("id, agent_id, type, amount, fees, created_at, rating")
+          .in("agent_id", ids)
+          .eq("status", "completed")
+          .order("id")
+          .range(from, to) as any
+      ),
+      fetchAllRows<{ agent_id: string; reward_amount: number | null }>((from, to) =>
+        supabaseAdmin
+          .from("agent_challenge_participants")
+          .select("agent_id, reward_amount")
+          .in("agent_id", ids)
+          .eq("status", "won")
+          .order("agent_id")
+          .range(from, to) as any
+      ),
+      fetchAllRows<{ id: string; agent_id: string; amount: number; created_at: string }>((from, to) =>
+        supabaseAdmin
+          .from("agent_dues_payments")
+          .select("id, agent_id, amount, created_at")
+          .in("agent_id", ids)
+          .eq("status", "completed")
+          .order("id")
+          .range(from, to) as any
+      ),
+    ]);
+    for (const x of t) pushTo(txs, x.agent_id, x);
+    for (const x of r) pushTo(rewards, x.agent_id, x);
+    for (const x of p) pushTo(payments, x.agent_id, x);
+  }
+  return { txs, rewards, payments };
+}
+
+/** `computeAgentDues` for many agents at once — one batched read per table. */
+export async function computeAgentDuesBatch(agentIds: readonly string[]): Promise<Map<string, AgentDues>> {
+  const { txs, rewards, payments } = await loadAgentLedgers(agentIds);
+  return new Map(
+    [...new Set(agentIds)].map((id) => [
+      id,
+      agentDuesFromRows(txs.get(id) ?? [], rewards.get(id) ?? [], payments.get(id) ?? []),
+    ])
+  );
+}
+
+/** Every agent: users with an agent_profiles row plus any owner of an agent shop. */
+export async function listAgentIds(): Promise<string[]> {
+  const [profiles, shops] = await Promise.all([
+    fetchAllRows<{ user_id: string }>((from, to) =>
+      supabaseAdmin.from("agent_profiles").select("user_id").order("user_id").range(from, to) as any
+    ),
+    fetchAllRows<{ user_id: string }>((from, to) =>
+      supabaseAdmin.from("agent_shops").select("user_id").order("id").range(from, to) as any
+    ),
+  ]);
+  return [...new Set([...profiles, ...shops].map((r) => r.user_id))];
 }
 
 export interface AgentOperation {

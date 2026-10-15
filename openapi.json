@@ -5355,6 +5355,25 @@
             "minimum": -2147483648,
             "maximum": 2147483647
           },
+          "max_coupons": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "discount_budget": {
+            "type": "number",
+            "nullable": true
+          },
+          "archived_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
           "created_at": {
             "type": "string"
           },
@@ -5386,8 +5405,56 @@
           "ends_at",
           "is_active",
           "sort_order",
+          "max_coupons",
+          "discount_budget",
+          "archived_at",
+          "created_by",
           "created_at",
           "updated_at"
+        ]
+      },
+      "TrackPromotionEventsResponse": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accepted"
+        ]
+      },
+      "TrackPromotionEventsBody": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "promotion_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "event": {
+                  "type": "string",
+                  "enum": [
+                    "view",
+                    "tap"
+                  ]
+                }
+              },
+              "required": [
+                "promotion_id",
+                "event"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 50
+          }
+        },
+        "required": [
+          "events"
         ]
       },
       "PromotionResponse": {
@@ -5425,7 +5492,8 @@
                 "enum": [
                   "active",
                   "used",
-                  "expired"
+                  "expired",
+                  "revoked"
                 ]
               },
               "discount_label": {
@@ -5502,6 +5570,22 @@
             "nullable": true,
             "format": "uuid"
           },
+          "revoked_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "source": {
+            "type": "string"
+          },
+          "issued_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
           "created_at": {
             "type": "string"
           },
@@ -5525,8 +5609,32 @@
           "expires_at",
           "used_at",
           "order_id",
+          "revoked_at",
+          "source",
+          "issued_by",
+          "note",
           "created_at",
           "updated_at"
+        ]
+      },
+      "PromotionUnavailableResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "not_live",
+              "sold_out",
+              "budget_spent"
+            ]
+          }
+        },
+        "required": [
+          "error",
+          "code"
         ]
       },
       "CouponListResponse": {
@@ -10348,6 +10456,394 @@
         "required": [
           "document",
           "status"
+        ]
+      },
+      "AdminAgentDuesResponse": {
+        "type": "object",
+        "properties": {
+          "agents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminAgentDues"
+            }
+          },
+          "payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminAgentDuesPayment"
+            }
+          }
+        },
+        "required": [
+          "agents",
+          "payments"
+        ]
+      },
+      "AdminAgentDues": {
+        "type": "object",
+        "properties": {
+          "agent_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "shops_total": {
+            "type": "number"
+          },
+          "shops_open": {
+            "type": "number"
+          },
+          "primary_shop": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "address": {
+                "type": "string",
+                "nullable": true
+              },
+              "lat": {
+                "type": "number",
+                "nullable": true
+              },
+              "lng": {
+                "type": "number",
+                "nullable": true
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "address",
+              "lat",
+              "lng"
+            ]
+          },
+          "deposits": {
+            "type": "object",
+            "properties": {
+              "count": {
+                "type": "number"
+              },
+              "amount": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "count",
+              "amount"
+            ]
+          },
+          "withdrawals": {
+            "type": "object",
+            "properties": {
+              "count": {
+                "type": "number"
+              },
+              "amount": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "count",
+              "amount"
+            ]
+          },
+          "operations_30d": {
+            "type": "number"
+          },
+          "fee_income_net": {
+            "type": "number"
+          },
+          "total_dues": {
+            "type": "number"
+          },
+          "credit": {
+            "type": "number"
+          },
+          "last_operation_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_payment_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "rating_avg": {
+            "type": "number",
+            "nullable": true
+          },
+          "ratings_count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "agent_id",
+          "name",
+          "phone",
+          "shops_total",
+          "shops_open",
+          "primary_shop",
+          "deposits",
+          "withdrawals",
+          "operations_30d",
+          "fee_income_net",
+          "total_dues",
+          "credit",
+          "last_operation_at",
+          "last_payment_at",
+          "rating_avg",
+          "ratings_count"
+        ]
+      },
+      "AdminAgentDuesPayment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "agent_id": {
+            "type": "string"
+          },
+          "agent_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number"
+          },
+          "fees": {
+            "type": "number"
+          },
+          "method": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "agent_id",
+          "agent_name",
+          "amount",
+          "fees",
+          "method",
+          "status",
+          "created_at"
+        ]
+      },
+      "RemindAgentDuesResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      },
+      "AgentDuesReminderError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "nothing_outstanding",
+              "reminded_recently"
+            ]
+          }
+        },
+        "required": [
+          "error",
+          "code"
+        ]
+      },
+      "AdminBlinkCashSummary": {
+        "type": "object",
+        "properties": {
+          "window_days": {
+            "type": "number"
+          },
+          "generated_at": {
+            "type": "string"
+          },
+          "circulation": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "number"
+              },
+              "available": {
+                "type": "number"
+              },
+              "pending_withdrawals": {
+                "type": "number"
+              },
+              "wallets": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "total",
+              "available",
+              "pending_withdrawals",
+              "wallets"
+            ]
+          },
+          "deposits": {
+            "type": "object",
+            "properties": {
+              "count": {
+                "type": "number"
+              },
+              "amount": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "count",
+              "amount"
+            ]
+          },
+          "withdrawals": {
+            "type": "object",
+            "properties": {
+              "count": {
+                "type": "number"
+              },
+              "amount": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "count",
+              "amount"
+            ]
+          },
+          "fees": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "number"
+              },
+              "platform": {
+                "type": "number"
+              },
+              "tax": {
+                "type": "number"
+              },
+              "agents_net": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "total",
+              "platform",
+              "tax",
+              "agents_net"
+            ]
+          },
+          "pending": {
+            "type": "object",
+            "properties": {
+              "count": {
+                "type": "number"
+              },
+              "amount": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "count",
+              "amount"
+            ]
+          },
+          "agent_cash": {
+            "type": "object",
+            "properties": {
+              "owed_to_blink": {
+                "type": "number"
+              },
+              "credit": {
+                "type": "number"
+              },
+              "agents_owing": {
+                "type": "number"
+              },
+              "agents": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "owed_to_blink",
+              "credit",
+              "agents_owing",
+              "agents"
+            ]
+          },
+          "daily": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string"
+                },
+                "deposits": {
+                  "type": "number"
+                },
+                "withdrawals": {
+                  "type": "number"
+                },
+                "deposits_count": {
+                  "type": "number"
+                },
+                "withdrawals_count": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "date",
+                "deposits",
+                "withdrawals",
+                "deposits_count",
+                "withdrawals_count"
+              ]
+            }
+          }
+        },
+        "required": [
+          "window_days",
+          "generated_at",
+          "circulation",
+          "deposits",
+          "withdrawals",
+          "fees",
+          "pending",
+          "agent_cash",
+          "daily"
         ]
       },
       "RiderProfileDetailResponse": {
@@ -16477,6 +16973,52 @@
         }
       }
     },
+    "/promotions/events": {
+      "post": {
+        "operationId": "trackPromotionEvents",
+        "tags": [
+          "promotions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackPromotionEventsBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackPromotionEventsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/promotions/{id}": {
       "get": {
         "operationId": "getPromotion",
@@ -16593,6 +17135,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Sold out, budget spent or not live",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionUnavailableResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -16691,6 +17243,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Sold out, budget spent or not live",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionUnavailableResponse"
                 }
               }
             }
@@ -21784,6 +22346,209 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents/admin/dues": {
+      "get": {
+        "operationId": "listAgentDuesAdmin",
+        "tags": [
+          "admin-agents"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAgentDuesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agents/admin/dues/{agent_id}/remind": {
+      "post": {
+        "operationId": "remindAgentDues",
+        "tags": [
+          "admin-agents"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "agent_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemindAgentDuesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Nothing outstanding (code nothing_outstanding)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentDuesReminderError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Already reminded in the last 24 h (code reminded_recently)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentDuesReminderError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "The notification could not be saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blink-cash/admin/summary": {
+      "get": {
+        "operationId": "getBlinkCashSummaryAdmin",
+        "tags": [
+          "admin-blink-cash"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7",
+                "30",
+                "90"
+              ],
+              "description": "Window in days (default 30)"
+            },
+            "required": false,
+            "description": "Window in days (default 30)",
+            "name": "days",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminBlinkCashSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
