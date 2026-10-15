@@ -5,6 +5,7 @@ import {
   pgEnum,
   pgPolicy,
   pgTable,
+  smallint,
   text,
   timestamp,
   uuid,
@@ -45,6 +46,10 @@ export const supportConversations = pgTable(
       .notNull()
       .defaultNow(),
     lastMessagePreview: text("last_message_preview"),
+    priority: text("priority").notNull().default("normal"),
+    csatRating: smallint("csat_rating"),
+    csatComment: text("csat_comment"),
+    csatAt: timestamp("csat_at", { withTimezone: true, mode: "string" }),
     unreadForStaff: integer("unread_for_staff").notNull().default(0),
     ...timestamps,
   },

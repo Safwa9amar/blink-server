@@ -41,6 +41,7 @@ export function router() {
 export const ErrorSchema = z
   .object({
     error: z.string(),
+    code: z.string().optional(),
     details: z
       .array(z.object({ path: z.string(), message: z.string() }))
       .optional(),
@@ -68,6 +69,7 @@ export const errorResponses = {
   401: json(ErrorSchema, "Unauthorized"),
   403: json(ErrorSchema, "Forbidden"),
   404: json(ErrorSchema, "Not found"),
+  409: json(ErrorSchema, "Conflict"),
   429: json(ErrorSchema, "Too many requests"),
 } as const;
 
