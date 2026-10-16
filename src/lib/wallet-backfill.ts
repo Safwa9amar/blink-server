@@ -5,21 +5,18 @@
 // the first withdrawal of a rider who was not backfilled yet.
 import { riderWalletDerived } from "./dispatch";
 import { fetchAllRows } from "./agent-finance";
+import { isExtraEntry, type LedgerEntryLite } from "./blink-cash-admin";
 import { supabaseAdmin } from "./supabase";
-
-/** Entry kinds the derived balance does not know about (reconciliation adds them back). */
-export const NON_DERIVED_KINDS = ["adjustment", "offer_bonus"] as const;
 
 /**
  * The opening entry: what the derived balance holds that the posted entries
  * (excluding the opening itself and the kinds derived never counts) do not.
  */
-export function openingAmount(
-  derivedTotal: number,
-  entries: readonly { kind: string; amount: number | string }[]
-) {
+export function openingAmount(derivedTotal: number, entries: readonly LedgerEntryLite[]) {
+  // Same rule as reconciliation (isExtraEntry): staff adjustments, offer bonuses
+  // and bonus reversals are not in the derived balance, so they stay on top.
   const posted = entries
-    .filter((e) => e.kind !== "opening_balance" && !(NON_DERIVED_KINDS as readonly string[]).includes(e.kind))
+    .filter((e) => e.kind !== "opening_balance" && !isExtraEntry(e))
     .reduce((sum, e) => sum + Number(e.amount), 0);
   return Math.round((derivedTotal - posted) * 100) / 100;
 }
@@ -41,10 +38,10 @@ export async function backfillRider(userId: string): Promise<BackfillResult> {
 
   const [derived, entries] = await Promise.all([
     riderWalletDerived(userId),
-    fetchAllRows<{ kind: string; amount: number }>((from, to) =>
+    fetchAllRows<LedgerEntryLite>((from, to) =>
       supabaseAdmin
         .from("blink_wallet_entries")
-        .select("kind, amount")
+        .select("kind, amount, idempotency_key")
         .eq("wallet_id", wallet.id)
         .order("created_at")
         .range(from, to)
