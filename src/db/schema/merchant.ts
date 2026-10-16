@@ -80,6 +80,13 @@ export const merchantDuesPayments = pgTable(
     fees: money("fees").notNull().default(0),
     method: text("method").notNull(),
     status: transactionStatus("status").notNull().default("completed"),
+    // Staff trail (20261016120000_blink_cash_full.sql).
+    reference: text("reference"),
+    note: text("note"),
+    recordedBy: uuid("recorded_by").references(() => users.id, { onDelete: "set null" }),
+    confirmedBy: uuid("confirmed_by").references(() => users.id, { onDelete: "set null" }),
+    confirmedAt: timestamp("confirmed_at", { withTimezone: true, mode: "string" }),
+    rejectedReason: text("rejected_reason"),
     ...timestamps,
   },
   (t) => [

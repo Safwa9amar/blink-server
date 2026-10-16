@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   index,
   jsonb,
+  numeric,
   pgPolicy,
   pgSequence,
   pgTable,
@@ -47,6 +48,8 @@ export const agentProfiles = pgTable(
     // wilaya / bank_rib are common fields and live on users (see users.ts).
     // Business documents (20261006230006_agent_backend.sql): commercial register scans
     // with their staff review status, plus NIF / NIS numbers.
+    // Most cash the agent may hold for Blink; null falls back to blink_cash_settings.agent_credit_limit.
+    creditLimit: numeric("credit_limit", { precision: 14, scale: 2 }).$type<number>(),
     documents: jsonb("documents").$type<AgentDocuments>().notNull().default({}),
     ...timestamps,
   },

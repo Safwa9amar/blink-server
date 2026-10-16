@@ -2,17 +2,26 @@ import { sql } from "drizzle-orm";
 import {
   check,
   index,
+  jsonb,
   numeric,
   pgPolicy,
   pgTable,
   smallint,
   text,
+  timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
 import { agentShops } from "./agent-shops";
+import { blinkCashOffers } from "./blink-cash";
 import { depositMethod, transactionStatus, transactionType } from "./enums";
 import { timestamps } from "./_shared";
 import { users } from "./users";
+
+export interface PayoutAccount {
+  type: "ccp" | "baridimob" | "rip" | "bank";
+  number: string;
+  holder: string;
+}
 
 const money = (name: string) => numeric(name, { precision: 10, scale: 2 }).$type<number>();
 
@@ -41,6 +50,26 @@ export const transactions = pgTable(
     // Agent → rider rating, left on the receipt after an operation (20261006230006_agent_backend.sql).
     riderRating: smallint("rider_rating"),
     riderFeedback: text("rider_feedback"),
+    // Lifecycle (20261016120000_blink_cash_full.sql).
+    expiresAt: timestamp("expires_at", { withTimezone: true, mode: "string" }),
+    completedAt: timestamp("completed_at", { withTimezone: true, mode: "string" }),
+    cancelledAt: timestamp("cancelled_at", { withTimezone: true, mode: "string" }),
+    cancelReason: text("cancel_reason").$type<"rider" | "agent" | "expired" | "staff" | "rejected">(),
+    cancelledBy: uuid("cancelled_by").references(() => users.id, { onDelete: "set null" }),
+    reviewedBy: uuid("reviewed_by").references(() => users.id, { onDelete: "set null" }),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true, mode: "string" }),
+    // Electronic requests: the payment reference the rider gave / staff recorded.
+    reference: text("reference"),
+    receiptUrl: text("receipt_url"),
+    payoutAccount: jsonb("payout_account").$type<PayoutAccount>(),
+    // Client-chosen idempotency key, unique per user.
+    clientRef: uuid("client_ref"),
+    reversedBy: uuid("reversed_by").references(() => users.id, { onDelete: "set null" }),
+    reversedAt: timestamp("reversed_at", { withTimezone: true, mode: "string" }),
+    reversalReason: text("reversal_reason"),
+    offerId: uuid("offer_id").references(() => blinkCashOffers.id, { onDelete: "set null" }),
+    bonusAmount: money("bonus_amount"),
+    staffNote: text("staff_note"),
     ...timestamps,
   },
   (t) => [
