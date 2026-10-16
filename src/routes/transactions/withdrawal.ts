@@ -109,7 +109,7 @@ app.openapi(route, async (c) => {
   const known = walletError(error);
   if (known) {
     return known.status === 403
-      ? c.json({ error: known.body.error }, 403)
+      ? c.json({ error: known.body.error, code: "wallet_frozen" as const }, 403)
       : c.json(known.body as { error: string; code: "insufficient_funds" }, 400);
   }
   if (error || !data) {

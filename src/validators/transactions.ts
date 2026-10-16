@@ -176,11 +176,12 @@ export const CashRequestError = z
   })
   .openapi("CashRequestError");
 
-/** A 403 of a PIN check: no code = wrong PIN, `pin_locked` adds `retry_after` (seconds). */
+/** A 403 of a PIN check: no code = wrong PIN, `pin_locked` adds `retry_after` (seconds); a
+ *  withdrawal on a frozen wallet answers `wallet_frozen`. */
 export const PinError = z
   .object({
     error: z.string(),
-    code: z.literal("pin_locked").optional(),
+    code: z.enum(["pin_locked", "wallet_frozen"]).optional(),
     retry_after: z.number().optional(),
   })
   .openapi("PinError");

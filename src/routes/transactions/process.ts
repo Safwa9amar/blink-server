@@ -165,6 +165,8 @@ app.openapi(route, async (c) => {
       if (known.status === 403) return c.json({ error: known.body.error, code }, 403);
       if (known.status === 410) return c.json({ error: known.body.error, code: "expired" as const }, 410);
       if (known.status === 409) return c.json({ error: known.body.error, code: "not_pending" as const }, 409);
+      // A withdrawal from before holds existed, now above the rider's balance.
+      if (known.status === 400) return c.json({ error: known.body.error, code: known.body.code }, 400);
     }
     if (error) console.error("[transactions] process failed", error.message);
     return c.json({ error: "Transaction not found or already processed" }, 400);

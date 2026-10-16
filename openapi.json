@@ -1277,7 +1277,8 @@
           "code": {
             "type": "string",
             "enum": [
-              "pin_locked"
+              "pin_locked",
+              "wallet_frozen"
             ]
           },
           "retry_after": {
