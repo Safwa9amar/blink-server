@@ -90,7 +90,9 @@ app.openapi(
         amount: round2(body.amount),
         fees: round2(body.amount * AGENT_DUES_FEE_RATE),
         method: body.method,
-        status: "completed",
+        // No payment provider is wired: nothing proves this money arrived, so it
+        // waits as pending (not counted in dues) until finance confirms it.
+        status: "pending",
       })
       .select()
       .single();

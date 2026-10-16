@@ -50,7 +50,9 @@ app.openapi(route, async (c) => {
       amount: body.amount,
       fees: round2(body.amount * DUES_FEE_RATE),
       method: body.method,
-      status: "completed",
+      // No payment provider is wired: nothing proves this money arrived, so it
+      // waits as pending (not counted in dues) until finance confirms it.
+      status: "pending",
     })
     .select()
     .single();
