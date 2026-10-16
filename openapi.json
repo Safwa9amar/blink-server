@@ -986,6 +986,14 @@
           "agent_id": {
             "type": "string"
           },
+          "credit_limit": {
+            "type": "number",
+            "nullable": true
+          },
+          "limit_warned_at": {
+            "type": "string",
+            "nullable": true
+          },
           "documents": {
             "$ref": "#/components/schemas/AgentDocuments"
           },
@@ -1000,6 +1008,8 @@
           "id",
           "user_id",
           "agent_id",
+          "credit_limit",
+          "limit_warned_at",
           "documents",
           "created_at",
           "updated_at"
@@ -1258,6 +1268,26 @@
           "valid"
         ]
       },
+      "PinError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "pin_locked"
+            ]
+          },
+          "retry_after": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
       "VerifyPinBody": {
         "type": "object",
         "properties": {
@@ -1270,6 +1300,27 @@
         },
         "required": [
           "pin"
+        ]
+      },
+      "ChangePinBody": {
+        "type": "object",
+        "properties": {
+          "current_pin": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 4,
+            "pattern": "^\\d{4}$"
+          },
+          "new_pin": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 4,
+            "pattern": "^\\d{4}$"
+          }
+        },
+        "required": [
+          "current_pin",
+          "new_pin"
         ]
       },
       "AccountDeletionRequestResponse": {
@@ -1916,7 +1967,9 @@
             "enum": [
               "completed",
               "cancelled",
-              "pending"
+              "pending",
+              "review",
+              "reversed"
             ]
           },
           "method": {
@@ -1958,6 +2011,78 @@
             "maximum": 32767
           },
           "rider_feedback": {
+            "type": "string",
+            "nullable": true
+          },
+          "expires_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "completed_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelled_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancel_reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelled_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "reviewed_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "reviewed_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "reference": {
+            "type": "string",
+            "nullable": true
+          },
+          "receipt_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "payout_account": {
+            "$ref": "#/components/schemas/PayoutAccount"
+          },
+          "client_ref": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "reversed_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "reversed_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "reversal_reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "offer_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "bonus_amount": {
+            "type": "number",
+            "nullable": true
+          },
+          "staff_note": {
             "type": "string",
             "nullable": true
           },
@@ -2018,8 +2143,55 @@
           "feedback",
           "rider_rating",
           "rider_feedback",
+          "expires_at",
+          "completed_at",
+          "cancelled_at",
+          "cancel_reason",
+          "cancelled_by",
+          "reviewed_by",
+          "reviewed_at",
+          "reference",
+          "receipt_url",
+          "payout_account",
+          "client_ref",
+          "reversed_by",
+          "reversed_at",
+          "reversal_reason",
+          "offer_id",
+          "bonus_amount",
+          "staff_note",
           "created_at",
           "updated_at"
+        ]
+      },
+      "PayoutAccount": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "ccp",
+              "baridimob",
+              "rip",
+              "bank"
+            ]
+          },
+          "number": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "holder": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "type",
+          "number",
+          "holder"
         ]
       },
       "TransactionResponse": {
@@ -2031,6 +2203,43 @@
         },
         "required": [
           "transaction"
+        ]
+      },
+      "CashRequestError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "electronic_unavailable",
+              "limit_min",
+              "limit_max",
+              "limit_daily",
+              "limit_monthly",
+              "insufficient_funds",
+              "pin_required",
+              "reference_required",
+              "payout_account_required",
+              "offer_inactive",
+              "offer_not_started",
+              "offer_ended",
+              "offer_min_deposit",
+              "offer_limit_reached",
+              "offer_budget_exhausted"
+            ]
+          },
+          "limit": {
+            "type": "number"
+          },
+          "used": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "error"
         ]
       },
       "CreateDepositBody": {
@@ -2056,6 +2265,28 @@
             "type": "string",
             "format": "uuid",
             "description": "Agent shop the rider chose; its owner becomes agent_id"
+          },
+          "client_ref": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Idempotency key: a retry with the same value returns the first request (200) instead of creating another"
+          },
+          "offer_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Deposit offer (GET /blink-cash/offers) whose bonus this deposit earns when completed"
+          },
+          "reference": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "description": "Electronic only: the payment reference of the transfer (required)"
+          },
+          "receipt_url": {
+            "type": "string",
+            "maxLength": 500,
+            "format": "uri",
+            "description": "Electronic only: photo of the receipt"
           }
         },
         "required": [
@@ -2086,6 +2317,26 @@
             "type": "string",
             "format": "uuid",
             "description": "Agent shop the rider chose; its owner becomes agent_id"
+          },
+          "client_ref": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Idempotency key: a retry with the same value returns the first request (200) instead of creating another"
+          },
+          "pin": {
+            "type": "string",
+            "pattern": "^\\d{4}$",
+            "description": "The rider's PIN; required when blink_cash_settings.require_pin_for_withdrawal is on"
+          },
+          "payout_account": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PayoutAccount"
+              },
+              {
+                "description": "Electronic only: where Blink pays the money out (required)"
+              }
+            ]
           }
         },
         "required": [
@@ -2103,8 +2354,45 @@
             "type": "string",
             "enum": [
               "shop_not_approved",
-              "not_your_transaction"
+              "not_your_transaction",
+              "pin_locked",
+              "wrong_agent",
+              "wallet_frozen"
             ]
+          },
+          "retry_after": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "WalletFunctionError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "insufficient_funds",
+              "wallet_frozen",
+              "not_pending",
+              "expired",
+              "wrong_agent",
+              "not_found",
+              "not_completed",
+              "not_in_review",
+              "agent_limit_reached"
+            ]
+          },
+          "limit": {
+            "type": "number"
+          },
+          "total_dues": {
+            "type": "number"
           }
         },
         "required": [
@@ -8718,8 +9006,36 @@
             "enum": [
               "completed",
               "cancelled",
-              "pending"
+              "pending",
+              "review",
+              "reversed"
             ]
+          },
+          "reference": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "recorded_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "confirmed_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "confirmed_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "rejected_reason": {
+            "type": "string",
+            "nullable": true
           },
           "created_at": {
             "type": "string"
@@ -8736,6 +9052,12 @@
           "fees",
           "method",
           "status",
+          "reference",
+          "note",
+          "recorded_by",
+          "confirmed_by",
+          "confirmed_at",
+          "rejected_reason",
           "created_at",
           "updated_at"
         ]
@@ -9766,7 +10088,9 @@
             "enum": [
               "completed",
               "cancelled",
-              "pending"
+              "pending",
+              "review",
+              "reversed"
             ]
           },
           "created_at": {
@@ -10176,6 +10500,12 @@
           "payment_fee_rate": {
             "type": "number"
           },
+          "credit_limit": {
+            "type": "number"
+          },
+          "capacity": {
+            "type": "number"
+          },
           "breakdown": {
             "$ref": "#/components/schemas/AgentDuesBreakdown"
           },
@@ -10192,6 +10522,8 @@
           "platform_fee_rate",
           "tax_rate",
           "payment_fee_rate",
+          "credit_limit",
+          "capacity",
           "breakdown",
           "payments"
         ]
@@ -10252,8 +10584,36 @@
             "enum": [
               "completed",
               "cancelled",
-              "pending"
+              "pending",
+              "review",
+              "reversed"
             ]
+          },
+          "reference": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "recorded_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "confirmed_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "confirmed_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "rejected_reason": {
+            "type": "string",
+            "nullable": true
           },
           "created_at": {
             "type": "string"
@@ -10269,6 +10629,12 @@
           "fees",
           "method",
           "status",
+          "reference",
+          "note",
+          "recorded_by",
+          "confirmed_by",
+          "confirmed_at",
+          "rejected_reason",
           "created_at",
           "updated_at"
         ]
@@ -11002,6 +11368,223 @@
           "pending",
           "agent_cash",
           "daily"
+        ]
+      },
+      "BlinkCashSettingsResponse": {
+        "type": "object",
+        "properties": {
+          "settings": {
+            "$ref": "#/components/schemas/BlinkCashSettings"
+          }
+        },
+        "required": [
+          "settings"
+        ]
+      },
+      "BlinkCashSettings": {
+        "type": "object",
+        "properties": {
+          "deposit_fee_rate": {
+            "type": "number",
+            "description": "0.02 = 2 %"
+          },
+          "withdrawal_fee_rate": {
+            "type": "number"
+          },
+          "min_amount": {
+            "type": "number"
+          },
+          "max_amount": {
+            "type": "number"
+          },
+          "quick_amounts": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "pending_expiry_minutes": {
+            "type": "number"
+          },
+          "electronic_enabled": {
+            "type": "boolean"
+          },
+          "electronic_accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlinkCashElectronicAccount"
+            }
+          },
+          "require_pin_for_withdrawal": {
+            "type": "boolean"
+          },
+          "dues_payment_methods": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "label"
+              ]
+            }
+          }
+        },
+        "required": [
+          "deposit_fee_rate",
+          "withdrawal_fee_rate",
+          "min_amount",
+          "max_amount",
+          "quick_amounts",
+          "pending_expiry_minutes",
+          "electronic_enabled",
+          "electronic_accounts",
+          "require_pin_for_withdrawal",
+          "dues_payment_methods"
+        ]
+      },
+      "BlinkCashElectronicAccount": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ccp",
+              "baridimob",
+              "rip",
+              "bank"
+            ]
+          },
+          "number": {
+            "type": "string"
+          },
+          "holder": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "type",
+          "number",
+          "holder"
+        ]
+      },
+      "DepositOfferListResponse": {
+        "type": "object",
+        "properties": {
+          "offers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DepositOffer"
+            }
+          }
+        },
+        "required": [
+          "offers"
+        ]
+      },
+      "DepositOffer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "title": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "fr": {
+                "type": "string"
+              },
+              "ar": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en",
+              "fr",
+              "ar"
+            ]
+          },
+          "subtitle": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "fr": {
+                "type": "string"
+              },
+              "ar": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en",
+              "fr",
+              "ar"
+            ]
+          },
+          "starts_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "ends_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "upcoming"
+            ]
+          },
+          "min_deposit": {
+            "type": "number"
+          },
+          "bonus_type": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "percent"
+            ]
+          },
+          "bonus_value": {
+            "type": "number"
+          },
+          "max_bonus": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "icon",
+          "title",
+          "subtitle",
+          "starts_at",
+          "ends_at",
+          "status",
+          "min_deposit",
+          "bonus_type",
+          "bonus_value",
+          "max_bonus"
         ]
       },
       "RiderProfileDetailResponse": {
@@ -14459,11 +15042,11 @@
             }
           },
           "403": {
-            "description": "Forbidden",
+            "description": "Wrong PIN, or pin_locked (with retry_after seconds) after 5 wrong tries",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/PinError"
                 }
               }
             }
@@ -14474,6 +15057,72 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/pin/change": {
+      "post": {
+        "operationId": "changePin",
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePinBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthMessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Wrong current PIN, or pin_locked (with retry_after seconds)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PinError"
                 }
               }
             }
@@ -14816,7 +15465,9 @@
               "enum": [
                 "completed",
                 "cancelled",
-                "pending"
+                "pending",
+                "review",
+                "reversed"
               ]
             },
             "required": false,
@@ -14949,6 +15600,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "Replay of an earlier request with the same client_ref",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Created",
             "content": {
@@ -14960,11 +15621,11 @@
             }
           },
           "400": {
-            "description": "Bad request",
+            "description": "Bad request, or a limit / offer rule (code)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/CashRequestError"
                 }
               }
             }
@@ -15005,6 +15666,16 @@
           }
         },
         "responses": {
+          "200": {
+            "description": "Replay of an earlier request with the same client_ref",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
+          },
           "201": {
             "description": "Created",
             "content": {
@@ -15016,21 +15687,21 @@
             }
           },
           "400": {
-            "description": "Bad request",
+            "description": "Bad request, or a limit / balance rule (code)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/CashRequestError"
                 }
               }
             }
           },
           "403": {
-            "description": "Forbidden",
+            "description": "Wrong or locked PIN (pin_locked), or a frozen wallet",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/PinError"
                 }
               }
             }
@@ -15092,11 +15763,31 @@
             }
           },
           "403": {
-            "description": "Forbidden: wrong PIN (no code), or code shop_not_approved | not_your_transaction",
+            "description": "Forbidden: wrong PIN (no code), pin_locked (with retry_after), shop_not_approved | not_your_transaction",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AgentAccessError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Already processed (not_pending), or the agent's cash limit would be exceeded (agent_limit_reached)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletFunctionError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The request expired (code expired)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletFunctionError"
                 }
               }
             }
@@ -15163,6 +15854,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "The request expired (code expired)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletFunctionError"
                 }
               }
             }
@@ -15371,6 +16072,71 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactions/{id}/cancel": {
+      "post": {
+        "operationId": "cancelTransaction",
+        "tags": [
+          "transactions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Already processed (code not_pending)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletFunctionError"
                 }
               }
             }
@@ -20373,11 +21139,11 @@
             }
           },
           "403": {
-            "description": "Forbidden",
+            "description": "Wrong PIN, or pin_locked (with retry_after seconds)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/PinError"
                 }
               }
             }
@@ -22149,11 +22915,11 @@
             }
           },
           "403": {
-            "description": "Forbidden",
+            "description": "Wrong PIN, or pin_locked (with retry_after seconds)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiErrorBody"
+                  "$ref": "#/components/schemas/PinError"
                 }
               }
             }
@@ -22810,6 +23576,86 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AdminBlinkCashSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blink-cash/settings": {
+      "get": {
+        "operationId": "getBlinkCashSettings",
+        "tags": [
+          "blink-cash"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlinkCashSettingsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blink-cash/offers": {
+      "get": {
+        "operationId": "listBlinkCashOffers",
+        "tags": [
+          "blink-cash"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepositOfferListResponse"
                 }
               }
             }
