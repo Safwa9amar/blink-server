@@ -10,6 +10,7 @@ import scanQr from "./scan-qr";
 import rate from "./rate";
 import rateRider from "./rate-rider";
 import setShop from "./set-shop";
+import cancel from "./cancel";
 
 const app = router();
 
@@ -29,5 +30,6 @@ app.route("/", scanQr);
 app.route("/", rate);
 app.route("/", rateRider);
 app.route("/", setShop);
+app.route("/", cancel);
 
 export default app;

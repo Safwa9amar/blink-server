@@ -1,7 +1,8 @@
-import { verifyPin } from "../../lib/pin";
+import { checkPin, pinFailureBody } from "../../lib/pin";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { payDuesSchema, PayDuesResponse } from "../../validators/merchant";
+import { PinError } from "../../validators/transactions";
 import { computeDues } from "./dues-shared";
 import { DUES_FEE_RATE, round2 } from "./shared";
 
@@ -19,7 +20,7 @@ const route = createRoute({
     201: json(PayDuesResponse, "Created"),
     400: errorResponses[400],
     401: errorResponses[401],
-    403: errorResponses[403],
+    403: json(PinError, "Wrong PIN, or pin_locked (with retry_after seconds)"),
     404: errorResponses[404],
   },
 });
@@ -28,9 +29,10 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const body = c.req.valid("json");
 
-  if (!user.pin_hash) return c.json({ error: "PIN not set up" }, 400);
-  if (!(await verifyPin(body.pin, user.pin_hash))) {
-    return c.json({ error: "Invalid PIN" }, 403);
+  const pin = await checkPin(user, body.pin);
+  if (!pin.ok) {
+    const f = pinFailureBody(pin);
+    return f.status === 403 ? c.json(f.body, 403) : c.json(f.body, 400);
   }
 
   const dues = await computeDues(user.id);

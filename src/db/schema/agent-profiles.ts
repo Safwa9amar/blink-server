@@ -7,6 +7,7 @@ import {
   pgSequence,
   pgTable,
   text,
+  timestamp,
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
@@ -50,6 +51,7 @@ export const agentProfiles = pgTable(
     // with their staff review status, plus NIF / NIS numbers.
     // Most cash the agent may hold for Blink; null falls back to blink_cash_settings.agent_credit_limit.
     creditLimit: numeric("credit_limit", { precision: 14, scale: 2 }).$type<number>(),
+    limitWarnedAt: timestamp("limit_warned_at", { withTimezone: true, mode: "string" }),
     documents: jsonb("documents").$type<AgentDocuments>().notNull().default({}),
     ...timestamps,
   },

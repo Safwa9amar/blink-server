@@ -1,7 +1,12 @@
 import { AGENT_ACCESS_MESSAGE, canAgentProcess } from "../../lib/agent-access";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
-import { verifyPin } from "../../lib/pin";
+import { computeAgentDues } from "../../lib/agent-finance";
+import { breachesAgentLimit } from "../../lib/blink-cash-rules";
+import { agentLimitFor, expireIfLapsed, warnAgentNearLimit } from "../../lib/blink-cash-requests";
+import { getBlinkCashSettings } from "../../lib/blink-cash-settings";
+import { checkPin, pinFailureBody } from "../../lib/pin";
+import { cancelTransaction, completeTransaction, walletError } from "../../lib/wallet";
 import { createNotification } from "../../lib/notifications";
 import { withRider } from "../../lib/transactions";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
@@ -9,6 +14,7 @@ import {
   AgentAccessError,
   processTransactionSchema,
   TransactionResponse,
+  WalletFunctionError,
 } from "../../validators/transactions";
 import { processingShop } from "../agents/shared";
 
@@ -83,8 +89,13 @@ const route = createRoute({
     401: errorResponses[401],
     403: json(
       AgentAccessError,
-      "Forbidden: wrong PIN (no code), or code shop_not_approved | not_your_transaction"
+      "Forbidden: wrong PIN (no code), pin_locked (with retry_after), shop_not_approved | not_your_transaction"
     ),
+    409: json(
+      WalletFunctionError,
+      "Already processed (not_pending), or the agent's cash limit would be exceeded (agent_limit_reached)"
+    ),
+    410: json(WalletFunctionError, "The request expired (code expired)"),
   },
 });
 
@@ -92,24 +103,24 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const body = c.req.valid("json");
 
-  // Verify agent PIN
-  if (!user.pin_hash) {
-    return c.json({ error: "PIN not set up" }, 400);
-  }
-  const pinValid = await verifyPin(body.pin, user.pin_hash);
-  if (!pinValid) {
-    // 403, not 401: a wrong PIN must not look like an expired session to the
-    // app (its 401 backstop signs the user out).
-    return c.json({ error: "Invalid PIN" }, 403);
+  // Verify agent PIN (5 wrong tries lock it for 15 minutes)
+  const pin = await checkPin(user, body.pin);
+  if (!pin.ok) {
+    const f = pinFailureBody(pin);
+    return f.status === 403 ? c.json(f.body, 403) : c.json(f.body, 400);
   }
 
-  // The pending operation; agent_id / shop_id are the agent and shop the rider
-  // picked, if any (both null for a walk-in).
+  // The operation; agent_id / shop_id are the agent and shop the rider picked,
+  // if any (both null for a walk-in).
   const { data: tx } = await supabaseAdmin
     .from("transactions")
-    .select("id, status, agent_id, shop_id")
+    .select("id, user_id, type, amount, status, agent_id, shop_id, expires_at")
     .eq("id", body.transaction_id)
     .maybeSingle();
+  // Lazy expiry (pg_cron is the primary): a lapsed QR is never confirmed.
+  if (await expireIfLapsed(tx)) {
+    return c.json({ error: "This request has expired", code: "expired" as const }, 410);
+  }
   if (!tx || tx.status !== "pending") {
     return c.json({ error: "Transaction not found or already processed" }, 400);
   }
@@ -126,23 +137,40 @@ app.openapi(route, async (c) => {
     return c.json({ error: AGENT_ACCESS_MESSAGE[access.code], code: access.code }, 403);
   }
 
-  const newStatus = body.action === "confirm" ? "completed" : "cancelled";
-  const pending = supabaseAdmin
-    .from("transactions")
-    .update({ status: newStatus, agent_id: user.id, shop_id: shop?.id ?? null })
-    .eq("id", body.transaction_id)
-    .eq("status", "pending"); // only update pending transactions
-  // …and only while it is still assigned as checked above: a rider re-picking
-  // a shop in between can't slip another agent's operation past the check.
-  const { data, error } = await (
-    tx.agent_id ? pending.eq("agent_id", tx.agent_id) : pending.is("agent_id", null)
-  )
-    .select()
-    .single();
+  // The money moves inside one DB transaction that locks the row: status,
+  // expiry and the assigned agent are re-checked there (a rider re-picking a
+  // shop in between can't slip another agent's operation past the check).
+  let dues: Awaited<ReturnType<typeof computeAgentDues>> | null = null;
+  let limit = 0;
+  if (body.action === "confirm" && tx.type === "deposit") {
+    // Confirming a deposit makes the agent hold the rider's cash for Blink.
+    const settings = await getBlinkCashSettings();
+    [dues, limit] = await Promise.all([computeAgentDues(user.id), agentLimitFor(user.id, settings)]);
+    if (breachesAgentLimit("deposit", dues.total_dues, Number(tx.amount), limit)) {
+      return c.json(
+        { error: "You've reached your cash limit. Pay your dues to Blink first.", code: "agent_limit_reached" as const, limit, total_dues: dues.total_dues },
+        409
+      );
+    }
+  }
 
+  const { data, error } =
+    body.action === "confirm"
+      ? await completeTransaction(tx.id, user.id, shop?.id ?? null)
+      : await cancelTransaction(tx.id, "agent", user.id);
   if (error || !data) {
+    const known = walletError(error);
+    if (known) {
+      const code = known.body.code as "not_pending" | "expired" | "wrong_agent" | "wallet_frozen";
+      if (known.status === 403) return c.json({ error: known.body.error, code }, 403);
+      if (known.status === 410) return c.json({ error: known.body.error, code: "expired" as const }, 410);
+      if (known.status === 409) return c.json({ error: known.body.error, code: "not_pending" as const }, 409);
+    }
+    if (error) console.error("[transactions] process failed", error.message);
     return c.json({ error: "Transaction not found or already processed" }, 400);
   }
+
+  if (dues) void warnAgentNearLimit(user.id, dues.total_dues + Number(tx.amount), limit);
 
   // Best-effort: a failed push must not fail the confirmation.
   notifyRider(data).catch((e) => console.error("[transactions] rider notify failed", e));

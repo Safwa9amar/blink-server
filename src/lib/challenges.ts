@@ -4,6 +4,7 @@
 // target is reached (reward credited — counted by riderWallet), lost when the
 // cancellation limit is exceeded or it ends short of the target.
 import { supabaseAdmin } from "./supabase";
+import { postChallengeReward } from "./wallet";
 
 type Row = Record<string, any>;
 const NEW_FOR_MS = 7 * 24 * 60 * 60 * 1000;
@@ -70,7 +71,7 @@ export async function riderChallenges(riderId: string, onlyId?: string) {
       const next = progress >= c.target_trips && !overLimit ? "won" : overLimit || ended ? "lost" : null;
       if (next) {
         // Settle once (conditional on still `joined` so a reward is never doubled).
-        await supabaseAdmin
+        const { data: settled } = await supabaseAdmin
           .from("rider_challenge_participants")
           .update({
             status: next,
@@ -79,7 +80,10 @@ export async function riderChallenges(riderId: string, onlyId?: string) {
           })
           .eq("challenge_id", c.id)
           .eq("rider_id", riderId)
-          .eq("status", "joined");
+          .eq("status", "joined")
+          .select("rider_id");
+        // The reward goes to the Blink Cash ledger once, when this call is the one that settled it.
+        if (next === "won" && settled?.length) await postChallengeReward(c.id, riderId, Number(c.reward_amount));
         status = next;
       }
     }

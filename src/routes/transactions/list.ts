@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../lib/supabase";
+import { expirePending } from "../../lib/wallet";
 import { withRiders } from "../../lib/transactions";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { listTransactionsSchema, TransactionListResponse } from "../../validators/transactions";
@@ -24,6 +25,9 @@ app.openapi(route, async (c) => {
 
   // Agents see transactions they processed; riders see their own
   const column = user.role === "agent" ? "agent_id" : "user_id";
+
+  // Lazy expiry (pg_cron is the primary): lapsed requests of this user don't list as pending.
+  await expirePending(user.id);
 
   let q = supabaseAdmin
     .from("transactions")

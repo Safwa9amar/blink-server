@@ -15,6 +15,7 @@ import profile from "./profile";
 import avatar from "./avatar";
 import setupPin from "./setup-pin";
 import verifyPin from "./verify-pin";
+import changePin from "./change-pin";
 import deletionRequest from "./deletion-request";
 
 const app = router();
@@ -37,6 +38,7 @@ app.route("/", profile);
 app.route("/", avatar);
 app.route("/", setupPin);
 app.route("/", verifyPin);
+app.route("/", changePin);
 app.route("/", deletionRequest);
 
 export default app;

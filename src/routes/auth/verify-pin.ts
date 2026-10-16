@@ -1,7 +1,8 @@
 import { auth } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { VerifyPinResponse, verifyPinSchema } from "../../validators/auth";
-import { verifyPin } from "../../lib/pin";
+import { PinError } from "../../validators/transactions";
+import { checkPin, pinFailureBody } from "../../lib/pin";
 
 const app = router();
 
@@ -18,7 +19,7 @@ const route = createRoute({
     200: json(VerifyPinResponse),
     400: errorResponses[400],
     401: errorResponses[401],
-    403: errorResponses[403],
+    403: json(PinError, "Wrong PIN, or pin_locked (with retry_after seconds) after 5 wrong tries"),
     404: errorResponses[404],
   },
 });
@@ -27,15 +28,10 @@ app.openapi(route, async (c) => {
   const body = c.req.valid("json");
   const user = c.get("user");
 
-  if (!user.pin_hash) {
-    return c.json({ error: "PIN not set up" }, 400);
-  }
-
-  const valid = await verifyPin(body.pin, user.pin_hash);
-  if (!valid) {
-    // 403, not 401: a wrong PIN must not look like an expired session to the
-    // app (its 401 backstop signs the user out).
-    return c.json({ error: "Invalid PIN" }, 403);
+  const result = await checkPin(user, body.pin);
+  if (!result.ok) {
+    const f = pinFailureBody(result);
+    return f.status === 403 ? c.json(f.body, 403) : c.json(f.body, 400);
   }
 
   return c.json({ valid: true }, 200);

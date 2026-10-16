@@ -76,6 +76,13 @@ export const setupPinSchema = z
   })
   .openapi("SetupPinBody");
 
+export const changePinSchema = z
+  .object({
+    current_pin: z.string().length(4).regex(/^\d{4}$/),
+    new_pin: z.string().length(4, "PIN must be 4 digits").regex(/^\d{4}$/),
+  })
+  .openapi("ChangePinBody");
+
 export const verifyPinSchema = z
   .object({
     pin: z.string().length(4).regex(/^\d{4}$/),

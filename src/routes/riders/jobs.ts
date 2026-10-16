@@ -66,6 +66,7 @@ import {
 } from "../../lib/rider-offer";
 import { pickedUpPatch } from "../../lib/order-steps";
 import { tripPayout } from "../../lib/cash-jobs";
+import { fundedDiscountForOrder, postTripPenalty, postTripToLedger } from "../../lib/wallet";
 import { courierOf, deliverCurrentDropOff, isCourierSearchExpired, remainingDropOffs, riderCanTake } from "../../lib/courier";
 import {
   isPassengerNoShow,
@@ -961,6 +962,8 @@ async function completeBundleTrip(checkoutOrderIds: string[], delivered: BundleR
     .eq("status", "upcoming")
     .select("*")
     .maybeSingle();
+  // Store orders carry no Blink-funded discount (only courier / ride cash jobs do).
+  if (trip) await postTripToLedger(trip);
   return trip ? tripSummary(trip) : undefined;
 }
 
@@ -1176,7 +1179,10 @@ app.openapi(
         .eq("status", "upcoming")
         .select("*")
         .maybeSingle();
-      if (trip) summary = tripSummary(trip);
+      if (trip) {
+        summary = tripSummary(trip);
+        await postTripToLedger(trip, await fundedDiscountForOrder(id));
+      }
       if (courier) {
         await notifyCourier(order, { kind: "delivered", to: dropOffName(order, courier.drop_offs.length - 1) });
       } else if (isRide) {
@@ -1263,7 +1269,7 @@ app.openapi(
       // Back in the pool: tell nearby riders whose app is in the background.
       void pushNewOffer(ids[0], { exclude: user.id });
 
-      await Promise.all([
+      const [{ data: droppedTrips }] = await Promise.all([
         // There is one trip per checkout, so the penalty is charged once.
         supabaseAdmin
           .from("trips")
@@ -1274,12 +1280,14 @@ app.openapi(
           })
           .in("order_id", rows.map((r) => r.id))
           .eq("rider_id", user.id)
-          .eq("status", "upcoming"),
+          .eq("status", "upcoming")
+          .select("id, penalty_amount"),
         // This checkout is never offered to this rider again.
         supabaseAdmin
           .from("rider_order_declines")
           .upsert(ids.map((orderId) => ({ order_id: orderId, rider_id: user.id, stage: "post_accept", reason }))),
       ]);
+      for (const t of droppedTrips ?? []) await postTripPenalty(t.id, user.id, Number(t.penalty_amount ?? 0));
 
       const ref = orderRef(leadOrder(members).id);
       await notifyCustomer(
@@ -1394,7 +1402,7 @@ app.openapi(
     // Back in the pool: tell nearby riders whose app is in the background.
     void pushNewOffer(id, { exclude: user.id });
 
-    await Promise.all([
+    const [{ data: droppedTrips }] = await Promise.all([
       // This claim's open trip only. An own-driver delivery has none, and an
       // earlier canceled trip of this rider on this order keeps its penalty.
       supabaseAdmin
@@ -1406,11 +1414,13 @@ app.openapi(
         })
         .eq("order_id", id)
         .eq("rider_id", user.id)
-        .eq("status", "upcoming"),
+        .eq("status", "upcoming")
+        .select("id, penalty_amount"),
       supabaseAdmin
         .from("rider_order_declines")
         .upsert({ order_id: id, rider_id: user.id, stage: "post_accept", reason }),
     ]);
+    for (const t of droppedTrips ?? []) await postTripPenalty(t.id, user.id, Number(t.penalty_amount ?? 0));
 
     const ref = orderRef(id);
     // The store sees its order back in "searching" and may ask another rider.

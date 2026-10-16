@@ -7,7 +7,10 @@ import {
   computeAgentDues,
   round2,
 } from "../../lib/agent-finance";
-import { verifyPin } from "../../lib/pin";
+import { agentCapacity } from "../../lib/blink-cash-rules";
+import { agentLimitFor } from "../../lib/blink-cash-requests";
+import { getBlinkCashSettings } from "../../lib/blink-cash-settings";
+import { checkPin, pinFailureBody } from "../../lib/pin";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import {
@@ -15,6 +18,7 @@ import {
   payAgentDuesSchema,
   PayAgentDuesResponse,
 } from "../../validators/agents";
+import { PinError } from "../../validators/transactions";
 
 const app = router();
 
@@ -34,8 +38,9 @@ app.openapi(
   }),
   async (c) => {
     const user = c.get("user");
-    const [dues, { data: payments }] = await Promise.all([
+    const [dues, limit, { data: payments }] = await Promise.all([
       computeAgentDues(user.id),
+      getBlinkCashSettings().then((settings) => agentLimitFor(user.id, settings)),
       supabaseAdmin
         .from("agent_dues_payments")
         .select("*")
@@ -49,6 +54,8 @@ app.openapi(
         platform_fee_rate: AGENT_PLATFORM_FEE_RATE,
         tax_rate: AGENT_TAX_RATE,
         payment_fee_rate: AGENT_DUES_FEE_RATE,
+        credit_limit: limit,
+        capacity: agentCapacity(dues.total_dues, limit),
         payments: payments ?? [],
       },
       200
@@ -70,7 +77,7 @@ app.openapi(
       201: json(PayAgentDuesResponse, "Created"),
       400: errorResponses[400],
       401: errorResponses[401],
-      403: errorResponses[403],
+      403: json(PinError, "Wrong PIN, or pin_locked (with retry_after seconds)"),
     },
   }),
   async (c) => {
@@ -78,9 +85,10 @@ app.openapi(
     const body = c.req.valid("json");
 
     // 403, not 401, for a wrong PIN: the app's 401 backstop signs the user out.
-    if (!user.pin_hash) return c.json({ error: "PIN not set up" }, 400);
-    if (!(await verifyPin(body.pin, user.pin_hash))) {
-      return c.json({ error: "Invalid PIN" }, 403);
+    const pin = await checkPin(user, body.pin);
+    if (!pin.ok) {
+      const f = pinFailureBody(pin);
+      return f.status === 403 ? c.json(f.body, 403) : c.json(f.body, 400);
     }
 
     const { data, error } = await supabaseAdmin

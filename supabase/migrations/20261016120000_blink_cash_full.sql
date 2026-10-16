@@ -160,7 +160,10 @@ end $$;
 
 -- ─── Agent cash limit, PIN lockout ───────────────────────────────────
 
-alter table public.agent_profiles add column if not exists credit_limit numeric(14,2);
+alter table public.agent_profiles
+  add column if not exists credit_limit numeric(14,2),
+  -- Last "near your cash limit" push (at most one a day).
+  add column if not exists limit_warned_at timestamptz;
 
 alter table public.users
   add column if not exists pin_failed_attempts integer not null default 0,

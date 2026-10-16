@@ -1,3 +1,4 @@
+import { expireIfLapsed } from "../../lib/blink-cash-requests";
 import { supabaseAdmin } from "../../lib/supabase";
 import { withRider } from "../../lib/transactions";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
@@ -24,11 +25,10 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const { id: txId } = c.req.valid("param");
 
-  const { data, error } = await supabaseAdmin
-    .from("transactions")
-    .select("*")
-    .eq("id", txId)
-    .single();
+  const read = () => supabaseAdmin.from("transactions").select("*").eq("id", txId).single();
+  let { data, error } = await read();
+  // Lazy expiry (pg_cron is the primary): never show a lapsed request as pending.
+  if (!error && data && (await expireIfLapsed(data))) ({ data, error } = await read());
 
   if (error || !data) {
     return c.json({ error: "Transaction not found" }, 404);
