@@ -28,6 +28,16 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const body = c.req.valid("json");
 
+  // No payment provider is wired: an "electronic" row used to be stored completed
+  // with nothing verified (free balance, or a debit nobody paid out). Agent only
+  // until the reviewed electronic flow ships.
+  if (body.method !== "agent") {
+    return c.json(
+      { error: "Electronic withdrawals are not available yet. Please use a Blink Cash agent.", code: "electronic_unavailable" },
+      400
+    );
+  }
+
   // Can't withdraw more than the derived Blink Cash balance allows.
   const wallet = await riderWallet(user.id);
   if (body.amount > wallet.available) {

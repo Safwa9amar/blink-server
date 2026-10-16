@@ -27,6 +27,16 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const body = c.req.valid("json");
 
+  // No payment provider is wired: an "electronic" row used to be stored completed
+  // with nothing verified (free balance, or a debit nobody paid out). Agent only
+  // until the reviewed electronic flow ships.
+  if (body.method !== "agent") {
+    return c.json(
+      { error: "Electronic deposits are not available yet. Please use a Blink Cash agent.", code: "electronic_unavailable" },
+      400
+    );
+  }
+
   // An agent deposit can go to a shop the rider picked (its owner is the
   // agent). An electronic one has no agent: it is stored completed, so a
   // client-sent agent_id would count toward that agent's dues and stats.
