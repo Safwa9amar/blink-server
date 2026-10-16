@@ -4,6 +4,7 @@
 // riderWallet (lib/dispatch.ts) and splitFee / agent dues (lib/agent-finance.ts).
 import { computeAgentDuesBatch, fetchAllRows, listAgentIds, round2, splitFee } from "../../lib/agent-finance";
 import { bucketDaily, windowStartIso } from "../../lib/blink-cash-summary";
+import { mapLimit } from "../../lib/blink-cash-admin";
 import { riderWallet } from "../../lib/dispatch";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireStaffRole } from "../../middleware/staff-roles";
@@ -17,19 +18,38 @@ const WALLET_CONCURRENCY = 8;
 
 type TxRow = { type: string; status: string; amount: number | string; fees: number | string | null; agent_id: string | null; created_at: string };
 
-/** Run `fn` over `items`, at most `limit` at a time. */
-async function mapLimit<T, R>(items: readonly T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
-  const out: R[] = new Array(items.length);
-  let next = 0;
-  await Promise.all(
-    Array.from({ length: Math.min(limit, items.length) }, async () => {
-      while (next < items.length) {
-        const i = next++;
-        out[i] = await fn(items[i]);
-      }
-    })
-  );
-  return out;
+/**
+ * Circulation straight from the ledger (Σ blink_wallets.balance, one query) once
+ * every rider has a backfilled wallet; null before that (or if the table isn't
+ * there yet) so the caller falls back to the per-rider derived loop.
+ */
+async function circulationFromWallets(riderIds: string[]) {
+  try {
+    const wallets = await fetchAllRows<{ user_id: string; balance: number | string; held: number | string; backfilled_at: string | null }>(
+      (from, to) =>
+        supabaseAdmin
+          .from("blink_wallets")
+          .select("user_id, balance, held, backfilled_at")
+          .eq("role", "rider")
+          .not("backfilled_at", "is", null)
+          .order("user_id")
+          .range(from, to) as any
+    );
+    const backfilled = new Set(wallets.map((w) => w.user_id));
+    if (!riderIds.length || riderIds.some((id) => !backfilled.has(id))) return null;
+    const out = { total: 0, available: 0, pending_withdrawals: 0, wallets: 0 };
+    for (const w of wallets) {
+      const balance = Number(w.balance);
+      const held = Number(w.held);
+      out.total += balance;
+      out.available += balance - held;
+      out.pending_withdrawals += held;
+      if (balance !== 0) out.wallets++;
+    }
+    return out;
+  } catch {
+    return null;
+  }
 }
 
 app.openapi(
@@ -76,17 +96,23 @@ app.openapi(
       listAgentIds(),
     ]);
 
-    const [wallets, agentDues] = await Promise.all([
-      mapLimit(riders, WALLET_CONCURRENCY, (r) => riderWallet(r.user_id)),
+    const [ledgerCirculation, agentDues] = await Promise.all([
+      circulationFromWallets(riders.map((r) => r.user_id)),
       computeAgentDuesBatch(agentIds),
     ]);
 
-    const circulation = { total: 0, available: 0, pending_withdrawals: 0, wallets: 0 };
-    for (const w of wallets) {
-      circulation.total += w.total;
-      circulation.available += w.available;
-      circulation.pending_withdrawals += w.pending;
-      if (w.total !== 0) circulation.wallets++;
+    let circulation = ledgerCirculation;
+    if (!circulation) {
+      // Not backfilled yet: the old derived formula, once per rider.
+      // TODO(merge): riderWalletDerived
+      const wallets = await mapLimit(riders, WALLET_CONCURRENCY, (r) => riderWallet(r.user_id));
+      circulation = { total: 0, available: 0, pending_withdrawals: 0, wallets: 0 };
+      for (const w of wallets) {
+        circulation.total += w.total;
+        circulation.available += w.available;
+        circulation.pending_withdrawals += w.pending;
+        if (w.total !== 0) circulation.wallets++;
+      }
     }
 
     const sum = (type: string) => {
