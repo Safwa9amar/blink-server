@@ -68,7 +68,7 @@ async function seed(u: DevUser): Promise<void> {
   const { error: rowError } = await supabaseAdmin
     .from("users")
     .upsert(
-      { id, email, role, first_name, last_name, phone_number, gender, birthday },
+      { id, email, role, signup_role: role, first_name, last_name, phone_number, gender, birthday },
       { onConflict: "id" },
     );
   if (rowError) throw rowError;

@@ -145,7 +145,7 @@ async function ensureAgent(a: DevAgent): Promise<string | undefined> {
     }
     // New account (or one whose earlier run stopped before this row).
     await must(
-      supabaseAdmin.from("users").upsert({ id, email: a.email, role: "agent", ...a.profile }, { onConflict: "id" }),
+      supabaseAdmin.from("users").upsert({ id, email: a.email, role: "agent", signup_role: "agent", ...a.profile }, { onConflict: "id" }),
       `upsert ${a.email}`
     );
   } else if (row.role !== "agent") {

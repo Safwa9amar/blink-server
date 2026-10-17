@@ -116,6 +116,7 @@ async function seed(r: DevRider, i: number): Promise<string> {
       id,
       email,
       role: "rider",
+      signup_role: "rider",
       first_name: r.first_name,
       last_name: r.last_name,
       phone_number: `05501001${n}`,

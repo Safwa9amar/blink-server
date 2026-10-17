@@ -70,6 +70,9 @@ export const updateRiderDocumentsSchema = z
     license_back: z.string().min(1).max(300).optional(),
     id_front: z.string().min(1).max(300).optional(),
     id_back: z.string().min(1).max(300).optional(),
+    gray_card_front: z.string().min(1).max(300).optional(),
+    gray_card_back: z.string().min(1).max(300).optional(),
+    insurance: z.string().min(1).max(300).optional(),
   })
   .openapi("UpdateRiderDocumentsBody");
 
@@ -87,13 +90,16 @@ export const RiderDocumentViewSchema = z
 export const RiderDocumentsResponse = z
   .object({
     verification_status: RiderVerificationStatusSchema,
-    /** Documents this rider must provide (bicycle: ID card only). */
+    /** Documents this rider must provide (bicycle: ID card only; others also licence, gray card, insurance). */
     required_documents: z.array(RiderDocumentKeySchema),
     documents: z.object({
       license_front: RiderDocumentViewSchema.nullable(),
       license_back: RiderDocumentViewSchema.nullable(),
       id_front: RiderDocumentViewSchema.nullable(),
       id_back: RiderDocumentViewSchema.nullable(),
+      gray_card_front: RiderDocumentViewSchema.nullable(),
+      gray_card_back: RiderDocumentViewSchema.nullable(),
+      insurance: RiderDocumentViewSchema.nullable(),
     }),
   })
   .openapi("RiderDocumentsResponse");
@@ -110,11 +116,33 @@ export const reviewRiderDocumentSchema = z
   })
   .openapi("ReviewRiderDocumentBody");
 
+export const requestRiderVerificationSchema = z
+  .object({
+    documents: z
+      .array(RiderDocumentKeySchema)
+      .min(1)
+      .refine((a) => new Set(a).size === a.length, "Documents must be unique"),
+    /** Shown to the rider. */
+    note: z.string().trim().min(1).max(200),
+  })
+  .openapi("RequestRiderVerificationBody");
+
+export const RequestRiderVerificationResponse = z
+  .object({
+    verification_status: RiderVerificationStatusSchema,
+    /** Uploaded documents that were marked rejected. */
+    invalidated: z.array(RiderDocumentKeySchema),
+    /** Requested documents the rider never uploaded. */
+    missing: z.array(RiderDocumentKeySchema),
+  })
+  .openapi("RequestRiderVerificationResponse");
+
 export const RiderRequiredActionSchema = z
   .object({
-    key: z.enum(["vehicle_type", "driving_license", "national_id", "verification"]),
+    key: z.enum(["vehicle_type", "driving_license", "national_id", "vehicle_documents", "verification"]),
     status: z.enum(["done", "missing_info", "in_progress", "rejected"]),
-    /** ["vehicle_type"], ["front", "back"], or document keys. */
+    /** ["vehicle_type"], ["front", "back"], or document keys
+     *  (vehicle_documents: gray_card_front / gray_card_back / insurance). */
     missing: z.array(z.string()),
     reason: z.string().nullable(),
   })

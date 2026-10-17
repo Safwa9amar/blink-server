@@ -3,11 +3,14 @@ import { describe, it } from "node:test";
 import {
   applyReview,
   applyUploads,
+  applyVerificationRequest,
+  statusAfterVerificationRequest,
   deriveVerificationStatus,
   hasPendingDocuments,
   isOwnDocumentPath,
   requiredDocumentKeys,
   reviewNoticeKind,
+  RIDER_DOCUMENT_KEYS,
   riderRequiredActions,
   type RiderStoredDocument,
   type RiderStoredDocuments,
@@ -26,6 +29,9 @@ const all = (status: RiderStoredDocument["status"]): RiderStoredDocuments => ({
   license_back: doc(status),
   id_front: doc(status),
   id_back: doc(status),
+  gray_card_front: doc(status),
+  gray_card_back: doc(status),
+  insurance: doc(status),
 });
 const state = (
   documents: RiderStoredDocuments,
@@ -33,16 +39,16 @@ const state = (
 ): RiderVerificationState => ({ documents, verification_status });
 
 describe("deriveVerificationStatus", () => {
-  it("is not_submitted until all four documents exist", () => {
+  it("is not_submitted until all seven documents exist", () => {
     assert.equal(deriveVerificationStatus({ license_front: doc("pending") }, "not_submitted"), "not_submitted");
   });
-  it("is pending once all four exist and none is rejected", () => {
+  it("is pending once all seven exist and none is rejected", () => {
     assert.equal(deriveVerificationStatus(all("pending"), "not_submitted"), "pending");
   });
   it("is rejected as soon as one document is rejected", () => {
     assert.equal(deriveVerificationStatus({ ...all("verified"), id_back: doc("rejected") }, "approved"), "rejected");
   });
-  it("is approved when all four are verified", () => {
+  it("is approved when all seven are verified", () => {
     assert.equal(deriveVerificationStatus(all("verified"), "pending"), "approved");
   });
   it("keeps an approved rider approved while a replacement is pending", () => {
@@ -61,9 +67,9 @@ describe("applyUploads", () => {
     });
     assert.equal(next.verification_status, "not_submitted");
   });
-  it("moves to pending when the fourth document arrives", () => {
-    const three = { license_front: doc("pending"), license_back: doc("pending"), id_front: doc("pending") };
-    const next = applyUploads(state(three), { id_back: "u1/id_back/9.jpg" }, NOW);
+  it("moves to pending when the last required document arrives", () => {
+    const { insurance: _omit, ...six } = all("pending");
+    const next = applyUploads(state(six), { insurance: "u1/insurance/9-9.jpg" }, NOW);
     assert.equal(next.verification_status, "pending");
   });
   it("a re-upload of a rejected document resets it and the rider to pending", () => {
@@ -218,11 +224,12 @@ describe("riderRequiredActions", () => {
         ["vehicle_type", "missing_info", ["vehicle_type"]],
         ["driving_license", "missing_info", ["front", "back"]],
         ["national_id", "missing_info", ["front", "back"]],
-        ["verification", "missing_info", ["license_front", "license_back", "id_front", "id_back"]],
+        ["vehicle_documents", "missing_info", ["gray_card_front", "gray_card_back", "insurance"]],
+        ["verification", "missing_info", [...RIDER_DOCUMENT_KEYS]],
       ]
     );
     assert.equal(res.completed, 0);
-    assert.equal(res.total, 4);
+    assert.equal(res.total, 5);
     assert.equal(res.verification_status, "not_submitted");
   });
   it("shows the staff note of a rejected side", () => {
@@ -240,14 +247,76 @@ describe("riderRequiredActions", () => {
     const res = riderRequiredActions({ vehicleType: "motorcycle", documents: all("pending"), verificationStatus: "pending" });
     assert.deepEqual(
       res.actions.map((a) => a.status),
-      ["done", "in_progress", "in_progress", "in_progress"]
+      ["done", "in_progress", "in_progress", "in_progress", "in_progress"]
     );
     assert.equal(res.completed, 1);
   });
   it("does not nag a migrated approved rider about missing documents", () => {
     const res = riderRequiredActions({ vehicleType: "motorcycle", documents: {}, verificationStatus: "approved" });
     assert.ok(res.actions.every((a) => a.status === "done"));
-    assert.equal(res.completed, 4);
+    assert.equal(res.completed, 5);
+  });
+  it("tells an approved motorcycle rider with identity docs only to upload the vehicle papers", () => {
+    const res = riderRequiredActions({
+      vehicleType: "motorcycle",
+      documents: { license_front: doc("verified"), license_back: doc("verified"), id_front: doc("verified"), id_back: doc("verified") },
+      verificationStatus: "approved",
+    });
+    // Approved riders are not nagged (grace period), same as the other actions.
+    assert.equal(res.actions.find((a) => a.key === "vehicle_documents")!.status, "done");
+  });
+  it("motorcycle missing insurance -> vehicle_documents missing_info", () => {
+    const { insurance: _omit, ...six } = all("pending");
+    const res = riderRequiredActions({ vehicleType: "motorcycle", documents: six, verificationStatus: "not_submitted" });
+    const a = res.actions.find((x) => x.key === "vehicle_documents")!;
+    assert.deepEqual([a.status, a.missing, a.reason], ["missing_info", ["insurance"], null]);
+  });
+  it("rejected insurance -> vehicle_documents rejected with the staff note", () => {
+    const res = riderRequiredActions({
+      vehicleType: "motorcycle",
+      documents: { ...all("pending"), insurance: doc("rejected", "Expired") },
+      verificationStatus: "rejected",
+    });
+    const a = res.actions.find((x) => x.key === "vehicle_documents")!;
+    assert.deepEqual([a.status, a.missing, a.reason], ["rejected", [], "Expired"]);
+    assert.deepEqual(res.actions.find((x) => x.key === "verification")!.missing, ["insurance"]);
+  });
+  it("bicycle has no vehicle_documents action", () => {
+    const res = riderRequiredActions({ vehicleType: "bicycle", documents: {}, verificationStatus: "not_submitted" });
+    assert.ok(!res.actions.some((a) => a.key === "vehicle_documents"));
+  });
+});
+
+describe("vehicle documents (gray card + insurance)", () => {
+  const identity = (status: RiderStoredDocument["status"]): RiderStoredDocuments => ({
+    license_front: doc(status),
+    license_back: doc(status),
+    id_front: doc(status),
+    id_back: doc(status),
+  });
+  it("requires all seven keys for motorcycle, unknown and other types", () => {
+    assert.deepEqual(requiredDocumentKeys("motorcycle"), [...RIDER_DOCUMENT_KEYS]);
+    assert.deepEqual(requiredDocumentKeys(null), [...RIDER_DOCUMENT_KEYS]);
+    assert.ok(requiredDocumentKeys("motorcycle").includes("insurance"));
+  });
+  it("an approved rider missing vehicle docs stays approved", () => {
+    assert.equal(deriveVerificationStatus(identity("verified"), "approved", "motorcycle"), "approved");
+    assert.equal(deriveVerificationStatus({}, "approved", "motorcycle"), "approved");
+  });
+  it("a new motorcycle rider with only identity docs verified is not approved", () => {
+    assert.equal(deriveVerificationStatus(identity("verified"), "not_submitted", "motorcycle"), "not_submitted");
+    assert.equal(deriveVerificationStatus(identity("verified"), "pending", "motorcycle"), "not_submitted");
+  });
+  it("a rejected insurance gives rejected, even for an approved rider", () => {
+    assert.equal(deriveVerificationStatus({ ...all("verified"), insurance: doc("rejected") }, "approved", "motorcycle"), "rejected");
+  });
+  it("a bicycle rider ignores a rejected insurance", () => {
+    const id = { id_front: doc("verified"), id_back: doc("verified"), insurance: doc("rejected") };
+    assert.equal(deriveVerificationStatus(id, "pending", "bicycle"), "approved");
+  });
+  it("isOwnDocumentPath accepts the new keys", () => {
+    assert.equal(isOwnDocumentPath("u1", "insurance", "u1/insurance/1-2.pdf"), true);
+    assert.equal(isOwnDocumentPath("u1", "gray_card_front", "u1/gray_card_back/1-2.jpg"), false);
   });
 });
 
@@ -255,9 +324,9 @@ describe("bicycle riders (national ID only)", () => {
   const id = (status: RiderStoredDocument["status"]): RiderStoredDocuments => ({ id_front: doc(status), id_back: doc(status) });
   it("requiredDocumentKeys", () => {
     assert.deepEqual(requiredDocumentKeys("bicycle"), ["id_front", "id_back"]);
-    assert.equal(requiredDocumentKeys("motorcycle").length, 4);
-    assert.equal(requiredDocumentKeys(null).length, 4);
-    assert.equal(requiredDocumentKeys(undefined).length, 4);
+    assert.equal(requiredDocumentKeys("motorcycle").length, 7);
+    assert.equal(requiredDocumentKeys(null).length, 7);
+    assert.equal(requiredDocumentKeys(undefined).length, 7);
   });
   it("is pending with only the ID uploaded, approved once verified", () => {
     assert.equal(deriveVerificationStatus(id("pending"), "not_submitted", "bicycle"), "pending");
@@ -287,9 +356,40 @@ describe("bicycle riders (national ID only)", () => {
     assert.deepEqual(r.required_documents, ["id_front", "id_back"]);
     assert.equal(r.total, 3);
   });
-  it("motorcycle checklist keeps all four", () => {
+  it("motorcycle checklist keeps all seven documents", () => {
     const r = riderRequiredActions({ vehicleType: "motorcycle", documents: {}, verificationStatus: "not_submitted" });
-    assert.equal(r.actions.length, 4);
-    assert.equal(r.required_documents.length, 4);
+    assert.equal(r.actions.length, 5);
+    assert.equal(r.required_documents.length, 7);
+  });
+});
+
+describe("applyVerificationRequest", () => {
+  it("rejects uploaded docs with note + reviewer, lists missing, leaves others", () => {
+    const docs: RiderStoredDocuments = { id_front: doc("verified"), insurance: doc("verified") };
+    const r = applyVerificationRequest(docs, ["insurance", "gray_card_front"], "Expired", "staff1", NOW);
+    assert.deepEqual(r.invalidated, ["insurance"]);
+    assert.deepEqual(r.missing, ["gray_card_front"]);
+    assert.equal(r.documents.insurance?.status, "rejected");
+    assert.equal(r.documents.insurance?.note, "Expired");
+    assert.equal(r.documents.insurance?.reviewed_by, "staff1");
+    assert.equal(r.documents.insurance?.reviewed_at, NOW);
+    assert.equal(r.documents.gray_card_front, undefined);
+    assert.deepEqual(r.documents.id_front, docs.id_front);
+  });
+
+  it("approved rider with all verified, requesting insurance -> rejected", () => {
+    const r = applyVerificationRequest(all("verified"), ["insurance"], "n", "s", NOW);
+    assert.equal(statusAfterVerificationRequest(r.documents, "motorcycle"), "rejected");
+  });
+
+  it("approved rider missing vehicle docs, requesting gray_card_front -> not_submitted", () => {
+    const docs: RiderStoredDocuments = {
+      license_front: doc("verified"),
+      license_back: doc("verified"),
+      id_front: doc("verified"),
+      id_back: doc("verified"),
+    };
+    const r = applyVerificationRequest(docs, ["gray_card_front"], "n", "s", NOW);
+    assert.equal(statusAfterVerificationRequest(r.documents, "motorcycle"), "not_submitted");
   });
 });

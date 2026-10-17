@@ -78,7 +78,7 @@ app.openapi(storeRoute, async (c) => {
   if (!before) return c.json({ error: "Store not found" }, 404);
 
   // Only an approval depends on it; no owner = nobody leaving.
-  const leaving = body.status === "active" && !!before.owner_id && (await isLeavingBlink(before.owner_id));
+  const leaving = body.status === "active" && !!before.owner_id && (await isLeavingBlink(before.owner_id, "merchant"));
   const decision = resolveStaffStoreReview(before, body, { leaving }, { id: staff.id, now: new Date() });
   if (!decision.ok) return c.json({ error: decision.error, code: decision.code }, decision.status);
   // Nothing to change (e.g. approving a live store): no write, no notification.

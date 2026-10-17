@@ -5,13 +5,16 @@ import {
   APP_ROLES,
   canActivate,
   canLeaveRole,
+  deletionScope,
   FINAL_ORDER_STATUSES,
   grantRole,
   initialGrantedRoles,
   leavesRider,
   normalizeGranted,
   roleConflictMessage,
+  rolesToClear,
   signUpConflict,
+  usableRoles,
 } from "./roles";
 
 describe("normalizeGranted", () => {
@@ -130,5 +133,46 @@ describe("signUpConflict", () => {
   it("its message points to Become a Partner", () => {
     assert.match(roleConflictMessage("customer", "rider"), /Become a Partner/);
     assert.match(roleConflictMessage("customer", "rider"), /Customer/);
+  });
+});
+
+describe("usableRoles", () => {
+  it("a customer sign-up uses every granted role", () => {
+    assert.deepEqual(usableRoles("customer", ["customer", "rider", "agent"]), ["customer", "rider", "agent"]);
+  });
+  it("a partner sign-up hides the granted customer", () => {
+    assert.deepEqual(usableRoles("agent", ["customer", "agent"]), ["agent"]);
+    assert.deepEqual(usableRoles("rider", ["customer", "rider"], "customer"), ["rider"]);
+  });
+  it("an unknown sign-up role counts as a customer sign-up", () => {
+    assert.deepEqual(usableRoles(null, ["customer", "merchant"]), ["customer", "merchant"]);
+  });
+});
+
+describe("deletionScope", () => {
+  it("customer is the account itself", () => {
+    assert.equal(deletionScope("customer", "customer", ["customer", "rider"]), "account");
+  });
+  it("a customer sign-up removes only the partner role", () => {
+    assert.equal(deletionScope("rider", "customer", ["customer", "rider"]), "role");
+  });
+  it("a partner sign-up with one partner role deletes the account", () => {
+    assert.equal(deletionScope("merchant", "merchant", ["customer", "merchant"]), "account");
+  });
+  it("a partner sign-up holding another partner role removes only this one", () => {
+    assert.equal(deletionScope("agent", "rider", ["customer", "rider", "agent"]), "role");
+  });
+});
+
+describe("rolesToClear", () => {
+  it("a role deletion clears that role only", () => {
+    assert.deepEqual(rolesToClear("role", "rider", ["customer", "rider", "merchant"]), ["rider"]);
+  });
+  it("an account deletion clears every role held", () => {
+    assert.deepEqual(rolesToClear("account", "customer", ["customer", "rider", "merchant"]), [
+      "customer",
+      "rider",
+      "merchant",
+    ]);
   });
 });

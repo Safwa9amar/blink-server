@@ -53,7 +53,7 @@ const PICKUP_FROM = new Set(["heading_to_store", "preparation", "pickup"]);
 
 type Copy = { title: string; description: string };
 const notify = (userId: string, en: Copy, fr: Copy, ar: Copy) =>
-  createNotification({ userId, type: "order", ...en, contentFr: fr, contentAr: ar }).catch(() => null);
+  createNotification({ userId, role: "customer", type: "order", ...en, contentFr: fr, contentAr: ar }).catch(() => null);
 
 app.openapi(route, async (c) => {
   const user = c.get("user");

@@ -29,6 +29,8 @@
     "seed:dev-merchant": "tsx scripts/seed-dev-merchant.ts",
     "seed:dev-agents": "tsx scripts/seed-dev-agents.ts",
     "seed:dev-riders": "tsx scripts/seed-dev-riders.ts",
+    "verify:all": "tsx scripts/verify-all-accounts.ts",
+    "verify:strict": "tsx scripts/recompute-verification.ts",
     "test:order": "tsx scripts/trigger-test-order.ts",
     "test:ride": "tsx scripts/trigger-test-ride.ts",
     "test:checkout": "tsx scripts/trigger-test-checkout.ts",

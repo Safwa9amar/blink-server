@@ -1,4 +1,5 @@
 import { createNotification } from "../../lib/notifications";
+import type { UserRole } from "../../db";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import {
   TestNotificationResponse,
@@ -33,6 +34,7 @@ app.openapi(route, async (c) => {
 
   const notification = await createNotification({
     userId: user.id,
+    role: user.role as UserRole,
     type: body.type,
     title: body.title,
     description: body.description,

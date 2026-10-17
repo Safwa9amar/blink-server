@@ -1,6 +1,7 @@
 import { bundleMembers, leadOrder } from "../../lib/bundle";
 import { releasesCoupon } from "../../lib/cash-jobs";
 import { releaseCoupon } from "../../lib/coupons";
+import { completeReferralIfEligible } from "../../lib/referrals";
 import { loadBundle } from "../../lib/dispatch";
 import { createNotification } from "../../lib/notifications";
 import { isRideCustomerCancelReason, RIDE_CUSTOMER_CANCEL_REASONS, RIDE_CUSTOMER_CANCELABLE } from "../../lib/ride";
@@ -134,6 +135,7 @@ app.openapi(route, async (c) => {
       const ref = orderRef(leadOrder(members).id);
       await createNotification({
         userId: riderId,
+        role: "rider",
         type: "order",
         title: "Order canceled",
         description: `The customer canceled order ${ref}. You're free for a new job.`,
@@ -215,12 +217,19 @@ app.openapi(route, async (c) => {
       const copy = riderCanceledCopy(order.type, orderRef(orderId));
       await createNotification({
         userId: riderId,
+        role: "rider",
         type: "order",
         ...copy.en,
         contentFr: copy.fr,
         contentAr: copy.ar,
       }).catch(() => null);
     }
+  }
+
+  if (body.status === "delivered" && order.customer_id) {
+    void completeReferralIfEligible(order.customer_id, orderId).catch((err) =>
+      console.error("[referrals] completeReferralIfEligible failed", err)
+    );
   }
 
   return c.json({ order: withoutOffer(data) }, 200);

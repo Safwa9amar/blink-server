@@ -43,7 +43,7 @@ app.openapi(route, async (c) => {
       status: store.status as "active" | "inactive" | "under_review",
       review_note: (store.review_note as string | null | undefined) ?? null,
     },
-    { leaving: await isLeavingBlink(user.id) }
+    { leaving: await isLeavingBlink(user.id, "merchant") }
   );
   if (!decision.ok) return c.json({ error: decision.error, code: decision.code }, 409);
 

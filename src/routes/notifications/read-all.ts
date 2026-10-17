@@ -5,8 +5,8 @@ import { NotificationMessageResponse } from "../../validators/notifications";
 const app = router();
 
 // ─── Mark all as read ────────────────────────────────────────────────
-// Clears unread across the caller's ACTIVE feed (the badge). Archived rows are
-// left untouched.
+// Clears unread across the caller's ACTIVE feed (the badge) of their active
+// role only. Archived rows and other roles' feeds are left untouched.
 const route = createRoute({
   method: "patch",
   path: "/read-all",
@@ -23,6 +23,7 @@ app.openapi(route, async (c) => {
     .from("notification_recipients")
     .update({ is_unread: false })
     .eq("user_id", user.id)
+    .eq("role", user.role)
     .eq("is_unread", true)
     .is("archived_at", null);
 

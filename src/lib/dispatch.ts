@@ -516,13 +516,14 @@ async function upsertTrip(
 type Copy = { title: string; description: string };
 /** In-app + push "order" notification to the customer (best effort). */
 export const notifyCustomer = (userId: string, en: Copy, fr: Copy, ar: Copy) =>
-  createNotification({ userId, type: "order", ...en, contentFr: fr, contentAr: ar }).catch(() => null);
+  createNotification({ userId, role: "customer", type: "order", ...en, contentFr: fr, contentAr: ar }).catch(() => null);
 
 /** A courier event to the customer; tapping it opens the tracking screen (best effort). */
 export function notifyCourier(o: { id: string; customer_id: string }, event: CourierEvent) {
   const { en, fr, ar } = courierCopy(orderRef(o.id), event);
   return createNotification({
     userId: o.customer_id,
+    role: "customer",
     type: "courier",
     ...en,
     contentFr: fr,
@@ -536,6 +537,7 @@ export function notifyRide(o: { id: string; customer_id: string }, event: RideEv
   const { en, fr, ar } = rideCopy(orderRef(o.id), event);
   return createNotification({
     userId: o.customer_id,
+    role: "customer",
     type: "ride",
     ...en,
     contentFr: fr,
@@ -562,6 +564,7 @@ export const notifyStoreOwner = (
   ownerId
     ? createNotification({
         userId: ownerId,
+        role: "merchant",
         type: "order",
         ...en,
         contentFr: fr,

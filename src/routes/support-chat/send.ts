@@ -7,7 +7,7 @@ import {
   pushAgentReplyToUser,
   escalateConversation,
 } from "../../lib/support-chat";
-import { getConversation } from "./shared";
+import { getConversation, ownsConversation } from "./shared";
 
 const app = router();
 
@@ -36,8 +36,7 @@ app.openapi(route, async (c) => {
   const conversation = await getConversation(id);
   if (!conversation) return c.json({ error: "Conversation not found" }, 404);
 
-  const convUserId = (conversation as any).user_id as string;
-  const isOwner = convUserId === user.id;
+  const isOwner = ownsConversation(conversation, user);
   const isStaff = !!user.staff_role;
   if (!isOwner && !isStaff) return c.json({ error: "Access denied" }, 403);
 

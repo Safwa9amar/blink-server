@@ -34,6 +34,8 @@ function flatten(r: any, role: UserRole) {
 // ─── List notifications ──────────────────────────────────────────────
 // `?filter=active` (default) → the feed (archived_at IS NULL).
 // `?filter=archived`        → the archive view (archived_at IS NOT NULL).
+// Only the active role's feed: an account holding several roles keeps one
+// feed per role (notification_recipients.role).
 const route = createRoute({
   method: "get",
   path: "/",
@@ -58,6 +60,7 @@ app.openapi(route, async (c) => {
       count: "exact",
     })
     .eq("user_id", user.id)
+    .eq("role", user.role)
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
   query = archived
@@ -73,11 +76,12 @@ app.openapi(route, async (c) => {
     flatten(r, user.role as UserRole)
   );
 
-  // Unread badge = unread in the ACTIVE feed (independent of the page/filter).
+  // Unread badge = unread in the role's ACTIVE feed (independent of the page/filter).
   const { count: unread } = await supabaseAdmin
     .from("notification_recipients")
     .select("notification_id", { count: "exact", head: true })
     .eq("user_id", user.id)
+    .eq("role", user.role)
     .is("archived_at", null)
     .eq("is_unread", true);
 

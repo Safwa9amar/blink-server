@@ -5,7 +5,8 @@ import { NotificationMessageResponse } from "../../validators/notifications";
 const app = router();
 
 // ─── Mark as read ────────────────────────────────────────────────────
-// Updates the caller's recipient row for the shared notification id.
+// Updates the caller's recipient row for the shared notification id, in their
+// active role's feed (another role's copy keeps its own state).
 const route = createRoute({
   method: "patch",
   path: "/{id}/read",
@@ -28,7 +29,8 @@ app.openapi(route, async (c) => {
     .from("notification_recipients")
     .update({ is_unread: false }, { count: "exact" })
     .eq("notification_id", notifId)
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .eq("role", user.role);
 
   if (error) {
     return c.json({ error: error.message }, 400);

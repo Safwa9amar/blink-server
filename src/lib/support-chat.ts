@@ -46,7 +46,7 @@ export async function fetchKbForRole(role: string, locale: string): Promise<stri
 
 // Columns the clients need (snake_case — supabase-js returns DB casing).
 export const CONVERSATION_COLUMNS =
-  "id, user_id, user_role, status, assigned_agent_id, subject, locale, last_message_at, last_message_preview, unread_for_staff, created_at, updated_at";
+  "id, user_id, user_role, status, assigned_agent_id, subject, locale, last_message_at, last_message_preview, unread_for_staff, priority, csat_rating, csat_comment, csat_at, created_at, updated_at";
 export const MESSAGE_COLUMNS = "id, conversation_id, sender, sender_id, body, meta, created_at";
 
 /** Insert a message and bump the conversation's preview / timestamp. */

@@ -189,6 +189,11 @@ app.openapi(
     const body = c.req.valid("json");
     const store = await ownedStore(user.id, storeId);
     if (!store) return c.json({ error: "Store not found" }, 404);
+    // A store only adds riders who have a Blink account (invited by phone);
+    // in-house drivers added before stay until removed.
+    if (body.kind !== "blink") {
+      return c.json({ error: "Add a Blink rider by phone number" }, 400);
+    }
 
     let row: Record<string, unknown>;
     if (body.kind === "blink") {
@@ -236,6 +241,7 @@ app.openapi(
     if (body.kind === "blink") {
       await createNotification({
         userId: body.rider_id!,
+        role: "rider",
         type: "alert",
         title: "Store invitation",
         description: `${store.name} invited you to deliver for their store.`,

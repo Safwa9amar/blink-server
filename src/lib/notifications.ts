@@ -50,9 +50,11 @@ export interface CreateNotificationInput {
   // When omitted, a detail-page href is derived from the recipient's role + the
   // new notification id for typed notifications (so a tapped push opens the page).
   href?: string | null;
-  // Recipient's role — used only to derive the detail href when `href` is
-  // omitted. Looked up if not supplied (broadcast already knows it).
-  role?: UserRole;
+  // The role whose feed this lands in. One account can hold several roles and
+  // each sees only its own notifications, so the sender names the role it is
+  // notifying (never the account's active role, which may be another one).
+  // Also picks the detail href's role group when `href` is omitted.
+  role: UserRole;
   // Staff/sender id recorded on the content row (null for system sends).
   createdBy?: string | null;
   // When false, persist the in-app notification only (no push). Default true.
@@ -101,11 +103,10 @@ async function insertNotificationContent(input: {
 async function pushToUser(
   userId: string,
   notif: NotificationRow,
-  role: UserRole | undefined,
+  role: UserRole,
   hrefOverride: string | null
 ): Promise<void> {
-  const href =
-    hrefOverride ?? (role ? detailHref(role, notif.type, notif.id) : null);
+  const href = hrefOverride ?? detailHref(role, notif.type, notif.id);
   // A merchant notification about one store's product / pack names the store:
   // the app makes it current before opening the href (those screens resolve
   // ids against the current store).
@@ -147,42 +148,35 @@ export async function createNotification(
 
   const { error: recErr } = await supabaseAdmin
     .from("notification_recipients")
-    .insert({ notification_id: notif.id, user_id: input.userId });
+    .insert({ notification_id: notif.id, user_id: input.userId, role: input.role });
   if (recErr) {
     console.error("[notifications] recipient insert failed", recErr.message);
   }
 
   if (input.push !== false) {
-    // Resolve the role to derive the deep link when no explicit href is given.
-    let role = input.role;
-    if (!role && !input.href) {
-      const { data: u } = await supabaseAdmin
-        .from("users")
-        .select("role")
-        .eq("id", input.userId)
-        .single();
-      role = (u?.role as UserRole) ?? undefined;
-    }
-    await pushToUser(input.userId, notif, role, input.href ?? null);
+    await pushToUser(input.userId, notif, input.role, input.href ?? null);
   }
 
   return notif;
 }
 
 /**
- * Create ONE notification delivered to every user in the given roles (a
- * broadcast — admin announcement, published news with `push` on, etc). Writes a
- * single content row + one recipient row per user (no content duplication), then
- * pushes per user. Returns the number of recipients.
+ * Create ONE notification delivered to every user who holds one of the given
+ * roles (a broadcast — admin announcement, published news with `push` on, etc).
+ * Writes a single content row + one recipient row per (user, targeted role they
+ * hold), so an account holding two targeted roles finds it in both feeds. Pushes
+ * once per user. Returns the number of users reached.
  */
 export async function broadcastNotification(
   roles: UserRole[],
-  input: Omit<CreateNotificationInput, "userId">
+  input: Omit<CreateNotificationInput, "userId" | "role">
 ): Promise<number> {
+  // Held, not just active: a rider currently switched to customer still gets
+  // rider announcements, in the rider feed.
   const { data: users, error } = await supabaseAdmin
     .from("users")
-    .select("id, role")
-    .in("role", roles);
+    .select("id, role, granted_roles")
+    .overlaps("granted_roles", roles);
 
   if (error || !users || users.length === 0) {
     if (error)
@@ -204,21 +198,37 @@ export async function broadcastNotification(
   });
   if (!notif) return 0;
 
-  // One recipient row per user (bulk).
+  // The targeted roles each user holds, in `roles` order.
+  const held = users.map((u) => ({
+    id: u.id as string,
+    active: u.role as UserRole,
+    roles: roles.filter((r) => ((u.granted_roles ?? []) as string[]).includes(r)),
+  }));
+
+  // One recipient row per user and held targeted role (bulk).
   const { error: recErr } = await supabaseAdmin
     .from("notification_recipients")
     .insert(
-      users.map((u) => ({ notification_id: notif.id, user_id: u.id as string }))
+      held.flatMap((u) =>
+        u.roles.map((role) => ({ notification_id: notif.id, user_id: u.id, role }))
+      )
     );
   if (recErr) {
     console.error("[notifications] broadcast recipients insert failed", recErr.message);
     return 0;
   }
 
+  // One push per device owner, opening the active role's copy when it was
+  // targeted (else the first targeted role: the app offers to switch).
   if (input.push !== false) {
     await Promise.all(
-      users.map((u) =>
-        pushToUser(u.id as string, notif, u.role as UserRole, input.href ?? null)
+      held.map((u) =>
+        pushToUser(
+          u.id,
+          notif,
+          u.roles.includes(u.active) ? u.active : u.roles[0],
+          input.href ?? null
+        )
       )
     );
   }

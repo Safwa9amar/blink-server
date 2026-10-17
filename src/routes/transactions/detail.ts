@@ -34,11 +34,14 @@ app.openapi(route, async (c) => {
     return c.json({ error: "Transaction not found" }, 404);
   }
 
-  if (data.user_id !== user.id && data.agent_id !== user.id) {
+  // Only the active role's side: the agent who processed it, or the rider it's for.
+  const asAgent = user.role === "agent" && data.agent_id === user.id;
+  const asRider = user.role === "rider" && data.user_id === user.id;
+  if (!asAgent && !asRider) {
     return c.json({ error: "Access denied" }, 403);
   }
 
-  const transaction = data.agent_id === user.id ? await withRider(data) : data;
+  const transaction = asAgent ? await withRider(data) : data;
   return c.json({ transaction }, 200);
 });
 

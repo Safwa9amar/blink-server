@@ -84,6 +84,7 @@ export async function releaseBookedJobs(riderId: string): Promise<void> {
       const n = releaseNotice(o, ref);
       return createNotification({
         userId: o.customer_id,
+        role: "customer",
         type: n.type,
         ...n.en,
         contentFr: n.fr,

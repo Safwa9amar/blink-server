@@ -30,6 +30,13 @@ export const staffListSchema = z.object({
   limit: z.coerce.number().int().positive().max(100).default(30),
 });
 
+export const rateConversationSchema = z
+  .object({
+    rating: z.number().int().min(1).max(5),
+    comment: z.string().max(500).optional(),
+  })
+  .openapi("RateSupportConversationBody");
+
 /** Optional body for get-or-create; `locale` seeds a NEW conversation only. */
 export const openConversationSchema = z
   .object({

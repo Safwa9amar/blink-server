@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, jsonb, pgPolicy, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { check, index, jsonb, pgPolicy, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { userRole } from "./enums";
 import { timestamps } from "./_shared";
 import { users } from "./users";
@@ -10,6 +10,10 @@ import { users } from "./users";
 // never lost to a self-service hard delete. Completing wipes the user's personal
 // data, so the request keeps who it was (`user_snapshot`) and which staff member
 // processed it — the console's deletion history.
+//
+// `scope`: `account` deletes the whole account; `role` removes only `role`
+// from a multi-role account (staff take it off granted_roles and clear its
+// documents; the other roles stay). 20261011134918_signup_role_and_role_deletion.sql.
 
 /** Who the account belonged to, captured just before staff wiped it. */
 export interface DeletedUserSnapshot {
@@ -25,6 +29,7 @@ export const accountDeletionRequests = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     role: userRole("role").notNull(),
+    scope: text("scope").$type<"account" | "role">().notNull().default("account"),
     reason: text("reason"),
     feedback: text("feedback"),
     status: text("status")
@@ -39,6 +44,11 @@ export const accountDeletionRequests = pgTable(
   },
   (t) => [
     index("idx_account_deletion_requests_user").on(t.userId),
+    // One pending request per user and role.
+    uniqueIndex("account_deletion_requests_one_pending")
+      .on(t.userId, t.role)
+      .where(sql`status = 'pending'`),
+    check("account_deletion_requests_scope_check", sql`scope in ('account', 'role')`),
     index("idx_account_deletion_requests_status").on(t.status),
     pgPolicy("account_deletion_requests_select_own", {
       for: "select",

@@ -30,6 +30,9 @@
           "error": {
             "type": "string"
           },
+          "code": {
+            "type": "string"
+          },
           "details": {
             "type": "array",
             "items": {
@@ -142,6 +145,15 @@
               ]
             }
           },
+          "signup_role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "rider",
+              "merchant",
+              "agent"
+            ]
+          },
           "staff_role": {
             "type": "string",
             "nullable": true,
@@ -204,6 +216,7 @@
           "email",
           "role",
           "granted_roles",
+          "signup_role",
           "staff_role",
           "gender",
           "birthday",
@@ -468,6 +481,15 @@
               ]
             }
           },
+          "signup_role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "rider",
+              "merchant",
+              "agent"
+            ]
+          },
           "staff_role": {
             "type": "string",
             "nullable": true,
@@ -530,6 +552,7 @@
           "email",
           "role",
           "granted_roles",
+          "signup_role",
           "staff_role",
           "gender",
           "birthday",
@@ -626,6 +649,15 @@
             "$ref": "#/components/schemas/RiderStoredDocument"
           },
           "id_back": {
+            "$ref": "#/components/schemas/RiderStoredDocument"
+          },
+          "gray_card_front": {
+            "$ref": "#/components/schemas/RiderStoredDocument"
+          },
+          "gray_card_back": {
+            "$ref": "#/components/schemas/RiderStoredDocument"
+          },
+          "insurance": {
             "$ref": "#/components/schemas/RiderStoredDocument"
           }
         }
@@ -1300,6 +1332,13 @@
               "agent"
             ]
           },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "account",
+              "role"
+            ]
+          },
           "reason": {
             "type": "string",
             "nullable": true
@@ -1359,6 +1398,7 @@
           "id",
           "user_id",
           "role",
+          "scope",
           "reason",
           "feedback",
           "status",
@@ -1382,11 +1422,21 @@
               "active_jobs",
               "open_orders"
             ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "rider",
+              "merchant",
+              "agent"
+            ]
           }
         },
         "required": [
           "error",
-          "code"
+          "code",
+          "role"
         ]
       },
       "AccountDeletionRequestBody": {
@@ -5355,6 +5405,25 @@
             "minimum": -2147483648,
             "maximum": 2147483647
           },
+          "max_coupons": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "discount_budget": {
+            "type": "number",
+            "nullable": true
+          },
+          "archived_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
           "created_at": {
             "type": "string"
           },
@@ -5386,8 +5455,56 @@
           "ends_at",
           "is_active",
           "sort_order",
+          "max_coupons",
+          "discount_budget",
+          "archived_at",
+          "created_by",
           "created_at",
           "updated_at"
+        ]
+      },
+      "TrackPromotionEventsResponse": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accepted"
+        ]
+      },
+      "TrackPromotionEventsBody": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "promotion_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "event": {
+                  "type": "string",
+                  "enum": [
+                    "view",
+                    "tap"
+                  ]
+                }
+              },
+              "required": [
+                "promotion_id",
+                "event"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 50
+          }
+        },
+        "required": [
+          "events"
         ]
       },
       "PromotionResponse": {
@@ -5425,7 +5542,8 @@
                 "enum": [
                   "active",
                   "used",
-                  "expired"
+                  "expired",
+                  "revoked"
                 ]
               },
               "discount_label": {
@@ -5502,6 +5620,22 @@
             "nullable": true,
             "format": "uuid"
           },
+          "revoked_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "source": {
+            "type": "string"
+          },
+          "issued_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
           "created_at": {
             "type": "string"
           },
@@ -5525,8 +5659,32 @@
           "expires_at",
           "used_at",
           "order_id",
+          "revoked_at",
+          "source",
+          "issued_by",
+          "note",
           "created_at",
           "updated_at"
+        ]
+      },
+      "PromotionUnavailableResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "not_live",
+              "sold_out",
+              "budget_spent"
+            ]
+          }
+        },
+        "required": [
+          "error",
+          "code"
         ]
       },
       "CouponListResponse": {
@@ -5544,6 +5702,161 @@
         ]
       },
       "RedeemCouponBody": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "ReferralOverviewResponse": {
+        "type": "object",
+        "properties": {
+          "referral_code": {
+            "type": "string"
+          },
+          "invite_url": {
+            "type": "string"
+          },
+          "reward_amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/ReferralStats"
+          },
+          "referrals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReferralItem"
+            }
+          },
+          "applied_referral": {
+            "$ref": "#/components/schemas/AppliedReferral"
+          }
+        },
+        "required": [
+          "referral_code",
+          "invite_url",
+          "reward_amount",
+          "currency",
+          "stats",
+          "referrals",
+          "applied_referral"
+        ]
+      },
+      "ReferralStats": {
+        "type": "object",
+        "properties": {
+          "total_earned": {
+            "type": "number"
+          },
+          "successful_referrals": {
+            "type": "number"
+          },
+          "pending_invites": {
+            "type": "number"
+          },
+          "available_balance": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total_earned",
+          "successful_referrals",
+          "pending_invites",
+          "available_balance"
+        ]
+      },
+      "ReferralItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "friend_name": {
+            "type": "string"
+          },
+          "friend_phone": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "completed",
+              "pending",
+              "cancelled"
+            ]
+          },
+          "reward": {
+            "type": "number"
+          },
+          "date": {
+            "type": "string"
+          },
+          "service": {
+            "type": "string"
+          },
+          "claimed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "friend_name",
+          "friend_phone",
+          "status",
+          "reward",
+          "date",
+          "service",
+          "claimed"
+        ]
+      },
+      "AppliedReferral": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "discount_amount": {
+            "type": "number"
+          },
+          "applied_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "discount_amount",
+          "applied_at"
+        ]
+      },
+      "ApplyReferralResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "discount_amount": {
+            "type": "number"
+          },
+          "coupon_code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "success",
+          "discount_amount"
+        ]
+      },
+      "ApplyReferralBody": {
         "type": "object",
         "properties": {
           "code": {
@@ -11416,7 +11729,10 @@
           "license_front",
           "license_back",
           "id_front",
-          "id_back"
+          "id_back",
+          "gray_card_front",
+          "gray_card_back",
+          "insurance"
         ]
       },
       "RiderDocumentsResponse": {
@@ -11445,13 +11761,25 @@
               },
               "id_back": {
                 "$ref": "#/components/schemas/RiderDocumentView"
+              },
+              "gray_card_front": {
+                "$ref": "#/components/schemas/RiderDocumentView"
+              },
+              "gray_card_back": {
+                "$ref": "#/components/schemas/RiderDocumentView"
+              },
+              "insurance": {
+                "$ref": "#/components/schemas/RiderDocumentView"
               }
             },
             "required": [
               "license_front",
               "license_back",
               "id_front",
-              "id_back"
+              "id_back",
+              "gray_card_front",
+              "gray_card_back",
+              "insurance"
             ]
           }
         },
@@ -11540,6 +11868,21 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 300
+          },
+          "gray_card_front": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "gray_card_back": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "insurance": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
           }
         }
       },
@@ -11585,6 +11928,7 @@
               "vehicle_type",
               "driving_license",
               "national_id",
+              "vehicle_documents",
               "verification"
             ]
           },
@@ -11660,6 +12004,52 @@
           "document",
           "path",
           "status"
+        ]
+      },
+      "RequestRiderVerificationResponse": {
+        "type": "object",
+        "properties": {
+          "verification_status": {
+            "$ref": "#/components/schemas/RiderVerificationStatus"
+          },
+          "invalidated": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiderDocumentKey"
+            }
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiderDocumentKey"
+            }
+          }
+        },
+        "required": [
+          "verification_status",
+          "invalidated",
+          "missing"
+        ]
+      },
+      "RequestRiderVerificationBody": {
+        "type": "object",
+        "properties": {
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiderDocumentKey"
+            },
+            "minItems": 1
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "documents",
+          "note"
         ]
       },
       "NewsListResponse": {
@@ -12011,6 +12401,34 @@
           "pagination"
         ]
       },
+      "SupportOk": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      },
+      "RateSupportConversationBody": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "rating"
+        ]
+      },
       "SupportMessageResponse": {
         "type": "object",
         "properties": {
@@ -12034,17 +12452,6 @@
             "format": "uri"
           }
         }
-      },
-      "SupportOk": {
-        "type": "object",
-        "properties": {
-          "ok": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "ok"
-        ]
       },
       "EscalateSupportConversationBody": {
         "type": "object",
@@ -16477,6 +16884,52 @@
         }
       }
     },
+    "/promotions/events": {
+      "post": {
+        "operationId": "trackPromotionEvents",
+        "tags": [
+          "promotions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackPromotionEventsBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackPromotionEventsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/promotions/{id}": {
       "get": {
         "operationId": "getPromotion",
@@ -16593,6 +17046,16 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Sold out, budget spent or not live",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionUnavailableResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -16687,6 +17150,97 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Sold out, budget spent or not live",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionUnavailableResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/referrals": {
+      "get": {
+        "operationId": "getReferralOverview",
+        "tags": [
+          "referrals"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer referral overview and history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferralOverviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/referrals/apply": {
+      "post": {
+        "operationId": "applyReferralCode",
+        "tags": [
+          "referrals"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyReferralBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Referral code applied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyReferralResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -23640,6 +24194,135 @@
         }
       }
     },
+    "/riders/admin/riders/{id}/verification-request": {
+      "post": {
+        "operationId": "requestRiderVerification",
+        "tags": [
+          "admin-riders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestRiderVerificationBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestRiderVerificationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or document not required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorBody"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "string"
+                        },
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_required"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "error",
+                        "code"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Concurrent change",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderDocumentsConflict"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/news": {
       "get": {
         "operationId": "listNews",
@@ -24015,6 +24698,81 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/support-chat/conversations/{id}/rate": {
+      "post": {
+        "operationId": "rateSupportConversation",
+        "tags": [
+          "support-chat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RateSupportConversationBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportOk"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
             "content": {
               "application/json": {
                 "schema": {

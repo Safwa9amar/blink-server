@@ -29,7 +29,8 @@ app.openapi(route, async (c) => {
     .from("notification_recipients")
     .update({ archived_at: null }, { count: "exact" })
     .eq("notification_id", notifId)
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .eq("role", user.role);
 
   if (error) {
     return c.json({ error: error.message }, 400);

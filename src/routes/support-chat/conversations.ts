@@ -3,10 +3,13 @@ import { bearer, createRoute, errorResponses, IdParam, json, router } from "../.
 import {
   listMessagesSchema,
   openConversationSchema,
+  rateConversationSchema,
+  SupportOkResponse,
   SupportConversationResponse,
   SupportMessageListResponse,
 } from "../../validators/support-chat";
-import { MESSAGE_COLUMNS, getOrCreateConversation, getConversation } from "./shared";
+import { insertMessage } from "../../lib/support-chat";
+import { MESSAGE_COLUMNS, getOrCreateConversation, getConversation, ownsConversation } from "./shared";
 
 const app = router();
 
@@ -66,7 +69,7 @@ app.openapi(messagesRoute, async (c) => {
   const conversation = await getConversation(id);
   if (!conversation) return c.json({ error: "Conversation not found" }, 404);
   const isStaff = !!user.staff_role;
-  if ((conversation as any).user_id !== user.id && !isStaff) {
+  if (!ownsConversation(conversation, user) && !isStaff) {
     return c.json({ error: "Access denied" }, 403);
   }
 
@@ -80,6 +83,51 @@ app.openapi(messagesRoute, async (c) => {
   if (error) return c.json({ error: error.message }, 400);
 
   return c.json({ messages: data ?? [], pagination: { page, limit, total: count ?? 0 } }, 200);
+});
+
+// POST /conversations/:id/rate — owner rates a resolved conversation (CSAT).
+// Rating again overwrites the earlier one.
+const rateRoute = createRoute({
+  method: "post",
+  path: "/conversations/{id}/rate",
+  operationId: "rateSupportConversation",
+  tags: ["support-chat"],
+  security: bearer,
+  request: { params: IdParam, body: json(rateConversationSchema) },
+  responses: {
+    200: json(SupportOkResponse),
+    400: errorResponses[400],
+    404: errorResponses[404],
+    409: errorResponses[409],
+  },
+});
+
+app.openapi(rateRoute, async (c) => {
+  const user = c.get("user");
+  const { id } = c.req.valid("param");
+  const { rating, comment } = c.req.valid("json");
+
+  const conversation = await getConversation(id);
+  // Not-owner is reported as 404 so conversation ids can't be probed.
+  if (!conversation || !ownsConversation(conversation, user)) {
+    return c.json({ error: "Conversation not found" }, 404);
+  }
+  if (conversation.status !== "resolved") {
+    return c.json({ error: "Conversation is not resolved", code: "not_resolved" }, 409);
+  }
+
+  const { error } = await supabaseAdmin
+    .from("support_conversations")
+    .update({
+      csat_rating: rating,
+      csat_comment: comment?.trim() ? comment.trim() : null,
+      csat_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+  if (error) return c.json({ error: error.message }, 400);
+
+  await insertMessage(id, "system", user.id, "rated", { type: "rated", rating });
+  return c.json({ ok: true }, 200);
 });
 
 export default app;

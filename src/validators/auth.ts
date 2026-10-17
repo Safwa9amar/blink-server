@@ -152,13 +152,16 @@ const riderStoredDocSchema = z
   })
   .openapi("RiderStoredDocument");
 
-/** rider_profiles.documents — licence + national ID scans (private bucket paths). */
+/** rider_profiles.documents — licence, national ID, gray card and insurance scans (private bucket paths). */
 export const RiderStoredDocumentsSchema = z
   .object({
     license_front: riderStoredDocSchema.optional(),
     license_back: riderStoredDocSchema.optional(),
     id_front: riderStoredDocSchema.optional(),
     id_back: riderStoredDocSchema.optional(),
+    gray_card_front: riderStoredDocSchema.optional(),
+    gray_card_back: riderStoredDocSchema.optional(),
+    insurance: riderStoredDocSchema.optional(),
   })
   .openapi("RiderStoredDocuments");
 

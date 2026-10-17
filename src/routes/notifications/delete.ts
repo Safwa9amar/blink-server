@@ -28,6 +28,7 @@ app.openapi(route, async (c) => {
     .update({ archived_at: new Date().toISOString() })
     .eq("notification_id", notifId)
     .eq("user_id", user.id)
+    .eq("role", user.role)
     .is("archived_at", null);
 
   if (error) {

@@ -13,6 +13,7 @@ import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { createOrderSchema, OrderResponse, PackChangedError } from "../../validators/orders";
 import { pushNewOffer } from "../../lib/offer-push";
+import { serviceFeeFor } from "../../lib/service-fee";
 
 const app = router();
 
@@ -69,7 +70,20 @@ app.openapi(route, async (c) => {
   // the fee is priced here from the route, never taken from the client.
   let subtotal = body.subtotal;
   let deliveryFee = body.delivery_fee;
-  let serviceFee = body.service_fee;
+  // Decided by the server (src/lib/service-fee.ts): the client's value is
+  // ignored. Once per checkout, on the first store order created for it.
+  let checkoutAlreadyCharged = false;
+  if (body.type !== "courier" && body.checkout_id) {
+    const { data: charged } = await supabaseAdmin
+      .from("orders")
+      .select("id")
+      .eq("customer_id", user.id)
+      .eq("checkout_id", body.checkout_id)
+      .gt("service_fee", 0)
+      .limit(1);
+    checkoutAlreadyCharged = (charged?.length ?? 0) > 0;
+  }
+  let serviceFee = serviceFeeFor({ type: body.type, checkoutAlreadyCharged });
   if (body.type === "courier") {
     const vehicle = COURIER_VEHICLES.find((v) => v === body.vehicle_type) as CourierVehicle | undefined;
     if (!vehicle) return c.json({ error: "vehicle_type must be bicycle or motorcycle" }, 400);
@@ -208,6 +222,7 @@ app.openapi(route, async (c) => {
     const ref = `#${data.id.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
     await createNotification({
       userId: storeOwnerId,
+      role: "merchant",
       type: "order",
       title: "New order",
       description: `${body.store_name}: order ${ref} is waiting for you.`,
@@ -254,6 +269,7 @@ async function decrementStock(
     if (p.stock > LOW_STOCK && stock <= LOW_STOCK && p.store?.owner_id) {
       await createNotification({
         userId: p.store.owner_id,
+        role: "merchant",
         type: "alert",
         title: "Item running low",
         description: `${p.title} at ${p.store.name}: ${stock} left.`,

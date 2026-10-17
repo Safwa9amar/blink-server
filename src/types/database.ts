@@ -124,6 +124,8 @@ export interface UserRow {
   role: UserRole;
   /** Every role unlocked on the account; `role` is the active one (src/lib/roles.ts). */
   granted_roles: Array<"customer" | "rider" | "merchant" | "agent">;
+  /** The role chosen at sign-up: only a customer sign-up is multi-role (src/lib/roles.ts usableRoles). */
+  signup_role: "customer" | "rider" | "merchant" | "agent";
   gender: Gender | null;
   birthday: string | null;
   profile_picture: string | null;

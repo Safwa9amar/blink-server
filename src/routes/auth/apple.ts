@@ -100,6 +100,7 @@ app.openapi(route, async (c) => {
       last_name: lastName,
       role: role as ServerRole,
       granted_roles: initialGrantedRoles(role as ServerRole),
+      signup_role: role as ServerRole,
     })
     .select("*")
     .single();
