@@ -44,7 +44,7 @@ import {
   OFFER_RADIUS_KM,
   ORDER_SELECT,
   riderCancelPenalty,
-  riderRates,
+  bundleCommissionRate,
   releaseRiderRequests,
   riderGender,
   riderNames,
@@ -954,7 +954,16 @@ function tripSummary(trip: Record<string, any>): z.infer<typeof TripSummarySchem
  */
 async function completeBundleTrip(checkoutOrderIds: string[], delivered: BundleRow[], riderId: string) {
   const fare = delivered.reduce((sum, o) => sum + Number(o.delivery_fee ?? 0), 0);
-  const { commissionRate } = await riderRates(delivered[0] as Record<string, any>);
+  // The rate fixed when the trip was created; trips predating the column re-resolve as at creation.
+  const { data: existing } = await supabaseAdmin
+    .from("trips")
+    .select("commission_rate")
+    .in("order_id", checkoutOrderIds)
+    .eq("rider_id", riderId)
+    .eq("status", "upcoming")
+    .maybeSingle();
+  const stored = (existing as { commission_rate?: number | string | null } | null)?.commission_rate;
+  const commissionRate = stored != null ? Number(stored) : await bundleCommissionRate(delivered as Record<string, any>[]);
   const { data: trip } = await supabaseAdmin
     .from("trips")
     .update({ status: "completed", ...tripPayout(fare, commissionRate) })

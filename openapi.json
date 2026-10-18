@@ -1684,6 +1684,10 @@
           "net_payout": {
             "type": "number"
           },
+          "commission_rate": {
+            "type": "number",
+            "nullable": true
+          },
           "distance_km": {
             "type": "number"
           },
@@ -1765,6 +1769,7 @@
           "dropoff_lng",
           "estimated_payout",
           "net_payout",
+          "commission_rate",
           "distance_km",
           "duration_minutes",
           "cancellation_reason",
@@ -4075,6 +4080,44 @@
               "agent"
             ]
           },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Dot path into the value, e.g. \"amount\", \"bicycle.base\""
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "da",
+                    "rate",
+                    "km",
+                    "multiplier"
+                  ]
+                },
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                },
+                "step": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "path",
+                "unit",
+                "min",
+                "max",
+                "step"
+              ]
+            },
+            "description": "Editable fields with bounds + step, derived from the same constants as the value schema"
+          },
           "value": {
             "nullable": true
           },
@@ -4098,6 +4141,7 @@
           "group",
           "unit",
           "scopes",
+          "fields",
           "updated_at",
           "updated_by",
           "active_overrides"
@@ -4545,6 +4589,60 @@
                 ]
               }
             }
+          },
+          "candidate_examples": {
+            "type": "object",
+            "properties": {
+              "courier_fare": {
+                "type": "object",
+                "properties": {
+                  "bicycle": {
+                    "type": "number"
+                  },
+                  "motorcycle": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "bicycle",
+                  "motorcycle"
+                ]
+              },
+              "ride_fare": {
+                "type": "object",
+                "properties": {
+                  "motorcycle": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "motorcycle"
+                ]
+              },
+              "blink_cash_fee": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "deposit",
+                      "withdrawal"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "fees": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "amount",
+                  "fees"
+                ]
+              }
+            }
           }
         },
         "required": [
@@ -4601,6 +4699,35 @@
                 "exclusiveMinimum": true
               }
             }
+          },
+          "candidate": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "enum": [
+                  "service_fee",
+                  "courier_fare",
+                  "ride_fare",
+                  "fare_multiplier",
+                  "rider_commission_rate",
+                  "merchant_commission_rate",
+                  "blink_cash_fee_rate",
+                  "agent_platform_share",
+                  "rider_cancel_penalty",
+                  "stamp_duty_rate",
+                  "agent_tax_rate",
+                  "dues_payment_fee_rate"
+                ]
+              },
+              "value": {
+                "nullable": true
+              }
+            },
+            "required": [
+              "key"
+            ],
+            "description": "An unsaved value for one fee; examples are also computed with it replacing that key's effective value (candidate_examples)"
           }
         },
         "required": [

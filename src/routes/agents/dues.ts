@@ -29,9 +29,9 @@ app.openapi(
   }),
   async (c) => {
     const user = c.get("user");
-    const [dues, rates, feeRate, { data: payments }] = await Promise.all([
-      computeAgentDues(user.id),
-      resolveAgentRates(user.id),
+    const rates = await resolveAgentRates(user.id);
+    const [dues, feeRate, { data: payments }] = await Promise.all([
+      computeAgentDues(user.id, rates),
       getPrice("dues_payment_fee_rate").then((p) => p.value.rate),
       supabaseAdmin
         .from("agent_dues_payments")

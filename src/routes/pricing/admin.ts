@@ -1,10 +1,12 @@
 // Staff console for the pricing config (tag admin-pricing → excluded from the
 // mobile client by orval; the dashboard's /pricing module calls it). Reads:
 // finance / ops / commerce admins; writes: finance_admin (super_admin always).
-// Every write appends a pricing_changes row and drops the pricing cache.
+// Every write drops the pricing cache; the pricing_changes log is written by DB
+// triggers (same transaction as the write), keyed on updated_by / created_by.
 import { isPartnerDealKey, pricingDealCopy, PARTNER_DEAL_KEYS } from "../../lib/pricing/copy";
 import {
   isPricingKey,
+  PRICING_FIELDS,
   PRICING_GROUPS,
   PRICING_SCHEMAS,
   PRICING_SCOPES,
@@ -17,6 +19,7 @@ import { legFare } from "../../lib/pricing/fare";
 import { getAllPrices, getPrice, invalidatePricingCache } from "../../lib/pricing";
 import { isActive, overlaps, type OverrideLike } from "../../lib/pricing/resolve";
 import { createNotification } from "../../lib/notifications";
+import { canActivate } from "../../lib/roles";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireStaffRole } from "../../middleware/staff-roles";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
@@ -99,23 +102,26 @@ function overrideView(o: OverrideRow, names: Map<string, string | null>) {
   };
 }
 
-async function logChange(c: {
-  key: string;
-  override_id?: string | null;
-  action: "update_default" | "create_override" | "update_override" | "archive_override";
-  before?: unknown;
-  after?: unknown;
-  actor_id: string;
-}) {
-  const { error } = await supabaseAdmin.from("pricing_changes").insert({
-    key: c.key,
-    override_id: c.override_id ?? null,
-    action: c.action,
-    before: c.before ?? null,
-    after: c.after ?? null,
-    actor_id: c.actor_id,
-  });
-  if (error) console.error("[pricing] change log failed", error.message);
+/** Postgres exclusion_violation: the DB's overlap guard (a race the app-level check can't see). */
+const isExclusionViolation = (e: { code?: string } | null | undefined) => e?.code === "23P01";
+
+const NIL_UUID = "00000000-0000-0000-0000-000000000000";
+
+/** Scope ids must be real accounts holding the matching partner role. */
+async function partnerScopeError(scope: { merchant_id: string | null; agent_id: string | null }): Promise<string | null> {
+  for (const [role, id] of [
+    ["merchant", scope.merchant_id],
+    ["agent", scope.agent_id],
+  ] as const) {
+    if (!id) continue;
+    const { data, error } = await supabaseAdmin.from("users").select("id, role, granted_roles").eq("id", id).maybeSingle();
+    if (error) throw new Error(`[pricing] partner lookup failed: ${error.message}`);
+    if (!data) return `${role}_id doesn't match any account`;
+    if (!canActivate([...((data.granted_roles as string[] | null) ?? []), data.role as string], role)) {
+      return `That account isn't a ${role}`;
+    }
+  }
+  return null;
 }
 
 /** The first live override with the same key + scope + overlapping window, if any. */
@@ -182,6 +188,7 @@ function feeView(
     group: PRICING_GROUPS[key],
     unit: PRICING_UNITS[key],
     scopes: PRICING_SCOPES[key],
+    fields: PRICING_FIELDS[key],
     value: row?.value ?? PRICING_SEEDS[key],
     seed: PRICING_SEEDS[key],
     updated_at: row?.updated_at ?? null,
@@ -281,13 +288,6 @@ app.openapi(
       .single();
     if (error || !saved) throw new Error(`[pricing] default write failed: ${error?.message}`);
 
-    await logChange({
-      key,
-      action: "update_default",
-      before: current?.value ?? PRICING_SEEDS[key],
-      after: parsed.data,
-      actor_id: staff.id,
-    });
     invalidatePricingCache();
     const counts = await activeCounts();
     return c.json({ fee: feeView(key, saved, counts.get(key) ?? 0) }, 200);
@@ -355,7 +355,7 @@ app.openapi(
       merchant_id: body.merchant_id ?? null,
       agent_id: body.agent_id ?? null,
     };
-    const problem = scopeError(key, scope);
+    const problem = scopeError(key, scope) ?? (await partnerScopeError(scope));
     if (problem) return c.json({ error: problem }, 400);
 
     const parsed = PRICING_SCHEMAS[key].safeParse(body.value);
@@ -392,10 +392,13 @@ app.openapi(
       })
       .select(OVERRIDE_COLS)
       .single();
+    if (isExclusionViolation(error)) {
+      const raced = await findConflict(candidate);
+      return c.json({ error: "overlap" as const, conflict_id: raced?.id ?? NIL_UUID }, 409);
+    }
     if (error || !data) throw new Error(`[pricing] override insert failed: ${error?.message}`);
     const row = data as OverrideRow;
 
-    await logChange({ key, override_id: row.id, action: "create_override", after: row, actor_id: staff.id });
     invalidatePricingCache();
     await notifyPartner("created", row, staff.id);
     const names = await namesById([row.merchant_id ?? row.agent_id]);
@@ -471,12 +474,21 @@ app.openapi(
       .eq("id", id)
       .select(OVERRIDE_COLS)
       .single();
+    if (isExclusionViolation(error)) {
+      const raced = await findConflict({ ...before, value, starts_at, ends_at }, id);
+      return c.json({ error: "overlap" as const, conflict_id: raced?.id ?? NIL_UUID }, 409);
+    }
     if (error || !data) throw new Error(`[pricing] override update failed: ${error?.message}`);
     const row = data as OverrideRow;
 
-    await logChange({ key: row.key, override_id: id, action: "update_override", before, after: row, actor_id: staff.id });
     invalidatePricingCache();
-    await notifyPartner("updated", row, staff.id);
+    // A note-only edit changes nothing the partner pays: no notification.
+    const sameTime = (a: string | null, b: string | null) => (a ? Date.parse(a) : null) === (b ? Date.parse(b) : null);
+    const material =
+      JSON.stringify(row.value) !== JSON.stringify(before.value) ||
+      !sameTime(row.starts_at, before.starts_at) ||
+      !sameTime(row.ends_at, before.ends_at);
+    if (material) await notifyPartner("updated", row, staff.id);
     const names = await namesById([row.merchant_id ?? row.agent_id]);
     return c.json({ override: overrideView(row, names) }, 200);
   }
@@ -520,9 +532,9 @@ app.openapi(
         .single();
       if (error || !data) throw new Error(`[pricing] override archive failed: ${error?.message}`);
       row = data as OverrideRow;
-      await logChange({ key: row.key, override_id: id, action: "archive_override", before, after: row, actor_id: staff.id });
       invalidatePricingCache();
-      await notifyPartner("archived", row, staff.id);
+      // "Returns to default" only makes sense for a deal that was in force.
+      if (statusOf(before) === "active") await notifyPartner("archived", row, staff.id);
     }
     const names = await namesById([row.merchant_id ?? row.agent_id]);
     return c.json({ override: overrideView(row, names) }, 200);
@@ -577,7 +589,21 @@ app.openapi(
     },
   }),
   async (c) => {
-    const { context, sample } = c.req.valid("json");
+    const { context, sample, candidate } = c.req.valid("json");
+    let candidateValue: { key: PricingKey; value: any } | null = null;
+    if (candidate) {
+      const parsed = PRICING_SCHEMAS[candidate.key].safeParse(candidate.value);
+      if (!parsed.success) {
+        return c.json(
+          {
+            error: "Invalid candidate value",
+            details: parsed.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })),
+          },
+          400
+        );
+      }
+      candidateValue = { key: candidate.key, value: parsed.data };
+    }
     // Fresh read: a preview right after a save must show the save.
     invalidatePricingCache();
     const ctx = {
@@ -601,25 +627,40 @@ app.openapi(
       }
     }
 
-    // Worked examples through the same maths the flows use.
+    // Worked examples through the same maths the flows use. With a candidate,
+    // it replaces that key's effective value (a fare_multiplier candidate only
+    // for the service in context.service, or both when none is given).
     const km = sample?.km ?? 5;
     const stops = sample?.stops ?? 1;
-    const examples: Record<string, unknown> = {};
-    const by = Object.fromEntries(prices.map((p) => [p.key, p.value])) as Record<string, any>;
-    const [courierMult, rideMult] = await Promise.all([
+    const amount = sample?.amount ?? 10_000;
+    const cashType = context.service === "withdrawal" ? "withdrawal" : "deposit";
+    const live = Object.fromEntries(prices.map((p) => [p.key, p.value])) as Record<string, any>;
+    const [courierMult, rideMult, cashRate] = await Promise.all([
       getPrice("fare_multiplier", { ...ctx, service: "courier" }),
       getPrice("fare_multiplier", { ...ctx, service: "ride" }),
+      getPrice("blink_cash_fee_rate", { ...ctx, service: cashType }),
     ]);
-    const courier = by.courier_fare;
-    examples.courier_fare = {
-      bicycle: legFare(courier.bicycle, km, { stops, extraStopFee: courier.extra_stop_fee, multiplier: courierMult.value.multiplier }),
-      motorcycle: legFare(courier.motorcycle, km, { stops, extraStopFee: courier.extra_stop_fee, multiplier: courierMult.value.multiplier }),
+
+    const examplesWith = (cand: typeof candidateValue) => {
+      const pick = (key: PricingKey, fallback: any) => (cand && cand.key === key ? cand.value : fallback);
+      const multFor = (service: "courier" | "ride", fallback: number) =>
+        cand?.key === "fare_multiplier" && (!context.service || context.service === service)
+          ? (cand.value.multiplier as number)
+          : fallback;
+      const courier = pick("courier_fare", live.courier_fare);
+      const ride = pick("ride_fare", live.ride_fare);
+      const cm = multFor("courier", courierMult.value.multiplier);
+      const rm = multFor("ride", rideMult.value.multiplier);
+      const cash = pick("blink_cash_fee_rate", cashRate.value);
+      return {
+        courier_fare: {
+          bicycle: legFare(courier.bicycle, km, { stops, extraStopFee: courier.extra_stop_fee, multiplier: cm }),
+          motorcycle: legFare(courier.motorcycle, km, { stops, extraStopFee: courier.extra_stop_fee, multiplier: cm }),
+        },
+        ride_fare: { motorcycle: legFare(ride.motorcycle, km, { multiplier: rm }) },
+        blink_cash_fee: { type: cashType as "deposit" | "withdrawal", amount, fees: Math.round(amount * cash.rate) },
+      };
     };
-    examples.ride_fare = { motorcycle: legFare(by.ride_fare.motorcycle, km, { multiplier: rideMult.value.multiplier }) };
-    const cashType = context.service === "withdrawal" ? "withdrawal" : "deposit";
-    const cashRate = await getPrice("blink_cash_fee_rate", { ...ctx, service: cashType });
-    const amount = sample?.amount ?? 10_000;
-    examples.blink_cash_fee = { type: cashType, amount, fees: Math.round(amount * cashRate.value.rate) };
 
     return c.json(
       {
@@ -629,7 +670,8 @@ app.openapi(
           override_id: p.overrideId,
           scope: p.overrideId ? scopes.get(p.overrideId) ?? null : null,
         })),
-        examples,
+        examples: examplesWith(null),
+        ...(candidateValue ? { candidate_examples: examplesWith(candidateValue) } : {}),
       },
       200
     );

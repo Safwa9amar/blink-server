@@ -100,3 +100,68 @@ update public.orders
 update public.transactions
    set fee_rate = 0.02, platform_share_rate = 0.20, tax_rate = 0.01
  where fee_rate is null;
+
+-- Trips fix the commission rate they were created under (bundle completion
+-- must not re-price it).
+alter table public.trips add column if not exists commission_rate numeric(6, 4);
+update public.trips set commission_rate = 0.15 where commission_rate is null;
+
+-- Overlap guard in the DB (the app-level check can't see a concurrent insert):
+-- same key + identical scope + overlapping window, live rows only.
+create extension if not exists btree_gist;
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'pricing_overrides_no_overlap') then
+    alter table public.pricing_overrides
+      add constraint pricing_overrides_no_overlap exclude using gist (
+        key with =,
+        coalesce(service, '') with =,
+        coalesce(wilaya_code, '') with =,
+        coalesce(merchant_id::text, '') with =,
+        coalesce(agent_id::text, '') with =,
+        tstzrange(coalesce(starts_at, '-infinity'::timestamptz), coalesce(ends_at, 'infinity'::timestamptz)) with &&
+      ) where (archived_at is null);
+  end if;
+end $$;
+
+-- Atomic audit log: the change row is written in the same transaction as the
+-- write, attributed to updated_by / created_by (the routes always set them).
+create or replace function public.pricing_log_setting_change() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.pricing_changes (key, override_id, action, before, after, actor_id)
+  values (
+    new.key,
+    null,
+    'update_default',
+    case when tg_op = 'UPDATE' then old.value else null end,
+    new.value,
+    new.updated_by
+  );
+  return null;
+end $$;
+
+create or replace function public.pricing_log_override_change() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if tg_op = 'INSERT' then
+    insert into public.pricing_changes (key, override_id, action, before, after, actor_id)
+    values (new.key, new.id, 'create_override', null, to_jsonb(new), coalesce(new.created_by, new.updated_by));
+  elsif old.archived_at is null and new.archived_at is not null then
+    insert into public.pricing_changes (key, override_id, action, before, after, actor_id)
+    values (new.key, new.id, 'archive_override', to_jsonb(old), to_jsonb(new), new.updated_by);
+  else
+    insert into public.pricing_changes (key, override_id, action, before, after, actor_id)
+    values (new.key, new.id, 'update_override', to_jsonb(old), to_jsonb(new), new.updated_by);
+  end if;
+  return null;
+end $$;
+
+drop trigger if exists pricing_settings_audit on public.pricing_settings;
+create trigger pricing_settings_audit after insert or update on public.pricing_settings
+  for each row execute function public.pricing_log_setting_change();
+
+drop trigger if exists pricing_overrides_audit on public.pricing_overrides;
+create trigger pricing_overrides_audit after insert or update on public.pricing_overrides
+  for each row execute function public.pricing_log_override_change();

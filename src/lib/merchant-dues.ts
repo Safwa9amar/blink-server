@@ -40,6 +40,20 @@ export interface StoreDuesAllocation {
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+/** Sales accumulated per distinct rate (so a single-rate book rounds exactly once, as it always did). */
+export type SalesByRate = Map<number, number>;
+
+export function addSale(by: SalesByRate, rate: number, sale: number): void {
+  by.set(rate, (by.get(rate) ?? 0) + sale);
+}
+
+/** Σ round2(Σsales × rate) over the distinct rates; one rate == round2(Σsale × rate). */
+export function feeFromSales(by: ReadonlyMap<number, number>): number {
+  let total = 0;
+  for (const [rate, sum] of by) total += round2(sum * rate);
+  return round2(total);
+}
+
 const later = (a: string | null, b: string | null | undefined) =>
   !b ? a : !a || Date.parse(b) > Date.parse(a) ? b : a;
 

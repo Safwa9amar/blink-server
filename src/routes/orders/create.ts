@@ -100,7 +100,13 @@ app.openapi(route, async (c) => {
       pricingApplied.merchant_commission_rate = rates.merchant_commission_rate.overrideId;
       pricingApplied.stamp_duty_rate = rates.stamp_duty_rate.overrideId;
     }
-    if (body.expected_service_fee != null && body.expected_service_fee !== serviceFee) {
+    // Tolerant compare (float noise), and no 409 when the server fee is 0 only
+    // because this checkout already paid it (a retry of a multi-store checkout).
+    if (
+      body.expected_service_fee != null &&
+      !(serviceFee === 0 && alreadyCharged) &&
+      Math.abs(body.expected_service_fee - serviceFee) >= 0.005
+    ) {
       return c.json({ error: "price_changed" as const, service_fee: serviceFee }, 409);
     }
   }

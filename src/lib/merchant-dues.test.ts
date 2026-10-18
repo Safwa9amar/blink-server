@@ -133,3 +133,22 @@ describe("remindedRecently", () => {
     assert.equal(DUES_REMINDER_COOLDOWN_MS, 86_400_000);
   });
 });
+
+describe("feeFromSales", () => {
+  it("a single rate equals round2(Σsale × rate), the pre-pricing-config maths", async () => {
+    const { addSale, feeFromSales } = await import("./merchant-dues");
+    const sales = [3052.97, 2111.61, 2600.82, 259.84, 4220.86];
+    const by = new Map<number, number>();
+    for (const s of sales) addSale(by, 0.05, s);
+    const old = Math.round(sales.reduce((a, b) => a + b, 0) * 0.05 * 100) / 100;
+    assert.equal(feeFromSales(by), old);
+    assert.equal(feeFromSales(by), 612.3);
+  });
+  it("sums per distinct rate", async () => {
+    const { addSale, feeFromSales } = await import("./merchant-dues");
+    const by = new Map<number, number>();
+    addSale(by, 0.05, 1000);
+    addSale(by, 0.03, 1000);
+    assert.equal(feeFromSales(by), 80);
+  });
+});

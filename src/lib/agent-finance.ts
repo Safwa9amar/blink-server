@@ -77,8 +77,12 @@ export interface AgentDues {
 }
 
 /** Outstanding dues for an agent, derived from every completed operation. */
-export async function computeAgentDues(agentId: string): Promise<AgentDues> {
-  const [{ data: txs }, { data: rewards }, { data: payments }, current] = await Promise.all([
+export async function computeAgentDues(
+  agentId: string,
+  /** Pass the already-resolved rates to avoid resolving them twice. */
+  rates?: Awaited<ReturnType<typeof resolveAgentRates>>
+): Promise<AgentDues> {
+  const [txsRes, rewardsRes, paymentsRes, current] = await Promise.all([
     supabaseAdmin
       .from("transactions")
       .select("type, amount, fees, platform_share_rate, tax_rate")
@@ -94,8 +98,15 @@ export async function computeAgentDues(agentId: string): Promise<AgentDues> {
       .select("amount")
       .eq("agent_id", agentId)
       .eq("status", "completed"),
-    resolveAgentRates(agentId),
+    rates ?? resolveAgentRates(agentId),
   ]);
+  // Never report zero dues because a read failed.
+  for (const r of [txsRes, rewardsRes, paymentsRes]) {
+    if (r.error) throw new Error(`[agent-finance] dues read failed: ${r.error.message}`);
+  }
+  const txs = txsRes.data;
+  const rewards = rewardsRes.data;
+  const payments = paymentsRes.data;
 
   const b = { deposits: 0, withdrawals: 0, platform_fees: 0, taxes: 0, challenge_rewards: 0, payments: 0 };
   for (const t of txs ?? []) {
@@ -141,7 +152,7 @@ export async function computeAgentEarnings(agentId: string, start: Date, end: Da
   const from = start.toISOString();
   const to = end.toISOString();
   const current = await resolveAgentRates(agentId);
-  const [{ data: txs }, { data: wins }] = await Promise.all([
+  const [txsRes, winsRes] = await Promise.all([
     supabaseAdmin
       .from("transactions")
       .select("id, type, amount, fees, total, status, created_at, platform_share_rate, tax_rate")
@@ -157,6 +168,11 @@ export async function computeAgentEarnings(agentId: string, start: Date, end: Da
       .gte("settled_at", from)
       .lt("settled_at", to),
   ]);
+  for (const r of [txsRes, winsRes]) {
+    if (r.error) throw new Error(`[agent-finance] earnings read failed: ${r.error.message}`);
+  }
+  const txs = txsRes.data;
+  const wins = winsRes.data;
 
   let incomeDeposits = 0;
   let incomeWithdrawals = 0;

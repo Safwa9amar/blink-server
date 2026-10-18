@@ -41,6 +41,8 @@ export const trips = pgTable(
     dropoffLng: doublePrecision("dropoff_lng").notNull(),
     estimatedPayout: money("estimated_payout").notNull(),
     netPayout: money("net_payout").notNull(),
+    // Blink's commission rate fixed when the trip was created (pricing config).
+    commissionRate: numeric("commission_rate", { precision: 6, scale: 4 }).$type<number>(),
     distanceKm: numeric("distance_km", { precision: 6, scale: 2 }).$type<number>().notNull(),
     durationMinutes: integer("duration_minutes").notNull(),
     cancellationReason: text("cancellation_reason"),

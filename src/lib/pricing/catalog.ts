@@ -23,34 +23,100 @@ export type PricingKey = (typeof PRICING_KEYS)[number];
 
 export const isPricingKey = (k: string): k is PricingKey => (PRICING_KEYS as readonly string[]).includes(k);
 
-const rate = (max: number) => z.object({ rate: z.number().min(0).max(max) }).strict();
-const amount = (max: number) => z.object({ amount: z.number().min(0).max(max) }).strict();
+// ─── Field specs: the single source for the Zod bounds, the precision rule and
+// the `fields` metadata the dashboard renders its inputs from. ─────────────────
+export type FieldUnit = "da" | "rate" | "km" | "multiplier";
+export type FieldSpec = { unit: FieldUnit; min: number; max: number; step: number };
+export type PricingField = FieldSpec & { path: string };
+
+const DECIMALS: Record<FieldUnit, number> = { da: 2, rate: 4, km: 1, multiplier: 2 };
+const da = (max: number, min = 0): FieldSpec => ({ unit: "da", min, max, step: 0.01 });
+const rateOf = (max: number): FieldSpec => ({ unit: "rate", min: 0, max, step: 0.0001 });
+const km = (max: number, min = 0): FieldSpec => ({ unit: "km", min, max, step: 0.1 });
+const multiplier = (min: number, max: number): FieldSpec => ({ unit: "multiplier", min, max, step: 0.01 });
+
+/** True when `n` has at most `decimals` decimal places (float-tolerant). */
+export function hasAtMostDecimals(n: number, decimals: number): boolean {
+  const f = 10 ** decimals;
+  return Math.abs(n * f - Math.round(n * f)) < 1e-6;
+}
+
+const num = (f: FieldSpec) =>
+  z
+    .number()
+    .min(f.min)
+    .max(f.max)
+    .refine((n) => hasAtMostDecimals(n, DECIMALS[f.unit]), { message: `At most ${DECIMALS[f.unit]} decimals` });
+
+const SPEC = {
+  serviceFee: da(1_000),
+  base: da(10_000),
+  includedKm: km(100),
+  perKm: da(1_000),
+  maxKm: km(500, 1),
+  extraStop: da(1_000),
+  multiplier: multiplier(0.5, 2),
+  riderCommission: rateOf(0.5),
+  merchantCommission: rateOf(0.5),
+  cashFee: rateOf(0.1),
+  platformShare: rateOf(1),
+  cancelPenalty: da(5_000),
+  stampDuty: rateOf(0.2),
+  agentTax: rateOf(0.2),
+  duesFee: rateOf(0.05),
+};
+
+const rate = (f: FieldSpec) => z.object({ rate: num(f) }).strict();
+const amount = (f: FieldSpec) => z.object({ amount: num(f) }).strict();
 
 const fareLeg = z
   .object({
-    base: z.number().min(0).max(10_000),
-    included_km: z.number().min(0).max(100),
-    per_km: z.number().min(0).max(1_000),
-    max_km: z.number().min(1).max(500),
+    base: num(SPEC.base),
+    included_km: num(SPEC.includedKm),
+    per_km: num(SPEC.perKm),
+    max_km: num(SPEC.maxKm),
   })
   .strict();
 
+const legFields = (prefix: string): PricingField[] => [
+  { path: `${prefix}.base`, ...SPEC.base },
+  { path: `${prefix}.included_km`, ...SPEC.includedKm },
+  { path: `${prefix}.per_km`, ...SPEC.perKm },
+  { path: `${prefix}.max_km`, ...SPEC.maxKm },
+];
+
 export const PRICING_SCHEMAS = {
-  service_fee: amount(1_000),
+  service_fee: amount(SPEC.serviceFee),
   courier_fare: z
-    .object({ bicycle: fareLeg, motorcycle: fareLeg, extra_stop_fee: z.number().min(0).max(1_000) })
+    .object({ bicycle: fareLeg, motorcycle: fareLeg, extra_stop_fee: num(SPEC.extraStop) })
     .strict(),
   ride_fare: z.object({ motorcycle: fareLeg }).strict(),
-  fare_multiplier: z.object({ multiplier: z.number().min(0.5).max(2) }).strict(),
-  rider_commission_rate: rate(0.5),
-  merchant_commission_rate: rate(0.5),
-  blink_cash_fee_rate: rate(0.1),
-  agent_platform_share: rate(1),
-  rider_cancel_penalty: amount(5_000),
-  stamp_duty_rate: rate(0.2),
-  agent_tax_rate: rate(0.2),
-  dues_payment_fee_rate: rate(0.05),
+  fare_multiplier: z.object({ multiplier: num(SPEC.multiplier) }).strict(),
+  rider_commission_rate: rate(SPEC.riderCommission),
+  merchant_commission_rate: rate(SPEC.merchantCommission),
+  blink_cash_fee_rate: rate(SPEC.cashFee),
+  agent_platform_share: rate(SPEC.platformShare),
+  rider_cancel_penalty: amount(SPEC.cancelPenalty),
+  stamp_duty_rate: rate(SPEC.stampDuty),
+  agent_tax_rate: rate(SPEC.agentTax),
+  dues_payment_fee_rate: rate(SPEC.duesFee),
 } as const satisfies Record<PricingKey, z.ZodType>;
+
+/** Per-key editable fields (dot paths into the value) — what the dashboard renders inputs from. */
+export const PRICING_FIELDS: Record<PricingKey, PricingField[]> = {
+  service_fee: [{ path: "amount", ...SPEC.serviceFee }],
+  courier_fare: [...legFields("bicycle"), ...legFields("motorcycle"), { path: "extra_stop_fee", ...SPEC.extraStop }],
+  ride_fare: legFields("motorcycle"),
+  fare_multiplier: [{ path: "multiplier", ...SPEC.multiplier }],
+  rider_commission_rate: [{ path: "rate", ...SPEC.riderCommission }],
+  merchant_commission_rate: [{ path: "rate", ...SPEC.merchantCommission }],
+  blink_cash_fee_rate: [{ path: "rate", ...SPEC.cashFee }],
+  agent_platform_share: [{ path: "rate", ...SPEC.platformShare }],
+  rider_cancel_penalty: [{ path: "amount", ...SPEC.cancelPenalty }],
+  stamp_duty_rate: [{ path: "rate", ...SPEC.stampDuty }],
+  agent_tax_rate: [{ path: "rate", ...SPEC.agentTax }],
+  dues_payment_fee_rate: [{ path: "rate", ...SPEC.duesFee }],
+};
 
 export type PricingValue<K extends PricingKey> = z.infer<(typeof PRICING_SCHEMAS)[K]>;
 
@@ -134,6 +200,9 @@ export const PRICING_SEEDS: { [K in PricingKey]: PricingValue<K> } = {
   dues_payment_fee_rate: { rate: 0.002 },
 };
 
+/** A wilaya code as stored: "1" … "58" (no leading zeros). */
+export const isWilayaCode = (v: string) => /^[1-9]\d?$/.test(v) && Number(v) <= 58;
+
 /**
  * Check an override's scope against the key's allowed scopes. Returns an error
  * message, or null when fine. (A partner can be a merchant OR an agent, never both.)
@@ -147,7 +216,10 @@ export function scopeError(
     if (!allowed.service) return `${key} can't be scoped by service`;
     if (!allowed.service.includes(scope.service)) return `${key} service must be one of ${allowed.service.join(", ")}`;
   }
-  if (scope.wilaya_code != null && !allowed.wilaya) return `${key} can't be scoped by wilaya`;
+  if (scope.wilaya_code != null) {
+    if (!allowed.wilaya) return `${key} can't be scoped by wilaya`;
+    if (!isWilayaCode(scope.wilaya_code)) return "wilaya_code must be one of 1 to 58";
+  }
   if (scope.merchant_id != null && !allowed.merchant) return `${key} can't be scoped to a merchant`;
   if (scope.agent_id != null && !allowed.agent) return `${key} can't be scoped to an agent`;
   if (scope.merchant_id != null && scope.agent_id != null) return "An override targets a merchant or an agent, not both";

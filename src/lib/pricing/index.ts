@@ -1,7 +1,7 @@
 // Runtime pricing lookups: `getPrice("merchant_commission_rate", ctx)` →
 // `{ value, overrideId }`. Settings + live overrides are read from the DB with
-// a 15 s cache (same pattern as lib/ai-settings.ts); any load error logs and
-// serves the seeds, so pricing never goes down with the table.
+// a 15 s cache (same pattern as lib/ai-settings.ts); a load error logs and serves
+// the last good snapshot (seeds only on a cold start), retrying after ~2 s.
 import { supabaseAdmin } from "../supabase";
 import { PRICING_KEYS, PRICING_SCHEMAS, PRICING_SEEDS, type PricingKey, type PricingValue } from "./catalog";
 import { resolveFrom, type OverrideLike, type PricingContext } from "./resolve";
@@ -14,60 +14,79 @@ export type PriceResult<K extends PricingKey> = { value: PricingValue<K>; overri
 type Snapshot = { defaults: Record<string, unknown>; overrides: OverrideLike[] };
 
 const TTL_MS = 15_000;
-let cache: { value: Snapshot; at: number } | null = null;
+/** After a failed load, retry soon instead of holding the fallback for the full TTL. */
+const ERROR_TTL_MS = 2_000;
+
+let cache: { value: Snapshot; expires: number } | null = null;
 let inflight: Promise<Snapshot> | null = null;
+/** The last snapshot that loaded cleanly; served on a load error. Seeds only on a cold start. */
+let lastGood: Snapshot | null = null;
+/** Bumped by invalidatePricingCache(): a load that started before can't write the newer state. */
+let generation = 0;
 
 const SEED_SNAPSHOT: Snapshot = { defaults: { ...PRICING_SEEDS }, overrides: [] };
 
 async function load(): Promise<Snapshot> {
-  try {
-    const nowIso = new Date().toISOString();
-    const [settings, overrides] = await Promise.all([
-      supabaseAdmin.from("pricing_settings").select("key, value"),
-      supabaseAdmin
-        .from("pricing_overrides")
-        .select("id, key, service, wilaya_code, merchant_id, agent_id, value, starts_at, ends_at, created_at")
-        .is("archived_at", null)
-        // Ended overrides never match again; scheduled ones stay (resolved by ctx.at).
-        .or(`ends_at.is.null,ends_at.gt.${nowIso}`),
-    ]);
-    if (settings.error) throw new Error(settings.error.message);
-    if (overrides.error) throw new Error(overrides.error.message);
+  const nowIso = new Date().toISOString();
+  const [settings, overrides] = await Promise.all([
+    supabaseAdmin.from("pricing_settings").select("key, value"),
+    supabaseAdmin
+      .from("pricing_overrides")
+      .select("id, key, service, wilaya_code, merchant_id, agent_id, value, starts_at, ends_at, created_at")
+      .is("archived_at", null)
+      // Ended overrides never match again; scheduled ones stay (resolved by ctx.at).
+      .or(`ends_at.is.null,ends_at.gt.${nowIso}`),
+  ]);
+  if (settings.error) throw new Error(settings.error.message);
+  if (overrides.error) throw new Error(overrides.error.message);
 
-    // Seeds fill any key the table doesn't have (e.g. before the migration).
-    const defaults: Record<string, unknown> = { ...PRICING_SEEDS };
-    for (const row of settings.data ?? []) {
-      const key = row.key as PricingKey;
-      const parsed = PRICING_SCHEMAS[key]?.safeParse(row.value);
-      if (!parsed?.success) {
-        console.error(`[pricing] invalid stored default for ${row.key}; using seed`);
-        continue;
-      }
-      defaults[key] = parsed.data;
+  // Seeds fill any key the table doesn't have (e.g. before the migration).
+  const defaults: Record<string, unknown> = { ...PRICING_SEEDS };
+  for (const row of settings.data ?? []) {
+    const key = row.key as PricingKey;
+    const parsed = PRICING_SCHEMAS[key]?.safeParse(row.value);
+    if (!parsed?.success) {
+      console.error(`[pricing] invalid stored default for ${row.key}; using seed`);
+      continue;
     }
-    return { defaults, overrides: (overrides.data ?? []) as OverrideLike[] };
-  } catch (err) {
-    console.error("[pricing] load failed; serving seeds", err instanceof Error ? err.message : err);
-    return SEED_SNAPSHOT;
+    defaults[key] = parsed.data;
   }
+  return { defaults, overrides: (overrides.data ?? []) as OverrideLike[] };
 }
 
 async function snapshot(): Promise<Snapshot> {
-  if (cache && Date.now() - cache.at < TTL_MS) return cache.value;
-  inflight ??= load()
+  if (cache && Date.now() < cache.expires) return cache.value;
+  if (inflight) return inflight;
+  const gen = generation;
+  const p: Promise<Snapshot> = load()
     .then((value) => {
-      cache = { value, at: Date.now() };
+      if (gen === generation) {
+        lastGood = value;
+        cache = { value, expires: Date.now() + TTL_MS };
+      }
       return value;
     })
+    .catch((err) => {
+      const fallback = lastGood ?? SEED_SNAPSHOT;
+      console.error(
+        `[pricing] load failed; serving ${lastGood ? "the last good snapshot" : "seeds"}`,
+        err instanceof Error ? err.message : err
+      );
+      if (gen === generation) cache = { value: fallback, expires: Date.now() + ERROR_TTL_MS };
+      return fallback;
+    })
     .finally(() => {
-      inflight = null;
+      if (inflight === p) inflight = null;
     });
-  return inflight;
+  inflight = p;
+  return p;
 }
 
 /** Drop the cache (staff writes call this so the change shows up immediately on this instance). */
 export function invalidatePricingCache() {
+  generation++;
   cache = null;
+  inflight = null;
 }
 
 function resolveKey<K extends PricingKey>(snap: Snapshot, key: K, ctx: PricingContext): PriceResult<K> {

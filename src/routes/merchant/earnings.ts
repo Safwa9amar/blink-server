@@ -1,3 +1,4 @@
+import { addSale, feeFromSales, type SalesByRate } from "../../lib/merchant-dues";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { earningsQuerySchema, MerchantEarningsResponse } from "../../validators/merchant";
@@ -45,8 +46,8 @@ app.openapi(route, async (c) => {
   const current = new Map(await Promise.all(stores.map(async (s) => [s.id, await storeRatesFor(s)] as const)));
 
   let grossSales = 0;
-  let commissionRaw = 0;
-  let stampRaw = 0;
+  const commissionByRate: SalesByRate = new Map();
+  const stampByRate: SalesByRate = new Map();
   let discounts = 0;
   let salesCount = 0;
   const operations: any[] = [];
@@ -62,8 +63,8 @@ app.openapi(route, async (c) => {
       grossSales += orderSale(o);
       // Each order at the rates it was placed under (a null snapshot: the store's current rate).
       const fallback = current.get(o.store_id);
-      commissionRaw += orderSale(o) * snapshotRate(o.merchant_commission_rate, fallback?.commission ?? 0);
-      stampRaw += orderSale(o) * snapshotRate(o.stamp_duty_rate, fallback?.stamp ?? 0);
+      addSale(commissionByRate, snapshotRate(o.merchant_commission_rate, fallback?.commission ?? 0), orderSale(o));
+      addSale(stampByRate, snapshotRate(o.stamp_duty_rate, fallback?.stamp ?? 0), orderSale(o));
       discounts += o.discount;
       salesCount += 1;
       operations.push({ ...base, id: o.id, type: "sale", amount: orderSale(o), status: "completed" });
@@ -99,8 +100,8 @@ app.openapi(route, async (c) => {
   operations.sort((a, b) => b.created_at.localeCompare(a.created_at));
 
   const gross = round2(grossSales - discounts);
-  const commission = round2(commissionRaw);
-  const stamp = round2(stampRaw);
+  const commission = feeFromSales(commissionByRate);
+  const stamp = feeFromSales(stampByRate);
   const taxes = round2(commission + stamp);
 
   return c.json(

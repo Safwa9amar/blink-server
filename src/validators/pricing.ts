@@ -31,6 +31,17 @@ export const PricingFee = z
       merchant: z.boolean(),
       agent: z.boolean(),
     }),
+    fields: z
+      .array(
+        z.object({
+          path: z.string().openapi({ description: 'Dot path into the value, e.g. "amount", "bicycle.base"' }),
+          unit: z.enum(["da", "rate", "km", "multiplier"]),
+          min: z.number(),
+          max: z.number(),
+          step: z.number(),
+        })
+      )
+      .openapi({ description: "Editable fields with bounds + step, derived from the same constants as the value schema" }),
     value: z.unknown(),
     seed: z.unknown(),
     updated_at: z.string().nullable(),
@@ -140,8 +151,18 @@ export const PricingPreviewBody = z
         amount: z.number().positive().optional(),
       })
       .optional(),
+    candidate: z
+      .object({ key: z.enum(PRICING_KEYS), value: z.unknown() })
+      .optional()
+      .openapi({ description: "An unsaved value for one fee; examples are also computed with it replacing that key's effective value (candidate_examples)" }),
   })
   .openapi("PricingPreviewBody");
+
+const PricingExamples = z.object({
+  courier_fare: z.object({ bicycle: z.number(), motorcycle: z.number() }).optional(),
+  ride_fare: z.object({ motorcycle: z.number() }).optional(),
+  blink_cash_fee: z.object({ type: z.enum(["deposit", "withdrawal"]), amount: z.number(), fees: z.number() }).optional(),
+});
 
 export const PricingPreviewResponse = z
   .object({
@@ -153,11 +174,8 @@ export const PricingPreviewResponse = z
         scope: z.object(scopeFields).nullable(),
       })
     ),
-    examples: z.object({
-      courier_fare: z.object({ bicycle: z.number(), motorcycle: z.number() }).optional(),
-      ride_fare: z.object({ motorcycle: z.number() }).optional(),
-      blink_cash_fee: z.object({ type: z.enum(["deposit", "withdrawal"]), amount: z.number(), fees: z.number() }).optional(),
-    }),
+    examples: PricingExamples,
+    candidate_examples: PricingExamples.optional(),
   })
   .openapi("PricingPreviewResponse");
 

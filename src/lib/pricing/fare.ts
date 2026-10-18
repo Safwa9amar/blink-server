@@ -11,5 +11,7 @@ const FARE_STEP = 10;
 export function legFare(leg: FareLeg, km: number, opts: { stops?: number; extraStopFee?: number; multiplier?: number } = {}) {
   const { stops = 1, extraStopFee = 0, multiplier = 1 } = opts;
   const raw = leg.base + Math.max(0, km - leg.included_km) * leg.per_km + Math.max(0, stops - 1) * extraStopFee;
-  return Math.ceil((raw * multiplier) / FARE_STEP) * FARE_STEP;
+  // Round off float noise first (200 × 1.1 = 220.00000000000003 must not ceil to 230).
+  const scaled = Math.round(raw * multiplier * 1e6) / 1e6;
+  return Math.ceil(scaled / FARE_STEP) * FARE_STEP;
 }

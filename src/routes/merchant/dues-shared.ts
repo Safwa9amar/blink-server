@@ -1,4 +1,4 @@
-import { allocateDues, type StoreDuesAllocation, type StoreSales } from "../../lib/merchant-dues";
+import { addSale, allocateDues, feeFromSales, type SalesByRate, type StoreDuesAllocation, type StoreSales } from "../../lib/merchant-dues";
 import { supabaseAdmin } from "../../lib/supabase";
 import { getPrice } from "../../lib/pricing";
 import { orderSale, round2, snapshotRate, storeRatesFor } from "./shared";
@@ -37,6 +37,7 @@ async function allRows<T extends { id: string }>(label: string, page: (after: st
  */
 async function deliveredSales(storeIds: string[], fallback: ReadonlyMap<string, number>) {
   const sales = new Map<string, StoreSales>();
+  const byRate = new Map<string, SalesByRate>();
   for (const ids of chunks(storeIds)) {
     const orders = await allRows<{
       id: string;
@@ -55,12 +56,13 @@ async function deliveredSales(storeIds: string[], fallback: ReadonlyMap<string, 
     for (const o of orders) {
       const sale = orderSale({ subtotal: Number(o.subtotal) });
       const prev = sales.get(o.store_id) ?? { sales: 0, commission: 0 };
-      sales.set(o.store_id, {
-        sales: prev.sales + sale,
-        commission: prev.commission + sale * snapshotRate(o.merchant_commission_rate, fallback.get(o.store_id) ?? 0),
-      });
+      sales.set(o.store_id, { sales: prev.sales + sale, commission: 0 });
+      const rates = byRate.get(o.store_id) ?? new Map<number, number>();
+      byRate.set(o.store_id, rates);
+      addSale(rates, snapshotRate(o.merchant_commission_rate, fallback.get(o.store_id) ?? 0), sale);
     }
   }
+  for (const [storeId, rates] of byRate) sales.get(storeId)!.commission = feeFromSales(rates);
   return sales;
 }
 

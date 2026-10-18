@@ -458,6 +458,13 @@ export async function createTripForOrder(o: Row, riderId: string) {
   });
 }
 
+/** A checkout's commission rate as resolved at trip creation: lead order + first stop's coords. */
+export async function bundleCommissionRate(rows: Row[]): Promise<number> {
+  const members = bundleMembers(rows);
+  const first = bundleRoute(members, null).ordered[0];
+  return (await riderRates(leadOrder(members), { lat: first.lat, lng: first.lng })).commissionRate;
+}
+
 /**
  * ONE trip for a whole multi-store checkout, on the lead order: fare = the
  * stores' delivery fees, route = first store → … → drop-off.
@@ -468,7 +475,7 @@ export async function createTripForBundle(rows: Row[], riderId: string) {
   const first = ordered[0];
   const lead = leadOrder(members);
   return upsertTrip(lead, riderId, {
-    commissionRate: (await riderRates(lead, { lat: first.lat, lng: first.lng })).commissionRate,
+    commissionRate: await bundleCommissionRate(rows),
     pickup: {
       label:
         ordered.length > 1
@@ -521,6 +528,7 @@ async function upsertTrip(
         dropoff_lat: destination.lat ?? pickup.lat ?? 0,
         dropoff_lng: destination.lng ?? pickup.lng ?? 0,
         ...tripPayout(fare, route.commissionRate),
+        commission_rate: route.commissionRate,
         distance_km: round1(distance),
         duration_minutes: duration,
         cancellation_reason: null,
