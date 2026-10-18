@@ -9,7 +9,7 @@ import { legFare } from "./fare";
 export type FeeExample =
   | { kind: "per_checkout"; output: number }
   | { kind: "trip_km"; vehicle: "motorcycle" | "bicycle"; km: number; output: number }
-  | { kind: "multiplier"; input: number; output: number }
+  | { kind: "multiplier"; km: number; input: number; output: number }
   | { kind: "rate_on_amount"; input: number; output: number }
   | { kind: "agent_split"; input: number; output: number }
   | { kind: "amount"; output: number };
@@ -51,6 +51,7 @@ export function feeExample(key: PricingKey, value: unknown, values: ExampleValue
       const leg = other("ride_fare").motorcycle;
       return {
         kind: "multiplier",
+        km: EXAMPLE_KM,
         input: legFare(leg, EXAMPLE_KM),
         output: legFare(leg, EXAMPLE_KM, { multiplier: v.multiplier }),
       };

@@ -10,7 +10,7 @@ const ex = (k: (typeof PRICING_KEYS)[number]) => feeExample(k, S[k]);
 test("feeExample at the seeds", () => {
   assert.deepEqual(ex("courier_fare"), { kind: "trip_km", vehicle: "motorcycle", km: 5, output: 330 });
   assert.deepEqual(ex("ride_fare"), { kind: "trip_km", vehicle: "motorcycle", km: 5, output: 280 });
-  assert.deepEqual(ex("fare_multiplier"), { kind: "multiplier", input: 280, output: 280 });
+  assert.deepEqual(ex("fare_multiplier"), { kind: "multiplier", km: 5, input: 280, output: 280 });
   assert.deepEqual(ex("rider_commission_rate"), { kind: "rate_on_amount", input: 400, output: 60 });
   assert.deepEqual(ex("merchant_commission_rate"), { kind: "rate_on_amount", input: 10000, output: 500 });
   assert.deepEqual(ex("stamp_duty_rate"), { kind: "rate_on_amount", input: 10000, output: 100 });

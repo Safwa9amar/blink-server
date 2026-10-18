@@ -4210,6 +4210,9 @@
                   "multiplier"
                 ]
               },
+              "km": {
+                "type": "number"
+              },
               "input": {
                 "type": "number"
               },
@@ -4219,6 +4222,7 @@
             },
             "required": [
               "kind",
+              "km",
               "input",
               "output"
             ]

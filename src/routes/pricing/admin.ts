@@ -364,7 +364,8 @@ app.openapi(
       agent_id: body.agent_id ?? null,
     };
     const problem = scopeError(key, scope) ?? (await partnerScopeError(scope));
-    if (problem) return c.json({ error: problem }, 400);
+    // `code: "scope"` lets the dashboard send the editor back to the scope step.
+    if (problem) return c.json({ error: problem, code: "scope" }, 400);
 
     const parsed = PRICING_SCHEMAS[key].safeParse(body.value);
     if (!parsed.success) {
@@ -721,8 +722,8 @@ app.openapi(
     },
   }),
   async (c) => {
+    // Read-only and called on every keystroke (debounced): served from the 15 s cache.
     const { scenario, context = {}, inputs = {} } = c.req.valid("json");
-    invalidatePricingCache();
     const at = context.at ? new Date(context.at) : undefined;
     const service = scenario === "store" ? "merchant" : scenario;
     let ctx: PricingContext = {
@@ -735,7 +736,8 @@ app.openapi(
     let delivery = inputs.delivery_fee;
     if (scenario === "store" && context.store_id) {
       const sc = await orderPricingContext({ type: "merchant", storeId: context.store_id });
-      ctx = { ...ctx, ...sc, at };
+      // A store without a known wilaya keeps the wilaya the caller picked.
+      ctx = { ...ctx, ...sc, wilaya: sc.wilaya ?? ctx.wilaya, at };
       if (delivery == null) {
         const { data } = await supabaseAdmin.from("stores").select("delivery_fee").eq("id", context.store_id).maybeSingle();
         if (data?.delivery_fee != null) delivery = Number(data.delivery_fee);

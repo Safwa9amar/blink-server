@@ -7,7 +7,7 @@ export const FeeExampleSchema = z
   .discriminatedUnion("kind", [
     z.object({ kind: z.literal("per_checkout"), output: z.number() }),
     z.object({ kind: z.literal("trip_km"), vehicle: z.enum(["motorcycle", "bicycle"]), km: z.number(), output: z.number() }),
-    z.object({ kind: z.literal("multiplier"), input: z.number(), output: z.number() }),
+    z.object({ kind: z.literal("multiplier"), km: z.number(), input: z.number(), output: z.number() }),
     z.object({ kind: z.literal("rate_on_amount"), input: z.number(), output: z.number() }),
     z.object({ kind: z.literal("agent_split"), input: z.number(), output: z.number() }),
     z.object({ kind: z.literal("amount"), output: z.number() }),
