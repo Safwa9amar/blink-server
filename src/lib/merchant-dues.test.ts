@@ -2,14 +2,18 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { allocateDues, BLINK_CASH_HREF, DUES_REMINDER_COOLDOWN_MS, duesReminderCopy, remindedRecently } from "./merchant-dues";
 
-const RATES = { commission: 0.05, fee: 0.002 };
+import { PRICING_SEEDS } from "./pricing/catalog";
+
+const RATES = PRICING_SEEDS.dues_payment_fee_rate.rate;
+const COMMISSION = PRICING_SEEDS.merchant_commission_rate.rate;
+const owed = (sales: number) => ({ sales, commission: sales * COMMISSION });
 const stores = [
   { id: "s1", name: "Hydra" },
   { id: "s2", name: "Kouba" },
 ];
 const sales = new Map([
-  ["s1", 10_000], // owes 500
-  ["s2", 4_000], // owes 200
+  ["s1", owed(10_000)], // owes 500
+  ["s2", owed(4_000)], // owes 200
 ]);
 
 describe("allocateDues", () => {
@@ -77,6 +81,23 @@ describe("allocateDues", () => {
     const [c] = allocateDues([{ id: "s3", name: "New" }], sales, [], RATES);
     assert.equal(c.total_profit, 0);
     assert.equal(c.dues_payable, 0);
+  });
+});
+
+describe("allocateDues with per-order rates", () => {
+  it("owes the sum of each order's own commission, not one rate on the total", () => {
+    // 6000 placed at 5% (300) + 4000 placed at 3% (120) = 420, not 10000 x current rate
+    const mixed = new Map([["s1", { sales: 10_000, commission: 6_000 * 0.05 + 4_000 * 0.03 }]]);
+    const [a] = allocateDues([stores[0]], mixed, [], RATES);
+    assert.equal(a.total_profit, 10_000);
+    assert.equal(a.commission, 420);
+    assert.equal(a.dues_payable, 420);
+    assert.equal(a.fees, 0.84);
+  });
+
+  it("uses the configured payment fee rate", () => {
+    const [a] = allocateDues([stores[0]], sales, [], 0.01);
+    assert.equal(a.fees, 5);
   });
 });
 

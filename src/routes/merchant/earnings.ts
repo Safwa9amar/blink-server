@@ -2,14 +2,14 @@ import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { earningsQuerySchema, MerchantEarningsResponse } from "../../validators/merchant";
 import {
-  COMMISSION_RATE,
   orderRef,
   orderSale,
   ownedStores,
   periodRange,
   round2,
   storeOrders,
-  TAX_STAMP_RATE,
+  snapshotRate,
+  storeRatesFor,
 } from "./shared";
 
 const app = router();
@@ -42,8 +42,11 @@ app.openapi(route, async (c) => {
   const stores = (await ownedStores(user.id)).filter((s) => !store_id || s.id === store_id);
   const names = new Map(stores.map((s) => [s.id, s.name]));
   const orders = await storeOrders([...names.keys()], range.start, range.end);
+  const current = new Map(await Promise.all(stores.map(async (s) => [s.id, await storeRatesFor(s)] as const)));
 
   let grossSales = 0;
+  let commissionRaw = 0;
+  let stampRaw = 0;
   let discounts = 0;
   let salesCount = 0;
   const operations: any[] = [];
@@ -57,6 +60,10 @@ app.openapi(route, async (c) => {
     };
     if (o.status === "delivered") {
       grossSales += orderSale(o);
+      // Each order at the rates it was placed under (a null snapshot: the store's current rate).
+      const fallback = current.get(o.store_id);
+      commissionRaw += orderSale(o) * snapshotRate(o.merchant_commission_rate, fallback?.commission ?? 0);
+      stampRaw += orderSale(o) * snapshotRate(o.stamp_duty_rate, fallback?.stamp ?? 0);
       discounts += o.discount;
       salesCount += 1;
       operations.push({ ...base, id: o.id, type: "sale", amount: orderSale(o), status: "completed" });
@@ -92,8 +99,8 @@ app.openapi(route, async (c) => {
   operations.sort((a, b) => b.created_at.localeCompare(a.created_at));
 
   const gross = round2(grossSales - discounts);
-  const commission = round2(grossSales * COMMISSION_RATE);
-  const stamp = round2(grossSales * TAX_STAMP_RATE);
+  const commission = round2(commissionRaw);
+  const stamp = round2(stampRaw);
   const taxes = round2(commission + stamp);
 
   return c.json(

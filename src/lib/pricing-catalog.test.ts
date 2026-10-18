@@ -1,10 +1,5 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { COMMISSION_RATE } from "./cash-jobs";
-import { COURIER_RATES, EXTRA_STOP_FEE } from "./courier-pricing";
-import { POST_ACCEPT_PENALTY } from "./dispatch";
-import { RIDE_RATES } from "./ride-pricing";
-import { SERVICE_FEE } from "./service-fee";
 import { PRICING_KEYS, PRICING_SCHEMAS, PRICING_SCOPES, PRICING_SEEDS, scopeError } from "./pricing/catalog";
 
 describe("pricing catalog", () => {
@@ -17,16 +12,19 @@ describe("pricing catalog", () => {
   });
 
   it("seeds equal today's constants", () => {
-    assert.equal(PRICING_SEEDS.service_fee.amount, SERVICE_FEE);
-    assert.equal(PRICING_SEEDS.rider_commission_rate.rate, COMMISSION_RATE);
-    assert.equal(PRICING_SEEDS.rider_cancel_penalty.amount, POST_ACCEPT_PENALTY);
-    assert.equal(PRICING_SEEDS.courier_fare.extra_stop_fee, EXTRA_STOP_FEE);
-    for (const v of ["bicycle", "motorcycle"] as const) {
-      const r = COURIER_RATES[v];
-      assert.deepEqual(PRICING_SEEDS.courier_fare[v], { base: r.base, included_km: r.includedKm, per_km: r.perKm, max_km: r.maxKm });
-    }
-    const m = RIDE_RATES.motorcycle;
-    assert.deepEqual(PRICING_SEEDS.ride_fare.motorcycle, { base: m.base, included_km: m.includedKm, per_km: m.perKm, max_km: m.maxKm });
+    assert.equal(PRICING_SEEDS.service_fee.amount, 1.5);
+    assert.equal(PRICING_SEEDS.rider_commission_rate.rate, 0.15);
+    assert.equal(PRICING_SEEDS.rider_cancel_penalty.amount, 200);
+    assert.equal(PRICING_SEEDS.merchant_commission_rate.rate, 0.05);
+    assert.equal(PRICING_SEEDS.stamp_duty_rate.rate, 0.01);
+    assert.equal(PRICING_SEEDS.blink_cash_fee_rate.rate, 0.02);
+    assert.equal(PRICING_SEEDS.agent_platform_share.rate, 0.2);
+    assert.equal(PRICING_SEEDS.agent_tax_rate.rate, 0.01);
+    assert.equal(PRICING_SEEDS.dues_payment_fee_rate.rate, 0.002);
+    assert.equal(PRICING_SEEDS.courier_fare.extra_stop_fee, 60);
+    assert.deepEqual(PRICING_SEEDS.courier_fare.bicycle, { base: 140, included_km: 2, per_km: 35, max_km: 10 });
+    assert.deepEqual(PRICING_SEEDS.courier_fare.motorcycle, { base: 250, included_km: 3, per_km: 40, max_km: 40 });
+    assert.deepEqual(PRICING_SEEDS.ride_fare.motorcycle, { base: 200, included_km: 3, per_km: 40, max_km: 40 });
   });
 
   it("enforces the spec bounds", () => {

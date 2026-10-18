@@ -3,7 +3,8 @@ import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { payDuesSchema, PayDuesResponse } from "../../validators/merchant";
 import { computeDues } from "./dues-shared";
-import { DUES_FEE_RATE, round2 } from "./shared";
+import { getPrice } from "../../lib/pricing";
+import { round2 } from "./shared";
 
 const app = router();
 
@@ -42,13 +43,14 @@ app.openapi(route, async (c) => {
     return c.json({ error: "Amount exceeds outstanding dues" }, 400);
   }
 
+  const feeRate = (await getPrice("dues_payment_fee_rate")).value.rate;
   const { data, error } = await supabaseAdmin
     .from("merchant_dues_payments")
     .insert({
       merchant_id: user.id,
       store_id: body.store_id ?? null,
       amount: body.amount,
-      fees: round2(body.amount * DUES_FEE_RATE),
+      fees: round2(body.amount * feeRate),
       method: body.method,
       status: "completed",
     })

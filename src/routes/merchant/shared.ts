@@ -1,14 +1,10 @@
 // Shared helpers for the merchant endpoints: ownership checks, period ranges,
 // store sales stats and money constants.
+import { normalizeWilaya, wilayaAt } from "../../lib/geo/wilaya";
+import { getPrices } from "../../lib/pricing";
 import { withDocumentsStatus } from "../../lib/store-documents";
 import { supabaseAdmin } from "../../lib/supabase";
 
-/** Blink's commission on a store's delivered sales — what the merchant owes as dues. */
-export const COMMISSION_RATE = 0.05;
-/** Stamp duty withheld on gross sales (shown under Commissions & Taxes). */
-export const TAX_STAMP_RATE = 0.01;
-/** Processing fee on outstanding dues. */
-export const DUES_FEE_RATE = 0.002;
 /** A suggested price within ±20% of the Blink reference is auto-accepted (src/lib/product-review.ts). */
 export { PRICE_TOLERANCE } from "../../lib/product-review";
 
@@ -23,6 +19,33 @@ export const ACTIVE_ORDER_STATUSES = [
 ] as const;
 
 export const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/**
+ * The commission (what the merchant owes as dues) and stamp-duty rates
+ * currently in force for a store (pricing config, by its owner + wilaya). Orders
+ * carry their own snapshot; this is the fallback for orders created before
+ * snapshots, and the "current rate" shown on the dues screen.
+ */
+export async function storeRatesFor(store: {
+  owner_id?: string | null;
+  wilaya?: unknown;
+  latitude?: unknown;
+  longitude?: unknown;
+}) {
+  let wilaya = normalizeWilaya(typeof store.wilaya === "string" ? store.wilaya : null);
+  if (!wilaya && store.latitude != null && store.longitude != null) {
+    wilaya = wilayaAt(Number(store.latitude), Number(store.longitude));
+  }
+  const p = await getPrices(["merchant_commission_rate", "stamp_duty_rate"] as const, {
+    merchantId: store.owner_id ?? null,
+    wilaya,
+  });
+  return { commission: p.merchant_commission_rate.value.rate, stamp: p.stamp_duty_rate.value.rate };
+}
+
+/** An order's snapshot rate when it has one, else the store's current rate. */
+export const snapshotRate = (snapshot: number | string | null | undefined, fallback: number) =>
+  snapshot == null ? fallback : Number(snapshot);
 
 export interface StoreRow {
   id: string;
@@ -159,6 +182,9 @@ export interface StoreOrder {
   items: { name: string; quantity: number; unit_price: number; pack_id?: string }[];
   store_rating: number | null;
   created_at: string;
+  /** Rates snapshotted at order time (null on orders created before snapshots). */
+  merchant_commission_rate: number | null;
+  stamp_duty_rate: number | null;
 }
 
 /** Orders of the given stores created in [since, until). */
@@ -171,7 +197,7 @@ export async function storeOrders(
   let q = supabaseAdmin
     .from("orders")
     .select(
-      "id, store_id, status, merchant_status, subtotal, discount, total, items, store_rating, created_at"
+      "id, store_id, status, merchant_status, subtotal, discount, total, items, store_rating, created_at, merchant_commission_rate, stamp_duty_rate"
     )
     .in("store_id", storeIds)
     .order("created_at", { ascending: false })
@@ -184,6 +210,8 @@ export async function storeOrders(
     subtotal: Number(o.subtotal),
     discount: Number(o.discount),
     total: Number(o.total),
+    merchant_commission_rate: o.merchant_commission_rate == null ? null : Number(o.merchant_commission_rate),
+    stamp_duty_rate: o.stamp_duty_rate == null ? null : Number(o.stamp_duty_rate),
   }));
 }
 

@@ -1,6 +1,9 @@
 import { priceCoupon } from "../../lib/coupons";
 import { scheduleError } from "../../lib/courier";
-import { COURIER_RATES, COURIER_VEHICLES, courierFare, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
+import { COURIER_VEHICLES, courierFare, courierMaxKm, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
+import { courierFareConfig } from "../../lib/pricing/fare-config";
+import { checkoutAlreadyCharged, orderPricingContext, quoteServiceFee } from "../../lib/pricing/fees";
+import { getPrices } from "../../lib/pricing";
 import { priceCourierCoupon } from "../courier/shared";
 import { createNotification } from "../../lib/notifications";
 import { withoutOffer } from "../../lib/rider-offer";
@@ -10,10 +13,10 @@ import { loadVisiblePacks } from "../../lib/store-packs";
 import { LOW_STOCK } from "../merchant/strategy-shared";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
+import { z } from "@hono/zod-openapi";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
-import { createOrderSchema, OrderResponse, PackChangedError } from "../../validators/orders";
+import { createOrderSchema, OrderResponse, PackChangedError, PriceChangedError } from "../../validators/orders";
 import { pushNewOffer } from "../../lib/offer-push";
-import { serviceFeeFor } from "../../lib/service-fee";
 
 const app = router();
 
@@ -30,7 +33,10 @@ const route = createRoute({
     201: json(OrderResponse, "Created"),
     400: errorResponses[400],
     403: errorResponses[403],
-    409: json(PackChangedError, "A pack line's pack changed or is gone (code pack_changed): refetch the store's packs"),
+    409: json(
+      z.union([PackChangedError, PriceChangedError]),
+      "Either a pack line's pack changed or is gone (code pack_changed: refetch the store's packs), or the service fee changed since `expected_service_fee` was shown (error price_changed, with the current `service_fee`)"
+    ),
   },
 });
 
@@ -70,21 +76,35 @@ app.openapi(route, async (c) => {
   // the fee is priced here from the route, never taken from the client.
   let subtotal = body.subtotal;
   let deliveryFee = body.delivery_fee;
-  // Decided by the server (src/lib/service-fee.ts): the client's value is
+  // Decided by the server (pricing config `service_fee`): the client's value is
   // ignored. Once per checkout, on the first store order created for it.
-  let checkoutAlreadyCharged = false;
-  if (body.type !== "courier" && body.checkout_id) {
-    const { data: charged } = await supabaseAdmin
-      .from("orders")
-      .select("id")
-      .eq("customer_id", user.id)
-      .eq("checkout_id", body.checkout_id)
-      .gt("service_fee", 0)
-      .limit(1);
-    checkoutAlreadyCharged = (charged?.length ?? 0) > 0;
+  const alreadyCharged = body.type !== "courier" && (await checkoutAlreadyCharged(user.id, body.checkout_id));
+  const isCourier = body.type === "courier";
+  const pricingCtx = await orderPricingContext({
+    type: body.type,
+    storeId: body.store_id,
+    lat: isCourier ? body.pickup_lat : body.destination_lat,
+    lng: isCourier ? body.pickup_lng : body.destination_lng,
+  });
+  const fee = await quoteServiceFee(pricingCtx, { type: body.type, checkoutAlreadyCharged: alreadyCharged });
+  let serviceFee = fee.amount;
+  const pricingApplied: Record<string, string | null> = {};
+  let merchantCommissionRate: number | null = null;
+  let stampDutyRate: number | null = null;
+  if (!isCourier) {
+    pricingApplied.service_fee = fee.overrideId;
+    if (body.store_id) {
+      const rates = await getPrices(["merchant_commission_rate", "stamp_duty_rate"] as const, pricingCtx);
+      merchantCommissionRate = rates.merchant_commission_rate.value.rate;
+      stampDutyRate = rates.stamp_duty_rate.value.rate;
+      pricingApplied.merchant_commission_rate = rates.merchant_commission_rate.overrideId;
+      pricingApplied.stamp_duty_rate = rates.stamp_duty_rate.overrideId;
+    }
+    if (body.expected_service_fee != null && body.expected_service_fee !== serviceFee) {
+      return c.json({ error: "price_changed" as const, service_fee: serviceFee }, 409);
+    }
   }
-  let serviceFee = serviceFeeFor({ type: body.type, checkoutAlreadyCharged });
-  if (body.type === "courier") {
+  if (isCourier) {
     const vehicle = COURIER_VEHICLES.find((v) => v === body.vehicle_type) as CourierVehicle | undefined;
     if (!vehicle) return c.json({ error: "vehicle_type must be bicycle or motorcycle" }, 400);
     const { pickup_lat, pickup_lng, destination_lat, destination_lng } = body;
@@ -94,12 +114,15 @@ app.openapi(route, async (c) => {
     const scheduleProblem = scheduleError(body.scheduled_at);
     if (scheduleProblem) return c.json({ error: scheduleProblem }, 400);
     const km = routeKm({ lat: pickup_lat, lng: pickup_lng }, [{ lat: destination_lat, lng: destination_lng }]);
-    if (km > COURIER_RATES[vehicle].maxKm) {
-      return c.json({ error: `Route too long: a ${vehicle} takes up to ${COURIER_RATES[vehicle].maxKm} km` }, 400);
+    const cfg = await courierFareConfig({ lat: pickup_lat, lng: pickup_lng });
+    const maxKm = courierMaxKm(vehicle, cfg.rates);
+    if (km > maxKm) {
+      return c.json({ error: `Route too long: a ${vehicle} takes up to ${maxKm} km` }, 400);
     }
     subtotal = 0;
-    deliveryFee = courierFare(vehicle, km, 1);
+    deliveryFee = courierFare(vehicle, km, 1, cfg.rates, cfg.multiplier);
     serviceFee = 0;
+    Object.assign(pricingApplied, cfg.applied);
   }
 
   // Store orders: pack lines are priced here from live product prices (409
@@ -194,6 +217,10 @@ app.openapi(route, async (c) => {
       destination_lng: body.destination_lng ?? null,
       vehicle_type: body.vehicle_type ?? null,
       scheduled_at: body.scheduled_at ?? null,
+      // Rates in force at order time (snapshot): dues and payouts use these.
+      merchant_commission_rate: merchantCommissionRate,
+      stamp_duty_rate: stampDutyRate,
+      pricing_applied: pricingApplied,
     })
     .select()
     .single();

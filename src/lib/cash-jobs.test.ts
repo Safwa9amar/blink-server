@@ -1,12 +1,16 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { blinkFundedDiscount, COMMISSION_RATE, releasesCoupon, tripPayout, tripWalletDelta } from "./cash-jobs";
+import { PRICING_SEEDS } from "./pricing/catalog";
+import { blinkFundedDiscount, releasesCoupon, tripPayout, tripWalletDelta } from "./cash-jobs";
 
 describe("tripPayout", () => {
   it("takes Blink's commission off the fare", () => {
-    assert.equal(COMMISSION_RATE, 0.15);
-    assert.deepEqual(tripPayout(1000), { estimated_payout: 1000, net_payout: 850 });
-    assert.deepEqual(tripPayout(330), { estimated_payout: 330, net_payout: 281 });
+    const rate = PRICING_SEEDS.rider_commission_rate.rate;
+    assert.equal(rate, 0.15);
+    assert.deepEqual(tripPayout(1000, rate), { estimated_payout: 1000, net_payout: 850 });
+    assert.deepEqual(tripPayout(330, rate), { estimated_payout: 330, net_payout: 281 });
+    // A configured override changes the cut.
+    assert.deepEqual(tripPayout(1000, 0.1), { estimated_payout: 1000, net_payout: 900 });
   });
 });
 
@@ -30,7 +34,7 @@ describe("blinkFundedDiscount", () => {
 });
 
 describe("tripWalletDelta", () => {
-  const done = { status: "completed", ...tripPayout(1000), penalty_amount: null };
+  const done = { status: "completed", ...tripPayout(1000, PRICING_SEEDS.rider_commission_rate.rate), penalty_amount: null };
 
   it("charges the commission on a completed trip", () => {
     assert.equal(tripWalletDelta(done), -150);

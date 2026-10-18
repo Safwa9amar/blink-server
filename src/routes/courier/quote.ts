@@ -1,4 +1,5 @@
 import { COURIER_VEHICLES, pickupEtaMinutes, quoteRoute } from "../../lib/courier-pricing";
+import { courierFareConfig } from "../../lib/pricing/fare-config";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { courierQuoteSchema, CourierQuoteResponse } from "../../validators/courier";
@@ -28,7 +29,12 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const { routes, coupon_code } = c.req.valid("json");
 
-  const quotes = routes.map((r) => quoteRoute(r.pickup, r.drop_offs));
+  const quotes = await Promise.all(
+    routes.map(async (r) => {
+      const cfg = await courierFareConfig(r.pickup);
+      return quoteRoute(r.pickup, r.drop_offs, cfg.rates, cfg.multiplier);
+    })
+  );
   const nearby = await nearbyCourierRiders(routes[0].pickup);
 
   let couponReason: string | null = null;

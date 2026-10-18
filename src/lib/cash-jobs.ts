@@ -6,9 +6,6 @@
 
 type Row = Record<string, any>;
 
-/** Blink's cut of each delivery fee. */
-export const COMMISSION_RATE = 0.15;
-
 /**
  * Jobs the customer pays the rider in cash, fare minus the coupon discount:
  * the rider collects `total` (fare − discount) but Blink's commission is on
@@ -21,9 +18,13 @@ const num = (v: unknown) => {
   return Number.isFinite(n) ? n : 0;
 };
 
-/** What a trip pays on `fare`: gross (estimated_payout) and after Blink's commission (net_payout). */
-export function tripPayout(fare: number) {
-  return { estimated_payout: fare, net_payout: Math.round(fare * (1 - COMMISSION_RATE)) };
+/**
+ * What a trip pays on `fare`: gross (estimated_payout) and after Blink's
+ * commission at `rate` (net_payout). The rate is the configured
+ * `rider_commission_rate` for the job (src/lib/pricing).
+ */
+export function tripPayout(fare: number, rate: number) {
+  return { estimated_payout: fare, net_payout: Math.round(fare * (1 - rate)) };
 }
 
 /**

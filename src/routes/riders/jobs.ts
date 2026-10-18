@@ -43,7 +43,8 @@ import {
   dropOffName,
   OFFER_RADIUS_KM,
   ORDER_SELECT,
-  POST_ACCEPT_PENALTY,
+  riderCancelPenalty,
+  riderRates,
   releaseRiderRequests,
   riderGender,
   riderNames,
@@ -953,9 +954,10 @@ function tripSummary(trip: Record<string, any>): z.infer<typeof TripSummarySchem
  */
 async function completeBundleTrip(checkoutOrderIds: string[], delivered: BundleRow[], riderId: string) {
   const fare = delivered.reduce((sum, o) => sum + Number(o.delivery_fee ?? 0), 0);
+  const { commissionRate } = await riderRates(delivered[0] as Record<string, any>);
   const { data: trip } = await supabaseAdmin
     .from("trips")
-    .update({ status: "completed", ...tripPayout(fare) })
+    .update({ status: "completed", ...tripPayout(fare, commissionRate) })
     .in("order_id", checkoutOrderIds)
     .eq("rider_id", riderId)
     .eq("status", "upcoming")
@@ -1241,6 +1243,7 @@ app.openapi(
         return c.json({ error: "Part of the order is already on board — report an issue instead" }, 400);
       }
       const started = members.some((m) => m.status !== "searching");
+      const penalty = await riderCancelPenalty(leadOrder(members).type);
       const ids = members.map((m) => m.id as string);
 
       const { data: released } = await supabaseAdmin
@@ -1270,7 +1273,7 @@ app.openapi(
           .update({
             status: "canceled",
             cancellation_reason: reason,
-            penalty_amount: started ? POST_ACCEPT_PENALTY : null,
+            penalty_amount: started ? penalty : null,
           })
           .in("order_id", rows.map((r) => r.id))
           .eq("rider_id", user.id)
@@ -1365,6 +1368,7 @@ app.openapi(
       );
     }
     const started = order.status !== "searching";
+    const penalty = await riderCancelPenalty(order.type);
     const ride = order.type === "ride" ? rideOf(order) : null;
 
     const { data: released } = await supabaseAdmin
@@ -1402,7 +1406,7 @@ app.openapi(
         .update({
           status: "canceled",
           cancellation_reason: reason,
-          penalty_amount: started ? POST_ACCEPT_PENALTY : null,
+          penalty_amount: started ? penalty : null,
         })
         .eq("order_id", id)
         .eq("rider_id", user.id)

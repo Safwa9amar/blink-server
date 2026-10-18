@@ -61,6 +61,18 @@ export const PackChangedError = z
   })
   .openapi("PackChangedError");
 
+/**
+ * 409 when the order's `expected_service_fee` no longer matches the server's
+ * current service fee (a fee change landed since the app showed it). Show
+ * `service_fee`, let the customer confirm, and retry with it.
+ */
+export const PriceChangedError = z
+  .object({
+    error: z.literal("price_changed"),
+    service_fee: z.number(),
+  })
+  .openapi("PriceChangedError");
+
 export const createOrderSchema = z
   .object({
     store_name: z.string().min(1),
@@ -72,6 +84,11 @@ export const createOrderSchema = z
     delivery_fee: z.number().nonnegative(),
     service_fee: z.number().nonnegative(),
     discount: z.number().nonnegative().default(0),
+    /**
+     * The service fee the customer was shown. When sent and different from the
+     * server's current fee, the order is not created: 409 `price_changed`.
+     */
+    expected_service_fee: z.number().nonnegative().optional(),
     /** Marketplace store the order is placed with. Required for `merchant` orders. */
     store_id: z.string().uuid().optional(),
     /**

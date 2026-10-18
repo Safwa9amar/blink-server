@@ -10,6 +10,7 @@ import {
   processTransactionSchema,
   TransactionResponse,
 } from "../../validators/transactions";
+import { resolveAgentRates } from "../../lib/agent-finance";
 import { processingShop } from "../agents/shared";
 
 const app = router();
@@ -127,9 +128,16 @@ app.openapi(route, async (c) => {
   }
 
   const newStatus = body.action === "confirm" ? "completed" : "cancelled";
+  const rates = body.action === "confirm" ? await resolveAgentRates(user.id, shop) : null;
   const pending = supabaseAdmin
     .from("transactions")
-    .update({ status: newStatus, agent_id: user.id, shop_id: shop?.id ?? null })
+    .update({
+      status: newStatus,
+      agent_id: user.id,
+      shop_id: shop?.id ?? null,
+      // The platform share + tax this operation settles under (snapshot).
+      ...(rates ? { platform_share_rate: rates.platform, tax_rate: rates.tax } : {}),
+    })
     .eq("id", body.transaction_id)
     .eq("status", "pending"); // only update pending transactions
   // …and only while it is still assigned as checked above: a rider re-picking

@@ -1,8 +1,4 @@
-import {
-  AGENT_PLATFORM_FEE_RATE,
-  AGENT_TAX_RATE,
-  computeAgentEarnings,
-} from "../../lib/agent-finance";
+import { computeAgentEarnings } from "../../lib/agent-finance";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { agentEarningsQuerySchema, AgentEarningsResponse } from "../../validators/earnings";
@@ -52,8 +48,6 @@ app.openapi(route, async (c) => {
         ...e,
         period_start: start.toISOString(),
         period_end: end.toISOString(),
-        platform_fee_rate: AGENT_PLATFORM_FEE_RATE,
-        tax_rate: AGENT_TAX_RATE,
         recent_operations: recent,
         operations: e.operations.slice(0, MAX_OPERATIONS),
       },

@@ -5,19 +5,33 @@
 import { distanceKm, fullName, IN_DELIVERY, usersById } from "../routes/merchant/orders-shared";
 import { orderRef } from "../routes/merchant/shared";
 import { bundleMembers, bundleStatus, leadOrder, orderStops } from "./bundle";
-import { blinkFundedDiscount, CASH_FARE_TYPES, COMMISSION_RATE, tripPayout, tripWalletDelta } from "./cash-jobs";
+import { blinkFundedDiscount, CASH_FARE_TYPES, tripPayout, tripWalletDelta } from "./cash-jobs";
 import { courierCopy, courierHref, type CourierEvent } from "./courier-copy";
 import { courierOf, currentDropOffIndex } from "./courier";
+import { wilayaAt } from "./geo/wilaya";
+import { getPrice, getPrices } from "./pricing";
 import { createNotification } from "./notifications";
 import { rideCopy, rideHref, type RideEvent } from "./ride-copy";
 import { rideOf, ridePassenger } from "./ride";
 import { heldSinceIso, requestFields } from "./rider-offer";
 import { supabaseAdmin } from "./supabase";
 
-/** Blink's cut of each delivery fee (src/lib/cash-jobs.ts). */
-export { COMMISSION_RATE };
-/** Charged when a rider drops a job after accepting it (design: "200 DA"). */
-export const POST_ACCEPT_PENALTY = 200;
+
+/**
+ * The rider-side rates of a job, from the pricing config: Blink's commission
+ * (`rider_commission_rate`, by service + the pickup's wilaya) and the penalty
+ * for dropping it after accepting (`rider_cancel_penalty`, by service).
+ */
+export async function riderRates(o: Row, pickup: { lat: number | null; lng: number | null } = pickupOf(o)) {
+  const wilaya = pickup.lat != null && pickup.lng != null ? wilayaAt(Number(pickup.lat), Number(pickup.lng)) : null;
+  const p = await getPrices(["rider_commission_rate", "rider_cancel_penalty"] as const, { service: o.type, wilaya });
+  return { commissionRate: p.rider_commission_rate.value.rate, cancelPenalty: p.rider_cancel_penalty.value.amount };
+}
+
+/** The penalty (DZD) for dropping a `type` job after accepting it. */
+export async function riderCancelPenalty(type: string) {
+  return (await getPrice("rider_cancel_penalty", { service: type })).value.amount;
+}
 /** Offers are limited to pickups within this radius when the rider's position is known. */
 export const OFFER_RADIUS_KM = 15;
 /**
@@ -207,6 +221,7 @@ export async function toJobs(orders: Row[], ctx: JobCtx) {
       const distance = courier ? courier.distance_km : ride ? ride.distance_km : (kmBetween(pickup, destination) ?? 0);
       const customer = users.get(o.customer_id);
       const stat = stats.get(o.customer_id);
+      const rates = await riderRates(o, pickup);
       const conflict = ctx.conflicts?.get(o.id);
       return {
         id: o.id as string,
@@ -226,7 +241,8 @@ export async function toJobs(orders: Row[], ctx: JobCtx) {
         fare: Number(o.delivery_fee ?? 0),
         discount: Number(o.discount ?? 0),
         order_total: Number(o.total ?? 0),
-        commission_rate: COMMISSION_RATE,
+        commission_rate: rates.commissionRate,
+        cancel_penalty: rates.cancelPenalty,
         distance_km: round1(distance),
         duration_minutes: ride
           ? ride.duration_minutes
@@ -432,6 +448,7 @@ export async function createTripForOrder(o: Row, riderId: string) {
   const courier = courierOf(o);
   const ride = rideOf(o);
   return upsertTrip(o, riderId, {
+    commissionRate: (await riderRates(o, pickup)).commissionRate,
     pickup,
     destination,
     distance: courier ? courier.distance_km : ride ? ride.distance_km : (kmBetween(pickup, destination) ?? 0),
@@ -449,7 +466,9 @@ export async function createTripForBundle(rows: Row[], riderId: string) {
   const members = bundleMembers(rows);
   const { ordered, destination, distance } = bundleRoute(members, null);
   const first = ordered[0];
-  return upsertTrip(leadOrder(members), riderId, {
+  const lead = leadOrder(members);
+  return upsertTrip(lead, riderId, {
+    commissionRate: (await riderRates(lead, { lat: first.lat, lng: first.lng })).commissionRate,
     pickup: {
       label:
         ordered.length > 1
@@ -473,6 +492,8 @@ async function upsertTrip(
     destination: ReturnType<typeof destinationOf>;
     distance: number;
     fare: number;
+    /** Blink's commission on the fare (rider_commission_rate). */
+    commissionRate: number;
     /** Default: the distance at the average urban speed. */
     durationMinutes?: number;
   }
@@ -499,7 +520,7 @@ async function upsertTrip(
         dropoff_address: destination.address || "—",
         dropoff_lat: destination.lat ?? pickup.lat ?? 0,
         dropoff_lng: destination.lng ?? pickup.lng ?? 0,
-        ...tripPayout(fare),
+        ...tripPayout(fare, route.commissionRate),
         distance_km: round1(distance),
         duration_minutes: duration,
         cancellation_reason: null,

@@ -1,12 +1,7 @@
 // Agent Blink Cash dues: what the agent owes Blink for the operations they
 // processed (see lib/agent-finance.ts) and PIN-confirmed dues payments.
-import {
-  AGENT_DUES_FEE_RATE,
-  AGENT_PLATFORM_FEE_RATE,
-  AGENT_TAX_RATE,
-  computeAgentDues,
-  round2,
-} from "../../lib/agent-finance";
+import { computeAgentDues, resolveAgentRates, round2 } from "../../lib/agent-finance";
+import { getPrice } from "../../lib/pricing";
 import { verifyPin } from "../../lib/pin";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
@@ -34,8 +29,10 @@ app.openapi(
   }),
   async (c) => {
     const user = c.get("user");
-    const [dues, { data: payments }] = await Promise.all([
+    const [dues, rates, feeRate, { data: payments }] = await Promise.all([
       computeAgentDues(user.id),
+      resolveAgentRates(user.id),
+      getPrice("dues_payment_fee_rate").then((p) => p.value.rate),
       supabaseAdmin
         .from("agent_dues_payments")
         .select("*")
@@ -46,9 +43,9 @@ app.openapi(
     return c.json(
       {
         ...dues,
-        platform_fee_rate: AGENT_PLATFORM_FEE_RATE,
-        tax_rate: AGENT_TAX_RATE,
-        payment_fee_rate: AGENT_DUES_FEE_RATE,
+        platform_fee_rate: rates.platform,
+        tax_rate: rates.tax,
+        payment_fee_rate: feeRate,
         payments: payments ?? [],
       },
       200
@@ -83,12 +80,13 @@ app.openapi(
       return c.json({ error: "Invalid PIN" }, 403);
     }
 
+    const feeRate = (await getPrice("dues_payment_fee_rate")).value.rate;
     const { data, error } = await supabaseAdmin
       .from("agent_dues_payments")
       .insert({
         agent_id: user.id,
         amount: round2(body.amount),
-        fees: round2(body.amount * AGENT_DUES_FEE_RATE),
+        fees: round2(body.amount * feeRate),
         method: body.method,
         status: "completed",
       })

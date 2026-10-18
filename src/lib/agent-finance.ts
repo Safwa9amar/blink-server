@@ -9,24 +9,58 @@
 //                rider `amount` → Blink owes the agent `amount − platform − tax`.
 // Won challenge rewards are credited against dues; dues payments settle them.
 // A negative balance is a credit (overpayment, or Blink owing the agent).
+import { normalizeWilaya, wilayaAt } from "./geo/wilaya";
+import { getPrices } from "./pricing";
+import { userWilaya } from "./pricing/fees";
+import { ratesOf, round2, splitFee, type FeeRates } from "./agent-split";
 import { supabaseAdmin } from "./supabase";
 
-/** Blink's share of each rider fee. */
-export const AGENT_PLATFORM_FEE_RATE = 0.2;
-/** Withholding tax on the agent's share of each fee. */
-export const AGENT_TAX_RATE = 0.01;
-/** Processing fee charged on top of a dues payment. */
-export const AGENT_DUES_FEE_RATE = 0.002;
-
-export const round2 = (n: number) => Math.round(n * 100) / 100;
+// The rates (Blink's platform share, withholding tax, dues payment fee) are
+// configurable (src/lib/pricing). Each processed transaction snapshots the
+// share + tax it was settled under (transactions.platform_share_rate / tax_rate);
+// only older rows without one use the agent's currently resolved rates.
 
 type Row = Record<string, any>;
+export { round2, splitFee, ratesOf, type FeeRates };
 
-/** Split a rider fee into Blink's platform share, tax withheld and the agent's net. */
-export function splitFee(fees: number) {
-  const platform = round2(fees * AGENT_PLATFORM_FEE_RATE);
-  const tax = round2((fees - platform) * AGENT_TAX_RATE);
-  return { platform, tax, net: round2(fees - platform - tax) };
+/**
+ * The agent's wilaya for pricing: their shop's (address text, else its
+ * coordinates), else the agent's own profile wilaya.
+ */
+export async function agentWilaya(agentId: string, shop?: Row | null): Promise<string | null> {
+  let s = shop;
+  if (s === undefined) {
+    const { data } = await supabaseAdmin
+      .from("agent_shops")
+      .select("address, latitude, longitude")
+      .eq("user_id", agentId)
+      .order("is_primary", { ascending: false })
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    s = data;
+  }
+  const lat = Number(s?.latitude ?? 0);
+  const lng = Number(s?.longitude ?? 0);
+  return (
+    normalizeWilaya(s?.address) ??
+    (lat !== 0 || lng !== 0 ? wilayaAt(lat, lng) : null) ??
+    (await userWilaya(agentId))
+  );
+}
+
+/** The platform share + tax now in force for an agent (and which deals set them). */
+export async function resolveAgentRates(agentId: string, shop?: Row | null) {
+  const wilaya = await agentWilaya(agentId, shop);
+  const p = await getPrices(["agent_platform_share", "agent_tax_rate"] as const, { agentId, wilaya });
+  return {
+    platform: p.agent_platform_share.value.rate,
+    tax: p.agent_tax_rate.value.rate,
+    applied: {
+      agent_platform_share: p.agent_platform_share.overrideId,
+      agent_tax_rate: p.agent_tax_rate.overrideId,
+    },
+  };
 }
 
 export interface AgentDues {
@@ -44,10 +78,10 @@ export interface AgentDues {
 
 /** Outstanding dues for an agent, derived from every completed operation. */
 export async function computeAgentDues(agentId: string): Promise<AgentDues> {
-  const [{ data: txs }, { data: rewards }, { data: payments }] = await Promise.all([
+  const [{ data: txs }, { data: rewards }, { data: payments }, current] = await Promise.all([
     supabaseAdmin
       .from("transactions")
-      .select("type, amount, fees")
+      .select("type, amount, fees, platform_share_rate, tax_rate")
       .eq("agent_id", agentId)
       .eq("status", "completed"),
     supabaseAdmin
@@ -60,11 +94,12 @@ export async function computeAgentDues(agentId: string): Promise<AgentDues> {
       .select("amount")
       .eq("agent_id", agentId)
       .eq("status", "completed"),
+    resolveAgentRates(agentId),
   ]);
 
   const b = { deposits: 0, withdrawals: 0, platform_fees: 0, taxes: 0, challenge_rewards: 0, payments: 0 };
   for (const t of txs ?? []) {
-    const { platform, tax } = splitFee(Number(t.fees ?? 0));
+    const { platform, tax } = splitFee(Number(t.fees ?? 0), ratesOf(t, current));
     if (t.type === "deposit") b.deposits += Number(t.amount);
     else b.withdrawals += Number(t.amount);
     b.platform_fees += platform;
@@ -105,10 +140,11 @@ export interface AgentOperation {
 export async function computeAgentEarnings(agentId: string, start: Date, end: Date) {
   const from = start.toISOString();
   const to = end.toISOString();
+  const current = await resolveAgentRates(agentId);
   const [{ data: txs }, { data: wins }] = await Promise.all([
     supabaseAdmin
       .from("transactions")
-      .select("id, type, amount, fees, total, status, created_at")
+      .select("id, type, amount, fees, total, status, created_at, platform_share_rate, tax_rate")
       .eq("agent_id", agentId)
       .gte("created_at", from)
       .lt("created_at", to)
@@ -133,7 +169,7 @@ export async function computeAgentEarnings(agentId: string, start: Date, end: Da
   for (const t of (txs ?? []) as Row[]) {
     const fees = Number(t.fees ?? 0);
     if (t.status === "completed") {
-      const split = splitFee(fees);
+      const split = splitFee(fees, ratesOf(t, current));
       platform += split.platform;
       tax += split.tax;
       if (t.type === "deposit") {
@@ -174,6 +210,8 @@ export async function computeAgentEarnings(agentId: string, start: Date, end: Da
   const gross = incomeDeposits + incomeWithdrawals + bonuses;
   const deducted = platform + tax;
   return {
+    platform_fee_rate: current.platform,
+    tax_rate: current.tax,
     gross_income: round2(gross),
     net_income: round2(gross - deducted),
     income_deposits: round2(incomeDeposits),

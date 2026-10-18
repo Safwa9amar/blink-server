@@ -15,6 +15,12 @@ export interface DuesPaymentLike {
   created_at?: string | null;
 }
 
+/** A store's lifetime delivered sales and the commission owed on them (each order at its own rate). */
+export interface StoreSales {
+  sales: number;
+  commission: number;
+}
+
 export interface StoreDuesAllocation {
   store_id: string;
   store_name: string;
@@ -45,15 +51,16 @@ const later = (a: string | null, b: string | null | undefined) =>
  */
 export function allocateDues(
   stores: readonly DuesStoreLike[],
-  salesByStore: ReadonlyMap<string, number>,
+  salesByStore: ReadonlyMap<string, StoreSales>,
   payments: readonly DuesPaymentLike[],
-  rates: { commission: number; fee: number }
+  /** Processing fee rate on the outstanding amount (`dues_payment_fee_rate`). */
+  feeRate: number
 ): StoreDuesAllocation[] {
   const owed = new Map<string, number>();
   const paid = new Map<string, number>();
   const lastAt = new Map<string, string | null>();
   for (const s of stores) {
-    owed.set(s.id, round2((salesByStore.get(s.id) ?? 0) * rates.commission));
+    owed.set(s.id, round2(salesByStore.get(s.id)?.commission ?? 0));
     paid.set(s.id, 0);
     lastAt.set(s.id, null);
   }
@@ -87,11 +94,11 @@ export function allocateDues(
     return {
       store_id: s.id,
       store_name: s.name,
-      total_profit: round2(salesByStore.get(s.id) ?? 0),
-      commission: round2((salesByStore.get(s.id) ?? 0) * rates.commission),
+      total_profit: round2(salesByStore.get(s.id)?.sales ?? 0),
+      commission: round2(salesByStore.get(s.id)?.commission ?? 0),
       paid: round2(paid.get(s.id)!),
       dues_payable: duesPayable,
-      fees: round2(duesPayable * rates.fee),
+      fees: round2(duesPayable * feeRate),
       last_payment_at: lastAt.get(s.id)!,
     };
   });

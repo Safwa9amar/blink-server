@@ -1,4 +1,5 @@
 import { quoteRide, ridePickupEtaMinutes } from "../../lib/ride-pricing";
+import { rideFareConfig } from "../../lib/pricing/fare-config";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { rideQuoteSchema, RideQuoteResponse } from "../../validators/ride";
@@ -28,7 +29,8 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const { pickup, destination, coupon_code, female_rider_only } = c.req.valid("json");
 
-  const quote = quoteRide(pickup, destination);
+  const cfg = await rideFareConfig(pickup);
+  const quote = quoteRide(pickup, destination, cfg.rates, cfg.multiplier);
   const riders = await nearbyRideRiders(pickup, female_rider_only);
   // A female-rider-only ride needs a female rider around ("subject to availability").
   const noFemaleRider = female_rider_only && riders.count === 0;

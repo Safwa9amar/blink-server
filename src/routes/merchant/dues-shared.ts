@@ -1,6 +1,7 @@
-import { allocateDues, type StoreDuesAllocation } from "../../lib/merchant-dues";
+import { allocateDues, type StoreDuesAllocation, type StoreSales } from "../../lib/merchant-dues";
 import { supabaseAdmin } from "../../lib/supabase";
-import { COMMISSION_RATE, DUES_FEE_RATE, orderSale, round2 } from "./shared";
+import { getPrice } from "../../lib/pricing";
+import { orderSale, round2, snapshotRate, storeRatesFor } from "./shared";
 
 const PAGE = 1000;
 const CHUNK = 100;
@@ -29,17 +30,35 @@ async function allRows<T extends { id: string }>(label: string, page: (after: st
   }
 }
 
-/** Lifetime delivered sales (goods subtotal) per store. */
-async function deliveredSales(storeIds: string[]) {
-  const sales = new Map<string, number>();
+/**
+ * Lifetime delivered sales (goods subtotal) per store, and the commission owed
+ * on them: each order at the rate snapshotted when it was placed, else the
+ * store's current rate (`fallback`).
+ */
+async function deliveredSales(storeIds: string[], fallback: ReadonlyMap<string, number>) {
+  const sales = new Map<string, StoreSales>();
   for (const ids of chunks(storeIds)) {
-    const orders = await allRows<{ id: string; store_id: string; subtotal: number | string }>("orders", (after) => {
-      let q = supabaseAdmin.from("orders").select("id, store_id, subtotal").in("store_id", ids).eq("status", "delivered");
+    const orders = await allRows<{
+      id: string;
+      store_id: string;
+      subtotal: number | string;
+      merchant_commission_rate: number | string | null;
+    }>("orders", (after) => {
+      let q = supabaseAdmin
+        .from("orders")
+        .select("id, store_id, subtotal, merchant_commission_rate")
+        .in("store_id", ids)
+        .eq("status", "delivered");
       if (after) q = q.gt("id", after);
       return q.order("id").limit(PAGE);
     });
     for (const o of orders) {
-      sales.set(o.store_id, (sales.get(o.store_id) ?? 0) + orderSale({ subtotal: Number(o.subtotal) }));
+      const sale = orderSale({ subtotal: Number(o.subtotal) });
+      const prev = sales.get(o.store_id) ?? { sales: 0, commission: 0 };
+      sales.set(o.store_id, {
+        sales: prev.sales + sale,
+        commission: prev.commission + sale * snapshotRate(o.merchant_commission_rate, fallback.get(o.store_id) ?? 0),
+      });
     }
   }
   return sales;
@@ -69,6 +88,10 @@ export interface DuesStoreRow {
   id: string;
   name: string;
   owner_id: string | null;
+  /** For the store's current commission rate (a fallback for orders without a snapshot). */
+  wilaya?: string | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
 }
 
 export type OwnedStoreDues = StoreDuesAllocation & { merchant_id: string };
@@ -81,18 +104,21 @@ export type OwnedStoreDues = StoreDuesAllocation & { merchant_id: string };
 export async function duesForStores(stores: readonly DuesStoreRow[]): Promise<OwnedStoreDues[]> {
   const owned = stores.filter((s): s is DuesStoreRow & { owner_id: string } => !!s.owner_id);
   const owners = [...new Set(owned.map((s) => s.owner_id))];
-  const [sales, payments] = await Promise.all([
-    deliveredSales(owned.map((s) => s.id)),
+  const fallback = new Map(
+    await Promise.all(owned.map(async (s) => [s.id, (await storeRatesFor(s)).commission] as const))
+  );
+  const [sales, payments, feeRate] = await Promise.all([
+    deliveredSales(owned.map((s) => s.id), fallback),
     completedPayments(owners),
+    getPrice("dues_payment_fee_rate").then((p) => p.value.rate),
   ]);
 
-  const rates = { commission: COMMISSION_RATE, fee: DUES_FEE_RATE };
   return owners.flatMap((owner) =>
     allocateDues(
       owned.filter((s) => s.owner_id === owner),
       sales,
       payments.filter((p) => p.merchant_id === owner),
-      rates
+      feeRate
     ).map((row) => ({ ...row, merchant_id: owner }))
   );
 }
@@ -104,7 +130,7 @@ export async function duesForStores(stores: readonly DuesStoreRow[]): Promise<Ow
 async function duesStoresOf(userId: string): Promise<DuesStoreRow[]> {
   const { data, error } = await supabaseAdmin
     .from("stores")
-    .select("id, name, owner_id")
+    .select("id, name, owner_id, wilaya, latitude, longitude")
     .eq("owner_id", userId)
     .order("is_primary", { ascending: false })
     .order("created_at", { ascending: true });
@@ -132,7 +158,8 @@ export async function computeDues(userId: string) {
 
   return {
     total_dues: round2(rows.reduce((sum, r) => sum + r.dues_payable, 0)),
-    commission_rate: COMMISSION_RATE,
+    // The store's current effective rate (orders keep the rate they were placed under).
+    commission_rate: (await storeRatesFor(stores[0] ?? {})).commission,
     stores: rows,
     names,
   };

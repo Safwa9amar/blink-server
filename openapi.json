@@ -3062,6 +3062,24 @@
           "pack_id"
         ]
       },
+      "PriceChangedError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "enum": [
+              "price_changed"
+            ]
+          },
+          "service_fee": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "error",
+          "service_fee"
+        ]
+      },
       "CreateOrderBody": {
         "type": "object",
         "properties": {
@@ -3104,6 +3122,10 @@
             "type": "number",
             "minimum": 0,
             "default": 0
+          },
+          "expected_service_fee": {
+            "type": "number",
+            "minimum": 0
           },
           "store_id": {
             "type": "string",
@@ -11699,6 +11721,9 @@
           "commission_rate": {
             "type": "number"
           },
+          "cancel_penalty": {
+            "type": "number"
+          },
           "distance_km": {
             "type": "number"
           },
@@ -11844,6 +11869,7 @@
           "discount",
           "order_total",
           "commission_rate",
+          "cancel_penalty",
           "distance_km",
           "duration_minutes",
           "pickup_distance_km",
@@ -16045,11 +16071,18 @@
             }
           },
           "409": {
-            "description": "A pack line's pack changed or is gone (code pack_changed): refetch the store's packs",
+            "description": "Either a pack line's pack changed or is gone (code pack_changed: refetch the store's packs), or the service fee changed since `expected_service_fee` was shown (error price_changed, with the current `service_fee`)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PackChangedError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PackChangedError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/PriceChangedError"
+                    }
+                  ]
                 }
               }
             }
