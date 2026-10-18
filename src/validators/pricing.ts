@@ -3,6 +3,17 @@ import { PRICING_KEYS } from "../lib/pricing/catalog";
 
 // ─── Staff (tag admin-pricing) ───────────────────────────────────────
 
+export const FeeExampleSchema = z
+  .discriminatedUnion("kind", [
+    z.object({ kind: z.literal("per_checkout"), output: z.number() }),
+    z.object({ kind: z.literal("trip_km"), vehicle: z.enum(["motorcycle", "bicycle"]), km: z.number(), output: z.number() }),
+    z.object({ kind: z.literal("multiplier"), input: z.number(), output: z.number() }),
+    z.object({ kind: z.literal("rate_on_amount"), input: z.number(), output: z.number() }),
+    z.object({ kind: z.literal("agent_split"), input: z.number(), output: z.number() }),
+    z.object({ kind: z.literal("amount"), output: z.number() }),
+  ])
+  .openapi("FeeExample");
+
 export const PricingKeyParam = z.object({
   key: z.string().openapi({ param: { name: "key", in: "path" } }),
 });
@@ -47,6 +58,7 @@ export const PricingFee = z
     updated_at: z.string().nullable(),
     updated_by: z.string().nullable(),
     active_overrides: z.number().int(),
+    example: FeeExampleSchema.nullable().openapi({ description: "Worked example from the default value" }),
   })
   .openapi("PricingFee");
 
@@ -176,8 +188,62 @@ export const PricingPreviewResponse = z
     ),
     examples: PricingExamples,
     candidate_examples: PricingExamples.optional(),
+    candidate_example: z
+      .object({ key: z.enum(PRICING_KEYS), before: FeeExampleSchema.nullable(), after: FeeExampleSchema.nullable() })
+      .optional(),
   })
   .openapi("PricingPreviewResponse");
+
+export const PricingSimulateBody = z
+  .object({
+    scenario: z.enum(["store", "courier", "ride", "deposit", "withdrawal"]),
+    context: z
+      .object({
+        wilaya_code: z.string().nullish(),
+        merchant_id: z.string().uuid().nullish(),
+        agent_id: z.string().uuid().nullish(),
+        store_id: z.string().uuid().nullish(),
+        at: iso.optional(),
+      })
+      .optional(),
+    inputs: z
+      .object({
+        subtotal: z.number().nonnegative().optional(),
+        delivery_fee: z.number().nonnegative().optional(),
+        km: z.number().positive().max(500).optional(),
+        stops: z.number().int().min(1).max(10).optional(),
+        vehicle: z.enum(["bicycle", "motorcycle"]).optional(),
+        amount: z.number().positive().optional(),
+      })
+      .optional(),
+  })
+  .openapi("PricingSimulateBody");
+
+export const PricingSimulateResponse = z
+  .object({
+    scenario: z.enum(["store", "courier", "ride", "deposit", "withdrawal"]),
+    payer_total: z.number(),
+    lines: z.array(
+      z.object({
+        party: z.enum(["merchant", "rider", "agent", "blink", "tax"]),
+        label: z.enum([
+          "merchant_keeps", "rider_keeps", "agent_keeps", "service_fee", "merchant_commission",
+          "rider_commission", "platform_share", "stamp_duty", "agent_tax",
+        ]),
+        amount: z.number(),
+      })
+    ),
+    values: z.array(
+      z.object({
+        key: z.enum(PRICING_KEYS),
+        value: z.unknown(),
+        override_id: z.string().nullable(),
+        scope: z.object(scopeFields).nullable(),
+      })
+    ),
+    unavailable: z.enum(["too_far"]).nullable(),
+  })
+  .openapi("PricingSimulateResponse");
 
 // ─── App quotes (generated client) ───────────────────────────────────
 

@@ -16,7 +16,10 @@ import {
   type PricingKey,
 } from "../../lib/pricing/catalog";
 import { legFare } from "../../lib/pricing/fare";
-import { getAllPrices, getPrice, invalidatePricingCache } from "../../lib/pricing";
+import { feeExample, type ExampleValues } from "../../lib/pricing/examples";
+import { simulate, SIM_DEFAULTS, type SimPrices } from "../../lib/pricing/simulate";
+import { orderPricingContext } from "../../lib/pricing/fees";
+import { getAllPrices, getPrice, getPrices, invalidatePricingCache, type PricingContext } from "../../lib/pricing";
 import { isActive, overlaps, type OverrideLike } from "../../lib/pricing/resolve";
 import { createNotification } from "../../lib/notifications";
 import { canActivate } from "../../lib/roles";
@@ -37,6 +40,8 @@ import {
   PricingOverridesResponse,
   PricingPreviewBody,
   PricingPreviewResponse,
+  PricingSimulateBody,
+  PricingSimulateResponse,
   PricingStaleError,
   UpdatePricingDefaultBody,
   UpdatePricingOverrideBody,
@@ -181,7 +186,8 @@ async function notifyPartner(
 function feeView(
   key: PricingKey,
   row: { value: unknown; updated_at: string | null; updated_by: string | null } | undefined,
-  active: number
+  active: number,
+  defaults: ExampleValues = PRICING_SEEDS
 ) {
   return {
     key,
@@ -194,6 +200,7 @@ function feeView(
     updated_at: row?.updated_at ?? null,
     updated_by: row?.updated_by ?? null,
     active_overrides: active,
+    example: feeExample(key, row?.value ?? PRICING_SEEDS[key], defaults),
   };
 }
 
@@ -229,7 +236,8 @@ app.openapi(
     if (error) throw new Error(`[pricing] settings read failed: ${error.message}`);
     const rows = new Map((data ?? []).map((r) => [r.key as string, r]));
     const keys = Object.keys(PRICING_SEEDS) as PricingKey[];
-    return c.json({ fees: keys.map((k) => feeView(k, rows.get(k), counts.get(k) ?? 0)) }, 200);
+    const defaults = Object.fromEntries(keys.map((k) => [k, rows.get(k)?.value ?? PRICING_SEEDS[k]])) as ExampleValues;
+    return c.json({ fees: keys.map((k) => feeView(k, rows.get(k), counts.get(k) ?? 0, defaults)) }, 200);
   }
 );
 
@@ -672,6 +680,93 @@ app.openapi(
         })),
         examples: examplesWith(null),
         ...(candidateValue ? { candidate_examples: examplesWith(candidateValue) } : {}),
+        ...(candidateValue
+          ? {
+              candidate_example: {
+                key: candidateValue.key,
+                before: feeExample(candidateValue.key, live[candidateValue.key], live),
+                after: feeExample(candidateValue.key, candidateValue.value, { ...live, [candidateValue.key]: candidateValue.value }),
+              },
+            }
+          : {}),
+      },
+      200
+    );
+  }
+);
+
+// ─── POST /pricing/admin/simulate ────────────────────────────────────
+const SIM_KEYS = {
+  store: ["service_fee", "merchant_commission_rate", "stamp_duty_rate", "rider_commission_rate"],
+  courier: ["courier_fare", "fare_multiplier", "rider_commission_rate"],
+  ride: ["ride_fare", "fare_multiplier", "rider_commission_rate"],
+  deposit: ["blink_cash_fee_rate", "agent_platform_share", "agent_tax_rate"],
+  withdrawal: ["blink_cash_fee_rate", "agent_platform_share", "agent_tax_rate"],
+} as const satisfies Record<string, readonly PricingKey[]>;
+
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/admin/simulate",
+    operationId: "simulatePricingAdmin",
+    tags: ["admin-pricing"],
+    security: bearer,
+    middleware: [readStaff] as const,
+    request: { body: { ...json(PricingSimulateBody), required: true } },
+    responses: {
+      200: json(PricingSimulateResponse),
+      400: json(ErrorSchema, "Bad request"),
+      401: errorResponses[401],
+      403: errorResponses[403],
+    },
+  }),
+  async (c) => {
+    const { scenario, context = {}, inputs = {} } = c.req.valid("json");
+    invalidatePricingCache();
+    const at = context.at ? new Date(context.at) : undefined;
+    const service = scenario === "store" ? "merchant" : scenario;
+    let ctx: PricingContext = {
+      service,
+      wilaya: context.wilaya_code ?? null,
+      merchantId: context.merchant_id ?? null,
+      agentId: context.agent_id ?? null,
+      at,
+    };
+    let delivery = inputs.delivery_fee;
+    if (scenario === "store" && context.store_id) {
+      const sc = await orderPricingContext({ type: "merchant", storeId: context.store_id });
+      ctx = { ...ctx, ...sc, at };
+      if (delivery == null) {
+        const { data } = await supabaseAdmin.from("stores").select("delivery_fee").eq("id", context.store_id).maybeSingle();
+        if (data?.delivery_fee != null) delivery = Number(data.delivery_fee);
+      }
+    }
+
+    const keys = SIM_KEYS[scenario];
+    const results = await getPrices(keys, ctx);
+    const prices: SimPrices = {};
+    for (const k of keys) (prices as Record<string, unknown>)[k] = results[k as keyof typeof results].value;
+    const result = simulate(scenario, { ...inputs, delivery_fee: delivery ?? SIM_DEFAULTS.delivery_fee }, prices);
+
+    const winners = keys.map((k) => results[k as keyof typeof results].overrideId).filter((i): i is string => !!i);
+    const scopes = new Map<string, { service: string | null; wilaya_code: string | null; merchant_id: string | null; agent_id: string | null }>();
+    if (winners.length) {
+      const { data } = await supabaseAdmin
+        .from("pricing_overrides")
+        .select("id, service, wilaya_code, merchant_id, agent_id")
+        .in("id", winners);
+      for (const o of data ?? []) {
+        scopes.set(o.id, { service: o.service, wilaya_code: o.wilaya_code, merchant_id: o.merchant_id, agent_id: o.agent_id });
+      }
+    }
+    return c.json(
+      {
+        scenario,
+        ...result,
+        values: keys.map((k) => {
+          const r = results[k as keyof typeof results];
+          return { key: k as PricingKey, value: r.value, override_id: r.overrideId, scope: r.overrideId ? scopes.get(r.overrideId) ?? null : null };
+        }),
       },
       200
     );
