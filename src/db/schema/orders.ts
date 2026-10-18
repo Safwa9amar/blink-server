@@ -129,6 +129,13 @@ export const orders = pgTable(
     // appended from rider location pings (20261011103926_route_path.sql).
     // Null until picked up.
     routePath: jsonb("route_path").$type<[number, number][]>(),
+    // Rates in force when a store order was created (20261018120000_pricing_config.sql):
+    // dues = Σ(sale × this order's rate), so editing a rate never rewrites the
+    // past. pricing_applied = { [pricing key]: override id | null } for every
+    // key used to price the order.
+    merchantCommissionRate: numeric("merchant_commission_rate", { precision: 6, scale: 4 }).$type<number>(),
+    stampDutyRate: numeric("stamp_duty_rate", { precision: 6, scale: 4 }).$type<number>(),
+    pricingApplied: jsonb("pricing_applied").$type<Record<string, string | null>>(),
     ...timestamps,
   },
   (t) => [
