@@ -116,11 +116,11 @@ begin
     alter table public.pricing_overrides
       add constraint pricing_overrides_no_overlap exclude using gist (
         key with =,
-        coalesce(service, '') with =,
-        coalesce(wilaya_code, '') with =,
-        coalesce(merchant_id::text, '') with =,
-        coalesce(agent_id::text, '') with =,
-        tstzrange(coalesce(starts_at, '-infinity'::timestamptz), coalesce(ends_at, 'infinity'::timestamptz)) with &&
+        (coalesce(service, '')) with =,
+        (coalesce(wilaya_code, '')) with =,
+        (coalesce(merchant_id::text, '')) with =,
+        (coalesce(agent_id::text, '')) with =,
+        (tstzrange(coalesce(starts_at, '-infinity'::timestamptz), coalesce(ends_at, 'infinity'::timestamptz))) with &&
       ) where (archived_at is null);
   end if;
 end $$;
