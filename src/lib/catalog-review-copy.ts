@@ -1,11 +1,15 @@
 // Merchant notifications for staff catalog decisions (products, price
-// suggestions, packs), in en / fr / ar, plus the app screen each one opens.
+// suggestions, packs) and for packs staff create / edit / delete on the
+// store's behalf, in en / fr / ar, plus the app screen each one opens.
 // Sent as type "alert" with `payload.kind` = the event kind, which the
 // merchant app's notification detail screen switches on
 // (components/merchant/notifications/notification-targets.ts):
 // `product_rejected` / `pricing_flagged` predate this file and keep their
 // names; `product_approved`, `price_accepted`, `pack_approved`,
-// `pack_rejected` and `pack_deactivated` are new.
+// `pack_rejected` and `pack_deactivated` are new; `pack_created_by_staff`,
+// `pack_updated_by_staff` and `pack_deleted_by_staff` come from the staff pack
+// editor (src/routes/merchant/admin-packs.ts), which also sends
+// `pack_approved` when it turns on a pack waiting in review.
 
 type Copy = { title: string; description: string };
 export type CatalogReviewCopy = { en: Copy; fr: Copy; ar: Copy };
@@ -16,6 +20,8 @@ export const merchantProductHref = (productId: string) => `/(merchant)/my-store/
 export const merchantPricingHref = (productId: string) => `/(merchant)/my-store/pricing/${productId}`;
 /** The merchant app's pack screen. */
 export const merchantPackHref = (packId: string) => `/(merchant)/my-store/packs/${packId}`;
+/** The merchant app's pack list (a deleted pack has no screen). */
+export const merchantPacksHref = () => "/(merchant)/my-store/packs";
 
 export type CatalogReviewEvent =
   | { kind: "product_approved"; product_id: string; product: string; store: string }
@@ -33,7 +39,10 @@ export type CatalogReviewEvent =
     }
   | { kind: "pack_approved"; pack_id: string; pack: string; store: string }
   | { kind: "pack_rejected"; pack_id: string; pack: string; store: string; note?: string | null }
-  | { kind: "pack_deactivated"; pack_id: string; pack: string; store: string; note?: string | null };
+  | { kind: "pack_deactivated"; pack_id: string; pack: string; store: string; note?: string | null }
+  | { kind: "pack_created_by_staff"; pack_id: string; pack: string; store: string }
+  | { kind: "pack_updated_by_staff"; pack_id: string; pack: string; store: string }
+  | { kind: "pack_deleted_by_staff"; pack_id: string; pack: string; store: string };
 
 export type CatalogReviewKind = CatalogReviewEvent["kind"];
 
@@ -136,6 +145,33 @@ export function catalogReviewCopy(e: CatalogReviewEvent): CatalogReviewCopy {
         },
         e.note
       );
+    case "pack_created_by_staff":
+      return {
+        en: { title: "New pack from Blink", description: `The Blink team added ${e.pack} to ${e.store}.` },
+        fr: {
+          title: "Nouveau pack ajouté par Blink",
+          description: `L'équipe Blink a ajouté ${e.pack} à votre boutique ${e.store}.`,
+        },
+        ar: { title: "أضافت Blink باقة جديدة", description: `أضاف فريق Blink الباقة ${e.pack} إلى متجرك ${e.store}.` },
+      };
+    case "pack_updated_by_staff":
+      return {
+        en: { title: "Pack updated by Blink", description: `The Blink team updated ${e.pack} at ${e.store}.` },
+        fr: {
+          title: "Pack modifié par Blink",
+          description: `L'équipe Blink a modifié ${e.pack} dans votre boutique ${e.store}.`,
+        },
+        ar: { title: "عدّلت Blink باقتك", description: `عدّل فريق Blink الباقة ${e.pack} في متجرك ${e.store}.` },
+      };
+    case "pack_deleted_by_staff":
+      return {
+        en: { title: "Pack removed by Blink", description: `The Blink team removed ${e.pack} from ${e.store}.` },
+        fr: {
+          title: "Pack supprimé par Blink",
+          description: `L'équipe Blink a supprimé ${e.pack} de votre boutique ${e.store}.`,
+        },
+        ar: { title: "حذفت Blink باقة", description: `حذف فريق Blink الباقة ${e.pack} من متجرك ${e.store}.` },
+      };
   }
 }
 
@@ -151,7 +187,11 @@ export function catalogReviewHref(e: CatalogReviewEvent): string {
     case "pack_approved":
     case "pack_rejected":
     case "pack_deactivated":
+    case "pack_created_by_staff":
+    case "pack_updated_by_staff":
       return merchantPackHref(e.pack_id);
+    case "pack_deleted_by_staff":
+      return merchantPacksHref();
   }
 }
 

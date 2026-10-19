@@ -89,6 +89,31 @@ describe("packDecisionKind", () => {
   });
 });
 
+describe("staff pack edits", () => {
+  const STAFF_EVENTS: CatalogReviewEvent[] = [
+    { kind: "pack_created_by_staff", pack_id: "k1", pack: "Breakfast pack", store: "Superette Hydra" },
+    { kind: "pack_updated_by_staff", pack_id: "k1", pack: "Breakfast pack", store: "Superette Hydra" },
+    { kind: "pack_deleted_by_staff", pack_id: "k1", pack: "Breakfast pack", store: "Superette Hydra" },
+  ];
+
+  it("names the pack and the store in every language", () => {
+    for (const e of STAFF_EVENTS) {
+      const copy = catalogReviewCopy(e);
+      for (const lang of ["en", "fr", "ar"] as const) {
+        assert.ok(copy[lang].title.trim(), `${e.kind} ${lang} title`);
+        assert.ok(copy[lang].description.includes("Breakfast pack"), `${e.kind} ${lang} pack`);
+        assert.ok(copy[lang].description.includes("Superette Hydra"), `${e.kind} ${lang} store`);
+      }
+    }
+  });
+
+  it("opens the pack, or the pack list once it is gone", () => {
+    assert.equal(catalogReviewHref(STAFF_EVENTS[0]), "/(merchant)/my-store/packs/k1");
+    assert.equal(catalogReviewHref(STAFF_EVENTS[1]), "/(merchant)/my-store/packs/k1");
+    assert.equal(catalogReviewHref(STAFF_EVENTS[2]), "/(merchant)/my-store/packs");
+  });
+});
+
 describe("money", () => {
   it("prints at most 2 decimals", () => {
     assert.equal(money(1500), "1500");

@@ -27,6 +27,7 @@ import dashboardGlobal from "./dashboard-global";
 import uploads from "./uploads";
 import adminReview from "./admin-review";
 import adminCatalogReview from "./admin-catalog-review";
+import adminPacks from "./admin-packs";
 import adminDues from "./admin-dues";
 import packsSuggestions from "./packs-suggestions";
 import requiredActions from "./required-actions";
@@ -43,8 +44,8 @@ const app = router();
 
 app.use("/*", auth);
 // Staff endpoints (/merchant/admin/*) carry their own staff guard —
-// requireStaffRole (store review: ops / hr; catalog review: commerce;
-// dues: finance); everything else is the merchant app.
+// requireStaffRole (store review: ops / hr; catalog review + pack editor:
+// commerce; dues: finance); everything else is the merchant app.
 app.use("/*", async (c, next) => {
   if (c.req.path.includes("/merchant/admin/")) return next();
   return requireRole("merchant")(c, next);
@@ -88,6 +89,7 @@ app.route("/", requiredActions);
 app.route("/", adminReview);
 app.route("/", adminCatalogReview);
 app.route("/", adminPriceChanges);
+app.route("/", adminPacks);
 app.route("/", adminDues);
 
 export default app;
