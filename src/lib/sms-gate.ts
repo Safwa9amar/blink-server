@@ -11,14 +11,23 @@ export function isSmsGateConfigured(): boolean {
 }
 
 export async function sendSms(phone: string, text: string): Promise<void> {
+  // Supabase gives the Send SMS hook ~5s; fail before it does so the error is ours.
+  await sendSmsTo([phone], text, 4500);
+}
+
+/**
+ * Queue one text to several numbers (the phone sends one SMS per number). SMS Gate
+ * accepts the message and the phone delivers it over the next seconds/minutes, so
+ * a resolved promise means "queued on the gateway", not "delivered".
+ */
+export async function sendSmsTo(phones: string[], text: string, timeoutMs = 15_000): Promise<void> {
   const auth = Buffer.from(`${env.SMS_GATE_USERNAME}:${env.SMS_GATE_PASSWORD}`).toString("base64");
 
   const res = await fetch(`${env.SMS_GATE_URL}/messages`, {
     method: "POST",
     headers: { Authorization: `Basic ${auth}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ textMessage: { text }, phoneNumbers: [phone], simNumber: env.SMS_GATE_SIM_NUMBER }),
-    // Supabase gives the Send SMS hook ~5s; fail before it does so the error is ours.
-    signal: AbortSignal.timeout(4500),
+    body: JSON.stringify({ textMessage: { text }, phoneNumbers: phones, simNumber: env.SMS_GATE_SIM_NUMBER }),
+    signal: AbortSignal.timeout(timeoutMs),
   });
 
   if (!res.ok) {

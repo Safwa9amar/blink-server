@@ -3791,6 +3791,60 @@
           "lng"
         ]
       },
+      "NotificationSmsStatusResponse": {
+        "type": "object",
+        "properties": {
+          "configured": {
+            "type": "boolean",
+            "description": "SMS Gate credentials are set"
+          },
+          "max": {
+            "type": "integer",
+            "description": "Most numbers one notification may text (SMS_BROADCAST_MAX)"
+          }
+        },
+        "required": [
+          "configured",
+          "max"
+        ]
+      },
+      "NotificationSmsResponse": {
+        "type": "object",
+        "properties": {
+          "queued": {
+            "type": "integer",
+            "description": "Numbers SMS Gate accepted (delivered by the phone shortly after)"
+          },
+          "no_phone": {
+            "type": "integer",
+            "description": "Recipients without a usable phone number"
+          },
+          "failed": {
+            "type": "integer",
+            "description": "Numbers in batches the gateway refused"
+          }
+        },
+        "required": [
+          "queued",
+          "no_phone",
+          "failed"
+        ]
+      },
+      "NotificationSmsBody": {
+        "type": "object",
+        "properties": {
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "fr",
+              "ar"
+            ],
+            "default": "en",
+            "description": "Language of the SMS text"
+          }
+        }
+      },
       "DeviceResponse": {
         "type": "object",
         "properties": {
@@ -16065,6 +16119,137 @@
           },
           "409": {
             "description": "The coupon was just used by another request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/admin/sms/status": {
+      "get": {
+        "operationId": "getNotificationSmsStatusAdmin",
+        "tags": [
+          "admin-notifications"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSmsStatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/admin/{id}/sms": {
+      "post": {
+        "operationId": "sendNotificationSmsAdmin",
+        "tags": [
+          "admin-notifications"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationSmsBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSmsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
             "content": {
               "application/json": {
                 "schema": {

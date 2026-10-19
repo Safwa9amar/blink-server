@@ -154,3 +154,25 @@ export const BroadcastTestNotificationResponse = z
     roles: z.array(z.enum(["customer", "rider", "merchant", "agent"])),
   })
   .openapi("BroadcastTestNotificationResponse");
+
+// ─── Staff: SMS channel (dashboard composer) ─────────────────────────
+export const NotificationSmsBody = z
+  .object({
+    lang: z.enum(["en", "fr", "ar"]).default("en").openapi({ description: "Language of the SMS text" }),
+  })
+  .openapi("NotificationSmsBody");
+
+export const NotificationSmsResponse = z
+  .object({
+    queued: z.number().int().openapi({ description: "Numbers SMS Gate accepted (delivered by the phone shortly after)" }),
+    no_phone: z.number().int().openapi({ description: "Recipients without a usable phone number" }),
+    failed: z.number().int().openapi({ description: "Numbers in batches the gateway refused" }),
+  })
+  .openapi("NotificationSmsResponse");
+
+export const NotificationSmsStatusResponse = z
+  .object({
+    configured: z.boolean().openapi({ description: "SMS Gate credentials are set" }),
+    max: z.number().int().openapi({ description: "Most numbers one notification may text (SMS_BROADCAST_MAX)" }),
+  })
+  .openapi("NotificationSmsStatusResponse");

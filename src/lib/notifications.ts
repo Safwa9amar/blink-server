@@ -179,6 +179,14 @@ export async function broadcastNotification(
   roles: UserRole[],
   input: Omit<CreateNotificationInput, "userId">
 ): Promise<number> {
+  return (await broadcastToRoles(roles, input)).userIds.length;
+}
+
+/** broadcastNotification, also returning the users it reached (e.g. to text them too). */
+export async function broadcastToRoles(
+  roles: UserRole[],
+  input: Omit<CreateNotificationInput, "userId">
+): Promise<{ userIds: string[] }> {
   const { data: users, error } = await supabaseAdmin
     .from("users")
     .select("id, role")
@@ -187,7 +195,7 @@ export async function broadcastNotification(
   if (error || !users || users.length === 0) {
     if (error)
       console.error("[notifications] broadcast user lookup failed", error.message);
-    return 0;
+    return { userIds: [] };
   }
 
   const notif = await insertNotificationContent({
@@ -202,7 +210,7 @@ export async function broadcastNotification(
     targetRoles: roles,
     createdBy: input.createdBy,
   });
-  if (!notif) return 0;
+  if (!notif) return { userIds: [] };
 
   // One recipient row per user (bulk).
   const { error: recErr } = await supabaseAdmin
@@ -212,7 +220,7 @@ export async function broadcastNotification(
     );
   if (recErr) {
     console.error("[notifications] broadcast recipients insert failed", recErr.message);
-    return 0;
+    return { userIds: [] };
   }
 
   if (input.push !== false) {
@@ -223,5 +231,5 @@ export async function broadcastNotification(
     );
   }
 
-  return users.length;
+  return { userIds: users.map((u) => u.id as string) };
 }

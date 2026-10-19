@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  check,
   index,
   integer,
   jsonb,
@@ -50,16 +51,20 @@ export const scheduledNotifications = pgTable(
     // Target audience as LOWERCASE user_role values (customer|rider|merchant|agent)
     // — passed straight to broadcastNotification(roles, …).
     targetRoles: text("target_roles").array().notNull(),
-    // Delivery channels chosen in the composer (push|inapp|email|sms). Only
-    // `push` is acted on (toggles the Expo fan-out); the in-app row is always
-    // written. Email/SMS are recorded for audit, not yet delivered.
+    // Delivery channels chosen in the composer (push|inapp|email|sms). `push`
+    // toggles the Expo fan-out and `sms` texts the recipients through SMS Gate;
+    // the in-app row is always written. Email is recorded, not yet delivered.
     channels: text("channels").array().notNull().default(sql`ARRAY['push']::text[]`),
+    // SMS text language when `channels` has "sms" (null = English-first copy).
+    smsLang: text("sms_lang").$type<"en" | "fr" | "ar">(),
     // When to fire.
     scheduledAt: timestamp("scheduled_at", { withTimezone: true, mode: "string" }).notNull(),
     status: scheduledNotificationStatus("status").notNull().default("pending"),
     // Filled in once fired.
     recipients: integer("recipients").notNull().default(0),
     pushed: integer("pushed").notNull().default(0),
+    // Numbers the SMS gateway accepted (sms channel only).
+    smsSent: integer("sms_sent").notNull().default(0),
     sentAt: timestamp("sent_at", { withTimezone: true, mode: "string" }),
     error: text("error"),
     // Staff/sender who scheduled it (null for system).
@@ -69,6 +74,7 @@ export const scheduledNotifications = pgTable(
       .defaultNow(),
   },
   (t) => [
+    check("scheduled_notifications_sms_lang_check", sql`sms_lang is null or sms_lang in ('en', 'fr', 'ar')`),
     // The due-queue scan: pending rows ordered by when they fire.
     index("idx_scheduled_notifications_due")
       .on(t.scheduledAt)

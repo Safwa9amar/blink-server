@@ -1,7 +1,9 @@
 import cron from "node-cron";
 import type { NotificationCopy, NotificationRow, UserRole } from "../db";
 import { supabaseAdmin } from "./supabase";
-import { broadcastNotification } from "./notifications";
+import { broadcastToRoles } from "./notifications";
+import { smsUsers, SmsError } from "./notification-sms";
+import { isSmsLang, smsText } from "./sms-text";
 
 // Shape as supabase-js actually returns it: SNAKE_CASE columns (supabase-js does
 // NOT camelize like Drizzle's inferred types). Reading the Drizzle camelCase
@@ -18,6 +20,8 @@ interface DueRow {
   content_ar: NotificationCopy | null;
   target_roles: string[] | null;
   channels: string[] | null;
+  /** Language of the SMS text when `channels` has "sms" (null = English-first). */
+  sms_lang: string | null;
   created_by: string | null;
 }
 
@@ -74,7 +78,7 @@ export async function processDueScheduledNotifications(
       const pushOn = Array.isArray(row.channels)
         ? row.channels.includes("push")
         : true;
-      const recipients = await broadcastNotification(
+      const { userIds } = await broadcastToRoles(
         (row.target_roles ?? []) as UserRole[],
         {
           type: row.type,
@@ -88,6 +92,22 @@ export async function processDueScheduledNotifications(
           push: pushOn,
         }
       );
+      const recipients = userIds.length;
+
+      // 4. SMS channel: text the same users. The broadcast already went out, so
+      //    an SMS problem is recorded on the row (error) instead of failing it.
+      let smsSent = 0;
+      let smsNote: string | null = null;
+      if (row.channels?.includes("sms") && recipients > 0) {
+        try {
+          const sms = await smsUsers(userIds, smsText(row, isSmsLang(row.sms_lang) ? row.sms_lang : "en"));
+          smsSent = sms.queued;
+          if (sms.failed > 0) smsNote = `SMS: ${sms.failed} numbers refused by the gateway`;
+        } catch (e) {
+          smsNote = `SMS not sent: ${e instanceof SmsError ? e.message : (e as Error).message}`;
+          console.error("[scheduled-notif] sms failed", id, smsNote);
+        }
+      }
 
       await supabaseAdmin
         .from("scheduled_notifications")
@@ -95,8 +115,10 @@ export async function processDueScheduledNotifications(
           status: "sent",
           recipients,
           pushed: pushOn ? recipients : 0,
+          // Only rows that asked for SMS touch the column (added with sms_lang).
+          ...(row.channels?.includes("sms") ? { sms_sent: smsSent } : {}),
           sent_at: new Date().toISOString(),
-          error: null,
+          error: smsNote,
         })
         .eq("id", id);
       sent++;
