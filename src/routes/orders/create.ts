@@ -9,13 +9,15 @@ import { createNotification } from "../../lib/notifications";
 import { withoutOffer } from "../../lib/rider-offer";
 import { storeOpenState } from "../../lib/store-categories";
 import { packStockUsage, priceStoreOrder, type CustomerPack, type PricedOrderLine } from "../../lib/pack-pricing";
+import { priceProductLines, productStockUsage } from "../../lib/product-pricing";
+import { loadOrderableStoreProducts } from "../../lib/store-products";
 import { loadVisiblePacks } from "../../lib/store-packs";
 import { LOW_STOCK } from "../merchant/strategy-shared";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
 import { z } from "@hono/zod-openapi";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
-import { createOrderSchema, OrderResponse, PackChangedError, PriceChangedError } from "../../validators/orders";
+import { createOrderSchema, OrderResponse, PackChangedError, PriceChangedError, ProductChangedError } from "../../validators/orders";
 import { pushNewOffer } from "../../lib/offer-push";
 
 const app = router();
@@ -34,8 +36,8 @@ const route = createRoute({
     400: errorResponses[400],
     403: errorResponses[403],
     409: json(
-      z.union([PackChangedError, PriceChangedError]),
-      "Either a pack line's pack changed or is gone (code pack_changed: refetch the store's packs), or the service fee changed since `expected_service_fee` was shown (error price_changed, with the current `service_fee`)"
+      z.union([PackChangedError, ProductChangedError, PriceChangedError]),
+      "Either a pack line's pack changed or is gone (code pack_changed: refetch the store's packs), a product line's product moved in price or is no longer sold (code product_changed: refresh the cart with POST /marketplace/products/lookup), or the service fee changed since `expected_service_fee` was shown (error price_changed, with the current `service_fee`)"
     ),
   },
 });
@@ -49,6 +51,12 @@ app.openapi(route, async (c) => {
   // is split client-side into one order per store sharing a checkout_id.
   if (body.type === "merchant" && !body.store_id) {
     return c.json({ error: "store_id is required for merchant orders" }, 400);
+  }
+
+  // Shopper orders are only made by the server (a store that doesn't answer
+  // hands over to a Blink shopper); no client creates one.
+  if (body.type === "shopper") {
+    return c.json({ error: "Unsupported order type" }, 400);
   }
 
   // A store only takes orders while it's live and open — by its weekly
@@ -74,8 +82,10 @@ app.openapi(route, async (c) => {
 
   // Courier requests from older apps (new ones use POST /courier/requests):
   // the fee is priced here from the route, never taken from the client.
-  let subtotal = body.subtotal;
-  let deliveryFee = body.delivery_fee;
+  // Every amount is the server's: the client's subtotal / delivery_fee /
+  // service_fee / discount are ignored for every order type.
+  let subtotal = 0;
+  let deliveryFee = 0;
   // Decided by the server (pricing config `service_fee`): the client's value is
   // ignored. Once per checkout, on the first store order created for it.
   const alreadyCharged = body.type !== "courier" && (await checkoutAlreadyCharged(user.id, body.checkout_id));
@@ -131,14 +141,17 @@ app.openapi(route, async (c) => {
     Object.assign(pricingApplied, cfg.applied);
   }
 
-  // Store orders: pack lines are priced here from live product prices (409
-  // pack_changed when the pack is gone or its price moved), the subtotal is
+  // Store orders: every line is priced here from live data. Product lines
+  // take the live product price (409 product_changed when it moved or the
+  // product is gone; older apps' lines without a product_id are matched by
+  // title and charged the live price); pack lines 409 pack_changed when the
+  // pack is gone or its price moved. The subtotal is
   // summed from the lines and the delivery fee is the store's. When every line
   // is a free-delivery pack the customer doesn't pay it: `deliveryWaived` is
   // taken off as a discount the merchant funds (earnings subtract discounts),
   // while `delivery_fee` stays the rider's fare (src/lib/pack-pricing.ts).
-  // Product lines still keep the client's price. Other orders can't carry packs.
-  let items: PricedOrderLine[] = body.items.map(({ pack_id: _packId, ...line }) => line);
+  // Other orders can't carry packs.
+  let items: PricedOrderLine[] = body.items.map(({ pack_id: _packId, product_id: _productId, ...line }) => line);
   let deliveryWaived = 0;
   let packStock = new Map<string, number>();
   if (body.type === "merchant" && body.store_id && storeDeliveryFee != null) {
@@ -149,7 +162,32 @@ app.openapi(route, async (c) => {
     } catch (e) {
       return c.json({ error: (e as Error).message }, 400);
     }
-    const priced = priceStoreOrder(body.items, packs, storeDeliveryFee);
+    let lines = body.items;
+    try {
+      const products = await loadOrderableStoreProducts(
+        body.store_id,
+        [...new Set(body.items.flatMap((i) => (i.product_id && !i.pack_id ? [i.product_id] : [])))],
+        [...new Set(body.items.flatMap((i) => (!i.product_id && !i.pack_id ? [i.name] : [])))]
+      );
+      const pricedProducts = priceProductLines(body.items, products);
+      if (!pricedProducts.ok) {
+        if (pricedProducts.reason === "unavailable") {
+          return c.json({ error: `Product unavailable: ${pricedProducts.name}` }, 400);
+        }
+        return c.json(
+          {
+            error: "Product changed: a product in this order changed price or is no longer available",
+            code: "product_changed" as const,
+            products: pricedProducts.products,
+          },
+          409
+        );
+      }
+      lines = pricedProducts.lines;
+    } catch (e) {
+      return c.json({ error: (e as Error).message }, 400);
+    }
+    const priced = priceStoreOrder(lines, packs, storeDeliveryFee);
     if (!priced.ok) {
       return c.json(
         {
@@ -170,7 +208,7 @@ app.openapi(route, async (c) => {
   // A coupon code is priced here, never trusted from the client. A store
   // order's discount only ever comes from its coupon (the app sends none
   // without one), so a client can't cancel the server's fees with `discount`.
-  let discount = body.type === "courier" || body.type === "merchant" ? 0 : body.discount;
+  let discount = 0;
   let couponId: string | null = null;
   if (body.coupon_code && body.type === "courier") {
     const priced = await priceCourierCoupon(user.id, body.coupon_code, deliveryFee);
@@ -243,11 +281,12 @@ app.openapi(route, async (c) => {
   }
 
   // Decrement stock for the store's products in this order; alert the
-  // merchant when an item runs low. Product lines match by title; a pack line
-  // (named after the pack, never matched by title) takes its contents'
-  // charged + free units, by product id.
-  if (body.store_id) {
-    await decrementStock(body.store_id, items.filter((i) => !i.pack_id), packStock).catch(() => null);
+  // merchant when an item runs low. Everything is by product id: a product
+  // line's own, plus a pack line's contents (charged + free units).
+  if (body.type === "merchant" && body.store_id) {
+    const usage = new Map(packStock);
+    for (const [id, qty] of productStockUsage(items)) usage.set(id, (usage.get(id) ?? 0) + qty);
+    await decrementStock(body.store_id, usage).catch(() => null);
   }
 
   // Tell the store's merchant a new order is waiting for them.
@@ -275,28 +314,16 @@ app.openapi(route, async (c) => {
 
 export default app;
 
-async function decrementStock(
-  storeId: string,
-  items: { name: string; quantity: number }[],
-  packUsage: Map<string, number> = new Map()
-) {
-  const names = [...new Set(items.map((i) => i.name))];
-  const ids = [...packUsage.keys()];
-  const find = (column: "title" | "id", values: string[]) =>
-    values.length
-      ? supabaseAdmin
-          .from("store_products")
-          .select("id, title, stock, store:stores(owner_id, name)")
-          .eq("store_id", storeId)
-          .in(column, values)
-          .then(({ data }) => (data ?? []) as any[])
-      : Promise.resolve([] as any[]);
-  const [byTitle, byId] = await Promise.all([find("title", names), find("id", ids)]);
-  // A product can be both ordered on its own and inside a pack: one update.
-  const products = new Map<string, any>([...byTitle, ...byId].map((p) => [p.id, p]));
-  for (const p of products.values()) {
-    const qty =
-      items.filter((i) => i.name === p.title).reduce((t, i) => t + i.quantity, 0) + (packUsage.get(p.id) ?? 0);
+async function decrementStock(storeId: string, usage: Map<string, number>) {
+  const ids = [...usage.keys()];
+  if (!ids.length) return;
+  const { data } = await supabaseAdmin
+    .from("store_products")
+    .select("id, title, stock, store:stores(owner_id, name)")
+    .eq("store_id", storeId)
+    .in("id", ids);
+  for (const p of (data ?? []) as any[]) {
+    const qty = usage.get(p.id) ?? 0;
     const stock = Math.max(0, (p.stock ?? 0) - qty);
     await supabaseAdmin.from("store_products").update({ stock }).eq("id", p.id);
     if (p.stock > LOW_STOCK && stock <= LOW_STOCK && p.store?.owner_id) {

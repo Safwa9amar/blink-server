@@ -11,6 +11,7 @@ import {
   pgTable,
   real,
   text,
+  timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./_shared";
@@ -197,6 +198,11 @@ export const storeProducts = pgTable(
     // Why staff rejected the product or its price suggestion — shown to the
     // merchant, cleared when they resubmit (20261010130645_merchant_catalog_review.sql).
     reviewNote: text("review_note"),
+    // Who last set price / blink_price and through what — every writer sets
+    // both with the price; the audit trigger copies them into
+    // store_product_price_changes (20261019130000_product_price_history.sql).
+    priceUpdatedBy: uuid("price_updated_by").references(() => users.id, { onDelete: "set null" }),
+    priceUpdateSource: text("price_update_source").$type<PriceChangeSource>(),
     ...timestamps,
   },
   (t) => [
@@ -204,6 +210,39 @@ export const storeProducts = pgTable(
     pgPolicy("store_products_select_all", {
       for: "select",
       using: sql`auth.role() = 'authenticated'`,
+    }),
+  ]
+);
+
+export type PriceChangeSource = "created" | "merchant" | "staff" | "library" | "system" | "baseline";
+
+// Append-only price log, written by a trigger on store_products (never by a
+// client): one row per insert and per price / blink_price change.
+export const storeProductPriceChanges = pgTable(
+  "store_product_price_changes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => storeProducts.id, { onDelete: "cascade" }),
+    storeId: uuid("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    // Null on the first row of a product (insert / baseline).
+    oldPrice: money("old_price"),
+    newPrice: money("new_price").notNull(),
+    oldBlinkPrice: money("old_blink_price"),
+    newBlinkPrice: money("new_blink_price").notNull(),
+    source: text("source").$type<PriceChangeSource>().notNull(),
+    changedBy: uuid("changed_by").references(() => users.id, { onDelete: "set null" }),
+    changedAt: timestamp("changed_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_price_changes_product").on(t.productId, t.changedAt.desc()),
+    index("idx_price_changes_store").on(t.storeId, t.changedAt.desc()),
+    pgPolicy("price_changes_select_owner", {
+      for: "select",
+      using: sql`exists (select 1 from stores s where s.id = store_id and s.owner_id = auth.uid())`,
     }),
   ]
 );

@@ -32,6 +32,16 @@ export const listStoreProductsSchema = z.object({
   q: z.string().optional().openapi({ description: "Search title, description and unit" }),
 });
 
+export const lookupProductsSchema = z
+  .object({
+    ids: z
+      .array(z.string().uuid())
+      .min(1)
+      .max(100)
+      .transform((ids) => [...new Set(ids)]),
+  })
+  .openapi("LookupProductsBody", { description: "store_products ids to refresh (e.g. a cart's lines)" });
+
 // ─── Response schemas ────────────────────────────────────────────────
 
 const menuCategorySchema = z
@@ -39,7 +49,11 @@ const menuCategorySchema = z
   .openapi("StoreMenuCategory");
 
 export const MarketplaceCategorySchema = rowSchema(marketplaceCategories, "MarketplaceCategory");
-export const StoreProductSchema = rowSchema(storeProducts, "StoreProduct");
+// price_updated_by / price_update_source are write-only (they feed the price
+// audit trigger): never part of a response.
+export const StoreProductSchema = rowSchema(storeProducts, "StoreProduct")
+  .omit({ price_updated_by: true, price_update_source: true })
+  .openapi("StoreProduct");
 export const StoreSchema = rowSchema(stores, "StoreRow")
   // Server-only (staff reviewer ids): stripped from every customer / merchant response.
   .omit({ document_review: true })
@@ -70,6 +84,9 @@ export const StoreResponse = z
 export const StoreProductListResponse = z
   .object({ products: z.array(StoreProductSchema), pagination: PaginationSchema })
   .openapi("StoreProductListResponse");
+export const LookupProductsResponse = z
+  .object({ products: z.array(StoreProductSchema) })
+  .openapi("LookupProductsResponse");
 
 // ─── Packs (src/lib/pack-pricing.ts CustomerPack) ───────────────────
 

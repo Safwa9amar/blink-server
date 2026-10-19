@@ -15,6 +15,7 @@ import {
 import { createNotification } from "../../lib/notifications";
 import { resolveStaffPackReview } from "../../lib/pack-review";
 import { resolveStaffProductReview, type StaffReviewState } from "../../lib/product-review";
+import { priceAttribution, withoutPriceAttribution } from "../../lib/price-history";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireStaffRole } from "../../middleware/staff-roles";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
@@ -92,11 +93,12 @@ app.openapi(productRoute, async (c) => {
   const review = resolveStaffProductReview(product as StaffReviewState, body);
   if (!review.ok) return c.json({ error: review.error, code: review.code }, review.status);
   // Nothing to change (e.g. approving an approved product): no write, no notification.
-  if (Object.keys(review.columns).length === 0) return c.json({ product: product as any }, 200);
+  if (Object.keys(review.columns).length === 0) return c.json({ product: withoutPriceAttribution(product) as any }, 200);
 
   const { data, error } = await supabaseAdmin
     .from("store_products")
-    .update(review.columns)
+    // Accepting a suggestion moves the live price: log it as staff's.
+    .update({ ...review.columns, ...priceAttribution(review.columns, "staff", staff.id) })
     .eq("id", id)
     .eq("updated_at", product.updated_at)
     .select()
@@ -134,7 +136,7 @@ app.openapi(productRoute, async (c) => {
       );
     }
   }
-  return c.json({ product: data }, 200);
+  return c.json({ product: withoutPriceAttribution(data) }, 200);
 });
 
 // ─── Staff: approve / reject / deactivate a pack ─────────────────────

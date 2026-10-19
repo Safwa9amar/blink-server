@@ -4,6 +4,7 @@ import {
   type ProductEdit,
   type ProductReviewState,
 } from "../../lib/product-review";
+import { priceAttribution, withoutPriceAttribution } from "../../lib/price-history";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
 import {
@@ -56,8 +57,10 @@ app.openapi(route, async (c) => {
   if (!review.ok) return c.json({ error: review.error, code: review.code }, 400);
 
   const patch: Record<string, unknown> = { ...fields, ...review.columns };
+  // An auto-accepted suggestion moves the live price: log it as the merchant's.
+  Object.assign(patch, priceAttribution(patch, "merchant", user.id));
   if (fields.photos) patch.image = fields.photos[0] ?? "";
-  if (Object.keys(patch).length === 0) return c.json({ product: product as any }, 200);
+  if (Object.keys(patch).length === 0) return c.json({ product: withoutPriceAttribution(product) as any }, 200);
 
   // Optimistic concurrency: only write over the row the rules were applied to.
   const { data, error } = await supabaseAdmin
@@ -75,7 +78,7 @@ app.openapi(route, async (c) => {
       409
     );
   }
-  return c.json({ product: data }, 200);
+  return c.json({ product: withoutPriceAttribution(data) }, 200);
 });
 
 export default app;

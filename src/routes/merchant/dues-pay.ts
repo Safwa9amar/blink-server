@@ -43,14 +43,15 @@ app.openapi(route, async (c) => {
     return c.json({ error: "Amount exceeds outstanding dues" }, 400);
   }
 
+  const amount = round2(body.amount);
   const feeRate = (await getPrice("dues_payment_fee_rate")).value.rate;
   const { data, error } = await supabaseAdmin
     .from("merchant_dues_payments")
     .insert({
       merchant_id: user.id,
       store_id: body.store_id ?? null,
-      amount: body.amount,
-      fees: round2(body.amount * feeRate),
+      amount,
+      fees: round2(amount * feeRate),
       method: body.method,
       status: "completed",
     })

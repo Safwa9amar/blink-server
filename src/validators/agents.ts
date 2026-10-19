@@ -187,7 +187,7 @@ export const AgentDuesResponse = z
 
 export const payAgentDuesSchema = z
   .object({
-    amount: z.number().positive(),
+    amount: z.number().positive().max(10_000_000),
     method: z.string().min(1),
     pin: z.string().regex(/^\d{4,6}$/),
   })

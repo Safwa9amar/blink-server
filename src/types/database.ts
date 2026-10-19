@@ -273,6 +273,7 @@ export interface OrderItem {
   name: string;
   quantity: number;
   unit_price: number;
+  product_id?: string;
 }
 export type OrderInsert = Omit<OrderRow, "id" | "created_at" | "updated_at">;
 export type OrderUpdate = Partial<OrderInsert>;
