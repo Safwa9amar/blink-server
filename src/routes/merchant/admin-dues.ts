@@ -8,6 +8,8 @@ import {
   duesReminderCopy,
   remindedRecently,
 } from "../../lib/merchant-dues";
+import { duesPaymentCopy } from "../../lib/blink-cash-copy";
+import { recordFinanceAudit } from "../../lib/finance-audit";
 import { createNotification } from "../../lib/notifications";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireStaffRole } from "../../middleware/staff-roles";
@@ -18,6 +20,13 @@ import {
   RemindDuesResponse,
   StoreIdParam,
 } from "../../validators/merchant";
+import {
+  DuesPaymentIdParam,
+  DuesPaymentResponse,
+  ReasonBody,
+  RecordDuesPaymentBody,
+} from "../../validators/blink-cash-admin";
+import { notifyUser } from "../blink-cash/admin-shared";
 import { duesForStores } from "./dues-shared";
 
 const app = router();
@@ -195,6 +204,170 @@ app.openapi(
     if (!notif) return c.json({ error: "Could not send the reminder" }, 500);
 
     return c.json({ ok: true as const }, 200);
+  }
+);
+
+// ─── Staff: money received / payments to confirm ─────────────────────
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+const paymentResponses = {
+  200: json(DuesPaymentResponse),
+  400: errorResponses[400],
+  401: errorResponses[401],
+  403: errorResponses[403],
+  404: errorResponses[404],
+  409: errorResponses[409],
+} as const;
+
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/admin/dues/{store_id}/payments",
+    operationId: "recordMerchantDuesPaymentAdmin",
+    tags: ["admin-merchant"],
+    security: bearer,
+    middleware: [duesStaff] as const,
+    request: { params: StoreIdParam, body: { ...json(RecordDuesPaymentBody), required: true } },
+    responses: {
+      201: json(DuesPaymentResponse),
+      400: errorResponses[400],
+      401: errorResponses[401],
+      403: errorResponses[403],
+      404: errorResponses[404],
+    },
+  }),
+  async (c) => {
+    const staff = c.get("user");
+    const { store_id } = c.req.valid("param");
+    const body = c.req.valid("json");
+
+    const { data: store } = await supabaseAdmin.from("stores").select("id, owner_id").eq("id", store_id).maybeSingle();
+    if (!store?.owner_id) return c.json({ error: "Store not found" }, 404);
+
+    const amount = round2(body.amount);
+    const { data, error } = await supabaseAdmin
+      .from("merchant_dues_payments")
+      .insert({
+        merchant_id: store.owner_id,
+        store_id: store.id,
+        amount,
+        // No processing fee on money Blink received in person / by transfer.
+        fees: 0,
+        method: body.method,
+        status: "completed",
+        reference: body.reference ?? null,
+        note: body.note ?? null,
+        recorded_by: staff.id,
+        confirmed_by: staff.id,
+        confirmed_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+    if (error || !data) throw new Error(`[admin-dues] payment insert failed: ${error?.message}`);
+
+    await recordFinanceAudit({
+      actorId: staff.id,
+      action: "merchant_dues.record",
+      targetType: "merchant_dues_payment",
+      targetId: data.id,
+      amount,
+      details: { merchant_id: store.owner_id, store_id: store.id, method: body.method, reference: body.reference ?? null, note: body.note ?? null },
+    });
+    await notifyUser({
+      userId: store.owner_id,
+      role: "merchant",
+      copy: duesPaymentCopy("recorded", amount),
+      href: BLINK_CASH_HREF,
+      payload: { kind: "dues_payment", payment_id: data.id, store_id: store.id },
+      createdBy: staff.id,
+    });
+    return c.json({ payment: data as Record<string, unknown> }, 201);
+  }
+);
+
+/** Settle a pending app payment (atomic: only a still-pending row changes), audit, notify. */
+async function settlePayment(staffId: string, id: string, confirmed: boolean, reason?: string) {
+  const now = new Date().toISOString();
+  const patch = confirmed
+    ? { status: "completed", confirmed_by: staffId, confirmed_at: now }
+    : { status: "cancelled", confirmed_by: staffId, confirmed_at: now, rejected_reason: reason };
+  const { data, error } = await supabaseAdmin
+    .from("merchant_dues_payments")
+    .update(patch)
+    .eq("id", id)
+    .eq("status", "pending")
+    .select()
+    .maybeSingle();
+  if (error) throw new Error(`[admin-dues] payment update failed: ${error.message}`);
+  if (!data) {
+    const { data: existing } = await supabaseAdmin.from("merchant_dues_payments").select("id").eq("id", id).maybeSingle();
+    return { found: false as const, exists: !!existing };
+  }
+
+  const amount = Number(data.amount);
+  await recordFinanceAudit({
+    actorId: staffId,
+    action: confirmed ? "merchant_dues.confirm" : "merchant_dues.reject",
+    targetType: "merchant_dues_payment",
+    targetId: id,
+    amount,
+    reason,
+    details: { merchant_id: data.merchant_id, store_id: data.store_id, method: data.method, reference: data.reference ?? null },
+  });
+  await notifyUser({
+    userId: data.merchant_id,
+    role: "merchant",
+    copy: duesPaymentCopy(confirmed ? "confirmed" : "rejected", amount),
+    href: BLINK_CASH_HREF,
+    payload: { kind: confirmed ? "dues_payment" : "dues_payment_rejected", payment_id: id },
+    createdBy: staffId,
+  });
+  return { found: true as const, payment: data as Record<string, unknown> };
+}
+
+const settleErrors = (r: { exists: boolean }) =>
+  r.exists
+    ? ({ status: 409, body: { error: "The payment is not pending", code: "not_pending" } } as const)
+    : ({ status: 404, body: { error: "Payment not found", code: "not_found" } } as const);
+
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/admin/dues/payments/{id}/confirm",
+    operationId: "confirmMerchantDuesPaymentAdmin",
+    tags: ["admin-merchant"],
+    security: bearer,
+    middleware: [duesStaff] as const,
+    request: { params: DuesPaymentIdParam },
+    responses: paymentResponses,
+  }),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const r = await settlePayment(c.get("user").id, id, true);
+    if (r.found) return c.json({ payment: r.payment }, 200);
+    const e = settleErrors(r);
+    return e.status === 409 ? c.json(e.body, 409) : c.json(e.body, 404);
+  }
+);
+
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/admin/dues/payments/{id}/reject",
+    operationId: "rejectMerchantDuesPaymentAdmin",
+    tags: ["admin-merchant"],
+    security: bearer,
+    middleware: [duesStaff] as const,
+    request: { params: DuesPaymentIdParam, body: { ...json(ReasonBody), required: true } },
+    responses: paymentResponses,
+  }),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const { reason } = c.req.valid("json");
+    const r = await settlePayment(c.get("user").id, id, false, reason);
+    if (r.found) return c.json({ payment: r.payment }, 200);
+    const e = settleErrors(r);
+    return e.status === 409 ? c.json(e.body, 409) : c.json(e.body, 404);
   }
 );
 

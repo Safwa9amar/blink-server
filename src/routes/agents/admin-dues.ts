@@ -13,6 +13,9 @@ import {
 } from "../../lib/agent-finance";
 import { AGENT_DUES_HREF, agentDuesReminderCopy, DUES_REMINDER_COOLDOWN_MS, remindedRecently } from "../../lib/agent-dues-reminder";
 import { createNotification } from "../../lib/notifications";
+import { duesPaymentCopy } from "../../lib/blink-cash-copy";
+import { recordFinanceAudit } from "../../lib/finance-audit";
+import { notifyUser } from "../blink-cash/admin-shared";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireStaffRole } from "../../middleware/staff-roles";
 import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
@@ -22,6 +25,14 @@ import {
   AgentIdParam,
   RemindAgentDuesResponse,
 } from "../../validators/blink-cash";
+import {
+  AgentCreditLimitBody,
+  AgentCreditLimitResponse,
+  DuesPaymentIdParam,
+  DuesPaymentResponse,
+  ReasonBody,
+  RecordDuesPaymentBody,
+} from "../../validators/blink-cash-admin";
 
 const app = router();
 
@@ -260,6 +271,228 @@ app.openapi(
     if (!notif) return c.json({ error: "Could not send the reminder" }, 500);
 
     return c.json({ ok: true as const }, 200);
+  }
+);
+
+// ─── Staff: money received / payments to confirm ─────────────────────
+const paymentResponses = {
+  200: json(DuesPaymentResponse),
+  400: errorResponses[400],
+  401: errorResponses[401],
+  403: errorResponses[403],
+  404: errorResponses[404],
+  409: errorResponses[409],
+} as const;
+
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/admin/dues/{agent_id}/payments",
+    operationId: "recordAgentDuesPaymentAdmin",
+    tags: ["admin-agents"],
+    security: bearer,
+    middleware: [duesStaff] as const,
+    request: { params: AgentIdParam, body: { ...json(RecordDuesPaymentBody), required: true } },
+    responses: {
+      201: json(DuesPaymentResponse),
+      400: errorResponses[400],
+      401: errorResponses[401],
+      403: errorResponses[403],
+      404: errorResponses[404],
+    },
+  }),
+  async (c) => {
+    const staff = c.get("user");
+    const { agent_id } = c.req.valid("param");
+    const body = c.req.valid("json");
+
+    const [{ data: profile }, { data: shop }] = await Promise.all([
+      supabaseAdmin.from("agent_profiles").select("user_id").eq("user_id", agent_id).maybeSingle(),
+      supabaseAdmin.from("agent_shops").select("id").eq("user_id", agent_id).limit(1).maybeSingle(),
+    ]);
+    if (!profile && !shop) return c.json({ error: "Agent not found" }, 404);
+
+    const amount = round2(body.amount);
+    const now = new Date().toISOString();
+    const { data, error } = await supabaseAdmin
+      .from("agent_dues_payments")
+      .insert({
+        agent_id,
+        amount,
+        // No processing fee on money Blink received in person / by transfer.
+        fees: 0,
+        method: body.method,
+        status: "completed",
+        reference: body.reference ?? null,
+        note: body.note ?? null,
+        recorded_by: staff.id,
+        confirmed_by: staff.id,
+        confirmed_at: now,
+      })
+      .select()
+      .single();
+    if (error || !data) throw new Error(`[agent-admin-dues] payment insert failed: ${error?.message}`);
+
+    await recordFinanceAudit({
+      actorId: staff.id,
+      action: "agent_dues.record",
+      targetType: "agent_dues_payment",
+      targetId: data.id,
+      amount,
+      details: { agent_id, method: body.method, reference: body.reference ?? null, note: body.note ?? null },
+    });
+    await notifyUser({
+      userId: agent_id,
+      role: "agent",
+      copy: duesPaymentCopy("recorded", amount),
+      href: AGENT_DUES_HREF,
+      payload: { kind: "dues_payment", payment_id: data.id, agent_id },
+      createdBy: staff.id,
+    });
+    return c.json({ payment: data as Record<string, unknown> }, 201);
+  }
+);
+
+/** Settle a pending app payment: only a still-pending row can change (atomic). */
+async function resolvePending(opts: {
+  id: string;
+  staffId: string;
+  outcome: "confirmed" | "rejected";
+  reason?: string;
+}) {
+  const now = new Date().toISOString();
+  const patch =
+    opts.outcome === "confirmed"
+      ? { status: "completed", confirmed_by: opts.staffId, confirmed_at: now }
+      : { status: "cancelled", confirmed_by: opts.staffId, confirmed_at: now, rejected_reason: opts.reason };
+  const { data, error } = await supabaseAdmin
+    .from("agent_dues_payments")
+    .update(patch)
+    .eq("id", opts.id)
+    .eq("status", "pending")
+    .select()
+    .maybeSingle();
+  if (error) throw new Error(`[agent-admin-dues] payment update failed: ${error.message}`);
+  if (data) return { found: true as const, payment: data as Record<string, any> };
+  const { data: existing } = await supabaseAdmin.from("agent_dues_payments").select("id").eq("id", opts.id).maybeSingle();
+  return { found: false as const, exists: !!existing };
+}
+
+/** Resolve a pending payment, audit it and tell the agent. */
+async function settlePayment(staffId: string, id: string, confirmed: boolean, reason?: string) {
+  const r = await resolvePending({ id, staffId, outcome: confirmed ? "confirmed" : "rejected", reason });
+  if (!r.found) return r;
+  const amount = Number(r.payment.amount);
+  await recordFinanceAudit({
+    actorId: staffId,
+    action: confirmed ? "agent_dues.confirm" : "agent_dues.reject",
+    targetType: "agent_dues_payment",
+    targetId: id,
+    amount,
+    reason,
+    details: { agent_id: r.payment.agent_id, method: r.payment.method, reference: r.payment.reference ?? null },
+  });
+  await notifyUser({
+    userId: r.payment.agent_id,
+    role: "agent",
+    copy: duesPaymentCopy(confirmed ? "confirmed" : "rejected", amount),
+    href: AGENT_DUES_HREF,
+    payload: { kind: confirmed ? "dues_payment" : "dues_payment_rejected", payment_id: id },
+    createdBy: staffId,
+  });
+  return r;
+}
+
+const settleErrors = (r: { exists: boolean }) =>
+  r.exists
+    ? ({ status: 409, body: { error: "The payment is not pending", code: "not_pending" } } as const)
+    : ({ status: 404, body: { error: "Payment not found", code: "not_found" } } as const);
+
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/admin/dues/payments/{id}/confirm",
+    operationId: "confirmAgentDuesPaymentAdmin",
+    tags: ["admin-agents"],
+    security: bearer,
+    middleware: [duesStaff] as const,
+    request: { params: DuesPaymentIdParam },
+    responses: paymentResponses,
+  }),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const r = await settlePayment(c.get("user").id, id, true);
+    if (r.found) return c.json({ payment: r.payment }, 200);
+    const e = settleErrors(r);
+    return e.status === 409 ? c.json(e.body, 409) : c.json(e.body, 404);
+  }
+);
+
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/admin/dues/payments/{id}/reject",
+    operationId: "rejectAgentDuesPaymentAdmin",
+    tags: ["admin-agents"],
+    security: bearer,
+    middleware: [duesStaff] as const,
+    request: { params: DuesPaymentIdParam, body: { ...json(ReasonBody), required: true } },
+    responses: paymentResponses,
+  }),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const { reason } = c.req.valid("json");
+    const r = await settlePayment(c.get("user").id, id, false, reason);
+    if (r.found) return c.json({ payment: r.payment }, 200);
+    const e = settleErrors(r);
+    return e.status === 409 ? c.json(e.body, 409) : c.json(e.body, 404);
+  }
+);
+
+// ─── Staff: per-agent cash limit (null = the settings default) ───────
+app.openapi(
+  createRoute({
+    method: "patch",
+    path: "/admin/{agent_id}/credit-limit",
+    operationId: "setAgentCreditLimitAdmin",
+    tags: ["admin-agents"],
+    security: bearer,
+    middleware: [duesStaff] as const,
+    request: { params: AgentIdParam, body: { ...json(AgentCreditLimitBody), required: true } },
+    responses: {
+      200: json(AgentCreditLimitResponse),
+      400: errorResponses[400],
+      401: errorResponses[401],
+      403: errorResponses[403],
+      404: errorResponses[404],
+    },
+  }),
+  async (c) => {
+    const staff = c.get("user");
+    const { agent_id } = c.req.valid("param");
+    const { credit_limit } = c.req.valid("json");
+
+    const { data: before, error: readError } = await supabaseAdmin
+      .from("agent_profiles")
+      .select("user_id, credit_limit")
+      .eq("user_id", agent_id)
+      .maybeSingle();
+    if (readError) throw new Error(`[agent-admin-dues] profile read failed: ${readError.message}`);
+    if (!before) return c.json({ error: "Agent not found" }, 404);
+
+    const next = credit_limit == null ? null : round2(credit_limit);
+    const { error } = await supabaseAdmin.from("agent_profiles").update({ credit_limit: next }).eq("user_id", agent_id);
+    if (error) throw new Error(`[agent-admin-dues] credit limit write failed: ${error.message}`);
+
+    await recordFinanceAudit({
+      actorId: staff.id,
+      action: "agent.credit_limit",
+      targetType: "agent",
+      targetId: agent_id,
+      amount: next,
+      details: { before: before.credit_limit == null ? null : Number(before.credit_limit), after: next },
+    });
+    return c.json({ agent_id, credit_limit: next }, 200);
   }
 );
 

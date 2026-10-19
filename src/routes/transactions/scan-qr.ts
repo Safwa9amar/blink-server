@@ -1,9 +1,10 @@
 import { AGENT_ACCESS_MESSAGE, canAgentProcess } from "../../lib/agent-access";
+import { expireIfLapsed } from "../../lib/blink-cash-requests";
 import { supabaseAdmin } from "../../lib/supabase";
 import { withRider } from "../../lib/transactions";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
-import { AgentAccessError, scanQrSchema, TransactionResponse } from "../../validators/transactions";
+import { AgentAccessError, scanQrSchema, TransactionResponse, WalletFunctionError } from "../../validators/transactions";
 import { processingShop } from "../agents/shared";
 
 const app = router();
@@ -28,6 +29,7 @@ const route = createRoute({
       "Forbidden: code shop_not_approved | not_your_transaction (no code: not an agent)"
     ),
     404: errorResponses[404],
+    410: json(WalletFunctionError, "The request expired (code expired)"),
   },
 });
 
@@ -53,10 +55,13 @@ app.openapi(route, async (c) => {
     .from("transactions")
     .select("*")
     .eq("pending_id", pendingId)
-    .eq("status", "pending")
-    .single();
+    .maybeSingle();
 
-  if (error || !data) {
+  // Lazy expiry (pg_cron is the primary): a lapsed QR is never shown as payable.
+  if (await expireIfLapsed(data)) {
+    return c.json({ error: "This request has expired", code: "expired" as const }, 410);
+  }
+  if (error || !data || data.status !== "pending") {
     return c.json({ error: "No pending transaction found for this QR" }, 404);
   }
 

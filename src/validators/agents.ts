@@ -171,6 +171,10 @@ export const AgentDuesResponse = z
     platform_fee_rate: z.number(),
     tax_rate: z.number(),
     payment_fee_rate: z.number(),
+    /** Most cash the agent may hold for Blink: their own limit, else the Blink Cash default. */
+    credit_limit: z.number(),
+    /** Room left under the limit (credit_limit - total_dues, never negative). */
+    capacity: z.number(),
     breakdown: z
       .object({
         deposits: z.number(),

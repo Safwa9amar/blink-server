@@ -43,6 +43,10 @@ export const transactionStatus = pgEnum("transaction_status", [
   "completed",
   "cancelled",
   "pending",
+  // Blink Cash (20261016120000_blink_cash_full.sql): an electronic request
+  // awaiting staff, and a completed one staff reversed.
+  "review",
+  "reversed",
 ]);
 export const transactionType = pgEnum("transaction_type", ["deposit", "withdrawal"]);
 export const depositMethod = pgEnum("deposit_method", ["electronic", "agent"]);

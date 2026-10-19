@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { date, index, pgPolicy, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { date, index, integer, pgPolicy, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { gender, staffRole, userRole } from "./enums";
 import { timestamps } from "./_shared";
 
@@ -35,6 +35,9 @@ export const users = pgTable(
     wilayaCode: text("wilaya_code"),
     bankRib: text("bank_rib"),
     pinHash: text("pin_hash"),
+    // PIN lockout (20261016120000_blink_cash_full.sql): 5 failures lock it for 15 min.
+    pinFailedAttempts: integer("pin_failed_attempts").notNull().default(0),
+    pinLockedUntil: timestamp("pin_locked_until", { withTimezone: true, mode: "string" }),
     ...timestamps,
   },
   (t) => [

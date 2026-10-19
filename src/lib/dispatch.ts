@@ -15,6 +15,7 @@ import { rideCopy, rideHref, type RideEvent } from "./ride-copy";
 import { rideOf, ridePassenger } from "./ride";
 import { heldSinceIso, requestFields } from "./rider-offer";
 import { supabaseAdmin } from "./supabase";
+import { ledgerWallet } from "./wallet";
 
 
 /**
@@ -660,12 +661,22 @@ export async function releaseRiderRequests(riderId: string, opts: { keepOrderId?
 }
 
 /**
- * Blink Cash balance derived from transactions, trips and challenge rewards
- * (no wallet table). A completed trip charges Blink's commission, minus the
+ * The rider's Blink Cash balance: the ledger (blink_wallets) once their wallet
+ * was backfilled, otherwise derived from transactions, trips and challenge
+ * rewards (riderWalletDerived).
+ */
+export async function riderWallet(riderId: string) {
+  return (await ledgerWallet(riderId)) ?? (await riderWalletDerived(riderId));
+}
+
+/**
+ * Blink Cash balance derived from transactions, trips and challenge rewards.
+ * The ledger's source before the backfill, and what reconciliation compares
+ * it against. A completed trip charges Blink's commission, minus the
  * coupon discount Blink funds on a cash job (courier / ride: the rider
  * collected fare − discount) — see tripWalletDelta in src/lib/cash-jobs.ts.
  */
-export async function riderWallet(riderId: string) {
+export async function riderWalletDerived(riderId: string) {
   const [{ data: txs }, { data: trips }, { data: rewards }, { data: discounted }] = await Promise.all([
     supabaseAdmin
       .from("transactions")

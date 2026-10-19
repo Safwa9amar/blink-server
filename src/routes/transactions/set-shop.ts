@@ -1,3 +1,4 @@
+import { notifyAgentOfRequest } from "../../lib/blink-cash-requests";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
@@ -36,6 +37,13 @@ app.openapi(route, async (c) => {
     return c.json({ error: target.error }, 400);
   }
 
+  const { data: before } = await supabaseAdmin
+    .from("transactions")
+    .select("agent_id")
+    .eq("id", txId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   const { data } = await supabaseAdmin
     .from("transactions")
     .update({ agent_id: target.agent_id, shop_id: target.shop_id })
@@ -49,6 +57,9 @@ app.openapi(route, async (c) => {
   if (!data) {
     return c.json({ error: "Transaction not found or already processed" }, 404);
   }
+
+  // Tell the agent a rider is heading to their shop (only when it changed hands).
+  if (data.agent_id && data.agent_id !== before?.agent_id) void notifyAgentOfRequest(data);
 
   return c.json({ transaction: data }, 200);
 });

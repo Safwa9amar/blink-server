@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../../lib/supabase";
+import { fundedDiscountForOrder, postTripToLedger } from "../../lib/wallet";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
 import { TripResponse, updateTripStatusSchema, TRIP_SELECT } from "../../validators/trips";
 
@@ -47,6 +48,12 @@ app.openapi(route, async (c) => {
 
   if (error) {
     return c.json({ error: error.message }, 400);
+  }
+
+  // Keep the Blink Cash ledger in step with the derived balance (idempotent per trip).
+  if (body.status === "completed") {
+    const { data: full } = await supabaseAdmin.from("trips").select("*").eq("id", tripId).maybeSingle();
+    await postTripToLedger(full, await fundedDiscountForOrder(full?.order_id));
   }
 
   return c.json({ trip: data }, 200);

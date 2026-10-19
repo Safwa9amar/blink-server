@@ -76,6 +76,13 @@ export const setupPinSchema = z
   })
   .openapi("SetupPinBody");
 
+export const changePinSchema = z
+  .object({
+    current_pin: z.string().length(4).regex(/^\d{4}$/),
+    new_pin: z.string().length(4, "PIN must be 4 digits").regex(/^\d{4}$/),
+  })
+  .openapi("ChangePinBody");
+
 export const verifyPinSchema = z
   .object({
     pin: z.string().length(4).regex(/^\d{4}$/),
@@ -129,17 +136,22 @@ export const UserSchema = rowSchema(users, "UserRow", {
   // Every role unlocked on the account; `role` is the active one.
   granted_roles: z.array(z.enum(APP_ROLES)),
 })
-  .omit({ pin_hash: true })
+  .omit({ pin_hash: true, pin_failed_attempts: true, pin_locked_until: true })
   .openapi("User");
 /** Named nullable wrapper: reusing a bare `UserSchema.nullable()` makes the
  *  OpenAPI generator mark the `User` component itself nullable app-wide. */
 const NullableUser = UserSchema.nullable().openapi("NullableUser");
 
-/** Strip secrets from a users row before returning it to a client. */
+/** Strip secrets (PIN hash + lockout state) from a users row before returning it to a client. */
 export function publicUser<T extends { pin_hash?: unknown } | null | undefined>(row: T) {
   if (!row) return row as Exclude<T, { pin_hash?: unknown }>;
-  const { pin_hash: _omit, ...rest } = row as { pin_hash?: unknown } & Record<string, unknown>;
-  return rest as Omit<NonNullable<T>, "pin_hash">;
+  const {
+    pin_hash: _omit,
+    pin_failed_attempts: _attempts,
+    pin_locked_until: _locked,
+    ...rest
+  } = row as { pin_hash?: unknown } & Record<string, unknown>;
+  return rest as Omit<NonNullable<T>, "pin_hash" | "pin_failed_attempts" | "pin_locked_until">;
 }
 const riderStoredDocSchema = z
   .object({

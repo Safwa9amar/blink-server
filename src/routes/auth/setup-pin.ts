@@ -2,7 +2,7 @@ import { supabaseAdmin } from "../../lib/supabase";
 import { auth } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import { MessageResponse, setupPinSchema } from "../../validators/auth";
-import { hashPin } from "../../lib/pin";
+import { hashPin, PIN_UNLOCKED } from "../../lib/pin";
 
 const app = router();
 
@@ -31,7 +31,7 @@ app.openapi(route, async (c) => {
 
   const { error } = await supabaseAdmin
     .from("users")
-    .update({ pin_hash: pinHash })
+    .update({ pin_hash: pinHash, ...PIN_UNLOCKED })
     .eq("id", userId);
 
   if (error) {
