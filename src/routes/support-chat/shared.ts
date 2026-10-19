@@ -4,7 +4,11 @@ import type { SupportConversationRow } from "../../db";
 
 export { CONVERSATION_COLUMNS, MESSAGE_COLUMNS };
 
-/** Get the caller's single conversation, creating one (status `bot`) if none. */
+/**
+ * Get the caller's conversation for their active role, creating one (status
+ * `bot`) if none. One thread per role: an account holding several roles keeps
+ * a separate support history (and bot knowledge base) for each.
+ */
 export async function getOrCreateConversation(
   userId: string,
   userRole: string,
@@ -14,6 +18,7 @@ export async function getOrCreateConversation(
     .from("support_conversations")
     .select(CONVERSATION_COLUMNS)
     .eq("user_id", userId)
+    .eq("user_role", userRole)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -27,6 +32,15 @@ export async function getOrCreateConversation(
     .single();
   if (insErr || !created) return { conversation: null, error: insErr?.message ?? "create failed" };
   return { conversation: created as unknown as SupportConversationRow, error: null };
+}
+
+/** The caller owns this conversation: theirs, and of the role they're in now. */
+export function ownsConversation(
+  conversation: SupportConversationRow,
+  user: { id: string; role: string }
+): boolean {
+  const c = conversation as any;
+  return c.user_id === user.id && c.user_role === user.role;
 }
 
 /** Load a conversation row by id (no scoping — caller authorizes). */

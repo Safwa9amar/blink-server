@@ -1,4 +1,5 @@
 import { riderWallet } from "../../lib/dispatch";
+import { quoteBlinkCashFee } from "../../lib/pricing/fees";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
@@ -55,8 +56,7 @@ app.openapi(route, async (c) => {
     return c.json({ error: target.error }, 400);
   }
 
-  const fees = Math.round(body.amount * 0.02);
-  const total = body.amount - fees;
+  const { fees, total, fee_rate } = await quoteBlinkCashFee({ type: "withdrawal", amount: body.amount, riderId: user.id });
 
   const { data, error } = await supabaseAdmin
     .from("transactions")
@@ -68,6 +68,7 @@ app.openapi(route, async (c) => {
       shop_id: target.shop_id,
       amount: body.amount,
       fees,
+      fee_rate,
       total,
       status: body.method === "agent" ? "pending" : "completed",
       method: body.method,

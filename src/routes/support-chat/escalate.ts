@@ -1,7 +1,7 @@
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
 import { escalateSchema, SupportOkResponse } from "../../validators/support-chat";
 import { escalateConversation } from "../../lib/support-chat";
-import { getConversation } from "./shared";
+import { getConversation, ownsConversation } from "./shared";
 
 const app = router();
 
@@ -28,7 +28,7 @@ app.openapi(route, async (c) => {
 
   const conversation = await getConversation(id);
   if (!conversation) return c.json({ error: "Conversation not found" }, 404);
-  if ((conversation as any).user_id !== user.id) return c.json({ error: "Access denied" }, 403);
+  if (!ownsConversation(conversation, user)) return c.json({ error: "Access denied" }, 403);
 
   if (conversation.status === "bot" || conversation.status === "resolved") {
     await escalateConversation(conversation, reason ?? "user requested a human");

@@ -5,7 +5,8 @@ import {
   courierItems,
   scheduleError,
 } from "../../lib/courier";
-import { COURIER_RATES, courierFare, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
+import { courierFare, courierMaxKm, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
+import { courierFareConfig } from "../../lib/pricing/fare-config";
 import { claimCoupon, linkCoupon, releaseCoupon } from "../../lib/coupons";
 import { withoutOffer } from "../../lib/rider-offer";
 import { supabaseAdmin } from "../../lib/supabase";
@@ -45,15 +46,26 @@ app.openapi(route, async (c) => {
   const scheduleProblem = scheduleError(body.scheduled_at);
   if (scheduleProblem) return c.json({ error: scheduleProblem }, 400);
 
-  const priced = body.routes.map((r) => {
-    const km = routeKm(r.pickup, r.drop_offs);
-    return { route: r, km, fare: courierFare(vehicle, km, r.drop_offs.length) };
-  });
-  const maxKm = COURIER_RATES[vehicle].maxKm;
-  const tooLong = priced.findIndex((p) => p.km > maxKm);
+  // Rates + multiplier come from the pricing config for each route's pickup wilaya.
+  const priced = await Promise.all(
+    body.routes.map(async (r) => {
+      const km = routeKm(r.pickup, r.drop_offs);
+      const cfg = await courierFareConfig(r.pickup);
+      return {
+        route: r,
+        km,
+        maxKm: courierMaxKm(vehicle, cfg.rates),
+        fare: courierFare(vehicle, km, r.drop_offs.length, cfg.rates, cfg.multiplier),
+        applied: cfg.applied,
+      };
+    })
+  );
+  const tooLong = priced.findIndex((p) => p.km > p.maxKm);
   if (tooLong !== -1) {
     return c.json(
-      { error: `Route too long: courier ${tooLong + 1} is ${priced[tooLong].km} km, a ${vehicle} takes up to ${maxKm} km` },
+      {
+        error: `Route too long: courier ${tooLong + 1} is ${priced[tooLong].km} km, a ${vehicle} takes up to ${priced[tooLong].maxKm} km`,
+      },
       400
     );
   }
@@ -100,6 +112,7 @@ app.openapi(route, async (c) => {
       scheduled_at: body.scheduled_at ?? null,
       courier,
       courier_group_id: groupId,
+      pricing_applied: p.applied,
     };
   });
 

@@ -37,6 +37,7 @@ import courierRoutes from "./routes/courier";
 import rideRoutes from "./routes/ride";
 import mcpRoutes from "./mcp/route";
 import assistantRoutes from "./routes/assistant";
+import pricingRoutes from "./routes/pricing";
 import { metricsMiddleware } from "./middleware/metrics";
 
 // __APP_VERSION__ is injected from package.json at build time by
@@ -75,6 +76,7 @@ app.route("/transactions", transactionRoutes);
 app.route("/orders", orderRoutes);
 app.route("/courier", courierRoutes);
 app.route("/ride", rideRoutes);
+app.route("/pricing", pricingRoutes);
 app.route("/notifications", notificationRoutes);
 app.route("/addresses", addressRoutes);
 app.route("/marketplace", marketplaceRoutes);

@@ -94,6 +94,7 @@ app.openapi(route, async (c) => {
         email: body.email ?? null,
         role: body.role,
         granted_roles: initialGrantedRoles(body.role),
+        signup_role: body.role,
       })
       .select("*")
       .single()

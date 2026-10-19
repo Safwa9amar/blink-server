@@ -22,8 +22,13 @@ app.openapi(route, async (c) => {
   const { page, limit, type, status } = query;
   const offset = (page - 1) * limit;
 
-  // Agents see transactions they processed; riders see their own
-  const column = user.role === "agent" ? "agent_id" : "user_id";
+  // Agents see transactions they processed; riders see their own. No other role
+  // has any: an account holding rider + merchant must not list its rider rows
+  // while it's a merchant.
+  const column = user.role === "agent" ? "agent_id" : user.role === "rider" ? "user_id" : null;
+  if (!column) {
+    return c.json({ transactions: [], pagination: { page, limit, total: 0 } }, 200);
+  }
 
   let q = supabaseAdmin
     .from("transactions")

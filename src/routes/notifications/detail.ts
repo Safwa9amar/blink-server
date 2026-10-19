@@ -8,7 +8,7 @@ const app = router();
 
 // ─── Get single notification ─────────────────────────────────────────
 // Keyed by the shared notification id; scoped to the caller via their recipient
-// row (404 if they never received it). Returns content + their is_unread/archived.
+// row in their active role's feed (404 if that role never received it). Returns content + their is_unread/archived.
 const route = createRoute({
   method: "get",
   path: "/{id}",
@@ -28,6 +28,7 @@ app.openapi(route, async (c) => {
     .select("is_unread, archived_at, notifications(*)")
     .eq("notification_id", notifId)
     .eq("user_id", user.id)
+    .eq("role", user.role)
     .single();
 
   if (error || !data || !(data as any).notifications) {

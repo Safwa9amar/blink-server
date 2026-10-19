@@ -445,9 +445,10 @@ export async function generateImprovementNotifications(merchantId: string, store
   const week = weekStart().toISOString().slice(0, 10);
   const { data: sent } = await supabaseAdmin
     .from("notifications")
-    .select("payload, notification_recipients!inner(user_id)")
+    .select("payload, notification_recipients!inner(user_id, role)")
     .eq("type", "improvement")
     .eq("notification_recipients.user_id", merchantId)
+    .eq("notification_recipients.role", "merchant")
     .gte("created_at", new Date(Date.now() - 8 * DAY).toISOString());
   const seen = new Set(
     (sent ?? []).map((n: any) => `${n.payload?.store_id}:${n.payload?.action_id}:${n.payload?.week}`)
@@ -458,6 +459,7 @@ export async function generateImprovementNotifications(merchantId: string, store
     if (seen.has(key)) continue;
     await createNotification({
       userId: merchantId,
+      role: "merchant",
       type: "improvement",
       title: a.title,
       description: `${store.name}: ${a.detail}`,

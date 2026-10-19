@@ -38,6 +38,7 @@ export * from "./rider-perks";
 export * from "./staff-access-events";
 export * from "./support-desk";
 export * from "./referrals";
+export * from "./pricing";
 export * from "./staff-notifications";
 export * from "./staff-mcp-tokens";
 export * from "./staff-mcp-audit";

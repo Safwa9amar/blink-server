@@ -4,11 +4,12 @@
 // (super_admin / finance_admin). The math is lib/agent-finance.ts, batched.
 import {
   agentDuesFromRows,
+  fallbackRatesFor,
   fetchAllRows,
   listAgentIds,
   loadAgentLedgers,
   round2,
-  splitFee,
+  splitTxFee,
 } from "../../lib/agent-finance";
 import { AGENT_DUES_HREF, agentDuesReminderCopy, DUES_REMINDER_COOLDOWN_MS, remindedRecently } from "../../lib/agent-dues-reminder";
 import { createNotification } from "../../lib/notifications";
@@ -98,12 +99,18 @@ app.openapi(
 
     const shopsByAgent = new Map<string, typeof shops>();
     for (const s of shops) shopsByAgent.set(s.user_id, [...(shopsByAgent.get(s.user_id) ?? []), s]);
+    const primaryShop = (id: string) => {
+      const own = shopsByAgent.get(id) ?? [];
+      return own.find((s) => s.is_primary) ?? [...own].sort((a, b) => a.created_at.localeCompare(b.created_at))[0];
+    };
+    // Current rates, only for agents with operations older than the rate snapshot.
+    const fallback = await fallbackRatesFor(ledgers.txs, (id) => primaryShop(id) ?? null);
 
     const since30 = Date.now() - 30 * DAY_MS;
     const agents = agentIds.map((id) => {
       const txs = ledgers.txs.get(id) ?? [];
       const pays = ledgers.payments.get(id) ?? [];
-      const dues = agentDuesFromRows(txs, ledgers.rewards.get(id) ?? [], pays);
+      const dues = agentDuesFromRows(txs, ledgers.rewards.get(id) ?? [], pays, fallback.get(id));
 
       const dep = { count: 0, amount: 0 };
       const wd = { count: 0, amount: 0 };
@@ -116,7 +123,7 @@ app.openapi(
         const bucket = t.type === "deposit" ? dep : wd;
         bucket.count++;
         bucket.amount += Number(t.amount);
-        net += splitFee(Number(t.fees ?? 0)).net;
+        net += splitTxFee(t, fallback.get(id)).net;
         if (Date.parse(t.created_at) >= since30) ops30++;
         lastOp = later(lastOp, t.created_at);
         if (t.rating != null) {
@@ -128,9 +135,7 @@ app.openapi(
       for (const p of pays) lastPay = later(lastPay, p.created_at);
 
       const own = shopsByAgent.get(id) ?? [];
-      const primary =
-        own.find((s) => s.is_primary) ??
-        [...own].sort((a, b) => a.created_at.localeCompare(b.created_at))[0];
+      const primary = primaryShop(id);
       const user = users.get(id);
       return {
         agent_id: id,
@@ -227,10 +232,12 @@ app.openapi(
     }
 
     const l = await loadAgentLedgers([agent_id]);
+    const fallback = await fallbackRatesFor(l.txs);
     const { total_dues } = agentDuesFromRows(
       l.txs.get(agent_id) ?? [],
       l.rewards.get(agent_id) ?? [],
-      l.payments.get(agent_id) ?? []
+      l.payments.get(agent_id) ?? [],
+      fallback.get(agent_id)
     );
     if (!(total_dues > 0)) {
       return c.json({ error: "No outstanding dues for this agent", code: "nothing_outstanding" as const }, 409);

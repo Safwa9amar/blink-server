@@ -118,6 +118,7 @@ app.openapi(route, async (c) => {
     const count = checkout.members.length;
     await createNotification({
       userId: target,
+      role: "rider",
       type: "order",
       title: "Delivery request",
       description: `${order.store_name} asks you to deliver order ${ref} from ${count} stores. Open Blink to accept.`,
@@ -270,6 +271,7 @@ app.openapi(route, async (c) => {
   const storeName = order.store_name;
   await createNotification({
     userId: target,
+    role: "rider",
     type: "order",
     title: "Delivery request",
     description: `${storeName} asks you to deliver order ${ref}. Open Blink to accept.`,

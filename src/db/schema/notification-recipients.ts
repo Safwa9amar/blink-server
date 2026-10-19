@@ -8,6 +8,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import { userRole } from "./enums";
 import { notifications } from "./notifications";
 import { users } from "./users";
 
@@ -16,6 +17,11 @@ import { users } from "./users";
 // their own read/archive state — so a broadcast is 1 content row + N small rows
 // here, and one user's actions never touch another's. Deleting a user cascades
 // only their recipient rows; the notification content survives for everyone else.
+//
+// `role` is the feed the row belongs to: one account can hold several roles,
+// and each role sees only its own notifications (the API filters on the
+// caller's active role). A broadcast to several roles the account holds is one
+// row per role, each with its own read/archive state.
 //
 // "Delete" in the app is an ARCHIVE: it sets `archived_at` (never a row delete),
 // so the notification is preserved and can be viewed in the archive / restored.
@@ -30,6 +36,7 @@ export const notificationRecipients = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    role: userRole("role").notNull(),
     isUnread: boolean("is_unread").notNull().default(true),
     // Per-user archive marker. NULL = in the active feed; set = archived (the
     // app's "delete"). Reads filter on it; restore clears it.
@@ -39,12 +46,12 @@ export const notificationRecipients = pgTable(
       .defaultNow(),
   },
   (t) => [
-    primaryKey({ columns: [t.notificationId, t.userId] }),
-    // Feed reads are per-user, split by active vs archived.
-    index("idx_notification_recipients_user").on(t.userId, t.archivedAt),
-    // Unread-badge count: per-user, only the unread rows.
+    primaryKey({ columns: [t.notificationId, t.userId, t.role] }),
+    // Feed reads are per user + role, split by active vs archived.
+    index("idx_notification_recipients_user").on(t.userId, t.role, t.archivedAt),
+    // Unread-badge count: per user + role, only the unread rows.
     index("idx_notification_recipients_unread")
-      .on(t.userId)
+      .on(t.userId, t.role)
       .where(sql`is_unread = true`),
     pgPolicy("notification_recipients_select_own", { for: "select", using: sql`auth.uid() = user_id` }),
     pgPolicy("notification_recipients_update_own", { for: "update", using: sql`auth.uid() = user_id` }),

@@ -2,11 +2,20 @@
 // routes (riders/documents, riders/required-actions, riders/admin-review) only
 // load a row, call these and write the result with the service role.
 //
-// rider_profiles.documents = { license_front, license_back, id_front, id_back },
+// rider_profiles.documents = { license_front, license_back, id_front, id_back,
+// gray_card_front, gray_card_back, insurance },
 // each { path, status: pending|verified|rejected, note, uploaded_at }; `path`
 // is an object in the private `rider-documents` bucket ("<userId>/<key>/<file>").
 
-export const RIDER_DOCUMENT_KEYS = ["license_front", "license_back", "id_front", "id_back"] as const;
+export const RIDER_DOCUMENT_KEYS = [
+  "license_front",
+  "license_back",
+  "id_front",
+  "id_back",
+  "gray_card_front",
+  "gray_card_back",
+  "insurance",
+] as const;
 export type RiderDocumentKey = (typeof RIDER_DOCUMENT_KEYS)[number];
 export type RiderDocumentStatus = "pending" | "verified" | "rejected";
 
@@ -31,8 +40,9 @@ export interface RiderVerificationState {
 }
 
 /**
- * Documents a rider must provide. A bicycle needs only the national ID; the
- * driving licence is for motorcycles (and an unknown vehicle keeps all four).
+ * Documents a rider must provide. A bicycle needs only the national ID; a
+ * motorcycle (or an unknown vehicle) needs the ID, the driving licence and the
+ * vehicle papers (gray card front/back + insurance certificate).
  */
 export function requiredDocumentKeys(vehicleType: string | null | undefined): RiderDocumentKey[] {
   return vehicleType === "bicycle" ? ["id_front", "id_back"] : [...RIDER_DOCUMENT_KEYS];
@@ -123,6 +133,42 @@ export function applyReview(
   };
 }
 
+/**
+ * Staff asks for a fresh upload of some documents (POST
+ * /riders/admin/riders/{id}/verification-request). Uploaded ones become
+ * rejected with the staff note; keys with no upload stay absent (`missing`).
+ */
+export function applyVerificationRequest(
+  docs: RiderStoredDocuments,
+  keys: RiderDocumentKey[],
+  note: string,
+  reviewerId: string,
+  nowIso: string
+): { documents: RiderStoredDocuments; invalidated: RiderDocumentKey[]; missing: RiderDocumentKey[] } {
+  const documents: RiderStoredDocuments = { ...docs };
+  const invalidated: RiderDocumentKey[] = [];
+  const missing: RiderDocumentKey[] = [];
+  for (const key of keys) {
+    const current = docs[key];
+    if (!current?.path) {
+      missing.push(key);
+      continue;
+    }
+    documents[key] = { ...current, status: "rejected", note, reviewed_by: reviewerId, reviewed_at: nowIso };
+    invalidated.push(key);
+  }
+  return { documents, invalidated, missing };
+}
+
+/** Status after a verification request: no approval grace, never stays approved. */
+export function statusAfterVerificationRequest(
+  docs: RiderStoredDocuments,
+  vehicleType?: string | null
+): RiderVerificationStatus {
+  const status = deriveVerificationStatus(docs, "not_submitted", vehicleType);
+  return status === "approved" ? "not_submitted" : status;
+}
+
 export type ReviewNoticeKind = "approved" | "document_rejected" | "document_verified";
 
 /** Which notification a staff decision sends the rider. */
@@ -149,7 +195,12 @@ export function isOwnDocumentPath(userId: string, key: RiderDocumentKey, path: s
 
 // ─── Activation checklist (GET /riders/required-actions) ─────────────
 
-export type RiderActionKey = "vehicle_type" | "driving_license" | "national_id" | "verification";
+export type RiderActionKey =
+  | "vehicle_type"
+  | "driving_license"
+  | "national_id"
+  | "vehicle_documents"
+  | "verification";
 export type RiderActionStatus = "done" | "missing_info" | "in_progress" | "rejected";
 export interface RiderRequiredAction {
   key: RiderActionKey;
@@ -177,6 +228,20 @@ function documentPair(
   else if (missing.length) status = "missing_info";
   else if ([front, back].some((d) => d?.status === "pending")) status = "in_progress";
   return { key, status, missing, reason: rejected?.note ?? null };
+}
+
+const VEHICLE_DOCUMENT_KEYS = ["gray_card_front", "gray_card_back", "insurance"] as const;
+
+/** Gray card + insurance as one action; `missing` lists the document keys. */
+function vehicleDocuments(docs: RiderStoredDocuments, approved: boolean): RiderRequiredAction {
+  const stored = VEHICLE_DOCUMENT_KEYS.map((k) => docs[k]);
+  const missing = approved ? [] : VEHICLE_DOCUMENT_KEYS.filter((k) => !docs[k]);
+  const rejected = stored.find((d) => d?.status === "rejected");
+  let status: RiderActionStatus = "done";
+  if (rejected) status = "rejected";
+  else if (missing.length) status = "missing_info";
+  else if (stored.some((d) => d?.status === "pending")) status = "in_progress";
+  return { key: "vehicle_documents", status, missing: [...missing], reason: rejected?.note ?? null };
 }
 
 export function riderRequiredActions(input: {
@@ -220,6 +285,7 @@ export function riderRequiredActions(input: {
       ? [documentPair("driving_license", docs.license_front, docs.license_back, approved)]
       : []),
     documentPair("national_id", docs.id_front, docs.id_back, approved),
+    ...(required.includes("insurance") ? [vehicleDocuments(docs, approved)] : []),
     verification,
   ];
   return {

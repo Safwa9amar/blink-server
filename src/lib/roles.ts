@@ -119,3 +119,46 @@ export function signUpConflict(
 export function roleConflictMessage(existingRole: string, chosen: string): string {
   return `This account already exists. Sign in, switch to Customer if needed, then add ${chosen} from Profile → Become a Partner.`;
 }
+
+/**
+ * The roles the app lets an account use. A customer sign-up is multi-role:
+ * every granted role. A rider / merchant / agent sign-up is that partner only:
+ * the `customer` every account is granted stays hidden.
+ */
+export function usableRoles(
+  signupRole: string | null | undefined,
+  granted: readonly string[] | null | undefined,
+  active?: string | null,
+): AppRole[] {
+  const held = normalizeGranted(granted, active);
+  if (!signupRole || signupRole === "customer") return held;
+  const partners = held.filter((role) => role !== "customer");
+  return partners.length ? partners : held;
+}
+
+export type DeletionScope = "account" | "role";
+
+/**
+ * What "delete" in `role` removes: only that role while the account keeps
+ * another usable role, else the whole account. Customer is the account itself
+ * (every account holds it), so deleting there always deletes the account.
+ */
+export function deletionScope(
+  role: string,
+  signupRole: string | null | undefined,
+  granted: readonly string[] | null | undefined,
+): DeletionScope {
+  if (role === "customer") return "account";
+  const rest = usableRoles(signupRole, granted, role).filter((r) => r !== role);
+  return rest.length ? "role" : "account";
+}
+
+/** The roles a deletion must clear (blockers + leaving side effects): the one role, or every role held. */
+export function rolesToClear(
+  scope: DeletionScope,
+  role: string,
+  granted: readonly string[] | null | undefined,
+): AppRole[] {
+  if (scope === "role") return isAppRole(role) ? [role] : [];
+  return normalizeGranted(granted, role);
+}

@@ -85,6 +85,7 @@ app.openapi(
     if (store?.owner_id) {
       await createNotification({
         userId: store.owner_id,
+        role: "merchant",
         type: "alert",
         title: accept ? "Rider joined your team" : "Invitation declined",
         description: accept

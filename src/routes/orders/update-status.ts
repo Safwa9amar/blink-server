@@ -135,6 +135,7 @@ app.openapi(route, async (c) => {
       const ref = orderRef(leadOrder(members).id);
       await createNotification({
         userId: riderId,
+        role: "rider",
         type: "order",
         title: "Order canceled",
         description: `The customer canceled order ${ref}. You're free for a new job.`,
@@ -216,6 +217,7 @@ app.openapi(route, async (c) => {
       const copy = riderCanceledCopy(order.type, orderRef(orderId));
       await createNotification({
         userId: riderId,
+        role: "rider",
         type: "order",
         ...copy.en,
         contentFr: copy.fr,

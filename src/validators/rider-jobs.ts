@@ -71,6 +71,8 @@ export const RiderJobSchema = z
     /** Order total the customer pays (cash on delivery). */
     order_total: z.number(),
     commission_rate: z.number(),
+    /** DZD charged if the rider drops this job after accepting it. */
+    cancel_penalty: z.number(),
     /** Pickup → destination. */
     distance_km: z.number(),
     duration_minutes: z.number().int(),

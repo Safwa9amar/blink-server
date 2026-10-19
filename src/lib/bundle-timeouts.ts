@@ -44,6 +44,7 @@ export async function processBundleTimeouts(now = Date.now()) {
     const copy = shopperHandoverCopy(store, ref);
     await createNotification({
       userId: o.customer_id,
+      role: "customer",
       type: "order",
       ...copy.en,
       contentFr: copy.fr,
@@ -54,6 +55,7 @@ export async function processBundleTimeouts(now = Date.now()) {
     if (ownerId) {
       await createNotification({
         userId: ownerId,
+        role: "merchant",
         type: "order",
         title: "Order handed to a Blink shopper",
         description: `You didn't answer order ${ref} within 10 minutes — a Blink rider will buy the items at ${store}.`,

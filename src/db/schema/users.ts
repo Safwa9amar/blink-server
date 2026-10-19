@@ -19,6 +19,10 @@ export const users = pgTable(
     // above is the ACTIVE one. Always ⊇ {role, customer} — the
     // trg_users_normalize_granted_roles trigger (20261010232026_users_granted_roles.sql).
     grantedRoles: userRole("granted_roles").array().notNull().default(sql`'{customer}'::user_role[]`),
+    // The role chosen at sign-up. Only a customer sign-up is multi-role in the
+    // app; a rider / merchant / agent sign-up is that partner only (its
+    // granted `customer` stays hidden). 20261011134918_signup_role_and_role_deletion.sql.
+    signupRole: userRole("signup_role").notNull().default("customer"),
     // Console / ERP authority, NULL for app users. Separate axis from `role`.
     staffRole: staffRole("staff_role"),
     gender: gender("gender"),

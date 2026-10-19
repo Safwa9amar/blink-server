@@ -7,7 +7,10 @@ import { createNotification } from "../../lib/notifications";
 import { releaseBookedJobs } from "../../lib/rider-release";
 import {
   applyReview,
+  applyVerificationRequest,
+  requiredDocumentKeys,
   reviewNoticeKind,
+  statusAfterVerificationRequest,
   type ReviewNoticeKind,
   type RiderDocumentKey,
 } from "../../lib/rider-verification";
@@ -22,6 +25,8 @@ import {
   router,
 } from "../../openapi";
 import {
+  RequestRiderVerificationResponse,
+  requestRiderVerificationSchema,
   reviewRiderDocumentSchema,
   RiderDocumentsConflict,
   RiderDocumentsResponse,
@@ -62,6 +67,24 @@ const DOC_LABELS: Record<
     en: "national ID (back)",
     fr: "carte d'identité (verso)",
     ar: "بطاقة التعريف الوطنية (الوجه الخلفي)",
+    frFem: true,
+  },
+  gray_card_front: {
+    en: "gray card (front)",
+    fr: "carte grise (recto)",
+    ar: "البطاقة الرمادية (الوجه)",
+    frFem: true,
+  },
+  gray_card_back: {
+    en: "gray card (back)",
+    fr: "carte grise (verso)",
+    ar: "البطاقة الرمادية (الظهر)",
+    frFem: true,
+  },
+  insurance: {
+    en: "insurance certificate",
+    fr: "attestation d'assurance",
+    ar: "شهادة التأمين",
     frFem: true,
   },
 };
@@ -253,6 +276,164 @@ app.openapi(
           href: "/(rider)/profile/required-actions",
         }).catch(() => {});
         return c.json(await documentsView(next, current.vehicle_type), 200);
+      }
+      return c.json(
+        {
+          error: "Documents changed concurrently, please retry",
+          code: "documents_conflict" as const,
+        },
+        409,
+      );
+    } catch (e) {
+      if (e instanceof RiderDataUnavailableError) return unavailable();
+      throw e;
+    }
+  },
+);
+
+function verificationRequestCopy(
+  docs: RiderDocumentKey[],
+  note: string,
+  wasApproved: boolean,
+) {
+  const join = (items: string[], and: string) =>
+    items.length <= 1
+      ? items.join("")
+      : `${items.slice(0, -1).join(", ")} ${and} ${items[items.length - 1]}`;
+  const en = join(docs.map((k) => DOC_LABELS[k].en), "and");
+  const fr = join(docs.map((k) => DOC_LABELS[k].fr), "et");
+  const ar = join(docs.map((k) => DOC_LABELS[k].ar), "و");
+  const offline = {
+    en: " You're now offline and can't take jobs until you re-upload and it's approved.",
+    fr: " Vous êtes maintenant hors ligne et ne pouvez plus accepter de courses tant que vous n'avez pas téléversé à nouveau et que la vérification n'est pas approuvée.",
+    ar: " أصبحت الآن غير متصل ولا يمكنك قبول الطلبات حتى تعيد الرفع وتتم الموافقة.",
+  };
+  return {
+    title: "New verification required",
+    description: `Please re-upload: ${en}. ${note}${wasApproved ? offline.en : ""}`,
+    contentFr: {
+      title: "Nouvelle vérification requise",
+      description: `Veuillez téléverser à nouveau : ${fr}. ${note}${wasApproved ? offline.fr : ""}`,
+    },
+    contentAr: {
+      title: "مطلوب تحقق جديد",
+      description: `يرجى إعادة رفع: ${ar}. ${note}${wasApproved ? offline.ar : ""}`,
+    },
+  };
+}
+
+// ─── Staff: ask the rider for a new verification of some documents ───
+app.openapi(
+  createRoute({
+    method: "post",
+    path: "/admin/riders/{id}/verification-request",
+    operationId: "requestRiderVerification",
+    tags: ["admin-riders"],
+    security: bearer,
+    middleware: [requireStaff()] as const,
+    request: {
+      params: z.object({
+        id: z
+          .string()
+          .uuid()
+          .openapi({ param: { name: "id", in: "path" } }),
+      }),
+      body: { ...json(requestRiderVerificationSchema), required: true },
+    },
+    responses: {
+      200: json(RequestRiderVerificationResponse),
+      400: json(
+        z.union([
+          ErrorSchema,
+          z.object({ error: z.string(), code: z.literal("not_required") }),
+        ]),
+        "Invalid request or document not required",
+      ),
+      401: errorResponses[401],
+      403: errorResponses[403],
+      404: errorResponses[404],
+      409: json(RiderDocumentsConflict, "Concurrent change"),
+      503: json(ErrorSchema, "Service unavailable"),
+    },
+  }),
+  async (c) => {
+    const { id: userId } = c.req.valid("param");
+    const { documents: keys, note } = c.req.valid("json");
+    const reviewerId = c.get("user").id;
+    const unavailable = () =>
+      c.json({ error: "Service unavailable, please retry" }, 503);
+    try {
+      let current = await loadRiderVerification(userId);
+      if (!current) return c.json({ error: "Rider not found" }, 404);
+
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const required = requiredDocumentKeys(current.vehicle_type);
+        if (keys.some((k) => !required.includes(k))) {
+          return c.json(
+            {
+              error: "A requested document is not required for this vehicle",
+              code: "not_required" as const,
+            },
+            400,
+          );
+        }
+        const { documents, invalidated, missing } = applyVerificationRequest(
+          current.documents,
+          keys,
+          note,
+          reviewerId,
+          new Date().toISOString(),
+        );
+        const status = statusAfterVerificationRequest(
+          documents,
+          current.vehicle_type,
+        );
+        const write = await writeRiderDocumentsCAS(
+          userId,
+          current.documents,
+          documents,
+          status,
+        );
+        if (write === "error") return unavailable();
+        if (write === "conflict") {
+          if (attempt === 0) {
+            const reloaded = await loadRiderVerification(userId);
+            if (!reloaded) return c.json({ error: "Rider not found" }, 404);
+            current = reloaded;
+          }
+          continue;
+        }
+
+        const wasApproved = current.verification_status === "approved";
+        if (wasApproved && status !== "approved") {
+          const { error: offlineErr } = await supabaseAdmin
+            .from("rider_profiles")
+            .update({ is_available: false })
+            .eq("user_id", userId);
+          if (offlineErr)
+            console.error(
+              `[riders] could not set rider ${userId} offline after verification request:`,
+              offlineErr.message,
+            );
+          await releaseRiderRequests(userId).catch(() => {});
+          await releaseBookedJobs(userId);
+        }
+        const copy = verificationRequestCopy(
+          keys,
+          note,
+          wasApproved,
+        );
+        await createNotification({
+          userId,
+          role: "rider",
+          type: "alert",
+          ...copy,
+          href: "/(rider)/profile/required-actions",
+        }).catch(() => {});
+        return c.json(
+          { verification_status: status, invalidated, missing },
+          200,
+        );
       }
       return c.json(
         {

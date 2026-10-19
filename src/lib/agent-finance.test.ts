@@ -28,19 +28,25 @@ const TABLES: Record<string, Row[]> = {
   ],
 };
 
-/** Minimal PostgREST stand-in: eq / in filters, range, awaitable. */
+/**
+ * Minimal PostgREST stand-in: eq / in filters, range, maybeSingle / single,
+ * awaitable. Any other builder method (order, limit, gte, ...) is a no-op, so
+ * the pricing + shop lookups behind the agent's current rates read empty tables
+ * and fall back to the catalog defaults on both paths.
+ */
 function fakeFrom(table: string) {
   let rows = [...(TABLES[table] ?? [])];
   let range: [number, number] | null = null;
-  const q: any = {
-    select: () => q,
-    order: () => q,
+  const result = () => ({ data: range ? rows.slice(range[0], range[1] + 1) : rows, error: null });
+  const known: Record<string, any> = {
     eq: (k: string, v: any) => ((rows = rows.filter((r) => r[k] === v)), q),
     in: (k: string, vs: any[]) => ((rows = rows.filter((r) => vs.includes(r[k]))), q),
     range: (a: number, b: number) => ((range = [a, b]), q),
-    then: (resolve: any, reject: any) =>
-      Promise.resolve({ data: range ? rows.slice(range[0], range[1] + 1) : rows, error: null }).then(resolve, reject),
+    maybeSingle: () => Promise.resolve({ data: rows[0] ?? null, error: null }),
+    single: () => Promise.resolve({ data: rows[0] ?? null, error: null }),
+    then: (resolve: any, reject: any) => Promise.resolve(result()).then(resolve, reject),
   };
+  const q: any = new Proxy(known, { get: (t, k: string) => (k in t ? t[k] : () => q) });
   return q;
 }
 
@@ -56,5 +62,15 @@ describe("agent dues: single vs batched", () => {
     // a2 only paid out cash → Blink owes the agent (credit)
     assert.ok(batch.get("a2")!.credit > 0);
     assert.deepEqual(batch.get("a3"), agentDuesFromRows([], [], []));
+  });
+});
+
+describe("splitTxFee: the operation's own rates win", () => {
+  it("uses the snapshot, falls back for older rows, refuses to guess", async () => {
+    const { splitTxFee } = await import("./agent-finance");
+    const fallback = { platform: 0.5, tax: 0 };
+    assert.deepEqual(splitTxFee({ fees: 100, platform_share_rate: 0.25, tax_rate: 0 }, fallback).platform, 25);
+    assert.deepEqual(splitTxFee({ fees: 100 }, fallback).platform, 50);
+    assert.throws(() => splitTxFee({ fees: 100 }), /rate snapshot/);
   });
 });

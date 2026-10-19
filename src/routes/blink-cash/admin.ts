@@ -2,7 +2,7 @@
 // agent cash owed). Tagged admin-* so orval skips it; the dashboard calls it
 // (super_admin / finance_admin). Money rules are the platform's own:
 // riderWallet (lib/dispatch.ts) and splitFee / agent dues (lib/agent-finance.ts).
-import { computeAgentDuesBatch, fetchAllRows, listAgentIds, round2, splitFee } from "../../lib/agent-finance";
+import { computeAgentDuesBatch, fallbackRatesFor, fetchAllRows, listAgentIds, round2, splitTxFee } from "../../lib/agent-finance";
 import { bucketDaily, windowStartIso } from "../../lib/blink-cash-summary";
 import { riderWallet } from "../../lib/dispatch";
 import { supabaseAdmin } from "../../lib/supabase";
@@ -15,7 +15,16 @@ const app = router();
 const staff = requireStaffRole("finance_admin");
 const WALLET_CONCURRENCY = 8;
 
-type TxRow = { type: string; status: string; amount: number | string; fees: number | string | null; agent_id: string | null; created_at: string };
+type TxRow = {
+  type: string;
+  status: string;
+  amount: number | string;
+  fees: number | string | null;
+  agent_id: string | null;
+  created_at: string;
+  platform_share_rate?: number | string | null;
+  tax_rate?: number | string | null;
+};
 
 /** Run `fn` over `items`, at most `limit` at a time. */
 async function mapLimit<T, R>(items: readonly T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
@@ -59,7 +68,7 @@ app.openapi(
       fetchAllRows<TxRow>((from, to) =>
         supabaseAdmin
           .from("transactions")
-          .select("id, type, status, amount, fees, agent_id, created_at")
+          .select("id, type, status, amount, fees, platform_share_rate, tax_rate, agent_id, created_at")
           .eq("status", "completed")
           .gte("created_at", since)
           .order("id")
@@ -94,11 +103,16 @@ app.openapi(
       return { count: rows.length, amount: round2(rows.reduce((a, t) => a + Number(t.amount), 0)) };
     };
 
+    // Each fee splits at the rates it was settled under; older rows use the agent's current rates.
+    const byAgent = new Map<string, TxRow[]>();
+    for (const t of completed) if (t.agent_id) byAgent.set(t.agent_id, [...(byAgent.get(t.agent_id) ?? []), t]);
+    const fallback = await fallbackRatesFor(byAgent);
+
     const fees = { total: 0, platform: 0, tax: 0, agents_net: 0 };
     for (const t of completed) {
       if (!t.agent_id) continue;
       const f = Number(t.fees ?? 0);
-      const s = splitFee(f);
+      const s = splitTxFee(t, fallback.get(t.agent_id));
       fees.total += f;
       fees.platform += s.platform;
       fees.tax += s.tax;

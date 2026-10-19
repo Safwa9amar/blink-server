@@ -3,38 +3,25 @@
 // shows the quote from POST /courier/quote and POST /courier/requests prices
 // the same route again, so a client can never pick its own delivery fee.
 
+import { legFare } from "./pricing/fare";
+import type { PricingValue } from "./pricing/catalog";
+
 export type CourierVehicle = "bicycle" | "motorcycle";
 
 export const COURIER_VEHICLES: CourierVehicle[] = ["bicycle", "motorcycle"];
 
-export interface CourierRate {
-  /** Flat fare covering the first `includedKm`. */
-  base: number;
-  includedKm: number;
-  /** Per road km beyond `includedKm`. */
-  perKm: number;
-  /** Average urban speed, for ETAs. */
-  speedKmh: number;
-  /** Longest route (road km) this vehicle takes. */
-  maxKm: number;
-}
+/** Configured rates (`courier_fare` in the pricing config): per-vehicle fare leg + the extra-stop fee. */
+export type CourierFareConfig = PricingValue<"courier_fare">;
 
-/** DZD. The bases are the fares the app used to show for a short trip. */
-export const COURIER_RATES: Record<CourierVehicle, CourierRate> = {
-  bicycle: { base: 140, includedKm: 2, perKm: 35, speedKmh: 14, maxKm: 10 },
-  motorcycle: { base: 250, includedKm: 3, perKm: 40, speedKmh: 28, maxKm: 40 },
-};
+/** Average urban speed per vehicle, for ETAs (not a price). */
+const SPEED_KMH: Record<CourierVehicle, number> = { bicycle: 14, motorcycle: 28 };
 
-/** Each drop-off after the first. */
-export const EXTRA_STOP_FEE = 60;
 /** Max drop-offs on one courier request. */
 export const MAX_DROP_OFFS = 5;
 /** Great-circle → road distance. */
 export const ROAD_FACTOR = 1.3;
 /** Rider's time at each stop (handover, parking). */
 const STOP_MINUTES = 3;
-/** Fares are rounded up to this. */
-const FARE_STEP = 10;
 
 export interface LatLng {
   lat: number;
@@ -75,27 +62,26 @@ export interface CourierQuoteOption {
   available: boolean;
 }
 
-/** Fare for one vehicle on a route of `km` with `stops` drop-offs. */
-export function courierFare(vehicle: CourierVehicle, km: number, stops: number) {
-  const r = COURIER_RATES[vehicle];
-  const extraKm = Math.max(0, km - r.includedKm);
-  const raw = r.base + extraKm * r.perKm + Math.max(0, stops - 1) * EXTRA_STOP_FEE;
-  return Math.ceil(raw / FARE_STEP) * FARE_STEP;
+/** Longest route (road km) a vehicle takes. */
+export const courierMaxKm = (vehicle: CourierVehicle, rates: CourierFareConfig) => rates[vehicle].max_km;
+
+/** Fare for one vehicle on a route of `km` with `stops` drop-offs (multiplier applied before rounding up to 10 DA). */
+export function courierFare(vehicle: CourierVehicle, km: number, stops: number, rates: CourierFareConfig, multiplier = 1) {
+  return legFare(rates[vehicle], km, { stops, extraStopFee: rates.extra_stop_fee, multiplier });
 }
 
 export function courierDuration(vehicle: CourierVehicle, km: number, stops: number) {
-  const r = COURIER_RATES[vehicle];
-  return Math.max(1, Math.round((km / r.speedKmh) * 60 + stops * STOP_MINUTES));
+  return Math.max(1, Math.round((km / SPEED_KMH[vehicle]) * 60 + stops * STOP_MINUTES));
 }
 
 /** Every vehicle's quote for one route. */
-export function quoteRoute(pickup: LatLng, dropOffs: LatLng[]) {
+export function quoteRoute(pickup: LatLng, dropOffs: LatLng[], rates: CourierFareConfig, multiplier = 1) {
   const km = routeKm(pickup, dropOffs);
   const options: CourierQuoteOption[] = COURIER_VEHICLES.map((vehicle) => ({
     vehicle_type: vehicle,
-    fare: courierFare(vehicle, km, dropOffs.length),
+    fare: courierFare(vehicle, km, dropOffs.length, rates, multiplier),
     duration_minutes: courierDuration(vehicle, km, dropOffs.length),
-    available: km <= COURIER_RATES[vehicle].maxKm,
+    available: km <= courierMaxKm(vehicle, rates),
   }));
   return { distance_km: km, options };
 }
@@ -104,5 +90,5 @@ export function quoteRoute(pickup: LatLng, dropOffs: LatLng[]) {
 export function pickupEtaMinutes(vehicle: CourierVehicle, riderKm: number | null) {
   if (riderKm == null) return null;
   const km = riderKm * ROAD_FACTOR;
-  return Math.max(2, Math.round((km / COURIER_RATES[vehicle].speedKmh) * 60) + 1);
+  return Math.max(2, Math.round((km / SPEED_KMH[vehicle]) * 60) + 1);
 }

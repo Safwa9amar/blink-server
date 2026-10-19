@@ -9,7 +9,7 @@ import {
   SupportMessageListResponse,
 } from "../../validators/support-chat";
 import { insertMessage } from "../../lib/support-chat";
-import { MESSAGE_COLUMNS, getOrCreateConversation, getConversation } from "./shared";
+import { MESSAGE_COLUMNS, getOrCreateConversation, getConversation, ownsConversation } from "./shared";
 
 const app = router();
 
@@ -69,7 +69,7 @@ app.openapi(messagesRoute, async (c) => {
   const conversation = await getConversation(id);
   if (!conversation) return c.json({ error: "Conversation not found" }, 404);
   const isStaff = !!user.staff_role;
-  if ((conversation as any).user_id !== user.id && !isStaff) {
+  if (!ownsConversation(conversation, user) && !isStaff) {
     return c.json({ error: "Access denied" }, 403);
   }
 
@@ -109,7 +109,7 @@ app.openapi(rateRoute, async (c) => {
 
   const conversation = await getConversation(id);
   // Not-owner is reported as 404 so conversation ids can't be probed.
-  if (!conversation || (conversation as any).user_id !== user.id) {
+  if (!conversation || !ownsConversation(conversation, user)) {
     return c.json({ error: "Conversation not found" }, 404);
   }
   if (conversation.status !== "resolved") {

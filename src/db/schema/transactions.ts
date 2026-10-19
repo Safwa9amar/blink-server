@@ -41,6 +41,11 @@ export const transactions = pgTable(
     // Agent → rider rating, left on the receipt after an operation (20261006230006_agent_backend.sql).
     riderRating: smallint("rider_rating"),
     riderFeedback: text("rider_feedback"),
+    // Rates in force (20261018120000_pricing_config.sql): fee_rate is set at
+    // creation, platform_share_rate / tax_rate when the agent processes it.
+    feeRate: numeric("fee_rate", { precision: 6, scale: 4 }).$type<number>(),
+    platformShareRate: numeric("platform_share_rate", { precision: 6, scale: 4 }).$type<number>(),
+    taxRate: numeric("tax_rate", { precision: 6, scale: 4 }).$type<number>(),
     ...timestamps,
   },
   (t) => [

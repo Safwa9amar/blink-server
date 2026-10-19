@@ -62,7 +62,7 @@ app.openapi(
     const [{ data: stores, error: storesError }, { data: payments }] = await Promise.all([
       supabaseAdmin
         .from("stores")
-        .select("id, name, owner_id")
+        .select("id, name, owner_id, wilaya, latitude, longitude")
         .not("owner_id", "is", null)
         // Allocation order within a merchant: primary first, then oldest.
         .order("is_primary", { ascending: false })
@@ -167,7 +167,7 @@ app.openapi(
     // Allocate across all of the owner's stores (all-stores payments are shared).
     const { data: ownerStores, error: storesError } = await supabaseAdmin
       .from("stores")
-      .select("id, name, owner_id")
+      .select("id, name, owner_id, wilaya, latitude, longitude")
       .eq("owner_id", store.owner_id)
       .order("is_primary", { ascending: false })
       .order("created_at", { ascending: true });
