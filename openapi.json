@@ -145,6 +145,15 @@
               ]
             }
           },
+          "signup_role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "rider",
+              "merchant",
+              "agent"
+            ]
+          },
           "staff_role": {
             "type": "string",
             "nullable": true,
@@ -207,6 +216,7 @@
           "email",
           "role",
           "granted_roles",
+          "signup_role",
           "staff_role",
           "gender",
           "birthday",
@@ -471,6 +481,15 @@
               ]
             }
           },
+          "signup_role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "rider",
+              "merchant",
+              "agent"
+            ]
+          },
           "staff_role": {
             "type": "string",
             "nullable": true,
@@ -533,6 +552,7 @@
           "email",
           "role",
           "granted_roles",
+          "signup_role",
           "staff_role",
           "gender",
           "birthday",
@@ -629,6 +649,15 @@
             "$ref": "#/components/schemas/RiderStoredDocument"
           },
           "id_back": {
+            "$ref": "#/components/schemas/RiderStoredDocument"
+          },
+          "gray_card_front": {
+            "$ref": "#/components/schemas/RiderStoredDocument"
+          },
+          "gray_card_back": {
+            "$ref": "#/components/schemas/RiderStoredDocument"
+          },
+          "insurance": {
             "$ref": "#/components/schemas/RiderStoredDocument"
           }
         }
@@ -1355,6 +1384,13 @@
               "agent"
             ]
           },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "account",
+              "role"
+            ]
+          },
           "reason": {
             "type": "string",
             "nullable": true
@@ -1414,6 +1450,7 @@
           "id",
           "user_id",
           "role",
+          "scope",
           "reason",
           "feedback",
           "status",
@@ -1437,11 +1474,21 @@
               "active_jobs",
               "open_orders"
             ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "rider",
+              "merchant",
+              "agent"
+            ]
           }
         },
         "required": [
           "error",
-          "code"
+          "code",
+          "role"
         ]
       },
       "AccountDeletionRequestBody": {
@@ -1689,6 +1736,10 @@
           "net_payout": {
             "type": "number"
           },
+          "commission_rate": {
+            "type": "number",
+            "nullable": true
+          },
           "distance_km": {
             "type": "number"
           },
@@ -1770,6 +1821,7 @@
           "dropoff_lng",
           "estimated_payout",
           "net_payout",
+          "commission_rate",
           "distance_km",
           "duration_minutes",
           "cancellation_reason",
@@ -1852,17 +1904,20 @@
           "estimated_payout": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "description": "Ignored — priced by the server"
           },
           "distance_km": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "description": "Ignored — measured by the server"
           },
           "duration_minutes": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "description": "Ignored — estimated by the server"
           }
         },
         "required": [
@@ -1874,10 +1929,7 @@
           "dropoff_label",
           "dropoff_address",
           "dropoff_lat",
-          "dropoff_lng",
-          "estimated_payout",
-          "distance_km",
-          "duration_minutes"
+          "dropoff_lng"
         ]
       },
       "UpdateTripStatusBody": {
@@ -2015,6 +2067,18 @@
             "type": "string",
             "nullable": true
           },
+          "fee_rate": {
+            "type": "number",
+            "nullable": true
+          },
+          "platform_share_rate": {
+            "type": "number",
+            "nullable": true
+          },
+          "tax_rate": {
+            "type": "number",
+            "nullable": true
+          },
           "expires_at": {
             "type": "string",
             "nullable": true
@@ -2144,6 +2208,9 @@
           "feedback",
           "rider_rating",
           "rider_feedback",
+          "fee_rate",
+          "platform_share_rate",
+          "tax_rate",
           "expires_at",
           "completed_at",
           "cancelled_at",
@@ -2249,7 +2316,8 @@
           "amount": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "maximum": 10000000
           },
           "method": {
             "type": "string",
@@ -2301,7 +2369,8 @@
           "amount": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "maximum": 10000000
           },
           "method": {
             "type": "string",
@@ -2343,6 +2412,47 @@
         "required": [
           "amount",
           "method"
+        ]
+      },
+      "QuoteTransactionResponse": {
+        "type": "object",
+        "properties": {
+          "fees": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number",
+            "description": "Deposit: amount + fees. Withdrawal: amount − fees."
+          },
+          "fee_rate": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "fees",
+          "total",
+          "fee_rate"
+        ]
+      },
+      "QuoteTransactionBody": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "deposit",
+              "withdrawal"
+            ]
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        },
+        "required": [
+          "type",
+          "amount"
         ]
       },
       "AgentAccessError": {
@@ -2535,6 +2645,11 @@
             "type": "string",
             "format": "uuid",
             "description": "A pack line (merchant orders): the pack's id from GET /marketplace/stores/{id}/packs, with quantity = number of packs and unit_price = the pack's price. The server re-prices it (409 pack_changed when the pack is gone or its price differs) and stores the pack name as `name`."
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "An ordinary product line (merchant orders): the store_products id. The server prices it from the live product (409 product_changed when its price moved or it's no longer sold) and stores the product title as `name`."
           },
           "pack_items": {
             "type": "array",
@@ -3110,6 +3225,42 @@
             },
             "description": "Road driven while carrying the order: [lat, lng] pairs, oldest first. Null until picked up."
           },
+          "merchant_commission_rate": {
+            "type": "number",
+            "nullable": true
+          },
+          "stamp_duty_rate": {
+            "type": "number",
+            "nullable": true
+          },
+          "pricing_applied": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "nullable": true
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "nullable": true
+                }
+              },
+              {
+                "type": "array",
+                "items": {
+                  "nullable": true
+                }
+              }
+            ]
+          },
           "created_at": {
             "type": "string"
           },
@@ -3172,6 +3323,9 @@
           "rider_tags",
           "ride",
           "route_path",
+          "merchant_commission_rate",
+          "stamp_duty_rate",
+          "pricing_applied",
           "created_at",
           "updated_at"
         ]
@@ -3207,6 +3361,73 @@
           "error",
           "code",
           "pack_id"
+        ]
+      },
+      "ProductChangedError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "product_changed"
+            ]
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductChange"
+            }
+          }
+        },
+        "required": [
+          "error",
+          "code",
+          "products"
+        ]
+      },
+      "ProductChange": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "nullable": true
+          },
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "product_id",
+          "name",
+          "price",
+          "available"
+        ]
+      },
+      "PriceChangedError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "enum": [
+              "price_changed"
+            ]
+          },
+          "service_fee": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "error",
+          "service_fee"
         ]
       },
       "CreateOrderBody": {
@@ -3249,8 +3470,11 @@
           },
           "discount": {
             "type": "number",
-            "minimum": 0,
-            "default": 0
+            "minimum": 0
+          },
+          "expected_service_fee": {
+            "type": "number",
+            "minimum": 0
           },
           "store_id": {
             "type": "string",
@@ -3293,10 +3517,7 @@
         "required": [
           "store_name",
           "type",
-          "items",
-          "subtotal",
-          "delivery_fee",
-          "service_fee"
+          "items"
         ]
       },
       "OrderItem": {
@@ -3319,12 +3540,58 @@
             "type": "string",
             "format": "uuid",
             "description": "A pack line (merchant orders): the pack's id from GET /marketplace/stores/{id}/packs, with quantity = number of packs and unit_price = the pack's price. The server re-prices it (409 pack_changed when the pack is gone or its price differs) and stores the pack name as `name`."
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "An ordinary product line (merchant orders): the store_products id. The server prices it from the live product (409 product_changed when its price moved or it's no longer sold) and stores the product title as `name`."
           }
         },
         "required": [
           "name",
           "quantity",
           "unit_price"
+        ]
+      },
+      "QuoteOrderResponse": {
+        "type": "object",
+        "properties": {
+          "service_fee": {
+            "type": "number",
+            "description": "DZD; 0 when this checkout already paid it"
+          }
+        },
+        "required": [
+          "service_fee"
+        ]
+      },
+      "QuoteOrderBody": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "merchant",
+              "shopper"
+            ]
+          },
+          "store_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "checkout_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "type"
         ]
       },
       "UpdateOrderStatusBody": {
@@ -4079,6 +4346,1196 @@
           "lat",
           "lng"
         ]
+      },
+      "PricingCatalogResponse": {
+        "type": "object",
+        "properties": {
+          "fees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricingFee"
+            }
+          }
+        },
+        "required": [
+          "fees"
+        ]
+      },
+      "PricingFee": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "enum": [
+              "service_fee",
+              "courier_fare",
+              "ride_fare",
+              "fare_multiplier",
+              "rider_commission_rate",
+              "merchant_commission_rate",
+              "blink_cash_fee_rate",
+              "agent_platform_share",
+              "rider_cancel_penalty",
+              "stamp_duty_rate",
+              "agent_tax_rate",
+              "dues_payment_fee_rate"
+            ]
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "customer",
+              "partner",
+              "tax"
+            ]
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "da",
+              "percent",
+              "multiplier",
+              "fare"
+            ],
+            "description": "How the dashboard renders/edits the value"
+          },
+          "scopes": {
+            "type": "object",
+            "properties": {
+              "service": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "wilaya": {
+                "type": "boolean"
+              },
+              "merchant": {
+                "type": "boolean"
+              },
+              "agent": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "service",
+              "wilaya",
+              "merchant",
+              "agent"
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Dot path into the value, e.g. \"amount\", \"bicycle.base\""
+                },
+                "unit": {
+                  "type": "string",
+                  "enum": [
+                    "da",
+                    "rate",
+                    "km",
+                    "multiplier"
+                  ]
+                },
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                },
+                "step": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "path",
+                "unit",
+                "min",
+                "max",
+                "step"
+              ]
+            },
+            "description": "Editable fields with bounds + step, derived from the same constants as the value schema"
+          },
+          "value": {
+            "nullable": true
+          },
+          "seed": {
+            "nullable": true
+          },
+          "updated_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "updated_by": {
+            "type": "string",
+            "nullable": true
+          },
+          "active_overrides": {
+            "type": "integer"
+          },
+          "example": {
+            "$ref": "#/components/schemas/FeeExample"
+          }
+        },
+        "required": [
+          "key",
+          "group",
+          "unit",
+          "scopes",
+          "fields",
+          "updated_at",
+          "updated_by",
+          "active_overrides",
+          "example"
+        ]
+      },
+      "FeeExample": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "per_checkout"
+                ]
+              },
+              "output": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "output"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "trip_km"
+                ]
+              },
+              "vehicle": {
+                "type": "string",
+                "enum": [
+                  "motorcycle",
+                  "bicycle"
+                ]
+              },
+              "km": {
+                "type": "number"
+              },
+              "output": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "vehicle",
+              "km",
+              "output"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "multiplier"
+                ]
+              },
+              "km": {
+                "type": "number"
+              },
+              "input": {
+                "type": "number"
+              },
+              "output": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "km",
+              "input",
+              "output"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "rate_on_amount"
+                ]
+              },
+              "input": {
+                "type": "number"
+              },
+              "output": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "input",
+              "output"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "agent_split"
+                ]
+              },
+              "input": {
+                "type": "number"
+              },
+              "output": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "input",
+              "output"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "amount"
+                ]
+              },
+              "output": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "output"
+            ]
+          },
+          {
+            "nullable": true
+          }
+        ],
+        "description": "Worked example from the default value"
+      },
+      "PricingFeeResponse": {
+        "type": "object",
+        "properties": {
+          "fee": {
+            "$ref": "#/components/schemas/PricingFee"
+          }
+        },
+        "required": [
+          "fee"
+        ]
+      },
+      "PricingStaleError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "enum": [
+              "stale"
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "error",
+          "updated_at"
+        ]
+      },
+      "UpdatePricingDefaultBody": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "nullable": true
+          },
+          "expected_updated_at": {
+            "type": "string",
+            "description": "409 stale when the stored updated_at differs"
+          }
+        }
+      },
+      "PricingOverridesResponse": {
+        "type": "object",
+        "properties": {
+          "overrides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricingOverride"
+            }
+          }
+        },
+        "required": [
+          "overrides"
+        ]
+      },
+      "PricingOverride": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string",
+            "enum": [
+              "service_fee",
+              "courier_fare",
+              "ride_fare",
+              "fare_multiplier",
+              "rider_commission_rate",
+              "merchant_commission_rate",
+              "blink_cash_fee_rate",
+              "agent_platform_share",
+              "rider_cancel_penalty",
+              "stamp_duty_rate",
+              "agent_tax_rate",
+              "dues_payment_fee_rate"
+            ]
+          },
+          "service": {
+            "type": "string",
+            "nullable": true
+          },
+          "wilaya_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "merchant_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "agent_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "value": {
+            "nullable": true
+          },
+          "starts_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "ends_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "scheduled",
+              "ended",
+              "archived"
+            ]
+          },
+          "partner_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_by": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "service",
+          "wilaya_code",
+          "merchant_id",
+          "agent_id",
+          "starts_at",
+          "ends_at",
+          "note",
+          "status",
+          "partner_name",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "PricingOverrideResponse": {
+        "type": "object",
+        "properties": {
+          "override": {
+            "$ref": "#/components/schemas/PricingOverride"
+          }
+        },
+        "required": [
+          "override"
+        ]
+      },
+      "PricingOverlapError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "enum": [
+              "overlap"
+            ]
+          },
+          "conflict_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "error",
+          "conflict_id"
+        ]
+      },
+      "CreatePricingOverrideBody": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "service": {
+            "type": "string",
+            "nullable": true
+          },
+          "wilaya_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "merchant_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "agent_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "value": {
+            "nullable": true
+          },
+          "starts_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "ends_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "UpdatePricingOverrideBody": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "nullable": true
+          },
+          "starts_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "ends_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          }
+        }
+      },
+      "PricingHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricingChange"
+            }
+          }
+        },
+        "required": [
+          "changes"
+        ]
+      },
+      "PricingChange": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "key": {
+            "type": "string"
+          },
+          "override_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "update_default",
+              "create_override",
+              "update_override",
+              "archive_override"
+            ]
+          },
+          "before": {
+            "nullable": true
+          },
+          "after": {
+            "nullable": true
+          },
+          "actor_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "actor_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "override_id",
+          "action",
+          "actor_id",
+          "actor_name",
+          "created_at"
+        ]
+      },
+      "PricingPreviewResponse": {
+        "type": "object",
+        "properties": {
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "enum": [
+                    "service_fee",
+                    "courier_fare",
+                    "ride_fare",
+                    "fare_multiplier",
+                    "rider_commission_rate",
+                    "merchant_commission_rate",
+                    "blink_cash_fee_rate",
+                    "agent_platform_share",
+                    "rider_cancel_penalty",
+                    "stamp_duty_rate",
+                    "agent_tax_rate",
+                    "dues_payment_fee_rate"
+                  ]
+                },
+                "value": {
+                  "nullable": true
+                },
+                "override_id": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "scope": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "service": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "wilaya_code": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "merchant_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid"
+                    },
+                    "agent_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "service",
+                    "wilaya_code",
+                    "merchant_id",
+                    "agent_id"
+                  ]
+                }
+              },
+              "required": [
+                "key",
+                "override_id",
+                "scope"
+              ]
+            }
+          },
+          "examples": {
+            "type": "object",
+            "properties": {
+              "courier_fare": {
+                "type": "object",
+                "properties": {
+                  "bicycle": {
+                    "type": "number"
+                  },
+                  "motorcycle": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "bicycle",
+                  "motorcycle"
+                ]
+              },
+              "ride_fare": {
+                "type": "object",
+                "properties": {
+                  "motorcycle": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "motorcycle"
+                ]
+              },
+              "blink_cash_fee": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "deposit",
+                      "withdrawal"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "fees": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "amount",
+                  "fees"
+                ]
+              }
+            }
+          },
+          "candidate_examples": {
+            "type": "object",
+            "properties": {
+              "courier_fare": {
+                "type": "object",
+                "properties": {
+                  "bicycle": {
+                    "type": "number"
+                  },
+                  "motorcycle": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "bicycle",
+                  "motorcycle"
+                ]
+              },
+              "ride_fare": {
+                "type": "object",
+                "properties": {
+                  "motorcycle": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "motorcycle"
+                ]
+              },
+              "blink_cash_fee": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "deposit",
+                      "withdrawal"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "fees": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "amount",
+                  "fees"
+                ]
+              }
+            }
+          },
+          "candidate_example": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "enum": [
+                  "service_fee",
+                  "courier_fare",
+                  "ride_fare",
+                  "fare_multiplier",
+                  "rider_commission_rate",
+                  "merchant_commission_rate",
+                  "blink_cash_fee_rate",
+                  "agent_platform_share",
+                  "rider_cancel_penalty",
+                  "stamp_duty_rate",
+                  "agent_tax_rate",
+                  "dues_payment_fee_rate"
+                ]
+              },
+              "before": {
+                "$ref": "#/components/schemas/FeeExample"
+              },
+              "after": {
+                "$ref": "#/components/schemas/FeeExample"
+              }
+            },
+            "required": [
+              "key",
+              "before",
+              "after"
+            ]
+          }
+        },
+        "required": [
+          "values",
+          "examples"
+        ]
+      },
+      "PricingPreviewBody": {
+        "type": "object",
+        "properties": {
+          "context": {
+            "type": "object",
+            "properties": {
+              "service": {
+                "type": "string"
+              },
+              "wilaya_code": {
+                "type": "string",
+                "nullable": true
+              },
+              "merchant_id": {
+                "type": "string",
+                "nullable": true,
+                "format": "uuid"
+              },
+              "agent_id": {
+                "type": "string",
+                "nullable": true,
+                "format": "uuid"
+              },
+              "at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "sample": {
+            "type": "object",
+            "properties": {
+              "km": {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMinimum": true,
+                "maximum": 500
+              },
+              "stops": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+              },
+              "amount": {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            }
+          },
+          "candidate": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "enum": [
+                  "service_fee",
+                  "courier_fare",
+                  "ride_fare",
+                  "fare_multiplier",
+                  "rider_commission_rate",
+                  "merchant_commission_rate",
+                  "blink_cash_fee_rate",
+                  "agent_platform_share",
+                  "rider_cancel_penalty",
+                  "stamp_duty_rate",
+                  "agent_tax_rate",
+                  "dues_payment_fee_rate"
+                ]
+              },
+              "value": {
+                "nullable": true
+              }
+            },
+            "required": [
+              "key"
+            ],
+            "description": "An unsaved value for one fee; examples are also computed with it replacing that key's effective value (candidate_examples)"
+          }
+        },
+        "required": [
+          "context"
+        ]
+      },
+      "PricingSimulateResponse": {
+        "type": "object",
+        "properties": {
+          "scenario": {
+            "type": "string",
+            "enum": [
+              "store",
+              "courier",
+              "ride",
+              "deposit",
+              "withdrawal"
+            ]
+          },
+          "payer_total": {
+            "type": "number"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "party": {
+                  "type": "string",
+                  "enum": [
+                    "merchant",
+                    "rider",
+                    "agent",
+                    "blink",
+                    "tax"
+                  ]
+                },
+                "label": {
+                  "type": "string",
+                  "enum": [
+                    "merchant_keeps",
+                    "rider_keeps",
+                    "agent_keeps",
+                    "service_fee",
+                    "merchant_commission",
+                    "rider_commission",
+                    "platform_share",
+                    "stamp_duty",
+                    "agent_tax"
+                  ]
+                },
+                "amount": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "party",
+                "label",
+                "amount"
+              ]
+            }
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "enum": [
+                    "service_fee",
+                    "courier_fare",
+                    "ride_fare",
+                    "fare_multiplier",
+                    "rider_commission_rate",
+                    "merchant_commission_rate",
+                    "blink_cash_fee_rate",
+                    "agent_platform_share",
+                    "rider_cancel_penalty",
+                    "stamp_duty_rate",
+                    "agent_tax_rate",
+                    "dues_payment_fee_rate"
+                  ]
+                },
+                "value": {
+                  "nullable": true
+                },
+                "override_id": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "scope": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "service": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "wilaya_code": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "merchant_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid"
+                    },
+                    "agent_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "service",
+                    "wilaya_code",
+                    "merchant_id",
+                    "agent_id"
+                  ]
+                }
+              },
+              "required": [
+                "key",
+                "override_id",
+                "scope"
+              ]
+            }
+          },
+          "unavailable": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "too_far",
+              null
+            ]
+          }
+        },
+        "required": [
+          "scenario",
+          "payer_total",
+          "lines",
+          "values",
+          "unavailable"
+        ]
+      },
+      "PricingSimulateBody": {
+        "type": "object",
+        "properties": {
+          "scenario": {
+            "type": "string",
+            "enum": [
+              "store",
+              "courier",
+              "ride",
+              "deposit",
+              "withdrawal"
+            ]
+          },
+          "context": {
+            "type": "object",
+            "properties": {
+              "wilaya_code": {
+                "type": "string",
+                "nullable": true
+              },
+              "merchant_id": {
+                "type": "string",
+                "nullable": true,
+                "format": "uuid"
+              },
+              "agent_id": {
+                "type": "string",
+                "nullable": true,
+                "format": "uuid"
+              },
+              "store_id": {
+                "type": "string",
+                "nullable": true,
+                "format": "uuid"
+              },
+              "at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "inputs": {
+            "type": "object",
+            "properties": {
+              "subtotal": {
+                "type": "number",
+                "minimum": 0
+              },
+              "delivery_fee": {
+                "type": "number",
+                "minimum": 0
+              },
+              "km": {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMinimum": true,
+                "maximum": 500
+              },
+              "stops": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+              },
+              "vehicle": {
+                "type": "string",
+                "enum": [
+                  "bicycle",
+                  "motorcycle"
+                ]
+              },
+              "amount": {
+                "type": "number",
+                "minimum": 0,
+                "exclusiveMinimum": true
+              }
+            }
+          }
+        },
+        "required": [
+          "scenario"
+        ]
+      },
+      "NotificationSmsStatusResponse": {
+        "type": "object",
+        "properties": {
+          "configured": {
+            "type": "boolean",
+            "description": "SMS Gate credentials are set"
+          },
+          "max": {
+            "type": "integer",
+            "description": "Most numbers one notification may text (SMS_BROADCAST_MAX)"
+          }
+        },
+        "required": [
+          "configured",
+          "max"
+        ]
+      },
+      "NotificationSmsResponse": {
+        "type": "object",
+        "properties": {
+          "queued": {
+            "type": "integer",
+            "description": "Numbers SMS Gate accepted (delivered by the phone shortly after)"
+          },
+          "no_phone": {
+            "type": "integer",
+            "description": "Recipients without a usable phone number"
+          },
+          "failed": {
+            "type": "integer",
+            "description": "Numbers in batches the gateway refused"
+          }
+        },
+        "required": [
+          "queued",
+          "no_phone",
+          "failed"
+        ]
+      },
+      "NotificationSmsBody": {
+        "type": "object",
+        "properties": {
+          "lang": {
+            "type": "string",
+            "enum": [
+              "en",
+              "fr",
+              "ar"
+            ],
+            "default": "en",
+            "description": "Language of the SMS text"
+          }
+        }
       },
       "DeviceResponse": {
         "type": "object",
@@ -5310,6 +6767,38 @@
           "products",
           "pagination"
         ]
+      },
+      "LookupProductsResponse": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StoreProduct"
+            }
+          }
+        },
+        "required": [
+          "products"
+        ]
+      },
+      "LookupProductsBody": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "description": "store_products ids to refresh (e.g. a cart's lines)"
       },
       "CustomerPackListResponse": {
         "type": "object",
@@ -6857,6 +8346,65 @@
             "exclusiveMinimum": true
           }
         }
+      },
+      "ProductPriceHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductPriceChange"
+            }
+          }
+        },
+        "required": [
+          "changes"
+        ]
+      },
+      "ProductPriceChange": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "old_price": {
+            "type": "number",
+            "nullable": true
+          },
+          "new_price": {
+            "type": "number"
+          },
+          "old_blink_price": {
+            "type": "number",
+            "nullable": true
+          },
+          "new_blink_price": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "created",
+              "merchant",
+              "staff",
+              "library",
+              "system",
+              "baseline"
+            ]
+          },
+          "changed_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "old_price",
+          "new_price",
+          "old_blink_price",
+          "new_blink_price",
+          "source",
+          "changed_at"
+        ]
       },
       "LibraryListResponse": {
         "type": "object",
@@ -9799,6 +11347,74 @@
           "status"
         ]
       },
+      "AdminPriceChangeListResponse": {
+        "type": "object",
+        "properties": {
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminPriceChange"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "changes",
+          "pagination"
+        ]
+      },
+      "AdminPriceChange": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ProductPriceChange"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "product_id": {
+                "type": "string"
+              },
+              "product_title": {
+                "type": "string",
+                "nullable": true
+              },
+              "store_id": {
+                "type": "string"
+              },
+              "store_name": {
+                "type": "string",
+                "nullable": true
+              },
+              "changed_by": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              }
+            },
+            "required": [
+              "product_id",
+              "product_title",
+              "store_id",
+              "store_name",
+              "changed_by"
+            ]
+          }
+        ]
+      },
       "AdminPackError": {
         "type": "object",
         "properties": {
@@ -10883,7 +12499,8 @@
           "amount": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "maximum": 10000000
           },
           "method": {
             "type": "string",
@@ -12906,6 +14523,9 @@
           "commission_rate": {
             "type": "number"
           },
+          "cancel_penalty": {
+            "type": "number"
+          },
           "distance_km": {
             "type": "number"
           },
@@ -13051,6 +14671,7 @@
           "discount",
           "order_total",
           "commission_rate",
+          "cancel_penalty",
           "distance_km",
           "duration_minutes",
           "pickup_distance_km",
@@ -13683,7 +15304,10 @@
           "license_front",
           "license_back",
           "id_front",
-          "id_back"
+          "id_back",
+          "gray_card_front",
+          "gray_card_back",
+          "insurance"
         ]
       },
       "RiderDocumentsResponse": {
@@ -13712,13 +15336,25 @@
               },
               "id_back": {
                 "$ref": "#/components/schemas/RiderDocumentView"
+              },
+              "gray_card_front": {
+                "$ref": "#/components/schemas/RiderDocumentView"
+              },
+              "gray_card_back": {
+                "$ref": "#/components/schemas/RiderDocumentView"
+              },
+              "insurance": {
+                "$ref": "#/components/schemas/RiderDocumentView"
               }
             },
             "required": [
               "license_front",
               "license_back",
               "id_front",
-              "id_back"
+              "id_back",
+              "gray_card_front",
+              "gray_card_back",
+              "insurance"
             ]
           }
         },
@@ -13807,6 +15443,21 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 300
+          },
+          "gray_card_front": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "gray_card_back": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "insurance": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
           }
         }
       },
@@ -13852,6 +15503,7 @@
               "vehicle_type",
               "driving_license",
               "national_id",
+              "vehicle_documents",
               "verification"
             ]
           },
@@ -13927,6 +15579,52 @@
           "document",
           "path",
           "status"
+        ]
+      },
+      "RequestRiderVerificationResponse": {
+        "type": "object",
+        "properties": {
+          "verification_status": {
+            "$ref": "#/components/schemas/RiderVerificationStatus"
+          },
+          "invalidated": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiderDocumentKey"
+            }
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiderDocumentKey"
+            }
+          }
+        },
+        "required": [
+          "verification_status",
+          "invalidated",
+          "missing"
+        ]
+      },
+      "RequestRiderVerificationBody": {
+        "type": "object",
+        "properties": {
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiderDocumentKey"
+            },
+            "minItems": 1
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "documents",
+          "note"
         ]
       },
       "NewsListResponse": {
@@ -16452,6 +18150,16 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -16732,6 +18440,62 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PinError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactions/quote": {
+      "post": {
+        "operationId": "quoteTransaction",
+        "tags": [
+          "transactions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteTransactionBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteTransactionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
                 }
               }
             }
@@ -17323,11 +19087,21 @@
             }
           },
           "409": {
-            "description": "A pack line's pack changed or is gone (code pack_changed): refetch the store's packs",
+            "description": "Either a pack line's pack changed or is gone (code pack_changed: refetch the store's packs), a product line's product moved in price or is no longer sold (code product_changed: refresh the cart with POST /marketplace/products/lookup), or the service fee changed since `expected_service_fee` was shown (error price_changed, with the current `service_fee`)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PackChangedError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PackChangedError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProductChangedError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/PriceChangedError"
+                    }
+                  ]
                 }
               }
             }
@@ -17379,6 +19153,62 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/quote": {
+      "post": {
+        "operationId": "quoteOrder",
+        "tags": [
+          "orders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteOrderBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteOrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -17861,6 +19691,815 @@
           },
           "409": {
             "description": "The coupon was just used by another request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/catalog": {
+      "get": {
+        "operationId": "getPricingCatalogAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingCatalogResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/defaults/{key}": {
+      "put": {
+        "operationId": "updatePricingDefaultAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "key",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePricingDefaultBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingFeeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Someone changed it since you loaded it (error stale)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingStaleError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/overrides": {
+      "get": {
+        "operationId": "listPricingOverridesAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "key",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "scheduled",
+                "ended",
+                "archived"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "wilaya_code",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "merchant_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "agent_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingOverridesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createPricingOverrideAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePricingOverrideBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingOverrideResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Same fee + scope already has a deal in that window (error overlap)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingOverlapError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/overrides/{id}": {
+      "patch": {
+        "operationId": "updatePricingOverrideAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePricingOverrideBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingOverrideResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Overlaps another deal (error overlap)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingOverlapError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "archivePricingOverrideAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingOverrideResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/history": {
+      "get": {
+        "operationId": "listPricingHistoryAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "key",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "override_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingHistoryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/preview": {
+      "post": {
+        "operationId": "previewPricingAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PricingPreviewBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingPreviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/simulate": {
+      "post": {
+        "operationId": "simulatePricingAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PricingSimulateBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingSimulateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/admin/sms/status": {
+      "get": {
+        "operationId": "getNotificationSmsStatusAdmin",
+        "tags": [
+          "admin-notifications"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSmsStatusResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/admin/{id}/sms": {
+      "post": {
+        "operationId": "sendNotificationSmsAdmin",
+        "tags": [
+          "admin-notifications"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationSmsBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSmsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
             "content": {
               "application/json": {
                 "schema": {
@@ -18801,6 +21440,52 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/marketplace/products/lookup": {
+      "post": {
+        "operationId": "lookupMarketplaceProducts",
+        "tags": [
+          "marketplace"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupProductsBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The ids a customer can order, with their live price; unknown or hidden ids are absent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupProductsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
@@ -20074,6 +22759,71 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/products/{id}/price-history": {
+      "get": {
+        "operationId": "getMerchantProductPriceHistory",
+        "tags": [
+          "merchant"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The latest 100 changes, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPriceHistoryResponse"
                 }
               }
             }
@@ -22907,6 +25657,140 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/admin/price-changes": {
+      "get": {
+        "operationId": "listProductPriceChanges",
+        "tags": [
+          "admin-merchant"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 100,
+              "default": 50
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "store_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "product_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created",
+                "merchant",
+                "staff",
+                "library",
+                "system",
+                "baseline"
+              ]
+            },
+            "required": false,
+            "name": "source",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Changed at or after (ISO 8601)"
+            },
+            "required": false,
+            "description": "Changed at or after (ISO 8601)",
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Changed before (ISO 8601)"
+            },
+            "required": false,
+            "description": "Changed before (ISO 8601)",
+            "name": "to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPriceChangeListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
                 }
               }
             }
@@ -28664,6 +31548,135 @@
                       "$ref": "#/components/schemas/RiderDocumentsConflict"
                     }
                   ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/riders/admin/riders/{id}/verification-request": {
+      "post": {
+        "operationId": "requestRiderVerification",
+        "tags": [
+          "admin-riders"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestRiderVerificationBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestRiderVerificationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or document not required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiErrorBody"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "string"
+                        },
+                        "code": {
+                          "type": "string",
+                          "enum": [
+                            "not_required"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "error",
+                        "code"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Concurrent change",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderDocumentsConflict"
                 }
               }
             }
