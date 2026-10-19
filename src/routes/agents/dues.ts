@@ -81,12 +81,13 @@ app.openapi(
     }
 
     const feeRate = (await getPrice("dues_payment_fee_rate")).value.rate;
+    const amount = round2(body.amount);
     const { data, error } = await supabaseAdmin
       .from("agent_dues_payments")
       .insert({
         agent_id: user.id,
-        amount: round2(body.amount),
-        fees: round2(body.amount * feeRate),
+        amount,
+        fees: round2(amount * feeRate),
         method: body.method,
         // No payment provider is wired: nothing proves this money arrived, so it
         // waits as pending (not counted in dues) until finance confirms it.

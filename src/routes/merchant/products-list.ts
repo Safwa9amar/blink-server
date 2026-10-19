@@ -1,3 +1,4 @@
+import { withoutPriceAttribution } from "../../lib/price-history";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
 import { MerchantProductListResponse } from "../../validators/merchant";
@@ -33,7 +34,7 @@ app.openapi(route, async (c) => {
     .order("created_at", { ascending: false });
 
   if (error) return c.json({ error: error.message }, 404);
-  return c.json({ products: data }, 200);
+  return c.json({ products: (data ?? []).map(withoutPriceAttribution) }, 200);
 });
 
 export default app;

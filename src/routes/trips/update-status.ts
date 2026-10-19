@@ -12,7 +12,7 @@ const route = createRoute({
   tags: ["trips"],
   security: bearer,
   request: { params: IdParam, body: { ...json(updateTripStatusSchema), required: true } },
-  responses: { 200: json(TripResponse), 400: errorResponses[400], 404: errorResponses[404] },
+  responses: { 200: json(TripResponse), 400: errorResponses[400], 403: errorResponses[403], 404: errorResponses[404] },
 });
 
 app.openapi(route, async (c) => {
@@ -23,12 +23,19 @@ app.openapi(route, async (c) => {
   // Verify ownership
   const { data: existing } = await supabaseAdmin
     .from("trips")
-    .select("rider_id, customer_id")
+    .select("rider_id, customer_id, order_id")
     .eq("id", tripId)
     .single();
 
   if (!existing || (existing.rider_id !== user.id && existing.customer_id !== user.id)) {
     return c.json({ error: "Trip not found or access denied" }, 404);
+  }
+
+  // A job's trip follows its order (/riders/jobs/*, PATCH /orders/{id}/status):
+  // its status drives the rider's commission and penalty in Blink Cash, so
+  // neither side may set it here. Only the rider moves a trip with no order.
+  if (existing.order_id || existing.rider_id !== user.id) {
+    return c.json({ error: "This trip's status can't be changed here" }, 403);
   }
 
   const { data, error } = await supabaseAdmin

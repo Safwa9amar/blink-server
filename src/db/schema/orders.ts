@@ -31,6 +31,8 @@ export interface OrderItem {
   unit_price: number;
   /** A pack line: the store_packs id (quantity = number of packs, unit_price = pack price). */
   pack_id?: string;
+  /** A product line: the store_products id (server-written; absent on old orders). */
+  product_id?: string;
   /** Server-written on pack lines (src/lib/pack-pricing.ts priceStoreOrder). */
   pack_items?: OrderPackItem[];
 }

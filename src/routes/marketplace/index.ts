@@ -4,6 +4,7 @@ import categories from "./categories";
 import list from "./list";
 import detail from "./detail";
 import products from "./products";
+import productsLookup from "./products-lookup";
 import packs from "./packs";
 import branchSuggestion from "./branch-suggestion";
 
@@ -17,6 +18,7 @@ app.route("/", categories);
 app.route("/", list);
 app.route("/", detail);
 app.route("/", products);
+app.route("/", productsLookup);
 app.route("/", packs);
 app.route("/", branchSuggestion);
 

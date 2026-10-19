@@ -1852,17 +1852,20 @@
           "estimated_payout": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "description": "Ignored — priced by the server"
           },
           "distance_km": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "description": "Ignored — measured by the server"
           },
           "duration_minutes": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "description": "Ignored — estimated by the server"
           }
         },
         "required": [
@@ -1874,10 +1877,7 @@
           "dropoff_label",
           "dropoff_address",
           "dropoff_lat",
-          "dropoff_lng",
-          "estimated_payout",
-          "distance_km",
-          "duration_minutes"
+          "dropoff_lng"
         ]
       },
       "UpdateTripStatusBody": {
@@ -2106,7 +2106,8 @@
           "amount": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "maximum": 10000000
           },
           "method": {
             "type": "string",
@@ -2136,7 +2137,8 @@
           "amount": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "maximum": 10000000
           },
           "method": {
             "type": "string",
@@ -2354,6 +2356,11 @@
             "type": "string",
             "format": "uuid",
             "description": "A pack line (merchant orders): the pack's id from GET /marketplace/stores/{id}/packs, with quantity = number of packs and unit_price = the pack's price. The server re-prices it (409 pack_changed when the pack is gone or its price differs) and stores the pack name as `name`."
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "An ordinary product line (merchant orders): the store_products id. The server prices it from the live product (409 product_changed when its price moved or it's no longer sold) and stores the product title as `name`."
           },
           "pack_items": {
             "type": "array",
@@ -3067,6 +3074,55 @@
           "pack_id"
         ]
       },
+      "ProductChangedError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "product_changed"
+            ]
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductChange"
+            }
+          }
+        },
+        "required": [
+          "error",
+          "code",
+          "products"
+        ]
+      },
+      "ProductChange": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number",
+            "nullable": true
+          },
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "product_id",
+          "name",
+          "price",
+          "available"
+        ]
+      },
       "PriceChangedError": {
         "type": "object",
         "properties": {
@@ -3125,8 +3181,7 @@
           },
           "discount": {
             "type": "number",
-            "minimum": 0,
-            "default": 0
+            "minimum": 0
           },
           "expected_service_fee": {
             "type": "number",
@@ -3173,10 +3228,7 @@
         "required": [
           "store_name",
           "type",
-          "items",
-          "subtotal",
-          "delivery_fee",
-          "service_fee"
+          "items"
         ]
       },
       "OrderItem": {
@@ -3199,6 +3251,11 @@
             "type": "string",
             "format": "uuid",
             "description": "A pack line (merchant orders): the pack's id from GET /marketplace/stores/{id}/packs, with quantity = number of packs and unit_price = the pack's price. The server re-prices it (409 pack_changed when the pack is gone or its price differs) and stores the pack name as `name`."
+          },
+          "product_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "An ordinary product line (merchant orders): the store_products id. The server prices it from the live product (409 product_changed when its price moved or it's no longer sold) and stores the product title as `name`."
           }
         },
         "required": [
@@ -6422,6 +6479,38 @@
           "pagination"
         ]
       },
+      "LookupProductsResponse": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StoreProduct"
+            }
+          }
+        },
+        "required": [
+          "products"
+        ]
+      },
+      "LookupProductsBody": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "description": "store_products ids to refresh (e.g. a cart's lines)"
+      },
       "CustomerPackListResponse": {
         "type": "object",
         "properties": {
@@ -7968,6 +8057,65 @@
             "exclusiveMinimum": true
           }
         }
+      },
+      "ProductPriceHistoryResponse": {
+        "type": "object",
+        "properties": {
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductPriceChange"
+            }
+          }
+        },
+        "required": [
+          "changes"
+        ]
+      },
+      "ProductPriceChange": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "old_price": {
+            "type": "number",
+            "nullable": true
+          },
+          "new_price": {
+            "type": "number"
+          },
+          "old_blink_price": {
+            "type": "number",
+            "nullable": true
+          },
+          "new_blink_price": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "created",
+              "merchant",
+              "staff",
+              "library",
+              "system",
+              "baseline"
+            ]
+          },
+          "changed_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "old_price",
+          "new_price",
+          "old_blink_price",
+          "new_blink_price",
+          "source",
+          "changed_at"
+        ]
       },
       "LibraryListResponse": {
         "type": "object",
@@ -10876,6 +11024,74 @@
           "status"
         ]
       },
+      "AdminPriceChangeListResponse": {
+        "type": "object",
+        "properties": {
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminPriceChange"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "changes",
+          "pagination"
+        ]
+      },
+      "AdminPriceChange": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ProductPriceChange"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "product_id": {
+                "type": "string"
+              },
+              "product_title": {
+                "type": "string",
+                "nullable": true
+              },
+              "store_id": {
+                "type": "string"
+              },
+              "store_name": {
+                "type": "string",
+                "nullable": true
+              },
+              "changed_by": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              }
+            },
+            "required": [
+              "product_id",
+              "product_title",
+              "store_id",
+              "store_name",
+              "changed_by"
+            ]
+          }
+        ]
+      },
       "AdminMerchantDuesResponse": {
         "type": "object",
         "properties": {
@@ -11690,7 +11906,8 @@
           "amount": {
             "type": "number",
             "minimum": 0,
-            "exclusiveMinimum": true
+            "exclusiveMinimum": true,
+            "maximum": 10000000
           },
           "method": {
             "type": "string",
@@ -15845,6 +16062,16 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -16655,13 +16882,16 @@
             }
           },
           "409": {
-            "description": "Either a pack line's pack changed or is gone (code pack_changed: refetch the store's packs), or the service fee changed since `expected_service_fee` was shown (error price_changed, with the current `service_fee`)",
+            "description": "Either a pack line's pack changed or is gone (code pack_changed: refetch the store's packs), a product line's product moved in price or is no longer sold (code product_changed: refresh the cart with POST /marketplace/products/lookup), or the service fee changed since `expected_service_fee` was shown (error price_changed, with the current `service_fee`)",
             "content": {
               "application/json": {
                 "schema": {
                   "anyOf": [
                     {
                       "$ref": "#/components/schemas/PackChangedError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ProductChangedError"
                     },
                     {
                       "$ref": "#/components/schemas/PriceChangedError"
@@ -19016,6 +19246,52 @@
         }
       }
     },
+    "/marketplace/products/lookup": {
+      "post": {
+        "operationId": "lookupMarketplaceProducts",
+        "tags": [
+          "marketplace"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupProductsBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The ids a customer can order, with their live price; unknown or hidden ids are absent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupProductsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/marketplace/stores/{id}/packs": {
       "get": {
         "operationId": "listStorePacks",
@@ -20278,6 +20554,71 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/products/{id}/price-history": {
+      "get": {
+        "operationId": "getMerchantProductPriceHistory",
+        "tags": [
+          "merchant"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The latest 100 changes, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPriceHistoryResponse"
                 }
               }
             }
@@ -23111,6 +23452,140 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CatalogError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/admin/price-changes": {
+      "get": {
+        "operationId": "listProductPriceChanges",
+        "tags": [
+          "admin-merchant"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 100,
+              "default": 50
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "store_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "product_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "created",
+                "merchant",
+                "staff",
+                "library",
+                "system",
+                "baseline"
+              ]
+            },
+            "required": false,
+            "name": "source",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Changed at or after (ISO 8601)"
+            },
+            "required": false,
+            "description": "Changed at or after (ISO 8601)",
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Changed before (ISO 8601)"
+            },
+            "required": false,
+            "description": "Changed before (ISO 8601)",
+            "name": "to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPriceChangeListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
                 }
               }
             }

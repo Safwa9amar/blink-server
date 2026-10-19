@@ -1,3 +1,4 @@
+import { withoutPriceAttribution } from "../../lib/price-history";
 import { toStorefront } from "../../lib/store-categories";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
@@ -43,7 +44,7 @@ app.openapi(route, async (c) => {
   // Dangling ids (deleted store/product) drop out here.
   const storeRows = (stores.data ?? []).map((s: any) => toStorefront(s));
   const productRows = (products.data ?? []).map(({ store, ...p }: any) => ({
-    ...p,
+    ...withoutPriceAttribution(p),
     store_name: store?.name ?? "",
   }));
 

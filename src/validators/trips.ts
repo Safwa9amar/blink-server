@@ -46,9 +46,9 @@ export const createTripSchema = z
     dropoff_address: z.string().min(1),
     dropoff_lat: z.number(),
     dropoff_lng: z.number(),
-    estimated_payout: z.number().positive(),
-    distance_km: z.number().positive(),
-    duration_minutes: z.number().positive(),
+    estimated_payout: z.number().positive().optional().openapi({ description: "Ignored — priced by the server" }),
+    distance_km: z.number().positive().optional().openapi({ description: "Ignored — measured by the server" }),
+    duration_minutes: z.number().positive().optional().openapi({ description: "Ignored — estimated by the server" }),
   })
   .openapi("CreateTripBody");
 

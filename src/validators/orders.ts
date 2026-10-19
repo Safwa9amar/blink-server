@@ -24,6 +24,10 @@ const orderItemFields = {
     description:
       "A pack line (merchant orders): the pack's id from GET /marketplace/stores/{id}/packs, with quantity = number of packs and unit_price = the pack's price. The server re-prices it (409 pack_changed when the pack is gone or its price differs) and stores the pack name as `name`.",
   }),
+  product_id: z.string().uuid().optional().openapi({
+    description:
+      "An ordinary product line (merchant orders): the store_products id. The server prices it from the live product (409 product_changed when its price moved or it's no longer sold) and stores the product title as `name`.",
+  }),
 };
 
 const orderItemSchema = z.object(orderItemFields).openapi("OrderItem");
@@ -62,6 +66,29 @@ export const PackChangedError = z
   .openapi("PackChangedError");
 
 /**
+ * 409 of POST /orders: `code: product_changed` — a product line's product is
+ * no longer sold, or its price moved since the cart was priced. `products`
+ * lists only the offending lines with their current state (`price` null when
+ * no longer sold). Refresh the cart (POST /marketplace/products/lookup) and retry.
+ */
+export const ProductChangedError = z
+  .object({
+    error: z.string(),
+    code: z.enum(["product_changed"]),
+    products: z.array(
+      z
+        .object({
+          product_id: z.string(),
+          name: z.string(),
+          price: z.number().nullable(),
+          available: z.boolean(),
+        })
+        .openapi("ProductChange")
+    ),
+  })
+  .openapi("ProductChangedError");
+
+/**
  * 409 when the order's `expected_service_fee` no longer matches the server's
  * current service fee (a fee change landed since the app showed it). Show
  * `service_fee`, let the customer confirm, and retry with it.
@@ -77,13 +104,21 @@ export const createOrderSchema = z
   .object({
     store_name: z.string().min(1),
     store_logo: z.string().url().optional(),
-    /** No `ride`: rides are created priced, only through POST /ride/requests. */
+    /**
+     * No `ride`: rides are created priced, only through POST /ride/requests.
+     * `shopper` is accepted by the schema but refused (400): shopper orders
+     * are only ever made by the server (a store that doesn't answer).
+     */
     type: z.enum(["merchant", "shopper", "courier"]),
     items: z.array(orderItemSchema).min(1),
-    subtotal: z.number().nonnegative(),
-    delivery_fee: z.number().nonnegative(),
-    service_fee: z.number().nonnegative(),
-    discount: z.number().nonnegative().default(0),
+    /** Ignored — the server prices the order; kept so older apps validate. */
+    subtotal: z.number().nonnegative().optional(),
+    /** Ignored — the server prices the order; kept so older apps validate. */
+    delivery_fee: z.number().nonnegative().optional(),
+    /** Ignored — the server prices the order; kept so older apps validate. */
+    service_fee: z.number().nonnegative().optional(),
+    /** Ignored — the server prices the order; kept so older apps validate. */
+    discount: z.number().nonnegative().optional(),
     /**
      * The service fee the customer was shown. When sent and different from the
      * server's current fee, the order is not created: 409 `price_changed`.
@@ -96,7 +131,7 @@ export const createOrderSchema = z
      * checkout; list the siblings with `GET /orders?checkout_id=…`.
      */
     checkout_id: z.string().uuid().optional(),
-    /** Customer coupon code — priced server-side; overrides `discount`. */
+    /** Customer coupon code — priced server-side; the only source of a discount. */
     coupon_code: z.string().trim().min(1).optional(),
     pickup_address: z.string().optional(),
     destination_address: z.string().optional(),

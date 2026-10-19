@@ -1,3 +1,4 @@
+import { withoutPriceAttribution } from "../../lib/price-history";
 import { merchantWritableFields, newProductPriceError } from "../../lib/product-review";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
@@ -91,6 +92,8 @@ app.openapi(route, async (c) => {
       image: photos[0] ?? "",
       price,
       blink_price: price,
+      price_update_source: "created" as const,
+      price_updated_by: user.id,
     })
     .select()
     .single();
@@ -109,7 +112,7 @@ app.openapi(route, async (c) => {
       .eq("id", body.library_product_id);
   }
 
-  return c.json({ product: data }, 201);
+  return c.json({ product: withoutPriceAttribution(data) }, 201);
 });
 
 export default app;

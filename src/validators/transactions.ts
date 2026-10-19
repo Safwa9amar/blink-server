@@ -3,9 +3,12 @@ import { transactions } from "../db/schema";
 import { AGENT_ACCESS_CODES } from "../lib/agent-access";
 import { PaginationSchema, rowSchema } from "../openapi";
 
+// DB money columns are numeric(10,2); a chosen amount stays well under that.
+const cashAmount = z.number().positive("Amount must be positive").max(10_000_000, "Amount is too large");
+
 export const createDepositSchema = z
   .object({
-    amount: z.number().positive("Amount must be positive"),
+    amount: cashAmount,
     method: z.enum(["electronic", "agent"]),
     agent_id: z.string().uuid().optional(), // required if method is "agent"
     shop_id: z
@@ -18,7 +21,7 @@ export const createDepositSchema = z
 
 export const createWithdrawalSchema = z
   .object({
-    amount: z.number().positive("Amount must be positive"),
+    amount: cashAmount,
     method: z.enum(["electronic", "agent"]),
     agent_id: z.string().uuid().optional(),
     shop_id: z

@@ -2,6 +2,7 @@
 // (store_products.category); the customer app filters by
 // stores.menu_categories[].id == store_products.menu_category. These helpers
 // keep the two in step.
+import { withoutPriceAttribution } from "./price-history";
 
 /** Stable id for a category name ("Fresh Produce" → "fresh-produce"). */
 export function categorySlug(name: string, fallback = "other"): string {
@@ -26,7 +27,9 @@ export function normalizeStoreMenu<P extends ProductLike>(
 ): { menu: MenuCategory[]; products: P[] } {
   const out = [...(menu ?? [])];
   const known = new Set(out.map((m) => m.id));
-  const mapped = products.map((p) => {
+  // Also drops the write-only price attribution columns from what customers get.
+  const mapped = products.map((row) => {
+    const p = withoutPriceAttribution(row) as unknown as P;
     if (p.menu_category || !p.category) return p;
     const id = categorySlug(p.category);
     if (!known.has(id)) {

@@ -188,6 +188,8 @@ export interface OrderLineInput {
   quantity: number;
   unit_price: number;
   pack_id?: string;
+  /** An ordinary product line: the store_products id (src/lib/product-pricing.ts). */
+  product_id?: string;
 }
 
 /** A line as stored on the order. */
@@ -212,7 +214,8 @@ export type StoreOrderPricing =
  * Check and price a store order's lines. Pack lines must name a pack in
  * `packs` (the store's sellable packs, priced by pricePack) at the same price;
  * they're stored with the server price, the pack name and a contents
- * snapshot. Ordinary lines keep the client's price (out of scope here).
+ * snapshot. Ordinary lines are taken as given: priceProductLines has already
+ * put the live product price on them.
  * Subtotal = Σ unit_price × quantity. The delivery fee stays the store's (the
  * rider is paid it); what storeOrderDeliveryFee waives is `delivery_waived`,
  * which the order takes off as a merchant-funded discount.
@@ -228,7 +231,12 @@ export function priceStoreOrder(
 
   for (const line of lines) {
     if (!line.pack_id) {
-      items.push({ name: line.name, quantity: line.quantity, unit_price: line.unit_price });
+      items.push({
+        name: line.name,
+        quantity: line.quantity,
+        unit_price: line.unit_price,
+        ...(line.product_id ? { product_id: line.product_id } : {}),
+      });
       delivery.push({});
       continue;
     }

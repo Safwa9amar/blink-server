@@ -1,7 +1,7 @@
 // Validation + response schemas for the merchant app endpoints (/merchant/*).
 import { z } from "@hono/zod-openapi";
 import { merchantDuesPayments, storePacks } from "../db/schema";
-import { rowSchema } from "../openapi";
+import { PaginationSchema, rowSchema } from "../openapi";
 import { StoreProductSchema, StoreSchema } from "./marketplace";
 import { OrderSchema } from "./orders";
 
@@ -1203,3 +1203,48 @@ export const StoreInvitationListResponse = z
 export const respondInvitationSchema = z
   .object({ accept: z.boolean() })
   .openapi("RespondInvitationBody");
+
+// ─── Product price history ───────────────────────────────────────────
+// store_product_price_changes (written by a DB trigger): money as numbers;
+// the first row of a product has no old_* (a `created` / `baseline` row).
+export const PRICE_CHANGE_SOURCES = ["created", "merchant", "staff", "library", "system", "baseline"] as const;
+
+export const ProductPriceChange = z
+  .object({
+    id: z.string(),
+    old_price: z.number().nullable(),
+    new_price: z.number(),
+    old_blink_price: z.number().nullable(),
+    new_blink_price: z.number(),
+    source: z.enum(PRICE_CHANGE_SOURCES),
+    changed_at: z.string(),
+  })
+  .openapi("ProductPriceChange");
+
+/** GET /merchant/products/{id}/price-history — newest first, at most 100. */
+export const ProductPriceHistoryResponse = z
+  .object({ changes: z.array(ProductPriceChange) })
+  .openapi("ProductPriceHistoryResponse");
+
+/** GET /merchant/admin/price-changes */
+export const listPriceChangesSchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(50),
+  store_id: z.string().optional(),
+  product_id: z.string().optional(),
+  source: z.enum(PRICE_CHANGE_SOURCES).optional(),
+  from: z.string().datetime({ offset: true }).optional().openapi({ description: "Changed at or after (ISO 8601)" }),
+  to: z.string().datetime({ offset: true }).optional().openapi({ description: "Changed before (ISO 8601)" }),
+});
+
+export const AdminPriceChange = ProductPriceChange.extend({
+  product_id: z.string(),
+  product_title: z.string().nullable(),
+  store_id: z.string(),
+  store_name: z.string().nullable(),
+  changed_by: z.object({ id: z.string(), name: z.string().nullable() }).nullable(),
+}).openapi("AdminPriceChange");
+
+export const AdminPriceChangeListResponse = z
+  .object({ changes: z.array(AdminPriceChange), pagination: PaginationSchema })
+  .openapi("AdminPriceChangeListResponse");
