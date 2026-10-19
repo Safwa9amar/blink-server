@@ -96,6 +96,13 @@ const envSchema = z.object({
     (v) => (v === "" ? undefined : v),
     z.coerce.number().int().min(1).max(3).optional()
   ),
+  // Most phone numbers one notification may text (the dashboard's SMS channel).
+  // Every SMS leaves from the gateway phone's SIM, so a broadcast over this is
+  // refused before anything is sent.
+  SMS_BROADCAST_MAX: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.coerce.number().int().min(1).default(500)
+  ),
 });
 
 export const env = envSchema.parse(process.env);

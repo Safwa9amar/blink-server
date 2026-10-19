@@ -171,6 +171,14 @@ export async function broadcastNotification(
   roles: UserRole[],
   input: Omit<CreateNotificationInput, "userId" | "role">
 ): Promise<number> {
+  return (await broadcastToRoles(roles, input)).userIds.length;
+}
+
+/** broadcastNotification, also returning the users it reached (e.g. to text them too). */
+export async function broadcastToRoles(
+  roles: UserRole[],
+  input: Omit<CreateNotificationInput, "userId" | "role">
+): Promise<{ userIds: string[] }> {
   // Held, not just active: a rider currently switched to customer still gets
   // rider announcements, in the rider feed.
   const { data: users, error } = await supabaseAdmin
@@ -181,7 +189,7 @@ export async function broadcastNotification(
   if (error || !users || users.length === 0) {
     if (error)
       console.error("[notifications] broadcast user lookup failed", error.message);
-    return 0;
+    return { userIds: [] };
   }
 
   const notif = await insertNotificationContent({
@@ -196,7 +204,7 @@ export async function broadcastNotification(
     targetRoles: roles,
     createdBy: input.createdBy,
   });
-  if (!notif) return 0;
+  if (!notif) return { userIds: [] };
 
   // The targeted roles each user holds, in `roles` order.
   const held = users.map((u) => ({
@@ -215,7 +223,7 @@ export async function broadcastNotification(
     );
   if (recErr) {
     console.error("[notifications] broadcast recipients insert failed", recErr.message);
-    return 0;
+    return { userIds: [] };
   }
 
   // One push per device owner, opening the active role's copy when it was
@@ -233,5 +241,5 @@ export async function broadcastNotification(
     );
   }
 
-  return users.length;
+  return { userIds: held.map((u) => u.id) };
 }

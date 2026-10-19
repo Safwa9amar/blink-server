@@ -9,6 +9,7 @@ import test from "./test";
 import broadcastTest from "./broadcast-test";
 import del from "./delete";
 import restore from "./restore";
+import adminSms from "./admin-sms";
 
 const app = router();
 
@@ -18,6 +19,7 @@ app.use("/*", auth);
 // Static-path routers (devices, test, read-all) are registered before the
 // `/:id` param routers (detail, read, delete) so e.g. DELETE /devices and
 // PATCH /read-all aren't swallowed by the `:id` matchers.
+app.route("/", adminSms);
 app.route("/", devices);
 app.route("/", test);
 app.route("/", broadcastTest);
