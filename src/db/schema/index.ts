@@ -39,3 +39,5 @@ export * from "./staff-access-events";
 export * from "./support-desk";
 export * from "./referrals";
 export * from "./staff-notifications";
+export * from "./staff-mcp-tokens";
+export * from "./staff-mcp-audit";

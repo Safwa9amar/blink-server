@@ -35,6 +35,7 @@ import favoriteRoutes from "./routes/favorites";
 import merchantRoutes from "./routes/merchant";
 import courierRoutes from "./routes/courier";
 import rideRoutes from "./routes/ride";
+import mcpRoutes from "./mcp/route";
 import { metricsMiddleware } from "./middleware/metrics";
 
 // __APP_VERSION__ is injected from package.json at build time by
@@ -97,6 +98,7 @@ app.route("/library", libraryRoutes);
 app.route("/email", emailRoutes);
 app.route("/cron", cronRoutes);
 app.route("/hooks", hookRoutes);
+app.route("/mcp", mcpRoutes);
 
 // ─── OpenAPI spec (consumed by the mobile app's orval client) ────────
 mountDocs(app, VERSION);
