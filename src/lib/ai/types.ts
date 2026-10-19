@@ -23,6 +23,50 @@ export interface AIProvider {
   listModels(): Promise<string[]>;
   getClient?(): OpenAI;
   resolveModel?(model?: string): Promise<string>;
+  /** Embed a batch of strings (RAG). Optional — not every provider/wrapper has it. */
+  embed?(input: string[], opts?: EmbedOptions): Promise<EmbedResult>;
+  /** Embedding-capable model ids for this provider. */
+  listEmbeddingModels?(): Promise<string[]>;
+}
+
+export interface EmbedOptions {
+  model?: string;
+  /** Per-request timeout. Default AI_EMBED_TIMEOUT_MS or 60s (indexing). */
+  timeoutMs?: number;
+  /** SDK retries. Default 1. */
+  maxRetries?: number;
+}
+
+export interface EmbedResult {
+  embeddings: number[][];
+  model: string;
+}
+
+/** Max inputs per embeddings request. */
+export const EMBED_BATCH = 64;
+
+/** Shared batching over an OpenAI-compatible embeddings endpoint. */
+export async function embedBatched(
+  client: OpenAI,
+  model: string,
+  input: string[],
+  opts: Pick<EmbedOptions, "timeoutMs" | "maxRetries"> = {}
+): Promise<number[][]> {
+  const out: number[][] = [];
+  for (let i = 0; i < input.length; i += EMBED_BATCH) {
+    const slice = input.slice(i, i + EMBED_BATCH);
+    const res = await client.embeddings.create(
+      { model, input: slice, encoding_format: "float" },
+      {
+        timeout: opts.timeoutMs ?? (Number(process.env.AI_EMBED_TIMEOUT_MS) || 60_000),
+        maxRetries: opts.maxRetries ?? 1,
+      }
+    );
+    const sorted = [...res.data].sort((a, b) => a.index - b.index);
+    if (sorted.length !== slice.length) throw new Error("embeddings: unexpected result count");
+    for (const d of sorted) out.push(d.embedding as number[]);
+  }
+  return out;
 }
 
 // Optional caller context attached to a chat() call, surfaced in the AI-log
@@ -35,6 +79,10 @@ export interface AiLogContext {
   userId?: string | null;
   userRole?: string | null;
   locale?: string | null;
+  /** Support-bot KB path that ran: "rag-hybrid" | "rag-keyword" | "full-kb" | "full-kb-fallback". */
+  kbMode?: string | null;
+  /** Number of KB chunks injected (RAG) or articles (full KB). */
+  kbChunks?: number | null;
 }
 
 export interface ChatOptions {

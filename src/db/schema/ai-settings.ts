@@ -18,6 +18,12 @@ export const aiSettings = pgTable("ai_settings", {
   openrouterApiKey: text("openrouter_api_key"),
   ollamaUrl: text("ollama_url"),
   lmstudioUrl: text("lmstudio_url"),
+  // Support-bot RAG (hybrid pgvector + keyword retrieval) — see support_kb_chunks.
+  ragEnabled: boolean("rag_enabled").notNull().default(false),
+  embeddingProvider: text("embedding_provider").notNull().default("openrouter"),
+  embeddingModel: text("embedding_model"), // null → embedding provider default
+  ragTopK: integer("rag_top_k").notNull().default(6),
+  ragMinScore: real("rag_min_score").notNull().default(0.3),
   updatedBy: uuid("updated_by"),
   ...timestamps,
 });

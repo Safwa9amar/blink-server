@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import type { AIProvider, ChatMessage, ChatOptions, AIResponse, LMModel } from "./types";
-import { DEFAULT_SYSTEM_PROMPT } from "./types";
+import { DEFAULT_SYSTEM_PROMPT, embedBatched, type EmbedOptions, type EmbedResult } from "./types";
 
 export class LMStudioProvider implements AIProvider {
   name = "lmstudio";
@@ -117,6 +117,20 @@ export class LMStudioProvider implements AIProvider {
     } catch {
       return [];
     }
+  }
+
+  async embed(input: string[], opts?: EmbedOptions): Promise<EmbedResult> {
+    let model = opts?.model;
+    if (!model) {
+      const models = await this.listEmbeddingModels();
+      model = models[0] || "text-embedding-nomic-embed-text-v1.5";
+    }
+    return { embeddings: await embedBatched(this.client, model, input, opts), model };
+  }
+
+  async listEmbeddingModels(): Promise<string[]> {
+    const models = await this.listModelsDetailed();
+    return models.filter((m) => m.type === "embeddings").map((m) => m.id).filter(Boolean);
   }
 
   /**

@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import type { AIProvider, ChatMessage, ChatOptions, AIResponse } from "./types";
-import { DEFAULT_SYSTEM_PROMPT, reasoningEnabled } from "./types";
+import { DEFAULT_SYSTEM_PROMPT, reasoningEnabled, embedBatched, type EmbedOptions, type EmbedResult } from "./types";
 
 // OpenRouter extension: explicitly disable reasoning when it's turned off, so
 // non-reasoning models (e.g. Gemma) aren't asked to think. Empty when on.
@@ -11,6 +11,13 @@ function reasoningParam(options?: ChatOptions): Record<string, unknown> {
 // Fast, cheap default. Free 550B models on OpenRouter are queued and slow —
 // this is the main lever for response latency. Override with OPENROUTER_MODEL.
 const DEFAULT_MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash";
+
+// Embedding default, picked by an eval on the real support FAQs (question → its
+// answer, en/fr/ar): gemini-embedding-001 hit@1 91/90/88%, vs 89/82/68% for
+// openai/text-embedding-3-small, which is weak on Arabic. Override with
+// OPENROUTER_EMBED_MODEL or ai_settings.embedding_model.
+export const DEFAULT_EMBED_MODEL =
+  process.env.OPENROUTER_EMBED_MODEL || "google/gemini-embedding-001";
 
 export class OpenRouterProvider implements AIProvider {
   name = "openrouter";
@@ -98,6 +105,36 @@ export class OpenRouterProvider implements AIProvider {
 
   async resolveModel(model?: string): Promise<string> {
     return model || DEFAULT_MODEL;
+  }
+
+  async embed(input: string[], opts?: EmbedOptions): Promise<EmbedResult> {
+    const model = opts?.model || DEFAULT_EMBED_MODEL;
+    return { embeddings: await embedBatched(this.client, model, input, opts), model };
+  }
+
+  async listEmbeddingModels(): Promise<string[]> {
+    const fallback = [
+      DEFAULT_EMBED_MODEL,
+      "qwen/qwen3-embedding-4b",
+      "openai/text-embedding-3-small",
+      "openai/text-embedding-3-large",
+      "baai/bge-m3",
+      "intfloat/multilingual-e5-large",
+    ];
+    try {
+      const res = await fetch("https://openrouter.ai/api/v1/models?output_modalities=embeddings", {
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!res.ok) return fallback;
+      const json = (await res.json()) as { data?: { id?: string }[] };
+      const ids = (json.data ?? [])
+        .map((m) => m.id)
+        .filter((id): id is string => typeof id === "string" && id.length > 0)
+        .sort();
+      return ids.length ? ids : fallback;
+    } catch {
+      return fallback;
+    }
   }
 
   async listModels(): Promise<string[]> {

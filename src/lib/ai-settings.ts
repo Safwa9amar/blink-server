@@ -1,5 +1,11 @@
 import { supabaseAdmin } from "./supabase";
-import { OpenRouterProvider, OllamaProvider, LMStudioProvider, type AIProvider } from "./ai";
+import {
+  OpenRouterProvider,
+  OllamaProvider,
+  LMStudioProvider,
+  OPENROUTER_DEFAULT_EMBED_MODEL,
+  type AIProvider,
+} from "./ai";
 import { instrumentProvider } from "./ai-log";
 
 export type ProviderId = "openrouter" | "ollama" | "lmstudio";
@@ -17,6 +23,24 @@ export interface AiConfig {
   reasoning: boolean;
   apiKey: string | null; // active provider's credential (openrouter key)
   baseUrl: string | null; // active provider's endpoint (ollama / lmstudio url)
+  // Support-bot RAG — from `ai_settings`.
+  ragEnabled: boolean;
+  embeddingProvider: ProviderId;
+  embeddingModel: string | null; // null → embedding provider default
+  ragTopK: number;
+  ragMinScore: number;
+}
+
+function asProvider(v: unknown): ProviderId {
+  return v === "ollama" || v === "lmstudio" || v === "openrouter" ? v : "openrouter";
+}
+function clampInt(v: unknown, min: number, max: number, dflt: number): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? Math.min(max, Math.max(min, Math.round(n))) : dflt;
+}
+function clampNum(v: unknown, min: number, max: number, dflt: number): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : dflt;
 }
 
 /** Per-provider config shape (one row of `ai_provider_configs`). */
@@ -51,6 +75,11 @@ const DEFAULTS: AiConfig = {
   reasoning: false,
   apiKey: null,
   baseUrl: null,
+  ragEnabled: false,
+  embeddingProvider: "openrouter",
+  embeddingModel: null,
+  ragTopK: 6,
+  ragMinScore: 0.3,
 };
 
 let cache: { value: AiConfig; at: number } | null = null;
@@ -80,12 +109,14 @@ export async function getProviderConfig(provider: ProviderId): Promise<ProviderC
  * bot_enabled, system_prompt_extra) come from `ai_settings`; the model/params/
  * credential come from the ACTIVE provider's `ai_provider_configs` row.
  */
-export async function getAiConfig(): Promise<AiConfig> {
-  if (cache && Date.now() - cache.at < TTL_MS) return cache.value;
+export async function getAiConfig(opts?: { fresh?: boolean }): Promise<AiConfig> {
+  if (!opts?.fresh && cache && Date.now() - cache.at < TTL_MS) return cache.value;
 
   const { data: settings } = await supabaseAdmin
     .from("ai_settings")
-    .select("provider, bot_enabled, system_prompt, system_prompt_extra")
+    .select(
+      "provider, bot_enabled, system_prompt, system_prompt_extra, rag_enabled, embedding_provider, embedding_model, rag_top_k, rag_min_score"
+    )
     // Order by updated_at to match the dashboard reader/writer (which edit the
     // most-recently-updated row); avoids the two diverging on a stray 2nd row.
     .order("updated_at", { ascending: false })
@@ -111,6 +142,11 @@ export async function getAiConfig(): Promise<AiConfig> {
     reasoning: pc.reasoning,
     apiKey: pc.apiKey,
     baseUrl: pc.baseUrl,
+    ragEnabled: settings.rag_enabled ?? false,
+    embeddingProvider: asProvider(settings.embedding_provider),
+    embeddingModel: settings.embedding_model?.trim() || null,
+    ragTopK: clampInt(settings.rag_top_k, 1, 20, 6),
+    ragMinScore: clampNum(settings.rag_min_score, 0, 1, 0.3),
   };
   cache = { value, at: Date.now() };
   return value;
@@ -162,4 +198,44 @@ export async function buildProviderFor(
   const pc = await getProviderConfig(provider);
   const baseUrl = overrides?.baseUrl?.trim();
   return buildFromProviderConfig(baseUrl ? { ...pc, baseUrl } : pc);
+}
+
+/** Provider used to embed KB chunks + queries (its own credential/url). */
+export async function buildEmbeddingProvider(cfg: AiConfig): Promise<AIProvider> {
+  return buildProviderFor(cfg.embeddingProvider);
+}
+
+/** Built-in default embedding model id per provider (LM Studio resolves at call time). */
+export function defaultEmbeddingModel(provider: ProviderId): string {
+  if (provider === "ollama") return "bge-m3";
+  if (provider === "lmstudio") return "text-embedding-nomic-embed-text-v1.5";
+  return OPENROUTER_DEFAULT_EMBED_MODEL;
+}
+
+let lmEmbedCache: { id: string; at: number } | null = null;
+
+/**
+ * The effective embedding model id: the configured one, else the provider default.
+ * For LM Studio with no configured model, the first loaded embedding model wins
+ * (matches LMStudioProvider.embed) so the id we tag rows with is the one used.
+ */
+export async function resolveEmbeddingModel(
+  cfg: AiConfig,
+  provider?: AIProvider
+): Promise<string> {
+  if (cfg.embeddingModel) return cfg.embeddingModel;
+  if (cfg.embeddingProvider === "lmstudio") {
+    if (lmEmbedCache && Date.now() - lmEmbedCache.at < 60_000) return lmEmbedCache.id;
+    try {
+      const p = provider ?? (await buildEmbeddingProvider(cfg));
+      const list = (await p.listEmbeddingModels?.()) ?? [];
+      if (list[0]) {
+        lmEmbedCache = { id: list[0], at: Date.now() };
+        return list[0];
+      }
+    } catch {
+      /* fall through */
+    }
+  }
+  return defaultEmbeddingModel(cfg.embeddingProvider);
 }

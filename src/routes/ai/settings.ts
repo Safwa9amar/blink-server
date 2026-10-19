@@ -13,6 +13,11 @@ const DEFAULT_SETTINGS = {
   provider: "openrouter" as ProviderId,
   bot_enabled: true,
   system_prompt_extra: null as string | null,
+  rag_enabled: false,
+  embedding_provider: "openrouter" as ProviderId,
+  embedding_model: null as string | null,
+  rag_top_k: 6,
+  rag_min_score: 0.3,
 };
 
 // Per-provider defaults — returned for any provider missing its config row.
@@ -47,7 +52,9 @@ function maskProvider(row: Record<string, unknown>) {
 app.get("/settings", async (c) => {
   const { data: settingsRow, error: settingsErr } = await supabaseAdmin
     .from("ai_settings")
-    .select("provider, bot_enabled, system_prompt_extra")
+    .select(
+      "provider, bot_enabled, system_prompt_extra, rag_enabled, embedding_provider, embedding_model, rag_top_k, rag_min_score"
+    )
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();

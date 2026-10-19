@@ -7,7 +7,7 @@ import { instrumentProvider } from "../ai-log";
 
 export type { AIProvider, ChatMessage, ChatOptions, AIResponse, LMModel } from "./types";
 export { DEFAULT_SYSTEM_PROMPT, reasoningEnabled } from "./types";
-export { OpenRouterProvider } from "./openrouter";
+export { OpenRouterProvider, DEFAULT_EMBED_MODEL as OPENROUTER_DEFAULT_EMBED_MODEL } from "./openrouter";
 export { OllamaProvider } from "./ollama";
 export { LMStudioProvider } from "./lmstudio";
 

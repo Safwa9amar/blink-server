@@ -3,19 +3,14 @@ import { supabaseAdmin } from "./supabase";
 import type { ChatMessage } from "./ai";
 import { getAiConfig, buildProvider } from "./ai-settings";
 import { buildSupportSystemPrompt, parseEscalation } from "./ai/support-prompt";
+import { ROLE_LABEL } from "./support-kb-text";
+import { retrieveKb, buildRetrievalQuery } from "./support-kb-retrieval";
+import { ensureKbIndexFresh } from "./support-kb-index";
 import { tokensForUser, sendPushToTokens } from "./push";
 import type { SupportConversationRow, SupportMessageRow, SupportMessageSender } from "../db";
 
 const PREVIEW_LEN = 120;
 
-// The app user_role enum is lowercase ("rider"); support `target_roles` use the
-// dashboard's capitalized labels ("Rider"). Map one to the other for targeting.
-const ROLE_LABEL: Record<string, string> = {
-  customer: "Customer",
-  rider: "Rider",
-  merchant: "Merchant",
-  agent: "Agent",
-};
 
 /** Build the bot's KB text from all PUBLISHED articles+FAQs for this role+locale. */
 export async function fetchKbForRole(role: string, locale: string): Promise<string> {
@@ -118,10 +113,35 @@ export async function runBotTurn(
     await escalateConversation(conversation, "bot disabled");
     return;
   }
-  const kbText = await fetchKbForRole(
-    (conversation as any).user_role,
-    conversation.locale
-  );
+  const role = (conversation as any).user_role as string;
+  const messages = toChatMessages(history);
+  let kbText = "";
+  let kbMode = "full-kb";
+  let kbChunks: number | null = null;
+  if (cfg.ragEnabled) {
+    try {
+      ensureKbIndexFresh(cfg); // background; never awaited
+      const r = await retrieveKb({
+        role,
+        locale: conversation.locale,
+        query: buildRetrievalQuery(messages),
+        cfg,
+      });
+      // Keyword-only means the embedding call failed; its OR-of-words matches are
+      // too thin to answer from, so the bot falls back to the full KB instead.
+      if (r.mode === "hybrid" && r.results.length) {
+        kbText = r.text;
+        kbMode = "rag-hybrid";
+        kbChunks = r.results.length;
+      } else {
+        kbMode = "full-kb-fallback";
+      }
+    } catch (e) {
+      console.error("[support-chat] RAG failed, using full KB", (e as Error).message);
+      kbMode = "full-kb-fallback";
+    }
+  }
+  if (!kbText) kbText = await fetchKbForRole(role, conversation.locale);
   const base = buildSupportSystemPrompt(
     (conversation as any).user_role,
     conversation.locale,
@@ -129,7 +149,6 @@ export async function runBotTurn(
     cfg.systemPrompt
   );
   const systemPrompt = base + (cfg.systemPromptExtra ? "\n\n" + cfg.systemPromptExtra : "");
-  const messages = toChatMessages(history);
   let replyText: string;
   try {
     const res = await buildProvider(cfg).chat(messages, {
@@ -145,6 +164,8 @@ export async function runBotTurn(
         userId: (conversation as any).user_id ?? null,
         userRole: (conversation as any).user_role ?? null,
         locale: conversation.locale,
+        kbMode,
+        kbChunks,
       },
     });
     replyText = res.content;

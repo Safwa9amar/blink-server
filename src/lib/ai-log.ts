@@ -39,6 +39,8 @@ export interface AiLogEntry {
   userId?: string | null;
   userRole?: string | null;
   locale?: string | null;
+  kbMode?: string | null; // support-bot KB path: rag-hybrid | rag-keyword | full-kb | full-kb-fallback
+  kbChunks?: number | null;
   provider?: string | null;
   model?: string | null;
   statusCode?: number | null; // provider HTTP status (429 rate-limit / 402 out-of-credits)
@@ -301,6 +303,8 @@ function ctxFields(ctx?: AiLogContext) {
     userId: ctx?.userId ?? null,
     userRole: ctx?.userRole ?? null,
     locale: ctx?.locale ?? null,
+    kbMode: ctx?.kbMode ?? null,
+    kbChunks: ctx?.kbChunks ?? null,
   };
 }
 
@@ -398,5 +402,41 @@ export function instrumentProvider(provider: AIProvider): AIProvider {
   // Forward the optional surface (used by the models/probe paths) unchanged.
   if (provider.getClient) wrapped.getClient = provider.getClient.bind(provider);
   if (provider.resolveModel) wrapped.resolveModel = provider.resolveModel.bind(provider);
+  if (provider.listEmbeddingModels) wrapped.listEmbeddingModels = provider.listEmbeddingModels.bind(provider);
+  if (provider.embed) {
+    wrapped.embed = async (input, opts) => {
+      const startedAt = Date.now();
+      const base = { ...ctxFields({ source: "kb-embed" }), provider: provider.name };
+      try {
+        const res = await provider.embed!(input, opts);
+        logAiEvent({
+          ...base,
+          level: "info",
+          kind: "reply",
+          model: res.model,
+          statusCode: 200,
+          message: `embed x${input.length}`,
+          userMessage: null,
+          tokens: null,
+          latencyMs: Date.now() - startedAt,
+        });
+        return res;
+      } catch (e) {
+        const info = classifyAiError(e);
+        logAiEvent({
+          ...base,
+          level: info.level,
+          kind: info.kind,
+          model: opts?.model ?? null,
+          statusCode: info.statusCode,
+          message: `embed: ${info.message}`,
+          userMessage: null,
+          tokens: null,
+          latencyMs: Date.now() - startedAt,
+        });
+        throw e;
+      }
+    };
+  }
   return wrapped;
 }

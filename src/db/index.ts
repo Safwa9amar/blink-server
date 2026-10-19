@@ -16,6 +16,7 @@ export * from "./schema/support-messages";
 export * from "./schema/support-categories";
 export * from "./schema/support-articles";
 export * from "./schema/ai-settings";
+export * from "./schema/support-kb-chunks";
 export * from "./schema/ai-provider-configs";
 export * from "./schema/alert-rules";
 export * from "./schema/alert-events";

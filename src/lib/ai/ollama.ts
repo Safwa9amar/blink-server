@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import type { AIProvider, ChatMessage, ChatOptions, AIResponse } from "./types";
-import { DEFAULT_SYSTEM_PROMPT } from "./types";
+import { DEFAULT_SYSTEM_PROMPT, embedBatched, type EmbedOptions, type EmbedResult } from "./types";
 
 export class OllamaProvider implements AIProvider {
   name = "ollama";
@@ -76,6 +76,17 @@ export class OllamaProvider implements AIProvider {
     } catch {
       return [];
     }
+  }
+
+  async embed(input: string[], opts?: EmbedOptions): Promise<EmbedResult> {
+    const model = opts?.model || "bge-m3";
+    return { embeddings: await embedBatched(this.client, model, input, opts), model };
+  }
+
+  async listEmbeddingModels(): Promise<string[]> {
+    const all = await this.listModels();
+    const emb = all.filter((n) => /embed|bge|e5|minilm|mpnet|gte|arctic|nomic/i.test(n));
+    return emb.length ? emb : all;
   }
 
   async isAvailable(): Promise<boolean> {
