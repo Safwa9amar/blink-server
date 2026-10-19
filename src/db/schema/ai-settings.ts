@@ -24,6 +24,10 @@ export const aiSettings = pgTable("ai_settings", {
   embeddingModel: text("embedding_model"), // null → embedding provider default
   ragTopK: integer("rag_top_k").notNull().default(6),
   ragMinScore: real("rag_min_score").notNull().default(0.3),
+  // Staff AI assistant (dashboard chat) — 20261019220000_staff_assistant.sql.
+  assistantEnabled: boolean("assistant_enabled").notNull().default(true),
+  assistantProvider: text("assistant_provider").notNull().default("openrouter"),
+  assistantModel: text("assistant_model"), // null → server default
   updatedBy: uuid("updated_by"),
   ...timestamps,
 });

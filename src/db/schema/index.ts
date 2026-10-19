@@ -41,3 +41,5 @@ export * from "./referrals";
 export * from "./staff-notifications";
 export * from "./staff-mcp-tokens";
 export * from "./staff-mcp-audit";
+export * from "./staff-assistant-threads";
+export * from "./staff-assistant-messages";

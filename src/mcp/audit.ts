@@ -7,7 +7,7 @@ let warned = false;
 /** Fire-and-forget: an audit failure must never fail (or delay) the tool call. */
 export function auditToolCall(
   ctx: McpContext,
-  e: { tool: string; args: unknown; ok: boolean; error?: string; rowCount?: number; durationMs: number }
+  e: { tool: string; args: unknown; ok: boolean; error?: string; rowCount?: number; durationMs: number; source?: "mcp" | "assistant" }
 ): void {
   void (async () => {
     try {
@@ -20,6 +20,7 @@ export function auditToolCall(
         error: e.error ? e.error.slice(0, 500) : null,
         row_count: e.rowCount ?? null,
         duration_ms: Math.round(e.durationMs),
+        ...(e.source && e.source !== "mcp" ? { source: e.source } : {}),
       });
       if (error && !warned) {
         warned = true;

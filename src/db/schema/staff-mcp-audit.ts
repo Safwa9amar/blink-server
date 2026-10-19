@@ -15,6 +15,7 @@ export const staffMcpAudit = pgTable(
     error: text("error"),
     rowCount: integer("row_count"),
     durationMs: integer("duration_ms"),
+    source: text("source").notNull().default("mcp"), // 'mcp' | 'assistant'
     createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
   },
   (t) => [
