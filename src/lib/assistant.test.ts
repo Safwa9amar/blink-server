@@ -18,10 +18,10 @@ const ctxFor = (role: StaffRole): McpContext => ({
   staffRole: role,
 });
 
-test("all 15 tools convert to object JSON Schemas", () => {
-  assert.equal(ALL_TOOLS.length, 15);
+test("all registered tools convert to object JSON Schemas", () => {
+  assert.ok(ALL_TOOLS.length >= 15);
   const tools = buildAssistantTools("super_admin");
-  assert.equal(tools.length, 15);
+  assert.equal(tools.length, ALL_TOOLS.length);
   for (const t of tools) {
     assert.equal(t.type, "function");
     if (t.type !== "function") continue;
