@@ -8,6 +8,7 @@ import { getSupportConversation, listSupportConversations } from "./support";
 import { opsSummary, serverInfo } from "./ops";
 import { FIELD_OPS_TOOLS } from "./field-ops";
 import { FINANCE_TOOLS } from "./finance";
+import { COMMERCE_TOOLS } from "./commerce";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ALL_TOOLS: ToolDef<any>[] = [
@@ -28,4 +29,5 @@ export const ALL_TOOLS: ToolDef<any>[] = [
   serverInfo,
   ...FIELD_OPS_TOOLS,
   ...FINANCE_TOOLS,
+  ...COMMERCE_TOOLS,
 ];
