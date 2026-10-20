@@ -38,9 +38,7 @@ export const opsSummary = defineTool({
   name: "ops_summary",
   title: "Operations summary",
   description:
-    "Platform counts for a date range (read-only, Africa/Algiers days; defaults to TODAY): orders by status and by type, trips by status, new users by role, " +
-    "and Blink Cash transactions by type x status with completed amount totals in DZD (sums read at most 5000 rows per type; `amount_sum_truncated` flags that). " +
-    "Use created_from/created_to as YYYY-MM-DD (to is inclusive). Cheap count queries only.",
+    "Platform counts for a date range (read-only; Algiers days, default today, `to` inclusive): orders by status and type, trips by status, new users by role, Blink Cash by type x status with completed DZD sums (`amount_sum_truncated` past 5000 rows).",
   roles: ["ops_admin", "finance_admin"],
   input: { created_from: createdFrom, created_to: createdTo },
   handler: async (a) => {

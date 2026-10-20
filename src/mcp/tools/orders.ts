@@ -22,9 +22,7 @@ export const listOrders = defineTool({
   name: "list_orders",
   title: "List orders",
   description:
-    "List orders (read-only), newest first. Order types: merchant (store delivery), shopper, courier (parcel), ride. " +
-    "Filters: status, type, customer_id, rider_id, store_id (merchant store), created_from/created_to. " +
-    "Money fields are DZD. Returns items {id, type, status, merchant_status, customer_id, rider_id, store_id, store_name, subtotal, delivery_fee, service_fee, discount, total, created_at, delivered_at, canceled_at, cancel_reason...} + total/next_offset. Use get_order for items and trip.",
+    "List orders newest first (read-only). Types: merchant (store delivery), shopper, courier, ride. Filters: status, type, customer_id, rider_id, store_id, created_from/to. Money in DZD (subtotal, fees, discount, total). Use get_order for line items and the trip.",
   roles: [...ROLES],
   input: {
     status: z.enum(ORDER_STATUS).optional(),
@@ -58,8 +56,7 @@ export const getOrder = defineTool({
   name: "get_order",
   title: "Get order",
   description:
-    "One order by id (read-only): all list fields plus line items (name, quantity, unit_price in DZD, pack contents), addresses, timeline timestamps, " +
-    "courier/ride details (phone numbers removed), ratings, plus `customer` and `rider` names and the linked `trip` (rider payout, distance, status) when one exists.",
+    "One order by id (read-only): list fields plus line items (qty, unit price DZD, pack contents), addresses, timeline, courier/ride details (no phones), ratings, customer and rider names, and the linked trip (payout, distance, status).",
   roles: [...ROLES],
   input: { order_id: uuidField("Order id") },
   handler: async ({ order_id }) => {

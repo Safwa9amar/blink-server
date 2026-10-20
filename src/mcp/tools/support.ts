@@ -12,8 +12,7 @@ export const listSupportConversations = defineTool({
   name: "list_support_conversations",
   title: "List support conversations",
   description:
-    "List support-desk conversations (read-only), most recently active first. Status: bot (AI handling) | waiting (needs a human) | assigned | resolved. " +
-    "Filters: status, user_id, assigned_agent_id, priority (e.g. normal|high), created_from/created_to. Returns items with subject, last_message_preview, csat and unread counts + total/next_offset.",
+    "List support conversations by latest activity (read-only). Status: bot | waiting (needs a human) | assigned | resolved. Filters: status, user_id, assigned_agent_id, priority, created_from/to. Returns subject, last message preview, CSAT, unread counts.",
   roles: [...ROLES],
   input: {
     status: z.enum(["bot", "waiting", "assigned", "resolved"]).optional(),

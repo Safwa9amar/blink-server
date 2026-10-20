@@ -19,11 +19,7 @@ export const findUsers = defineTool({
   name: "find_users",
   title: "Find users",
   description:
-    "Search Blink app users (read-only). `query` is auto-detected: a Blink public id (BK-RR-100123 rider, BK-CU- customer, " +
-    "BK-MR- merchant, BK-AG- agent), an email (contains @), a phone number (digits, any format), a uuid, or part of a name " +
-    "(every word must match first/last/middle name). Optional `role` filters on the ACTIVE app role or any granted role. " +
-    "Returns items {id, first_name, last_name, role, granted_roles, staff_role, phone_number, email, wilaya, created_at}, newest first, " +
-    "plus total/next_offset. Use the returned id with get_user, list_orders, get_wallet etc. This is the only tool family that returns phone/email.",
+    "Find app users (read-only). `query`: Blink id (BK-RR-/BK-CU-/BK-MR-/BK-AG-…), email, phone (any format), uuid, or name words (all must match). Optional `role` (active or granted). Returns id, names, roles, staff_role, phone, email, wilaya. Pass the id to get_user, list_orders, get_wallet…",
   input: {
     query: z.string().min(1).max(80).describe("Name, phone, email, uuid or BK-xx-###### id."),
     role: z.enum(["customer", "rider", "merchant", "agent"]).optional().describe("Only users who have this app role."),
@@ -70,9 +66,7 @@ export const getUser = defineTool({
   name: "get_user",
   title: "Get user",
   description:
-    "One user by id (read-only): identity, phone/email, active + granted roles, staff_role, masked bank RIB (last 4 only), and a summary of each role profile — " +
-    "customer_profile {customer_id}, rider_profile {rider_id, vehicle_type, verification_status, is_available, location_updated_at} + vehicle {brand, model, license_plate, year, color, category, document statuses}, " +
-    "merchant_profile {merchant_id} + stores [{id, name, status}], agent_profile {agent_id} + agent_shops [{id, shop_name, status}]. Never returns the PIN, tokens or document files.",
+    "One user by id (read-only): identity, phone/email, roles, staff_role, RIB last 4, and each role profile: rider (rider_id, vehicle, verification, availability), merchant stores, agent shops, customer id. Never returns the PIN, tokens or document files.",
   input: { user_id: uuidField("User id (from find_users).") },
   handler: async ({ user_id }) => {
     const { data: u } = must(

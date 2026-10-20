@@ -15,15 +15,13 @@ export const listTransactions = defineTool({
   name: "list_transactions",
   title: "List Blink Cash transactions",
   description:
-    "List Blink Cash transactions (deposits and withdrawals of riders/agents, processed via an agent or electronically), newest first (read-only). " +
-    "Filters: user_id (the rider/agent account owning the transaction), agent_id (agent who processed it), type (deposit|withdrawal), status (pending|completed|cancelled), created_from/created_to. " +
-    "amount, fees, total are DZD. Returns items + total/next_offset.",
+    "List Blink Cash deposits/withdrawals newest first (read-only), via an agent or electronic. Filters: user_id (owner), agent_id (processor), type, status (pending|review|completed|cancelled|reversed), created_from/to. Amount, fees, total in DZD.",
   roles: [...ROLES],
   input: {
     user_id: uuidField("Owner (rider or agent) user id").optional(),
     agent_id: uuidField("Agent who processed it").optional(),
     type: z.enum(["deposit", "withdrawal"]).optional(),
-    status: z.enum(["pending", "completed", "cancelled"]).optional(),
+    status: z.enum(["pending", "review", "completed", "cancelled", "reversed"]).optional(),
     created_from: createdFrom,
     created_to: createdTo,
     limit: limitField,
@@ -68,8 +66,7 @@ export const getWallet = defineTool({
   name: "get_wallet",
   title: "Get Blink Cash wallet",
   description:
-    "A user's Blink Cash position (read-only, DZD). For a rider: wallet {total, available, pending} computed from completed transactions, trip payouts/penalties and challenge rewards. " +
-    "For an agent: dues {total_dues (cash owed to Blink), credit, breakdown}. For a merchant: totals of completed dues payments (outstanding per-store dues are shown in the dashboard). Sections are included according to the user's granted roles.",
+    "A user's Blink Cash position in DZD (read-only): rider wallet (total, available, pending), agent dues (owed to Blink, credit, breakdown), merchant dues payments. Sections follow the user's roles. For ledger entries use get_wallet_ledger.",
   roles: [...ROLES],
   input: { user_id: uuidField("User id (from find_users).") },
   handler: async ({ user_id }) => {
