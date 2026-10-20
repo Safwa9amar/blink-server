@@ -53,6 +53,57 @@ Money is DZD. Lists return `{ items, total, next_offset }`, newest first, `limit
 | `ops_summary` | Counts for a date range (default today, Africa/Algiers) | ops, finance |
 | `server_info` | Version, uptime, node, active AI provider (no keys) | all staff |
 
+**Finance & Blink Cash** (`src/mcp/tools/finance.ts`)
+
+| Tool | Purpose | Roles (besides super_admin) |
+| --- | --- | --- |
+| `get_wallet_ledger` | A user's ledger wallet (balance, held, frozen) + entries | finance, ops |
+| `list_cash_reviews` | Electronic deposits/withdrawals waiting for staff (masked payout, `has_receipt`) | finance, ops |
+| `get_agent_dues`, `list_agent_dues` | One agent's dues + credit limit/capacity; agents ranked by dues | finance, ops |
+| `list_dues_payments` | Agent or merchant dues payments, recorded/confirmed by | finance, ops |
+| `get_blink_cash_config` | Limits, expiry, electronic/PIN flags, current Pricing fee rates, active offers | finance, ops |
+| `list_finance_audit` | `finance_audit_events` | finance |
+| `cash_flow_summary` | Deposits/withdrawals by status + method, fee split, reversals for a range | finance, ops |
+
+**Commerce, catalog & pricing** (`src/mcp/tools/commerce.ts`)
+
+| Tool | Purpose | Roles (besides super_admin) |
+| --- | --- | --- |
+| `list_store_products` | Products by store / search, price, stock, review status | commerce, ops |
+| `catalog_review_queue` | Pending products, price suggestions, stores, packs, documents (no URLs) | commerce, ops |
+| `list_price_changes` | Product price history (old → new, source, who) | commerce, ops, finance |
+| `list_packs` | Packs with computed price and status | commerce, ops |
+| `get_pricing_config`, `simulate_price` | Pricing catalog + overrides; fee breakdown for a hypothetical case | commerce, ops, finance |
+| `list_promotions`, `list_coupons` | Promotions with availability + stats; coupons with status | commerce, ops |
+| `search_library_products` | Scraped library catalog | commerce, ops |
+
+**Field ops & metrics** (`src/mcp/tools/field-ops.ts`) — never exact rider coordinates
+
+| Tool | Purpose | Roles (besides super_admin) |
+| --- | --- | --- |
+| `list_riders`, `rider_verification_queue` | Riders with status/availability; pending/rejected documents (no files) | ops, hr |
+| `get_rider_stats` | One rider over a range: trips, payouts, penalties, rating, declines, wallet | ops |
+| `list_agents` | Agents with shops, document status, 30-day operations, dues | ops, hr |
+| `live_ops_snapshot` | Searching/stuck orders, active orders, riders online, pending cash, waiting chats | ops, support |
+| `metrics_timeseries` | Daily orders, GMV, trips, new users, Blink Cash volume (≤ 92 days) | ops |
+| `top_performers`, `demand_summary` | Top stores/riders/agents; demand by hour and wilaya, unmet, time to assign | ops |
+
+**Support, comms & audit** (`src/mcp/tools/platform.ts`)
+
+| Tool | Purpose | Roles (besides super_admin) |
+| --- | --- | --- |
+| `search_help_center` | RAG search of published help-center articles | all staff |
+| `kb_index_status` | Support KB index health | support |
+| `support_desk_summary` | Conversations by status, escalations, SLA breaches, CSAT, per agent | support, ops |
+| `list_broadcasts` | Scheduled notifications or news posts | support, ops |
+| `list_account_deletion_requests` | Deletion requests (name only) | support, hr, ops |
+| `referral_stats` | Codes applied, rewards, top referrers | ops, commerce |
+| `my_staff_notifications` | The caller's own inbox, only the kinds their role sees in the dashboard | all staff |
+| `staff_activity_audit` | Staff MCP/assistant tool calls and access changes | super_admin only |
+| `list_alerts` | Alert rules + recent events | ops |
+
+Descriptions are kept ≤ 300 chars (enforced by `src/lib/assistant.test.ts`): every tool the caller's role may use is sent to the assistant model on each call.
+
 ## Security model
 
 - **Read-only, curated.** No writes, no raw SQL. Every query uses an explicit column allowlist.
