@@ -62,6 +62,7 @@ test("my_staff_notifications is scoped to ctx.user.id and takes no user input", 
     const b: any = {
       select: () => b,
       order: () => b,
+      in: (col: string, vs: string[]) => ((seen[`${table}.in`] ??= []).push(`${col}:${vs.length}`), b),
       limit: () => Promise.resolve({ data: [], error: null }),
       eq: (col: string, v: string) => {
         (seen[table] ??= []).push(`${col}=${v}`);
@@ -75,7 +76,23 @@ test("my_staff_notifications is scoped to ctx.user.id and takes no user input", 
     await myStaffNotifications.handler({ user_id: "99999999-9999-9999-9999-999999999999" } as never, ctx);
     assert.deepEqual(seen.staff_notification_reads, ["user_id=11111111-1111-1111-1111-111111111111"]);
     assert.deepEqual(seen.staff_notification_state, ["user_id=11111111-1111-1111-1111-111111111111"]);
+    // finance_admin: the feed is narrowed to the kinds the role sees in the dashboard.
+    assert.equal(seen["staff_notifications.in"]?.length, 1);
+    assert.match(seen["staff_notifications.in"][0], /^kind:\d+$/);
   } finally {
     (supabaseAdmin as any).from = orig;
+  }
+});
+
+test("my_staff_notifications: each role only gets the inbox kinds it sees in the dashboard", async () => {
+  const { inboxKindsFor } = await import("../mcp/tools/platform");
+  assert.equal(inboxKindsFor("super_admin"), null);
+  const finance = inboxKindsFor("finance_admin")!;
+  assert.ok(finance.includes("dues.paid"));
+  assert.ok(!finance.includes("user.signup") && !finance.includes("support.waiting"));
+  const hr = inboxKindsFor("hr_admin")!;
+  assert.ok(hr.includes("rider.documents") && !hr.includes("dues.paid"));
+  for (const r of ["ops_admin", "finance_admin", "support_admin", "commerce_admin", "hr_admin"] as const) {
+    assert.ok(!inboxKindsFor(r)!.includes("alert.fired"), `${r} must not see alert.fired`);
   }
 });

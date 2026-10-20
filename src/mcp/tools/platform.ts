@@ -5,7 +5,7 @@ import { dateRange } from "../../lib/mcp-util";
 import { getAiConfig } from "../../lib/ai-settings";
 import { retrieveKb } from "../../lib/support-kb-retrieval";
 import { getKbIndexStatus } from "../../lib/support-kb-index";
-import { defineTool } from "../registry";
+import { defineTool, type StaffRole } from "../registry";
 import { createdFrom, createdTo, limitField, listResult, must, offsetField, page, uuidField } from "./_shared";
 
 type Row = Record<string, unknown>;
@@ -336,21 +336,66 @@ export function isStaffNotificationUnread(lastAt: string, readAt: string | null,
   return Date.parse(lastAt) >= now - 7 * 86_400_000;
 }
 
+// Which staff roles see each inbox kind — the server mirror of the dashboard's
+// rule (blink-dashboard src/lib/shell/inbox-kinds.ts: a kind belongs to a page,
+// a role sees it when ROLE_ACCESS lets it open that page). Keep the two in sync.
+// super_admin sees every kind; a kind missing here is super_admin only, like the
+// dashboard treats kinds it doesn't know yet.
+export const INBOX_KIND_ROLES: Record<string, readonly StaffRole[]> = {
+  "user.signup": ["ops_admin", "hr_admin"],
+  "rider.joined": ["ops_admin", "hr_admin"],
+  "rider.documents": ["ops_admin", "hr_admin"],
+  "merchant.joined": ["commerce_admin", "hr_admin"],
+  "merchant.review": ["commerce_admin", "hr_admin"],
+  "agent.joined": ["ops_admin", "hr_admin"],
+  "agent.documents": ["ops_admin", "hr_admin"],
+  "agent.shop_review": ["ops_admin", "hr_admin"],
+  "product.review": ["commerce_admin"],
+  "price.suggestion": ["commerce_admin"],
+  "pack.review": ["commerce_admin"],
+  "order.canceled": ["ops_admin"],
+  "order.rejected": ["ops_admin"],
+  "order.low_rating": ["ops_admin"],
+  "trip.review": ["ops_admin"],
+  "support.waiting": ["support_admin"],
+  "email.inbound": ["support_admin"],
+  "deletion.requested": ["ops_admin", "support_admin", "hr_admin"],
+  "dues.paid": ["finance_admin"],
+  "payment.amount_mismatch": ["finance_admin"],
+  "payment.unfulfilled": ["finance_admin"],
+  "campaign.sent": ["support_admin"],
+  "campaign.failed": ["support_admin"],
+  // alert.fired (/blink-server/alerts) is super_admin only.
+};
+
+/** Inbox kinds `role` may see; null = every kind (super_admin). */
+export function inboxKindsFor(role: StaffRole): string[] | null {
+  if (role === "super_admin") return null;
+  return Object.entries(INBOX_KIND_ROLES)
+    .filter(([, roles]) => roles.includes(role))
+    .map(([kind]) => kind);
+}
+
 export const myStaffNotifications = defineTool({
   name: "my_staff_notifications",
   title: "My staff notifications",
   description:
-    "YOUR OWN staff inbox (dashboard bell), unread first then newest: kind, severity, summary, occurrences, created/last_at, read_at. Scans the latest 200 events. Never shows other staff.",
+    "YOUR OWN staff inbox (dashboard bell): the kinds your role sees there, unread first then newest: kind, severity, summary, occurrences, created/last_at, read_at. Scans the latest 200 events.",
   input: { unread_only: z.boolean().optional(), limit: limitField, offset: offsetField },
   handler: async (a, ctx) => {
     const uid = ctx.user.id; // caller only — no user input is accepted
     const { offset, limit } = page(a);
+    // Only the kinds this role sees in the dashboard (the events are shared, not per staff).
+    const kinds = inboxKindsFor(ctx.staffRole);
+    if (kinds && kinds.length === 0) {
+      return { data: { ...listResult([], 0, offset), unread_in_window: 0, window: INBOX_WINDOW }, rowCount: 0 };
+    }
+    let feed = supabaseAdmin
+      .from("staff_notifications")
+      .select("id, kind, severity, entity_id, summary, occurrences, created_at, last_at");
+    if (kinds) feed = feed.in("kind", kinds);
     const [notifs, reads, state] = await Promise.all([
-      supabaseAdmin
-        .from("staff_notifications")
-        .select("id, kind, severity, entity_id, summary, occurrences, created_at, last_at")
-        .order("last_at", { ascending: false })
-        .limit(INBOX_WINDOW),
+      feed.order("last_at", { ascending: false }).limit(INBOX_WINDOW),
       supabaseAdmin.from("staff_notification_reads").select("notification_id, read_at").eq("user_id", uid),
       supabaseAdmin.from("staff_notification_state").select("read_all_at").eq("user_id", uid).maybeSingle(),
     ]);
