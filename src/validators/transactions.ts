@@ -2,6 +2,7 @@ import { z } from "@hono/zod-openapi";
 import { transactions } from "../db/schema";
 import { AGENT_ACCESS_CODES } from "../lib/agent-access";
 import { PaginationSchema, rowSchema } from "../openapi";
+import { PaymentCheckout } from "./payments";
 
 // DB money columns are numeric(10,2); a chosen amount stays well under that.
 const cashAmount = z.number().positive("Amount must be positive").max(10_000_000, "Amount is too large");
@@ -14,7 +15,12 @@ const clientRef = z
 export const createDepositSchema = z
   .object({
     amount: cashAmount,
-    method: z.enum(["electronic", "agent"]),
+    method: z.enum(["electronic", "agent", "online"]),
+    payment_method: z
+      .enum(["edahabia", "cib", "card"])
+      .optional()
+      .openapi({ description: "Online only: the gateway method (GET /payments/methods); required when method is online" }),
+    locale: z.enum(["ar", "fr", "en"]).optional().openapi({ description: "Online only: language of the payment page" }),
     agent_id: z.string().uuid().optional(), // required if method is "agent"
     shop_id: z
       .string()
@@ -125,7 +131,11 @@ export const TransactionSchema = rowSchema(transactions, "Transaction", {
 });
 
 export const TransactionResponse = z
-  .object({ transaction: TransactionSchema })
+  .object({
+    transaction: TransactionSchema,
+    /** Online deposits (and a replay of one while pending): where to pay. Absent / null otherwise. */
+    checkout: PaymentCheckout.nullable().optional(),
+  })
   .openapi("TransactionResponse");
 
 export const TransactionListResponse = z
@@ -155,6 +165,9 @@ export const CashRequestError = z
     code: z
       .enum([
         "electronic_unavailable",
+        "method_unavailable",
+        "online_min_amount",
+        "payment_method_required",
         "limit_min",
         "limit_max",
         "limit_daily",
@@ -171,7 +184,7 @@ export const CashRequestError = z
         "offer_budget_exhausted",
       ])
       .optional(),
-    /** limit_*: the limit that was hit… */
+    /** limit_* / online_min_amount: the limit that was hit… */
     limit: z.number().optional(),
     /** …and what the rider already used of it. */
     used: z.number().optional(),

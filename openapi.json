@@ -2031,6 +2031,7 @@
             "enum": [
               "electronic",
               "agent",
+              "online",
               null
             ]
           },
@@ -2267,10 +2268,57 @@
         "properties": {
           "transaction": {
             "$ref": "#/components/schemas/Transaction"
+          },
+          "checkout": {
+            "$ref": "#/components/schemas/PaymentCheckout"
           }
         },
         "required": [
           "transaction"
+        ]
+      },
+      "PaymentCheckout": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "payment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "chargily",
+              "stripe",
+              "satim"
+            ]
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "edahabia",
+              "cib",
+              "card"
+            ]
+          },
+          "checkout_url": {
+            "type": "string"
+          },
+          "return_url": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "payment_id",
+          "provider",
+          "method",
+          "checkout_url",
+          "return_url",
+          "expires_at"
         ]
       },
       "CashRequestError": {
@@ -2283,6 +2331,9 @@
             "type": "string",
             "enum": [
               "electronic_unavailable",
+              "method_unavailable",
+              "online_min_amount",
+              "payment_method_required",
               "limit_min",
               "limit_max",
               "limit_daily",
@@ -2323,8 +2374,27 @@
             "type": "string",
             "enum": [
               "electronic",
-              "agent"
+              "agent",
+              "online"
             ]
+          },
+          "payment_method": {
+            "type": "string",
+            "enum": [
+              "edahabia",
+              "cib",
+              "card"
+            ],
+            "description": "Online only: the gateway method (GET /payments/methods); required when method is online"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "ar",
+              "fr",
+              "en"
+            ],
+            "description": "Online only: language of the payment page"
           },
           "agent_id": {
             "type": "string",
@@ -5481,6 +5551,300 @@
         },
         "required": [
           "scenario"
+        ]
+      },
+      "AdminPaymentListResponse": {
+        "type": "object",
+        "properties": {
+          "payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminPayment"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "payments",
+          "pagination"
+        ]
+      },
+      "AdminPayment": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Payment"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "user_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "user_name": {
+                "type": "string",
+                "nullable": true
+              },
+              "provider_ref": {
+                "type": "string",
+                "nullable": true
+              },
+              "last_synced_at": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "user_id",
+              "user_name",
+              "provider_ref",
+              "last_synced_at"
+            ]
+          }
+        ]
+      },
+      "Payment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "wallet_topup",
+              "agent_dues",
+              "merchant_dues"
+            ]
+          },
+          "ref_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "chargily",
+              "stripe",
+              "satim"
+            ]
+          },
+          "method": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "base_amount": {
+            "type": "number",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid",
+              "failed",
+              "canceled",
+              "expired"
+            ]
+          },
+          "failure_reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "paid_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "expires_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "checkout_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "test_mode": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "purpose",
+          "ref_id",
+          "provider",
+          "method",
+          "amount",
+          "currency",
+          "base_amount",
+          "status",
+          "failure_reason",
+          "paid_at",
+          "expires_at",
+          "created_at",
+          "checkout_url",
+          "test_mode"
+        ]
+      },
+      "AdminPaymentProvidersResponse": {
+        "type": "object",
+        "properties": {
+          "providers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminPaymentProvider"
+            }
+          },
+          "public_api_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "providers",
+          "public_api_url"
+        ]
+      },
+      "AdminPaymentProvider": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "chargily",
+              "stripe",
+              "satim"
+            ]
+          },
+          "configured": {
+            "type": "boolean"
+          },
+          "test_mode": {
+            "type": "boolean"
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "edahabia",
+                "cib",
+                "card"
+              ]
+            }
+          },
+          "currency": {
+            "type": "string"
+          },
+          "dzd_rate": {
+            "type": "number",
+            "nullable": true
+          },
+          "webhook_url": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "provider",
+          "configured",
+          "test_mode",
+          "methods",
+          "currency",
+          "dzd_rate",
+          "webhook_url"
+        ]
+      },
+      "AdminPaymentResponse": {
+        "type": "object",
+        "properties": {
+          "payment": {
+            "$ref": "#/components/schemas/AdminPayment"
+          }
+        },
+        "required": [
+          "payment"
+        ]
+      },
+      "PaymentMethodsResponse": {
+        "type": "object",
+        "properties": {
+          "methods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentMethodOption"
+            }
+          }
+        },
+        "required": [
+          "methods"
+        ]
+      },
+      "PaymentMethodOption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "edahabia",
+              "cib",
+              "card"
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "chargily",
+              "stripe",
+              "satim"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "test_mode": {
+            "type": "boolean"
+          },
+          "min_amount": {
+            "type": "number",
+            "nullable": true
+          },
+          "currency": {
+            "type": "string"
+          },
+          "dzd_rate": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "label",
+          "test_mode",
+          "min_amount",
+          "currency",
+          "dzd_rate"
+        ]
+      },
+      "PaymentResponse": {
+        "type": "object",
+        "properties": {
+          "payment": {
+            "$ref": "#/components/schemas/Payment"
+          }
+        },
+        "required": [
+          "payment"
         ]
       },
       "NotificationSmsStatusResponse": {
@@ -10616,6 +10980,9 @@
         "properties": {
           "payment": {
             "$ref": "#/components/schemas/DuesPayment"
+          },
+          "checkout": {
+            "$ref": "#/components/schemas/PaymentCheckout"
           }
         },
         "required": [
@@ -10636,11 +11003,21 @@
           },
           "method": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "A manual method id, or a gateway method (edahabia | cib | card) to pay online"
           },
           "pin": {
             "type": "string",
             "pattern": "^\\d{4,6}$"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "ar",
+              "fr",
+              "en"
+            ],
+            "description": "Gateway methods: language of the payment page"
           }
         },
         "required": [
@@ -12487,6 +12864,9 @@
         "properties": {
           "payment": {
             "$ref": "#/components/schemas/AgentDuesPayment"
+          },
+          "checkout": {
+            "$ref": "#/components/schemas/PaymentCheckout"
           }
         },
         "required": [
@@ -12504,11 +12884,21 @@
           },
           "method": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "A manual method id, or a gateway method (edahabia | cib | card) to pay online"
           },
           "pin": {
             "type": "string",
             "pattern": "^\\d{4,6}$"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "ar",
+              "fr",
+              "en"
+            ],
+            "description": "Gateway methods: language of the payment page"
           }
         },
         "required": [
@@ -18377,6 +18767,16 @@
                 }
               }
             }
+          },
+          "502": {
+            "description": "The payment provider could not create the checkout (nothing was charged)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
           }
         }
       }
@@ -20369,6 +20769,394 @@
           },
           "403": {
             "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/admin": {
+      "get": {
+        "operationId": "adminListPayments",
+        "tags": [
+          "admin-payments"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "paid",
+                "failed",
+                "canceled",
+                "expired"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "chargily",
+                "stripe",
+                "satim"
+              ]
+            },
+            "required": false,
+            "name": "provider",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wallet_topup",
+                "agent_dues",
+                "merchant_dues"
+              ]
+            },
+            "required": false,
+            "name": "purpose",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "user_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 100,
+              "default": 25
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPaymentListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/admin/providers": {
+      "get": {
+        "operationId": "adminListPaymentProviders",
+        "tags": [
+          "admin-payments"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPaymentProvidersResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/admin/{id}/sync": {
+      "post": {
+        "operationId": "adminSyncPayment",
+        "tags": [
+          "admin-payments"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPaymentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/methods": {
+      "get": {
+        "operationId": "listPaymentMethods",
+        "tags": [
+          "payments"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enabled online methods (empty = no online payment)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentMethodsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/{id}": {
+      "get": {
+        "operationId": "getPayment",
+        "tags": [
+          "payments"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/{id}/cancel": {
+      "post": {
+        "operationId": "cancelPayment",
+        "tags": [
+          "payments"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
             "content": {
               "application/json": {
                 "schema": {
@@ -24937,6 +25725,16 @@
                 }
               }
             }
+          },
+          "502": {
+            "description": "Gateway methods: the provider could not create the checkout (nothing was charged)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
           }
         }
       }
@@ -27379,6 +28177,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PinError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Gateway methods: the provider could not create the checkout (nothing was charged)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
                 }
               }
             }

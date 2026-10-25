@@ -2,6 +2,7 @@
 // deposits / withdrawals they process) + a nudge to pay. Tagged admin-* so it
 // stays out of the mobile client (orval skips it); the dashboard calls it
 // (super_admin / finance_admin). The math is lib/agent-finance.ts, batched.
+import { isOnlineDuesPayment, PAID_ONLINE } from "../../lib/payments/service";
 import {
   agentDuesFromRows,
   fallbackRatesFor,
@@ -421,6 +422,8 @@ app.openapi(
   }),
   async (c) => {
     const { id } = c.req.valid("param");
+    // A gateway payment completes (or lapses) by itself: staff never settle it.
+    if (await isOnlineDuesPayment("agent_dues", id)) return c.json(PAID_ONLINE, 409);
     const r = await settlePayment(c.get("user").id, id, true);
     if (r.found) return c.json({ payment: r.payment }, 200);
     const e = settleErrors(r);
@@ -442,6 +445,7 @@ app.openapi(
   async (c) => {
     const { id } = c.req.valid("param");
     const { reason } = c.req.valid("json");
+    if (await isOnlineDuesPayment("agent_dues", id)) return c.json(PAID_ONLINE, 409);
     const r = await settlePayment(c.get("user").id, id, false, reason);
     if (r.found) return c.json({ payment: r.payment }, 200);
     const e = settleErrors(r);

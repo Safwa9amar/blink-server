@@ -32,6 +32,9 @@ import {
   gender,
   notificationType,
   orderStatus,
+  paymentProvider,
+  paymentPurpose,
+  paymentStatus,
   orderType,
   transactionStatus,
   transactionType,
@@ -106,6 +109,9 @@ export type DisputeStatus = (typeof disputeStatus.enumValues)[number];
 export type TransactionStatus = (typeof transactionStatus.enumValues)[number];
 export type TransactionType = (typeof transactionType.enumValues)[number];
 export type DepositMethod = (typeof depositMethod.enumValues)[number];
+export type PaymentProvider = (typeof paymentProvider.enumValues)[number];
+export type PaymentStatus = (typeof paymentStatus.enumValues)[number];
+export type PaymentPurpose = (typeof paymentPurpose.enumValues)[number];
 export type OrderStatus = (typeof orderStatus.enumValues)[number];
 export type OrderType = (typeof orderType.enumValues)[number];
 export type NotificationType = (typeof notificationType.enumValues)[number];

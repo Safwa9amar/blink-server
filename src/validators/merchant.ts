@@ -1,5 +1,6 @@
 // Validation + response schemas for the merchant app endpoints (/merchant/*).
 import { z } from "@hono/zod-openapi";
+import { PaymentCheckout } from "./payments";
 import { merchantDuesPayments, storePacks } from "../db/schema";
 import { PaginationSchema, rowSchema } from "../openapi";
 import { StoreProductSchema, StoreSchema } from "./marketplace";
@@ -606,12 +607,22 @@ export const payDuesSchema = z
   .object({
     store_id: z.string().uuid().optional(),
     amount: z.number().positive(),
-    method: z.string().min(1),
+    method: z
+      .string()
+      .min(1)
+      .openapi({ description: "A manual method id, or a gateway method (edahabia | cib | card) to pay online" }),
     pin: z.string().regex(/^\d{4,6}$/),
+    locale: z.enum(["ar", "fr", "en"]).optional().openapi({ description: "Gateway methods: language of the payment page" }),
   })
   .openapi("PayDuesBody");
 
-export const PayDuesResponse = z.object({ payment: DuesPaymentSchema }).openapi("PayDuesResponse");
+export const PayDuesResponse = z
+  .object({
+    payment: DuesPaymentSchema,
+    /** Gateway methods only: where to pay. Absent / null for manual methods. */
+    checkout: PaymentCheckout.nullable().optional(),
+  })
+  .openapi("PayDuesResponse");
 
 // ─── Dashboard (insights) ────────────────────────────────────────────
 // Shape mirrors the app's DashTab / GlobalTab (store/merchant/merchant-dashboard-store.ts).

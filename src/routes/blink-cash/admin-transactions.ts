@@ -6,6 +6,7 @@ import type { TxnEvent } from "../../lib/blink-cash-copy";
 import { txnEventCopy } from "../../lib/blink-cash-copy";
 import { round2 } from "../../lib/blink-cash-admin";
 import { recordFinanceAudit } from "../../lib/finance-audit";
+import { cancelPayment, pendingPaymentFor } from "../../lib/payments/service";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
 import {
@@ -89,8 +90,18 @@ app.openapi(
     const txn = await loadTxn(id);
     if (!txn) return c.json({ error: "Transaction not found", code: "not_found" }, 404);
 
-    const r = await callRpc("blink_cash_cancel", { p_txn: id, p_reason: "staff", p_actor: actor.id });
-    if (!r.ok) return r.status === 404 ? c.json(r.body, 404) : c.json(r.body, 409);
+    // An online deposit is cancelled through its payment: the gateway checkout is
+    // closed first, and a card paid in the meantime completes the deposit instead.
+    const payment = txn.method === "online" ? await pendingPaymentFor("wallet_topup", id) : null;
+    if (payment) {
+      const after = await cancelPayment(payment, { by: "staff", actorId: actor.id });
+      if (after.status !== "canceled") {
+        return c.json({ error: "The card payment went through, so this deposit can no longer be cancelled", code: "not_pending" }, 409);
+      }
+    } else {
+      const r = await callRpc("blink_cash_cancel", { p_txn: id, p_reason: "staff", p_actor: actor.id });
+      if (!r.ok) return r.status === 404 ? c.json(r.body, 404) : c.json(r.body, 409);
+    }
     // The SQL function records who / why-class; the staff's own words go on the row.
     await supabaseAdmin.from("transactions").update({ staff_note: reason }).eq("id", id);
 

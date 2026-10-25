@@ -1,6 +1,8 @@
 import { checkPin, pinFailureBody } from "../../lib/pin";
 import { supabaseAdmin } from "../../lib/supabase";
-import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { gatewayFees, gatewayRefusal, PaymentStartError, startCheckout, toCheckout } from "../../lib/payments/service";
+import { isGatewayMethod, type MethodId } from "../../lib/payments/core";
+import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import { payDuesSchema, PayDuesResponse } from "../../validators/merchant";
 import { PinError } from "../../validators/transactions";
 import { computeDues } from "./dues-shared";
@@ -23,12 +25,17 @@ const route = createRoute({
     401: errorResponses[401],
     403: json(PinError, "Wrong PIN, or pin_locked (with retry_after seconds)"),
     404: errorResponses[404],
+    502: json(ErrorSchema, "Gateway methods: the provider could not create the checkout (nothing was charged)"),
   },
 });
 
 app.openapi(route, async (c) => {
   const user = c.get("user");
   const body = c.req.valid("json");
+
+  const gateway = isGatewayMethod(body.method);
+  const refusal = gateway ? gatewayRefusal(body.method, user.id, body.amount) : null;
+  if (refusal) return c.json(refusal, 400);
 
   const pin = await checkPin(user, body.pin);
   if (!pin.ok) {
@@ -53,10 +60,13 @@ app.openapi(route, async (c) => {
       merchant_id: user.id,
       store_id: body.store_id ?? null,
       amount,
-      fees: round2(amount * feeRate),
+      // The merchant pay summary shows only the amount, so a gateway charge carries no
+      // payment fee beyond rounding a centime total up to the whole dinar Chargily takes.
+      fees: gateway ? gatewayFees(body.method as MethodId, amount, 0) : round2(amount * feeRate),
       method: body.method,
-      // No payment provider is wired: nothing proves this money arrived, so it
-      // waits as pending (not counted in dues) until finance confirms it.
+      // A manual method has no proof the money arrived: it waits as pending (not
+      // counted in dues) until finance confirms it. A gateway method waits for the
+      // gateway, which completes the row (lib/payments/service.ts).
       status: "pending",
     })
     .select()
@@ -64,15 +74,30 @@ app.openapi(route, async (c) => {
 
   if (error || !data) return c.json({ error: error?.message ?? "Payment failed" }, 400);
 
-  return c.json(
-    {
-      payment: {
-        ...data,
-        store_name: data.store_id ? dues.names.get(data.store_id) ?? null : null,
-      },
-    },
-    201
-  );
+  const view = {
+    ...data,
+    store_name: data.store_id ? dues.names.get(data.store_id) ?? null : null,
+  };
+  if (!gateway) return c.json({ payment: view, checkout: null }, 201);
+
+  try {
+    const payment = await startCheckout({
+      userId: user.id,
+      purpose: "merchant_dues",
+      refId: data.id,
+      amount: Number(data.amount) + Number(data.fees),
+      method: body.method as "edahabia" | "cib" | "card",
+      locale: body.locale,
+      description: "Blink dues",
+    });
+    return c.json({ payment: view, checkout: toCheckout(payment) }, 201);
+  } catch (e) {
+    await supabaseAdmin.from("merchant_dues_payments").update({ status: "cancelled", rejected_reason: "provider_error" }).eq("id", data.id);
+    if (e instanceof PaymentStartError && e.code === "method_unavailable") {
+      return c.json({ error: e.message, code: "method_unavailable" }, 400);
+    }
+    return c.json({ error: (e as Error).message }, 502);
+  }
 });
 
 export default app;

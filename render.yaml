@@ -44,6 +44,20 @@ services:
         sync: false
       - key: SUPABASE_AUTH_GOOGLE_SECRET
         sync: false
+      # --- payment gateways (optional: a provider is on iff its key is set) ---
+      - key: PUBLIC_API_URL
+        sync: false
+      - key: CHARGILY_SECRET_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      # DZD for 1 € — Blink's fixed rate for Stripe charges (Stripe is off until set)
+      - key: STRIPE_DZD_RATE
+        sync: false
+      - key: PAYMENTS_TEST_USER_IDS
+        sync: false
 
   # ── Hot spare ───────────────────────────────────────────────────────────
   # Identical second instance. The mobile app lists both endpoints
@@ -87,4 +101,18 @@ services:
       - key: SUPABASE_AUTH_GOOGLE_CLIENT_ID
         sync: false
       - key: SUPABASE_AUTH_GOOGLE_SECRET
+        sync: false
+      # --- payment gateways (optional: a provider is on iff its key is set) ---
+      - key: PUBLIC_API_URL
+        sync: false
+      - key: CHARGILY_SECRET_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      # DZD for 1 € — Blink's fixed rate for Stripe charges (Stripe is off until set)
+      - key: STRIPE_DZD_RATE
+        sync: false
+      - key: PAYMENTS_TEST_USER_IDS
         sync: false

@@ -2,6 +2,7 @@
 // sales) + a nudge to pay. Tagged admin-* so it stays out of the mobile client
 // (orval skips it); the dashboard calls it (super_admin / finance_admin). The
 // math is the merchant app's own (dues-shared.ts → src/lib/merchant-dues.ts).
+import { isOnlineDuesPayment, PAID_ONLINE } from "../../lib/payments/service";
 import {
   BLINK_CASH_HREF,
   DUES_REMINDER_COOLDOWN_MS,
@@ -343,6 +344,8 @@ app.openapi(
   }),
   async (c) => {
     const { id } = c.req.valid("param");
+    // A gateway payment completes (or lapses) by itself: staff never settle it.
+    if (await isOnlineDuesPayment("merchant_dues", id)) return c.json(PAID_ONLINE, 409);
     const r = await settlePayment(c.get("user").id, id, true);
     if (r.found) return c.json({ payment: r.payment }, 200);
     const e = settleErrors(r);
@@ -364,6 +367,7 @@ app.openapi(
   async (c) => {
     const { id } = c.req.valid("param");
     const { reason } = c.req.valid("json");
+    if (await isOnlineDuesPayment("merchant_dues", id)) return c.json(PAID_ONLINE, 409);
     const r = await settlePayment(c.get("user").id, id, false, reason);
     if (r.found) return c.json({ payment: r.payment }, 200);
     const e = settleErrors(r);

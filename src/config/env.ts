@@ -13,6 +13,9 @@ const supabaseKey = z
   .min(1)
   .transform((v) => v.split(/\s+/)[0]);
 
+// An empty value in .env (KEY=) means "unset" for the optional settings below.
+const blankToUndefined = (v: unknown) => (v === "" ? undefined : v);
+
 const envSchema = z.object({
   SUPABASE_URL: z.string().url(),
   SUPABASE_ANON_KEY: supabaseKey,
@@ -102,6 +105,40 @@ const envSchema = z.object({
   SMS_BROADCAST_MAX: z.preprocess(
     (v) => (v === "" ? undefined : v),
     z.coerce.number().int().min(1).default(500)
+  ),
+
+  // ─── Online payment gateways (src/lib/payments) ──────────────────────
+  // All optional: a provider is enabled only when its keys are set, and the
+  // server boots without any. Spec: docs/superpowers/specs/2026-10-20-payment-gateways-design.md
+  // Public base of this API (webhook + return URLs the providers call back).
+  PUBLIC_API_URL: z.string().default("").transform((v) => v.trim().replace(/\/$/, "")),
+  // Deep link the /payments/return page redirects to.
+  APP_RETURN_URL: z.preprocess(blankToUndefined, z.string().trim().default("blink://payments/return")),
+  CHARGILY_SECRET_KEY: z.string().trim().optional(),
+  CHARGILY_MODE: z.preprocess(blankToUndefined, z.enum(["test", "live"]).default("test")),
+  STRIPE_SECRET_KEY: z.string().trim().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().trim().optional(),
+  // Stripe charges euros: the dinar total is converted at STRIPE_DZD_RATE (DZD
+  // for 1 €), a fixed rate Blink sets. Stripe stays off until the rate is set.
+  STRIPE_CURRENCY: z.preprocess(
+    (v) => blankToUndefined(typeof v === "string" ? v.trim().toLowerCase() : v),
+    z.enum(["eur", "dzd"]).default("eur")
+  ),
+  STRIPE_DZD_RATE: z.preprocess(blankToUndefined, z.coerce.number().positive().optional()),
+  SATIM_USERNAME: z.string().trim().optional(),
+  SATIM_PASSWORD: z.string().optional(),
+  SATIM_TERMINAL_ID: z.string().trim().optional(),
+  SATIM_MODE: z.preprocess(blankToUndefined, z.enum(["test", "live"]).default("test")),
+  PAYMENT_CIB_PROVIDER: z.preprocess(blankToUndefined, z.enum(["chargily", "satim"]).default("chargily")),
+  // Comma-separated user ids allowed to pay through a TEST-mode provider in
+  // production (test cards would otherwise credit real wallets). Ignored outside production.
+  PAYMENTS_TEST_USER_IDS: z
+    .string()
+    .default("")
+    .transform((v) => v.split(",").map((s) => s.trim()).filter(Boolean)),
+  PAYMENT_CHECKOUT_TTL_MINUTES: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.coerce.number().int().min(5).max(1440).default(60)
   ),
 });
 

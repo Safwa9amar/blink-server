@@ -1,4 +1,5 @@
 import { cancelTransaction, walletError } from "../../lib/wallet";
+import { cancelPayment, pendingPaymentFor } from "../../lib/payments/service";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
@@ -31,11 +32,24 @@ app.openapi(route, async (c) => {
 
   const { data: tx } = await supabaseAdmin
     .from("transactions")
-    .select("id")
+    .select("id, method")
     .eq("id", id)
     .eq("user_id", user.id)
     .maybeSingle();
   if (!tx) return c.json({ error: "Transaction not found" }, 404);
+
+  // An online deposit is cancelled through its payment, so the gateway checkout is closed too.
+  if (tx.method === "online") {
+    const payment = await pendingPaymentFor("wallet_topup", id);
+    if (payment) {
+      await cancelPayment(payment);
+      const { data: after } = await supabaseAdmin.from("transactions").select("*").eq("id", id).single();
+      if (after?.status !== "cancelled") {
+        return c.json({ error: "Transaction not found or already processed", code: "not_pending" as const }, 409);
+      }
+      return c.json({ transaction: after as any }, 200);
+    }
+  }
 
   const { data, error } = await cancelTransaction(id, "rider", user.id);
   const known = walletError(error);

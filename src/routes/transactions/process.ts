@@ -115,14 +115,15 @@ app.openapi(route, async (c) => {
   // if any (both null for a walk-in).
   const { data: tx } = await supabaseAdmin
     .from("transactions")
-    .select("id, user_id, type, amount, status, agent_id, shop_id, expires_at")
+    .select("id, user_id, type, amount, status, agent_id, shop_id, expires_at, method")
     .eq("id", body.transaction_id)
     .maybeSingle();
   // Lazy expiry (pg_cron is the primary): a lapsed QR is never confirmed.
   if (await expireIfLapsed(tx)) {
     return c.json({ error: "This request has expired", code: "expired" as const }, 410);
   }
-  if (!tx || tx.status !== "pending") {
+  // An online (card) deposit is credited only by its payment gateway, never by an agent.
+  if (!tx || tx.status !== "pending" || tx.method === "online") {
     return c.json({ error: "Transaction not found or already processed" }, 400);
   }
 

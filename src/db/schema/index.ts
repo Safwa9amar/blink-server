@@ -12,6 +12,7 @@ export * from "./vehicles";
 export * from "./trips";
 export * from "./transactions";
 export * from "./blink-cash";
+export * from "./payments";
 export * from "./agent-shops";
 export * from "./agent-profiles";
 export * from "./agent";

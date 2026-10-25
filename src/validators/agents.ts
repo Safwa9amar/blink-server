@@ -1,4 +1,5 @@
 import { z } from "@hono/zod-openapi";
+import { PaymentCheckout } from "./payments";
 import { agentDuesPayments } from "../db/schema";
 import { rowSchema } from "../openapi";
 import { AgentProfileSchema, AgentShopSchema } from "./auth";
@@ -192,13 +193,21 @@ export const AgentDuesResponse = z
 export const payAgentDuesSchema = z
   .object({
     amount: z.number().positive().max(10_000_000),
-    method: z.string().min(1),
+    method: z
+      .string()
+      .min(1)
+      .openapi({ description: "A manual method id, or a gateway method (edahabia | cib | card) to pay online" }),
     pin: z.string().regex(/^\d{4,6}$/),
+    locale: z.enum(["ar", "fr", "en"]).optional().openapi({ description: "Gateway methods: language of the payment page" }),
   })
   .openapi("PayAgentDuesBody");
 
 export const PayAgentDuesResponse = z
-  .object({ payment: AgentDuesPaymentSchema })
+  .object({
+    payment: AgentDuesPaymentSchema,
+    /** Gateway methods only: where to pay. Absent / null for manual methods. */
+    checkout: PaymentCheckout.nullable().optional(),
+  })
   .openapi("PayAgentDuesResponse");
 
 // ─── Perks ───────────────────────────────────────────────────────────

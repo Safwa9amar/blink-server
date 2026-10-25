@@ -6,6 +6,7 @@ import { evaluateAlerts } from "../../lib/alerts";
 import { pollEmailInbox } from "../../lib/email/imap";
 import { runMerchantInsights } from "../merchant/strategy-shared";
 import { processBundleTimeouts } from "../../lib/bundle-timeouts";
+import { expireStale } from "../../lib/payments/service";
 import { processSearchTimeouts } from "../../lib/search-timeouts";
 
 // External cron entrypoints. NOT behind `auth` (a cron caller has no JWT) —
@@ -29,6 +30,13 @@ app.post("/scheduled-notifications", requireCronSecret, async (c) => {
 app.post("/news", requireCronSecret, async (c) => {
   const result = await processNewsCron();
   return c.json(result);
+});
+
+// POST /cron/payments-expire — close gateway payments past their expiry (after one last
+// provider check). Safe to overlap. Every few minutes:
+//   */5 * * * * curl -sS -X POST https://blink.greenpedal.net/cron/payments-expire -H "x-cron-secret: $CRON_SECRET"
+app.post("/payments-expire", requireCronSecret, async (c) => {
+  return c.json(await expireStale());
 });
 
 // POST /cron/alerts — evaluate alert rules against live metrics, open/resolve events.

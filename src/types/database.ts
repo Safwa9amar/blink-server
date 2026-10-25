@@ -16,7 +16,7 @@ export type TripStatus = "upcoming" | "completed" | "under_review" | "canceled";
 export type DisputeStatus = "under_review" | "pending" | "decision_issued";
 export type TransactionStatus = "completed" | "cancelled" | "pending";
 export type TransactionType = "deposit" | "withdrawal";
-export type DepositMethod = "electronic" | "agent";
+export type DepositMethod = "electronic" | "agent" | "online";
 export type OrderStatus =
   | "searching"
   | "heading_to_store"

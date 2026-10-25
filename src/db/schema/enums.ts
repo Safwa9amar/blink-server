@@ -49,7 +49,7 @@ export const transactionStatus = pgEnum("transaction_status", [
   "reversed",
 ]);
 export const transactionType = pgEnum("transaction_type", ["deposit", "withdrawal"]);
-export const depositMethod = pgEnum("deposit_method", ["electronic", "agent"]);
+export const depositMethod = pgEnum("deposit_method", ["electronic", "agent", "online"]);
 export const orderStatus = pgEnum("order_status", [
   "searching",
   "heading_to_store",
@@ -83,3 +83,8 @@ export const agentShopStatus = pgEnum("agent_shop_status", ["open", "closed"]);
 
 // NOTE: news_status lives in ./news.ts (with its table) so it stays out of the
 // baseline snapshot and ships in the additive `news` migration instead.
+
+// Online payment gateways (20261020120000_payment_gateways.sql).
+export const paymentProvider = pgEnum("payment_provider", ["chargily", "stripe", "satim"]);
+export const paymentStatus = pgEnum("payment_status", ["pending", "paid", "failed", "canceled", "expired"]);
+export const paymentPurpose = pgEnum("payment_purpose", ["wallet_topup", "agent_dues", "merchant_dues"]);

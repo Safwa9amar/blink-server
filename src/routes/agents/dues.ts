@@ -7,7 +7,9 @@ import { agentLimitFor } from "../../lib/blink-cash-requests";
 import { getBlinkCashSettings } from "../../lib/blink-cash-settings";
 import { checkPin, pinFailureBody, verifyPin } from "../../lib/pin";
 import { supabaseAdmin } from "../../lib/supabase";
-import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
+import { gatewayFees, gatewayRefusal, PaymentStartError, startCheckout, toCheckout } from "../../lib/payments/service";
+import { isGatewayMethod, type MethodId } from "../../lib/payments/core";
+import { bearer, createRoute, ErrorSchema, errorResponses, json, router } from "../../openapi";
 import {
   AgentDuesResponse,
   payAgentDuesSchema,
@@ -75,11 +77,15 @@ app.openapi(
       400: errorResponses[400],
       401: errorResponses[401],
       403: json(PinError, "Wrong PIN, or pin_locked (with retry_after seconds)"),
+      502: json(ErrorSchema, "Gateway methods: the provider could not create the checkout (nothing was charged)"),
     },
   }),
   async (c) => {
     const user = c.get("user");
     const body = c.req.valid("json");
+    const gateway = isGatewayMethod(body.method);
+    const refusal = gateway ? gatewayRefusal(body.method, user.id, body.amount) : null;
+    if (refusal) return c.json(refusal, 400);
 
     // 403, not 401, for a wrong PIN: the app's 401 backstop signs the user out.
     const pin = await checkPin(user, body.pin);
@@ -95,17 +101,38 @@ app.openapi(
       .insert({
         agent_id: user.id,
         amount,
-        fees: round2(amount * feeRate),
+        fees: gateway ? gatewayFees(body.method as MethodId, amount, round2(amount * feeRate)) : round2(amount * feeRate),
         method: body.method,
-        // No payment provider is wired: nothing proves this money arrived, so it
-        // waits as pending (not counted in dues) until finance confirms it.
+        // A manual method has no proof the money arrived: it waits as pending (not
+        // counted in dues) until finance confirms it. A gateway method waits for the
+        // gateway, which completes the row (lib/payments/service.ts).
         status: "pending",
       })
       .select()
       .single();
     if (error || !data) return c.json({ error: error?.message ?? "Payment failed" }, 400);
 
-    return c.json({ payment: data }, 201);
+    if (!gateway) return c.json({ payment: data, checkout: null }, 201);
+
+    // The gateway charges what the pay summary shows: the amount paid plus the payment fee.
+    try {
+      const payment = await startCheckout({
+        userId: user.id,
+        purpose: "agent_dues",
+        refId: data.id,
+        amount: round2(Number(data.amount) + Number(data.fees)),
+        method: body.method as "edahabia" | "cib" | "card",
+        locale: body.locale,
+        description: "Blink dues",
+      });
+      return c.json({ payment: data, checkout: toCheckout(payment) }, 201);
+    } catch (e) {
+      await supabaseAdmin.from("agent_dues_payments").update({ status: "cancelled", rejected_reason: "provider_error" }).eq("id", data.id);
+      if (e instanceof PaymentStartError && e.code === "method_unavailable") {
+        return c.json({ error: e.message, code: "method_unavailable" }, 400);
+      }
+      return c.json({ error: (e as Error).message }, 502);
+    }
   }
 );
 
