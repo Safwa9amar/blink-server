@@ -2,6 +2,7 @@
 // ratings and how other stores on Blink compare. Rule-based (no AI needed);
 // copy is English like the dashboard insights. Also feeds the merchant's
 // "Efficiency" notifications (lib: generateImprovementNotifications).
+import type { StoreInsights } from "../../lib/merchant-ai";
 import { createNotification } from "../../lib/notifications";
 import { supabaseAdmin } from "../../lib/supabase";
 import { fullName, packNamesByStore, usersById } from "./orders-shared";
@@ -10,6 +11,10 @@ import { orderSale, round2, type StoreRow } from "./shared";
 const DAY = 864e5;
 const LOW_STOCK = 5;
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const ALGIERS_OFFSET_MS = 36e5; // UTC+1, no DST
+
+/** Wall-clock time in Africa/Algiers, read with getUTC*(). */
+const algiers = (ts: string) => new Date(Date.parse(ts) + ALGIERS_OFFSET_MS);
 
 const fmt = (n: number) =>
   Math.abs(n) >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}K` : `${Math.round(n)}`;
@@ -37,6 +42,11 @@ interface Product {
 }
 
 export async function computeStrategy(merchantId: string, store: StoreRow) {
+  return (await buildStrategy(merchantId, store)).strategy;
+}
+
+/** The strategy hub plus the extra breakdowns Blink AI is grounded in. */
+export async function buildStrategy(merchantId: string, store: StoreRow) {
   const now = Date.now();
   const since = new Date(now - 56 * DAY).toISOString(); // 8 weeks
 
@@ -422,17 +432,88 @@ export async function computeStrategy(merchantId: string, store: StoreRow) {
 
   const potential = round2(Math.max(0, avgWeek * 0.12) + pricing.length * 150);
 
+  // ── Blink AI insights (chat context only, not in the API response) ──
+  const weekdays = [6, 0, 1, 2, 3, 4, 5].map((d) => {
+    const os = delivered.filter((o) => algiers(o.created_at).getUTCDay() === d);
+    return { day: DAY_LABELS[d], orders: os.length, revenue: round2(os.reduce((t, o) => t + orderSale(o), 0)) };
+  });
+  const hours = Array.from({ length: 12 }, (_, i) => ({ from: i * 2, orders: 0 }));
+  for (const o of delivered) hours[Math.floor(algiers(o.created_at).getUTCHours() / 2)].orders++;
+
+  const lines = new Map<string, { units: number; revenue: number; pack: boolean }>();
+  const sold = new Set<string>();
+  for (const o of delivered)
+    for (const it of o.items ?? []) {
+      const qty = Number(it.quantity) || 0;
+      const row = lines.get(it.name) ?? { units: 0, revenue: 0, pack: !!it.pack_id };
+      row.units += qty;
+      row.revenue += (Number(it.unit_price) || 0) * qty;
+      lines.set(it.name, row);
+      sold.add(it.name);
+      for (const p of it.pack_items ?? []) sold.add(p.name);
+    }
+  const topProducts = [...lines.entries()]
+    .sort((a, b) => b[1].revenue - a[1].revenue || b[1].units - a[1].units)
+    .slice(0, 8)
+    .map(([title, r]) => ({ title, units: r.units, revenue: round2(r.revenue), pack: r.pack }));
+
+  const priceRows = live.map((p) => {
+    const market = p.library_product_id ? marketAvg.get(p.library_product_id) : undefined;
+    return {
+      title: p.title,
+      price: Number(p.price),
+      market: market != null ? round2(market) : null,
+      stores: p.library_product_id ? grouped.get(p.library_product_id)?.length ?? 0 : 0,
+      blinkPrice: Number(p.blink_price) > 0 ? Number(p.blink_price) : null,
+    };
+  });
+  const gap = (r: (typeof priceRows)[number]) => {
+    const ref = r.market ?? r.blinkPrice;
+    return ref ? Math.abs(r.price - ref) / ref : -1;
+  };
+
+  const insights: StoreInsights = {
+    weeks: 8,
+    orders: all.length,
+    delivered: delivered.length,
+    cancelled: all.filter((o) => o.status === "canceled" || o.status === "merchant_rejected").length,
+    revenue: round2(delivered.reduce((t, o) => t + orderSale(o), 0)),
+    avgOrderValue: mine.avg_order_value,
+    avgWeekRevenue: round2(avgWeek),
+    weekdays,
+    hours,
+    topProducts,
+    slowMovers: delivered.length ? live.filter((p) => !sold.has(p.title)).map((p) => p.title) : [],
+    prices: priceRows.sort((a, b) => gap(b) - gap(a)).slice(0, 25),
+    stock: [...live]
+      .sort((a, b) => a.stock - b.stock)
+      .slice(0, 25)
+      .map((p) => ({ title: p.title, stock: p.stock, available: p.is_available, low: p.stock <= LOW_STOCK })),
+    catalog: {
+      live: live.length,
+      pending: catalog.filter((p) => p.review_status === "pending").length,
+      noPhoto: noPhoto.length,
+    },
+    recentReviews: (rated ?? [])
+      .filter((r) => r.store_review?.trim())
+      .slice(0, 5)
+      .map((r) => ({ rating: r.store_rating, text: r.store_review.trim(), replied: !!r.store_review_reply })),
+  };
+
   return {
-    store_id: store.id,
-    summary: { open_actions: actions.length, potential_gain: potential },
-    action_plan: actions,
-    pricing,
-    promotions,
-    benchmark: { rank_percent, compared_stores: peers.length, metrics },
-    missed_demand,
-    weekly_goal: { goal, current: round2(weekRevenue), days, past_weeks },
-    reputation,
-    suggestions: suggestions ?? [],
+    strategy: {
+      store_id: store.id,
+      summary: { open_actions: actions.length, potential_gain: potential },
+      action_plan: actions,
+      pricing,
+      promotions,
+      benchmark: { rank_percent, compared_stores: peers.length, metrics },
+      missed_demand,
+      weekly_goal: { goal, current: round2(weekRevenue), days, past_weeks },
+      reputation,
+      suggestions: suggestions ?? [],
+    },
+    insights,
   };
 }
 

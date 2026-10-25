@@ -1,5 +1,6 @@
 // Strategy Improvement: insights hub, Blink AI chat, saved suggestions.
 import { buildProvider, getAiConfig } from "../../lib/ai-settings";
+import { buildAdvisorPrompt, buildAdvisorTurn, parseAdvisorReply, replayAssistant } from "../../lib/merchant-ai";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
 import {
@@ -11,7 +12,7 @@ import {
   strategyQuerySchema,
   updateSuggestionSchema,
 } from "../../validators/merchant";
-import { computeStrategy, generateImprovementNotifications } from "./strategy-shared";
+import { buildStrategy, computeStrategy, generateImprovementNotifications } from "./strategy-shared";
 import { ownedStore, ownedStores } from "./shared";
 
 const app = router();
@@ -120,23 +121,16 @@ app.openapi(
   }
 );
 
-const SUGGESTION_RE = /<<SUGGESTION>>([\s\S]*?)<<END>>/;
-
-function systemPrompt(storeName: string, s: Awaited<ReturnType<typeof computeStrategy>>) {
-  const m = Object.fromEntries(s.benchmark.metrics.map((x) => [x.key, `${x.you} (area ${x.area})`]));
-  return [
-    "You are Blink AI, a growth advisor for a merchant on Blink, an Algerian delivery marketplace.",
-    "Answer in the merchant's language (Arabic, French or English), briefly and concretely, using Algerian dinars (Da).",
-    `Store: ${storeName}.`,
-    `This week revenue: ${s.weekly_goal.current} Da (goal ${s.weekly_goal.goal || "not set"}).`,
-    `Metrics vs nearby stores: ${JSON.stringify(m)}.`,
-    `Open actions: ${s.action_plan.map((a: any) => a.title).join("; ") || "none"}.`,
-    `Top pricing gaps: ${s.pricing.slice(0, 3).map((p: any) => `${p.title} ${p.current_price}→${p.suggested_price}`).join("; ") || "none"}.`,
-    "When you recommend ONE concrete action the merchant could apply, append it on its own line as:",
-    '<<SUGGESTION>>{"title":"short title","body":"one or two sentences","kind":"bundle|pricing|promotion|hours|catalog|general"}<<END>>',
-    "Never invent numbers you weren't given.",
-  ].join("\n");
-}
+/** Room for a full answer + suggestion block, whatever the admin's support-bot cap. */
+const ADVISOR_MIN_TOKENS = 1200;
+/** Recent messages sent back as context; each clipped so one long reply can't crowd out the store data. */
+const HISTORY_TURNS = 10;
+const HISTORY_MAX_CHARS = 1200;
+/** Two attempts at most stay under the app's 50s timeout for this call (hooks/use-merchant-strategy). */
+const ATTEMPT_TIMEOUT_MS = 20_000;
+/** Free and fast on the advisor prompt (2026-10 benchmark); a paid one needs OpenRouter credits. */
+const OPENROUTER_FALLBACK_MODEL =
+  process.env.MERCHANT_AI_FALLBACK_MODEL || "nvidia/nemotron-3.5-lightning:free";
 
 app.openapi(
   createRoute({
@@ -159,85 +153,110 @@ app.openapi(
     const { store_id, message } = c.req.valid("json");
     const store = await resolveStore(user.id, store_id);
     if (!store) return c.json({ error: "Store not found" }, 404);
+    const askedAt = new Date().toISOString();
 
-    const { data: history } = await supabaseAdmin
-      .from("merchant_ai_messages")
-      .select("role, content")
-      .eq("merchant_id", user.id)
-      .eq("store_id", store.id)
-      .order("created_at", { ascending: false })
-      .limit(12);
-
-    const { data: userMsg } = await supabaseAdmin
-      .from("merchant_ai_messages")
-      .insert({ merchant_id: user.id, store_id: store.id, role: "user", content: message })
-      .select()
-      .single();
-
-    let reply: string;
+    let parsed: ReturnType<typeof parseAdvisorReply> | null = null;
     try {
-      const cfg = await getAiConfig();
-      const strategy = await computeStrategy(user.id, store);
-      const res = await buildProvider(cfg).chat(
-        [
-          ...(history ?? []).reverse().map((h) => ({ role: h.role as "user" | "assistant", content: h.content })),
-          { role: "user" as const, content: message },
-        ],
-        {
-          systemPrompt: systemPrompt(store.name, strategy),
-          model: cfg.model ?? undefined,
-          temperature: cfg.temperature,
-          maxTokens: cfg.maxTokens,
-          reasoning: cfg.reasoning,
-          logContext: { source: "merchant-strategy", userId: user.id, userRole: "merchant" } as any,
+      const [history, cfg, { strategy, insights }] = await Promise.all([
+        supabaseAdmin
+          .from("merchant_ai_messages")
+          .select("*")
+          .eq("merchant_id", user.id)
+          .eq("store_id", store.id)
+          .order("created_at", { ascending: false })
+          .limit(HISTORY_TURNS)
+          .then(({ data }) => withSuggestions((data ?? []).reverse())),
+        getAiConfig(),
+        buildStrategy(user.id, store),
+      ]);
+      const provider = buildProvider(cfg);
+      const advisor = {
+        storeName: store.name,
+        categories: (store.category_slugs as string[] | null) ?? [],
+        now: new Date(),
+        strategy,
+        insights,
+      };
+      const systemPrompt = buildAdvisorPrompt(advisor);
+      const messages = [
+        ...history.map((h) => ({
+          role: h.role as "user" | "assistant",
+          content:
+            h.role === "assistant"
+              ? replayAssistant(h.content.slice(0, HISTORY_MAX_CHARS), h.suggestion)
+              : h.content.slice(0, HISTORY_MAX_CHARS),
+        })),
+        { role: "user" as const, content: buildAdvisorTurn(advisor, message) },
+      ];
+      const ask = async (model: string | undefined, maxTokens: number) => {
+        try {
+          const res = await provider.chat(messages, {
+            systemPrompt,
+            model,
+            // Grounded numbers over creativity, whatever the support bot uses.
+            temperature: Math.min(cfg.temperature, 0.5),
+            maxTokens,
+            // Thinking eats the token budget; on a reasoning model it can leave
+            // only the chain-of-thought, which must never reach the merchant.
+            reasoning: false,
+            timeoutMs: ATTEMPT_TIMEOUT_MS,
+            maxRetries: 0,
+            logContext: { source: "merchant-strategy", userId: user.id, userRole: "merchant" },
+          });
+          if (res.reasoningOnly) return null;
+          const out = parseAdvisorReply(res.content);
+          return out.text ? out : null;
+        } catch (e) {
+          console.error(`[merchant-ai] ${model ?? "default model"}:`, (e as Error).message);
+          return null;
         }
-      );
-      reply = res.content;
+      };
+      const budget = Math.max(cfg.maxTokens, ADVISOR_MIN_TOKENS);
+      // The admin's model first; free models stall, 429 or 502 often, so fall
+      // back once (local providers: their default loaded model).
+      const fallback = cfg.provider === "openrouter" ? OPENROUTER_FALLBACK_MODEL : undefined;
+      parsed = (await ask(cfg.model ?? undefined, budget)) ?? (await ask(fallback, budget));
     } catch (e) {
       console.error("[merchant-ai] error", (e as Error).message);
-      return c.json({ error: "Blink AI is unavailable right now. Try again later." }, 400);
     }
+    if (!parsed) return c.json({ error: "Blink AI is unavailable right now. Try again later." }, 400);
 
     let suggestionId: string | null = null;
-    const match = SUGGESTION_RE.exec(reply);
-    if (match) {
-      try {
-        const s = JSON.parse(match[1].trim());
-        if (s.title && s.body) {
-          const { data } = await supabaseAdmin
-            .from("merchant_suggestions")
-            .insert({
-              merchant_id: user.id,
-              store_id: store.id,
-              source: "chat",
-              kind: String(s.kind ?? "general"),
-              title: String(s.title).slice(0, 120),
-              body: String(s.body).slice(0, 600),
-              data: { question: message },
-            })
-            .select("id")
-            .single();
-          suggestionId = data?.id ?? null;
-        }
-      } catch {
-        // Malformed block — keep the text reply only.
-      }
+    if (parsed.suggestion) {
+      const { data } = await supabaseAdmin
+        .from("merchant_suggestions")
+        .insert({
+          merchant_id: user.id,
+          store_id: store.id,
+          source: "chat",
+          kind: parsed.suggestion.kind,
+          title: parsed.suggestion.title,
+          body: parsed.suggestion.body,
+          data: { question: message },
+        })
+        .select("id")
+        .single();
+      suggestionId = data?.id ?? null;
     }
-    const clean = reply.replace(SUGGESTION_RE, "").trim();
 
-    const { data: botMsg } = await supabaseAdmin
+    // Saved only once answered, so a failed attempt leaves no orphan question.
+    const { data: saved } = await supabaseAdmin
       .from("merchant_ai_messages")
-      .insert({
-        merchant_id: user.id,
-        store_id: store.id,
-        role: "assistant",
-        content: clean || "…",
-        suggestion_id: suggestionId,
-      })
-      .select()
-      .single();
+      .insert([
+        { merchant_id: user.id, store_id: store.id, role: "user", content: message, created_at: askedAt },
+        {
+          merchant_id: user.id,
+          store_id: store.id,
+          role: "assistant",
+          content: parsed.text,
+          suggestion_id: suggestionId,
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select();
+    const rows = [...(saved ?? [])].sort((a, b) => a.created_at.localeCompare(b.created_at));
 
-    return c.json({ messages: (await withSuggestions([userMsg, botMsg].filter(Boolean) as any[])) as any }, 200);
+    return c.json({ messages: (await withSuggestions(rows)) as any }, 200);
   }
 );
 

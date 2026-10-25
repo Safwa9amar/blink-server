@@ -1,6 +1,13 @@
 import OpenAI from "openai";
 import type { AIProvider, ChatMessage, ChatOptions, AIResponse } from "./types";
-import { DEFAULT_SYSTEM_PROMPT, reasoningEnabled, embedBatched, type EmbedOptions, type EmbedResult } from "./types";
+import {
+  DEFAULT_SYSTEM_PROMPT,
+  reasoningEnabled,
+  embedBatched,
+  requestOptions,
+  type EmbedOptions,
+  type EmbedResult,
+} from "./types";
 
 // OpenRouter extension: explicitly disable reasoning when it's turned off, so
 // non-reasoning models (e.g. Gemma) aren't asked to think. Empty when on.
@@ -42,13 +49,16 @@ export class OpenRouterProvider implements AIProvider {
       content: options?.systemPrompt || DEFAULT_SYSTEM_PROMPT,
     };
 
-    const response = await this.client.chat.completions.create({
-      model,
-      messages: [systemMessage, ...messages],
-      temperature: options?.temperature ?? 0.7,
-      max_tokens: options?.maxTokens ?? 2048,
-      ...reasoningParam(options),
-    } as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming);
+    const response = await this.client.chat.completions.create(
+      {
+        model,
+        messages: [systemMessage, ...messages],
+        temperature: options?.temperature ?? 0.7,
+        max_tokens: options?.maxTokens ?? 2048,
+        ...reasoningParam(options),
+      } as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming,
+      requestOptions(options)
+    );
 
     const choice = response.choices[0];
     // Reasoning models may leave `content` empty and answer in their reasoning
@@ -61,6 +71,7 @@ export class OpenRouterProvider implements AIProvider {
       content: msg?.content || msg?.reasoning || msg?.reasoning_content || "I couldn't generate a response. Please try again.",
       model,
       provider: this.name,
+      reasoningOnly: !msg?.content,
       usage: response.usage
         ? {
             promptTokens: response.usage.prompt_tokens,

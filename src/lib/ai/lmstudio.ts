@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import type { AIProvider, ChatMessage, ChatOptions, AIResponse, LMModel } from "./types";
-import { DEFAULT_SYSTEM_PROMPT, embedBatched, type EmbedOptions, type EmbedResult } from "./types";
+import { DEFAULT_SYSTEM_PROMPT, embedBatched, requestOptions, type EmbedOptions, type EmbedResult } from "./types";
 
 export class LMStudioProvider implements AIProvider {
   name = "lmstudio";
@@ -30,14 +30,17 @@ export class LMStudioProvider implements AIProvider {
   async chat(messages: ChatMessage[], options?: ChatOptions): Promise<AIResponse> {
     const model = options?.model || (await this.getDefaultModel());
 
-    const response = await this.client.chat.completions.create({
-      model,
-      messages: [{ role: "system", content: options?.systemPrompt || DEFAULT_SYSTEM_PROMPT }, ...messages],
-      temperature: options?.temperature ?? 0.7,
-      max_tokens: options?.maxTokens ?? 2048,
-      // LM Studio extension: auto-unload a JIT-loaded model after `ttl` idle seconds.
-      ...(options?.ttl && options.ttl > 0 ? { ttl: options.ttl } : {}),
-    } as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming);
+    const response = await this.client.chat.completions.create(
+      {
+        model,
+        messages: [{ role: "system", content: options?.systemPrompt || DEFAULT_SYSTEM_PROMPT }, ...messages],
+        temperature: options?.temperature ?? 0.7,
+        max_tokens: options?.maxTokens ?? 2048,
+        // LM Studio extension: auto-unload a JIT-loaded model after `ttl` idle seconds.
+        ...(options?.ttl && options.ttl > 0 ? { ttl: options.ttl } : {}),
+      } as OpenAI.Chat.ChatCompletionCreateParamsNonStreaming,
+      requestOptions(options)
+    );
 
     // Reasoning ("thinking") models may leave `content` empty and put their text in
     // `reasoning_content` — fall back to it so the answer isn't dropped.
@@ -55,6 +58,7 @@ export class LMStudioProvider implements AIProvider {
       content,
       model: response.model || model,
       provider: this.name,
+      reasoningOnly: !message?.content?.trim(),
       usage: response.usage
         ? {
             promptTokens: response.usage.prompt_tokens,

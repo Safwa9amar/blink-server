@@ -9,6 +9,8 @@ export interface AIResponse {
   content: string;
   model: string;
   provider: string;
+  /** The model gave no answer: `content` is its reasoning (or a placeholder). */
+  reasoningOnly?: boolean;
   usage?: {
     promptTokens: number;
     completionTokens: number;
@@ -96,6 +98,29 @@ export interface ChatOptions {
   reasoning?: boolean;
   /** Caller context for the AI-log buffer (ignored by providers). */
   logContext?: AiLogContext;
+  /** Per-request timeout in ms. Omit → the client's default. */
+  timeoutMs?: number;
+  /** SDK retries on 429/5xx. Omit → the client's default (2). */
+  maxRetries?: number;
+}
+
+/**
+ * OpenAI-SDK request options from ChatOptions (timeout / retries). The SDK's
+ * own `timeout` stops at the response headers, and OpenRouter sends those at
+ * once then holds a queued free model's body for minutes — the abort signal
+ * bounds the whole call.
+ */
+export function requestOptions(options?: ChatOptions): {
+  timeout?: number;
+  signal?: AbortSignal;
+  maxRetries?: number;
+} {
+  return {
+    ...(options?.timeoutMs
+      ? { timeout: options.timeoutMs, signal: AbortSignal.timeout(options.timeoutMs) }
+      : {}),
+    ...(options?.maxRetries != null ? { maxRetries: options.maxRetries } : {}),
+  };
 }
 
 export function reasoningEnabled(flag?: boolean): boolean {

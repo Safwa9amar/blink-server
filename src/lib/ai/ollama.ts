@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import type { AIProvider, ChatMessage, ChatOptions, AIResponse } from "./types";
-import { DEFAULT_SYSTEM_PROMPT, embedBatched, type EmbedOptions, type EmbedResult } from "./types";
+import { DEFAULT_SYSTEM_PROMPT, embedBatched, requestOptions, type EmbedOptions, type EmbedResult } from "./types";
 
 export class OllamaProvider implements AIProvider {
   name = "ollama";
@@ -25,12 +25,15 @@ export class OllamaProvider implements AIProvider {
   async chat(messages: ChatMessage[], options?: ChatOptions): Promise<AIResponse> {
     const model = options?.model || await this.getDefaultModel();
 
-    const response = await this.client.chat.completions.create({
-      model,
-      messages: [{ role: "system", content: options?.systemPrompt || DEFAULT_SYSTEM_PROMPT }, ...messages],
-      temperature: options?.temperature ?? 0.7,
-      max_tokens: options?.maxTokens ?? 2048,
-    });
+    const response = await this.client.chat.completions.create(
+      {
+        model,
+        messages: [{ role: "system", content: options?.systemPrompt || DEFAULT_SYSTEM_PROMPT }, ...messages],
+        temperature: options?.temperature ?? 0.7,
+        max_tokens: options?.maxTokens ?? 2048,
+      },
+      requestOptions(options)
+    );
 
     return {
       content: response.choices[0]?.message?.content || "",
