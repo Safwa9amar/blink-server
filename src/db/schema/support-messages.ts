@@ -9,6 +9,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import { mfaPolicy } from "./_shared";
 import { supportConversations } from "./support-conversations";
 import { users } from "./users";
 
@@ -39,6 +40,7 @@ export const supportMessages = pgTable(
   },
   (t) => [
     index("idx_support_messages_conversation").on(t.conversationId, t.createdAt),
+    mfaPolicy("support_messages_mfa"),
     pgPolicy("support_messages_select_own_or_staff", {
       for: "select",
       using: sql`EXISTS (

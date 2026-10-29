@@ -10,7 +10,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { timestamps } from "./_shared";
+import { timestamps, mfaPolicy } from "./_shared";
 import { userRole } from "./enums";
 import { users } from "./users";
 
@@ -58,6 +58,7 @@ export const supportConversations = pgTable(
     index("idx_support_conversations_assigned").on(t.assignedAgentId),
     index("idx_support_conversations_user").on(t.userId),
     index("idx_support_conversations_last_msg").on(t.lastMessageAt),
+    mfaPolicy("support_conversations_mfa"),
     pgPolicy("support_conversations_select_own_or_staff", {
       for: "select",
       using: sql`auth.uid() = user_id OR EXISTS (SELECT 1 FROM users u WHERE u.id = auth.uid() AND u.staff_role IS NOT NULL)`,
