@@ -1,7 +1,7 @@
 // Shared helpers for the merchant endpoints: ownership checks, period ranges,
 // store sales stats and money constants.
 import { normalizeWilaya, wilayaAt } from "../../lib/geo/wilaya";
-import { getPrices } from "../../lib/pricing";
+import { getPrices, placeContext, pricingPlace } from "../../lib/pricing";
 import { withDocumentsStatus } from "../../lib/store-documents";
 import { supabaseAdmin } from "../../lib/supabase";
 
@@ -33,12 +33,14 @@ export async function storeRatesFor(store: {
   longitude?: unknown;
 }) {
   let wilaya = normalizeWilaya(typeof store.wilaya === "string" ? store.wilaya : null);
-  if (!wilaya && store.latitude != null && store.longitude != null) {
-    wilaya = wilayaAt(Number(store.latitude), Number(store.longitude));
-  }
+  const point =
+    store.latitude != null && store.longitude != null ? { lat: Number(store.latitude), lng: Number(store.longitude) } : null;
+  if (!wilaya && point) wilaya = wilayaAt(point.lat, point.lng);
+  // The store's zone/tier, so a zone- or tier-scoped commission deal applies.
+  const place = point ? await pricingPlace(point, { wilaya }) : null;
   const p = await getPrices(["merchant_commission_rate", "stamp_duty_rate"] as const, {
     merchantId: store.owner_id ?? null,
-    wilaya,
+    ...(place ? placeContext(place) : { wilaya }),
   });
   return { commission: p.merchant_commission_rate.value.rate, stamp: p.stamp_duty_rate.value.rate };
 }

@@ -29,10 +29,13 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const { routes, coupon_code } = c.req.valid("json");
 
-  const quotes = await Promise.all(
-    routes.map(async (r) => {
-      const cfg = await courierFareConfig(r.pickup);
-      return quoteRoute(r.pickup, r.drop_offs, cfg.rates, cfg.multiplier);
+  // Priced at each route's pickup place; the surcharge at its last drop-off's.
+  const cfgs = await Promise.all(routes.map((r) => courierFareConfig(r.pickup, r.drop_offs[r.drop_offs.length - 1])));
+  const quotes = routes.map((r, i) =>
+    quoteRoute(r.pickup, r.drop_offs, cfgs[i].rates, cfgs[i].multiplier, {
+      formula: cfgs[i].formula,
+      surcharge: cfgs[i].surcharge,
+      enabled: cfgs[i].enabled,
     })
   );
   const nearby = await nearbyCourierRiders(routes[0].pickup);
@@ -62,7 +65,12 @@ app.openapi(route, async (c) => {
         total: Math.max(0, fare - discount),
         duration_minutes: Math.max(...per.map((o) => o.duration_minutes)),
         available: per.every((o) => o.available),
-        pickup_eta_minutes: pickupEtaMinutes(vehicle, riders.nearestKm),
+        // Outside the service area wins over "too far": it can't be fixed by shortening the route.
+        unavailable_reason:
+          per.find((o) => o.unavailable_reason === "out_of_service_area")?.unavailable_reason ??
+          per.find((o) => o.unavailable_reason)?.unavailable_reason ??
+          null,
+        pickup_eta_minutes: pickupEtaMinutes(vehicle, riders.nearestKm, cfgs[0].formula),
         nearby_riders: riders.count,
       };
     })

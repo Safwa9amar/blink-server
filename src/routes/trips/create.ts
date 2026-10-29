@@ -29,10 +29,12 @@ app.openapi(route, async (c) => {
   // (motorcycle ride fare + the configured commission), never from the body.
   const pickup = { lat: body.pickup_lat, lng: body.pickup_lng };
   const dropoff = { lat: body.dropoff_lat, lng: body.dropoff_lng };
-  const km = rideKm(pickup, dropoff);
-  const cfg = await rideFareConfig(pickup);
-  if (rideRouteError(pickup, dropoff, cfg.rates)) return c.json({ error: "Route too short or too long for a trip" }, 400);
-  const fare = rideFare("motorcycle", km, cfg.rates, cfg.multiplier);
+  const cfg = await rideFareConfig(pickup, dropoff);
+  const km = rideKm(pickup, dropoff, cfg.formula);
+  if (rideRouteError(pickup, dropoff, cfg.rates, "motorcycle", cfg.formula)) {
+    return c.json({ error: "Route too short or too long for a trip" }, 400);
+  }
+  const fare = rideFare("motorcycle", km, cfg.rates, cfg.multiplier, { formula: cfg.formula, surcharge: cfg.surcharge });
   const { commissionRate } = await riderRates({ type: "ride" }, pickup);
 
   const displayId = `BK-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -52,7 +54,7 @@ app.openapi(route, async (c) => {
       ...tripPayout(fare, commissionRate),
       commission_rate: commissionRate,
       distance_km: km,
-      duration_minutes: rideDuration("motorcycle", km),
+      duration_minutes: rideDuration("motorcycle", km, cfg.formula),
       rider_id: userId,
       display_id: displayId,
       status: "upcoming",

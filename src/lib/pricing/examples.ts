@@ -38,14 +38,23 @@ export function feeExample(key: PricingKey, value: unknown, values: ExampleValue
         kind: "trip_km",
         vehicle: "motorcycle",
         km: EXAMPLE_KM,
-        output: legFare(v.motorcycle, EXAMPLE_KM, { extraStopFee: v.extra_stop_fee, multiplier: other("fare_multiplier").multiplier }),
+        output: legFare(v.motorcycle, EXAMPLE_KM, {
+          extraStopFee: v.extra_stop_fee,
+          multiplier: other("fare_multiplier").multiplier,
+          formula: other("fare_formula"),
+          speedKmh: other("fare_formula").speed_kmh.motorcycle,
+        }),
       };
     case "ride_fare":
       return {
         kind: "trip_km",
         vehicle: "motorcycle",
         km: EXAMPLE_KM,
-        output: legFare(v.motorcycle, EXAMPLE_KM, { multiplier: other("fare_multiplier").multiplier }),
+        output: legFare(v.motorcycle, EXAMPLE_KM, {
+          multiplier: other("fare_multiplier").multiplier,
+          formula: other("fare_formula"),
+          speedKmh: other("fare_formula").speed_kmh.motorcycle,
+        }),
       };
     case "fare_multiplier": {
       const leg = other("ride_fare").motorcycle;
@@ -74,6 +83,25 @@ export function feeExample(key: PricingKey, value: unknown, values: ExampleValue
         output: splitFee(AGENT_FEE, { platform: v.rate, tax: other("agent_tax_rate").rate }).net,
       };
     case "rider_cancel_penalty":
+    case "dropoff_surcharge":
       return { kind: "amount", output: v.amount };
+    case "fare_formula": {
+      // A 5 km motorcycle courier under this formula (the Formula tab shows the full breakdown).
+      const c = other("courier_fare");
+      return {
+        kind: "trip_km",
+        vehicle: "motorcycle",
+        km: EXAMPLE_KM,
+        output: legFare(c.motorcycle, EXAMPLE_KM, {
+          extraStopFee: c.extra_stop_fee,
+          multiplier: other("fare_multiplier").multiplier,
+          formula: v,
+          speedKmh: v.speed_kmh.motorcycle,
+        }),
+      };
+    }
+    case "service_area":
+    case "zone_defaults":
+      return null;
   }
 }

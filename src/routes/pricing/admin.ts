@@ -15,11 +15,22 @@ import {
   scopeError,
   type PricingKey,
 } from "../../lib/pricing/catalog";
-import { legFare } from "../../lib/pricing/fare";
+import { fareBreakdown, SEED_FORMULA, surchargeFor } from "../../lib/pricing/fare";
+import { haversineKm, routeKm } from "../../lib/courier-pricing";
+import { rideKm } from "../../lib/ride-pricing";
 import { feeExample, type ExampleValues } from "../../lib/pricing/examples";
-import { simulate, SIM_DEFAULTS, type SimPrices } from "../../lib/pricing/simulate";
+import { simulate, SIM_DEFAULTS, type SimInputs, type SimPrices } from "../../lib/pricing/simulate";
 import { orderPricingContext } from "../../lib/pricing/fees";
-import { getAllPrices, getPrice, getPrices, invalidatePricingCache, type PricingContext } from "../../lib/pricing";
+import {
+  getAllPrices,
+  getPrice,
+  getPrices,
+  invalidatePricingCache,
+  placeContext,
+  pricingPlace,
+  type PricingContext,
+  type PricingPlace,
+} from "../../lib/pricing";
 import { isActive, overlaps, type OverrideLike } from "../../lib/pricing/resolve";
 import { createNotification } from "../../lib/notifications";
 import { canActivate } from "../../lib/roles";
@@ -61,7 +72,7 @@ type OverrideRow = OverrideLike & {
 };
 
 const OVERRIDE_COLS =
-  "id, key, service, wilaya_code, merchant_id, agent_id, value, starts_at, ends_at, note, created_by, updated_by, archived_at, created_at, updated_at";
+  "id, key, service, wilaya_code, merchant_id, agent_id, zone_id, tier, value, starts_at, ends_at, note, created_by, updated_by, archived_at, created_at, updated_at";
 
 const nameOf = (u?: { first_name: string | null; last_name: string | null }) =>
   u ? [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || null : null;
@@ -79,6 +90,47 @@ async function namesById(ids: (string | null | undefined)[]) {
   return map;
 }
 
+type OverrideScope = {
+  service: string | null;
+  wilaya_code: string | null;
+  merchant_id: string | null;
+  agent_id: string | null;
+  zone_id: string | null;
+  tier: string | null;
+};
+
+/** The scope columns of the overrides that won a resolution (for "why this price"). */
+async function scopesById(ids: string[]) {
+  const map = new Map<string, OverrideScope>();
+  if (!ids.length) return map;
+  const { data } = await supabaseAdmin
+    .from("pricing_overrides")
+    .select("id, service, wilaya_code, merchant_id, agent_id, zone_id, tier")
+    .in("id", ids);
+  for (const o of data ?? []) {
+    map.set(o.id, {
+      service: o.service,
+      wilaya_code: o.wilaya_code,
+      merchant_id: o.merchant_id,
+      agent_id: o.agent_id,
+      zone_id: o.zone_id ?? null,
+      tier: o.tier ?? null,
+    });
+  }
+  return map;
+}
+
+const resultIds = (keys: readonly PricingKey[], results: Record<string, { overrideId: string | null }>) =>
+  keys.map((k) => results[k].overrideId);
+
+/** The place as the staff API shows it. */
+const placeView = (p: PricingPlace) => ({
+  wilaya_code: p.wilaya,
+  zone: p.zoneId ? { id: p.zoneId, name: p.zoneName ?? "", tier: p.tier ?? "" } : null,
+  tier: p.tier,
+  unzoned: p.unzoned,
+});
+
 function statusOf(o: OverrideLike, now = new Date()): "active" | "scheduled" | "ended" | "archived" {
   if (o.archived_at) return "archived";
   if (o.ends_at && Date.parse(o.ends_at) <= now.getTime()) return "ended";
@@ -86,8 +138,27 @@ function statusOf(o: OverrideLike, now = new Date()): "active" | "scheduled" | "
   return "active";
 }
 
-function overrideView(o: OverrideRow, names: Map<string, string | null>) {
+/** Partner names + zone names for a page of overrides. */
+async function viewMaps(rows: OverrideRow[]) {
+  const [names, zones] = await Promise.all([
+    namesById(rows.map((o) => o.merchant_id ?? o.agent_id)),
+    zoneNamesById(rows.map((o) => o.zone_id)),
+  ]);
+  return { names, zones };
+}
+
+async function zoneNamesById(ids: (string | null | undefined)[]) {
+  const unique = [...new Set(ids.filter((i): i is string => !!i))];
+  const map = new Map<string, string>();
+  if (!unique.length) return map;
+  const { data } = await supabaseAdmin.from("pricing_zones").select("id, name").in("id", unique);
+  for (const z of data ?? []) map.set(z.id, z.name);
+  return map;
+}
+
+function overrideView(o: OverrideRow, maps: { names: Map<string, string | null>; zones: Map<string, string> }) {
   const partner = o.merchant_id ?? o.agent_id;
+  const names = maps.names;
   return {
     id: o.id,
     key: o.key as PricingKey,
@@ -95,6 +166,9 @@ function overrideView(o: OverrideRow, names: Map<string, string | null>) {
     wilaya_code: o.wilaya_code,
     merchant_id: o.merchant_id,
     agent_id: o.agent_id,
+    zone_id: o.zone_id ?? null,
+    tier: o.tier ?? null,
+    zone_name: o.zone_id ? maps.zones.get(o.zone_id) ?? null : null,
     value: o.value,
     starts_at: o.starts_at,
     ends_at: o.ends_at,
@@ -129,6 +203,46 @@ async function partnerScopeError(scope: { merchant_id: string | null; agent_id: 
   return null;
 }
 
+/** The zone / tier an override targets must exist and be live (not archived). */
+async function placeScopeError(scope: { zone_id: string | null; tier: string | null }): Promise<string | null> {
+  if (scope.zone_id) {
+    const { data, error } = await supabaseAdmin.from("pricing_zones").select("id, archived_at").eq("id", scope.zone_id).maybeSingle();
+    if (error) throw new Error(`[pricing] zone lookup failed: ${error.message}`);
+    if (!data) return "zone_id doesn't match any zone";
+    if (data.archived_at) return "That zone is archived";
+  }
+  if (scope.tier) {
+    const { data, error } = await supabaseAdmin.from("pricing_tiers").select("code, archived_at").eq("code", scope.tier).maybeSingle();
+    if (error) throw new Error(`[pricing] tier lookup failed: ${error.message}`);
+    if (!data) return "tier doesn't match any tier";
+    if (data.archived_at) return "That tier is archived";
+  }
+  return null;
+}
+
+/** Live tier codes (the options of `tier` fields; what a tier-valued fee may name). */
+async function liveTierCodes(): Promise<string[]> {
+  const { data, error } = await supabaseAdmin
+    .from("pricing_tiers")
+    .select("code")
+    .is("archived_at", null)
+    .order("sort_order", { ascending: true });
+  if (error) throw new Error(`[pricing] tiers read failed: ${error.message}`);
+  return (data ?? []).map((t) => t.code as string);
+}
+
+/** A value whose `tier` fields name a tier that isn't live → the error to return, else null. */
+async function tierValueError(key: PricingKey, value: unknown): Promise<{ error: string; code: "tier"; details: { path: string; message: string }[] } | null> {
+  const fields = PRICING_FIELDS[key].filter((f) => f.unit === "tier");
+  if (!fields.length) return null;
+  const live = await liveTierCodes();
+  const details = fields
+    .map((f) => ({ path: f.path, tier: f.path.split(".").reduce<any>((o, p) => o?.[p], value) }))
+    .filter((x) => !live.includes(x.tier))
+    .map((x) => ({ path: x.path, message: `"${x.tier}" isn't a live tier` }));
+  return details.length ? { error: "Unknown or archived tier", code: "tier", details } : null;
+}
+
 /** The first live override with the same key + scope + overlapping window, if any. */
 async function findConflict(candidate: OverrideLike, exceptId?: string) {
   const { data, error } = await supabaseAdmin
@@ -155,6 +269,8 @@ async function notifyPartner(
     // What they fall back to (default, or a looser deal) — the archived one is already excluded.
     const fallback = await getPrice(o.key, {
       wilaya: o.wilaya_code,
+      zoneId: o.zone_id ?? null,
+      tier: o.tier ?? null,
       merchantId: o.merchant_id,
       agentId: o.agent_id,
     });
@@ -187,14 +303,16 @@ function feeView(
   key: PricingKey,
   row: { value: unknown; updated_at: string | null; updated_by: string | null } | undefined,
   active: number,
-  defaults: ExampleValues = PRICING_SEEDS
+  defaults: ExampleValues = PRICING_SEEDS,
+  tiers: string[] = []
 ) {
   return {
     key,
     group: PRICING_GROUPS[key],
     unit: PRICING_UNITS[key],
     scopes: PRICING_SCOPES[key],
-    fields: PRICING_FIELDS[key],
+    // `tier` fields list the live tiers as their options.
+    fields: PRICING_FIELDS[key].map((f) => (f.unit === "tier" ? { ...f, options: tiers } : f)),
     value: row?.value ?? PRICING_SEEDS[key],
     seed: PRICING_SEEDS[key],
     updated_at: row?.updated_at ?? null,
@@ -229,15 +347,16 @@ app.openapi(
     responses: { 200: json(PricingCatalogResponse), 401: errorResponses[401], 403: errorResponses[403] },
   }),
   async (c) => {
-    const [{ data, error }, counts] = await Promise.all([
+    const [{ data, error }, counts, tiers] = await Promise.all([
       supabaseAdmin.from("pricing_settings").select("key, value, updated_at, updated_by"),
       activeCounts(),
+      liveTierCodes(),
     ]);
     if (error) throw new Error(`[pricing] settings read failed: ${error.message}`);
     const rows = new Map((data ?? []).map((r) => [r.key as string, r]));
     const keys = Object.keys(PRICING_SEEDS) as PricingKey[];
     const defaults = Object.fromEntries(keys.map((k) => [k, rows.get(k)?.value ?? PRICING_SEEDS[k]])) as ExampleValues;
-    return c.json({ fees: keys.map((k) => feeView(k, rows.get(k), counts.get(k) ?? 0, defaults)) }, 200);
+    return c.json({ fees: keys.map((k) => feeView(k, rows.get(k), counts.get(k) ?? 0, defaults, tiers)) }, 200);
   }
 );
 
@@ -277,6 +396,9 @@ app.openapi(
       );
     }
 
+    const tierProblem = await tierValueError(key, parsed.data);
+    if (tierProblem) return c.json(tierProblem, 400);
+
     const { data: current } = await supabaseAdmin
       .from("pricing_settings")
       .select("key, value, updated_at, updated_by")
@@ -298,7 +420,7 @@ app.openapi(
 
     invalidatePricingCache();
     const counts = await activeCounts();
-    return c.json({ fee: feeView(key, saved, counts.get(key) ?? 0) }, 200);
+    return c.json({ fee: feeView(key, saved, counts.get(key) ?? 0, PRICING_SEEDS, await liveTierCodes()) }, 200);
   }
 );
 
@@ -321,6 +443,8 @@ app.openapi(
     if (q.wilaya_code) query = query.eq("wilaya_code", q.wilaya_code);
     if (q.merchant_id) query = query.eq("merchant_id", q.merchant_id);
     if (q.agent_id) query = query.eq("agent_id", q.agent_id);
+    if (q.zone_id) query = query.eq("zone_id", q.zone_id);
+    if (q.tier) query = query.eq("tier", q.tier);
     if (q.status === "archived") query = query.not("archived_at", "is", null);
     else if (q.status) query = query.is("archived_at", null);
     const { data, error } = await query.order("created_at", { ascending: false }).limit(500);
@@ -328,8 +452,8 @@ app.openapi(
 
     let rows = (data ?? []) as OverrideRow[];
     if (q.status) rows = rows.filter((o) => statusOf(o) === q.status);
-    const names = await namesById(rows.map((o) => o.merchant_id ?? o.agent_id));
-    return c.json({ overrides: rows.map((o) => overrideView(o, names)) }, 200);
+    const maps = await viewMaps(rows);
+    return c.json({ overrides: rows.map((o) => overrideView(o, maps)) }, 200);
   }
 );
 
@@ -362,8 +486,10 @@ app.openapi(
       wilaya_code: body.wilaya_code ?? null,
       merchant_id: body.merchant_id ?? null,
       agent_id: body.agent_id ?? null,
+      zone_id: body.zone_id ?? null,
+      tier: body.tier ?? null,
     };
-    const problem = scopeError(key, scope) ?? (await partnerScopeError(scope));
+    const problem = scopeError(key, scope) ?? (await partnerScopeError(scope)) ?? (await placeScopeError(scope));
     // `code: "scope"` lets the dashboard send the editor back to the scope step.
     if (problem) return c.json({ error: problem, code: "scope" }, 400);
 
@@ -377,6 +503,8 @@ app.openapi(
         400
       );
     }
+    const tierProblem = await tierValueError(key, parsed.data);
+    if (tierProblem) return c.json(tierProblem, 400);
     const starts_at = body.starts_at ?? null;
     const ends_at = body.ends_at ?? null;
     if (starts_at && ends_at && Date.parse(ends_at) <= Date.parse(starts_at)) {
@@ -410,8 +538,8 @@ app.openapi(
 
     invalidatePricingCache();
     await notifyPartner("created", row, staff.id);
-    const names = await namesById([row.merchant_id ?? row.agent_id]);
-    return c.json({ override: overrideView(row, names) }, 201);
+    const maps = await viewMaps([row]);
+    return c.json({ override: overrideView(row, maps) }, 201);
   }
 );
 
@@ -462,6 +590,8 @@ app.openapi(
           400
         );
       }
+      const tierProblem = await tierValueError(before.key, parsed.data);
+      if (tierProblem) return c.json(tierProblem, 400);
       value = parsed.data;
       patch.value = value;
     }
@@ -498,8 +628,8 @@ app.openapi(
       !sameTime(row.starts_at, before.starts_at) ||
       !sameTime(row.ends_at, before.ends_at);
     if (material) await notifyPartner("updated", row, staff.id);
-    const names = await namesById([row.merchant_id ?? row.agent_id]);
-    return c.json({ override: overrideView(row, names) }, 200);
+    const maps = await viewMaps([row]);
+    return c.json({ override: overrideView(row, maps) }, 200);
   }
 );
 
@@ -545,8 +675,8 @@ app.openapi(
       // "Returns to default" only makes sense for a deal that was in force.
       if (statusOf(before) === "active") await notifyPartner("archived", row, staff.id);
     }
-    const names = await namesById([row.merchant_id ?? row.agent_id]);
-    return c.json({ override: overrideView(row, names) }, 200);
+    const maps = await viewMaps([row]);
+    return c.json({ override: overrideView(row, maps) }, 200);
   }
 );
 
@@ -566,9 +696,11 @@ app.openapi(
     const q = c.req.valid("query");
     let query = supabaseAdmin
       .from("pricing_changes")
-      .select("id, key, override_id, action, before, after, actor_id, created_at");
+      .select("id, key, override_id, zone_id, tier, action, before, after, actor_id, created_at");
     if (q.key) query = query.eq("key", q.key);
     if (q.override_id) query = query.eq("override_id", q.override_id);
+    if (q.zone_id) query = query.eq("zone_id", q.zone_id);
+    if (q.tier) query = query.eq("tier", q.tier);
     const { data, error } = await query.order("created_at", { ascending: false }).limit(q.limit);
     if (error) throw new Error(`[pricing] history read failed: ${error.message}`);
     const rows = data ?? [];
@@ -618,6 +750,8 @@ app.openapi(
     const ctx = {
       service: context.service,
       wilaya: context.wilaya_code ?? null,
+      zoneId: context.zone_id ?? null,
+      tier: context.tier ?? null,
       merchantId: context.merchant_id ?? null,
       agentId: context.agent_id ?? null,
       at: context.at ? new Date(context.at) : undefined,
@@ -625,16 +759,7 @@ app.openapi(
     const prices = await getAllPrices(ctx);
 
     const winners = prices.map((p) => p.overrideId).filter((i): i is string => !!i);
-    const scopes = new Map<string, { service: string | null; wilaya_code: string | null; merchant_id: string | null; agent_id: string | null }>();
-    if (winners.length) {
-      const { data } = await supabaseAdmin
-        .from("pricing_overrides")
-        .select("id, service, wilaya_code, merchant_id, agent_id")
-        .in("id", winners);
-      for (const o of data ?? []) {
-        scopes.set(o.id, { service: o.service, wilaya_code: o.wilaya_code, merchant_id: o.merchant_id, agent_id: o.agent_id });
-      }
-    }
+    const scopes = await scopesById(winners);
 
     // Worked examples through the same maths the flows use. With a candidate,
     // it replaces that key's effective value (a fare_multiplier candidate only
@@ -644,10 +769,12 @@ app.openapi(
     const amount = sample?.amount ?? 10_000;
     const cashType = context.service === "withdrawal" ? "withdrawal" : "deposit";
     const live = Object.fromEntries(prices.map((p) => [p.key, p.value])) as Record<string, any>;
-    const [courierMult, rideMult, cashRate] = await Promise.all([
+    const [courierMult, rideMult, cashRate, courierFormula, rideFormula] = await Promise.all([
       getPrice("fare_multiplier", { ...ctx, service: "courier" }),
       getPrice("fare_multiplier", { ...ctx, service: "ride" }),
       getPrice("blink_cash_fee_rate", { ...ctx, service: cashType }),
+      getPrice("fare_formula", { ...ctx, service: "courier" }),
+      getPrice("fare_formula", { ...ctx, service: "ride" }),
     ]);
 
     const examplesWith = (cand: typeof candidateValue) => {
@@ -661,12 +788,21 @@ app.openapi(
       const cm = multFor("courier", courierMult.value.multiplier);
       const rm = multFor("ride", rideMult.value.multiplier);
       const cash = pick("blink_cash_fee_rate", cashRate.value);
+      const cf = pick("fare_formula", courierFormula.value);
+      const rf = pick("fare_formula", rideFormula.value);
+      const courierOf = (v: "bicycle" | "motorcycle") =>
+        fareBreakdown(courier[v], km, {
+          stops,
+          extraStopFee: courier.extra_stop_fee,
+          multiplier: cm,
+          formula: cf,
+          speedKmh: cf.speed_kmh[v],
+        }).fare;
       return {
-        courier_fare: {
-          bicycle: legFare(courier.bicycle, km, { stops, extraStopFee: courier.extra_stop_fee, multiplier: cm }),
-          motorcycle: legFare(courier.motorcycle, km, { stops, extraStopFee: courier.extra_stop_fee, multiplier: cm }),
+        courier_fare: { bicycle: courierOf("bicycle"), motorcycle: courierOf("motorcycle") },
+        ride_fare: {
+          motorcycle: fareBreakdown(ride.motorcycle, km, { multiplier: rm, formula: rf, speedKmh: rf.speed_kmh.motorcycle }).fare,
         },
-        ride_fare: { motorcycle: legFare(ride.motorcycle, km, { multiplier: rm }) },
         blink_cash_fee: { type: cashType as "deposit" | "withdrawal", amount, fees: Math.round(amount * cash.rate) },
       };
     };
@@ -699,8 +835,8 @@ app.openapi(
 // ─── POST /pricing/admin/simulate ────────────────────────────────────
 const SIM_KEYS = {
   store: ["service_fee", "merchant_commission_rate", "stamp_duty_rate", "rider_commission_rate"],
-  courier: ["courier_fare", "fare_multiplier", "rider_commission_rate"],
-  ride: ["ride_fare", "fare_multiplier", "rider_commission_rate"],
+  courier: ["courier_fare", "fare_multiplier", "fare_formula", "service_area", "rider_commission_rate"],
+  ride: ["ride_fare", "fare_multiplier", "fare_formula", "service_area", "rider_commission_rate"],
   deposit: ["blink_cash_fee_rate", "agent_platform_share", "agent_tax_rate"],
   withdrawal: ["blink_cash_fee_rate", "agent_platform_share", "agent_tax_rate"],
 } as const satisfies Record<string, readonly PricingKey[]>;
@@ -726,6 +862,7 @@ app.openapi(
     const { scenario, context = {}, inputs = {} } = c.req.valid("json");
     const at = context.at ? new Date(context.at) : undefined;
     const service = scenario === "store" ? "merchant" : scenario;
+    const isFare = scenario === "courier" || scenario === "ride";
     let ctx: PricingContext = {
       service,
       wilaya: context.wilaya_code ?? null,
@@ -734,41 +871,72 @@ app.openapi(
       at,
     };
     let delivery = inputs.delivery_fee;
+    let place: PricingPlace | null = null;
     if (scenario === "store" && context.store_id) {
       const sc = await orderPricingContext({ type: "merchant", storeId: context.store_id });
       // A store without a known wilaya keeps the wilaya the caller picked.
-      ctx = { ...ctx, ...sc, wilaya: sc.wilaya ?? ctx.wilaya, at };
+      const { place: storePlace, ...scCtx } = sc;
+      ctx = { ...ctx, ...scCtx, wilaya: sc.wilaya ?? ctx.wilaya, at };
+      place = storePlace;
       if (delivery == null) {
         const { data } = await supabaseAdmin.from("stores").select("delivery_fee").eq("id", context.store_id).maybeSingle();
         if (data?.delivery_fee != null) delivery = Number(data.delivery_fee);
       }
     }
 
+    // Where the trip is priced: a picked pickup point, else a zone, else a tier.
+    if (context.pickup) {
+      place = await pricingPlace(context.pickup, { at });
+      ctx = { ...ctx, ...placeContext(place) };
+    } else if (context.zone_id) {
+      const { data: zone } = await supabaseAdmin
+        .from("pricing_zones")
+        .select("id, name, tier, wilaya_code")
+        .eq("id", context.zone_id)
+        .maybeSingle();
+      if (!zone) return c.json({ error: "zone_id doesn't match any zone", code: "scope" }, 400);
+      place = { wilaya: zone.wilaya_code, zoneId: zone.id, zoneName: zone.name, tier: zone.tier, unzoned: false, unzonedOverrideId: null };
+      ctx = { ...ctx, ...placeContext(place) };
+    } else if (context.tier) {
+      place = { wilaya: ctx.wilaya ?? null, zoneId: null, zoneName: null, tier: context.tier, unzoned: false, unzonedOverrideId: null };
+      ctx = { ...ctx, tier: context.tier };
+    }
+
     const keys = SIM_KEYS[scenario];
     const results = await getPrices(keys, ctx);
     const prices: SimPrices = {};
     for (const k of keys) (prices as Record<string, unknown>)[k] = results[k as keyof typeof results].value;
-    const result = simulate(scenario, { ...inputs, delivery_fee: delivery ?? SIM_DEFAULTS.delivery_fee }, prices);
 
-    const winners = keys.map((k) => results[k as keyof typeof results].overrideId).filter((i): i is string => !!i);
-    const scopes = new Map<string, { service: string | null; wilaya_code: string | null; merchant_id: string | null; agent_id: string | null }>();
-    if (winners.length) {
-      const { data } = await supabaseAdmin
-        .from("pricing_overrides")
-        .select("id, service, wilaya_code, merchant_id, agent_id")
-        .in("id", winners);
-      for (const o of data ?? []) {
-        scopes.set(o.id, { service: o.service, wilaya_code: o.wilaya_code, merchant_id: o.merchant_id, agent_id: o.agent_id });
-      }
+    // Pickup + drop-off: the server derives km, the drop-off surcharge and the service area.
+    const simInputs: SimInputs = { ...inputs, delivery_fee: delivery ?? SIM_DEFAULTS.delivery_fee };
+    const extra: { key: PricingKey; value: unknown; override_id: string | null }[] = [];
+    if (isFare && context.pickup && context.dropoff) {
+      const formula = prices.fare_formula ?? SEED_FORMULA;
+      const dropPlace = await pricingPlace(context.dropoff, { at });
+      const rule = await getPrice("dropoff_surcharge", { service, ...placeContext(dropPlace), at });
+      simInputs.km = routeKm(context.pickup, [context.dropoff], formula);
+      simInputs.straight_km = haversineKm(context.pickup, context.dropoff);
+      simInputs.surcharge = surchargeFor(rule.value, place?.tier ?? null, dropPlace.tier);
+      extra.push({ key: "dropoff_surcharge", value: rule.value, override_id: rule.overrideId });
     }
+    if (isFare) simInputs.in_service_area = (prices.service_area ?? { enabled: true }).enabled;
+
+    const result = simulate(scenario, simInputs, prices);
+
+    const winners = [...resultIds(keys, results), ...extra.map((e) => e.override_id)].filter((i): i is string => !!i);
+    const scopes = await scopesById(winners);
     return c.json(
       {
         scenario,
         ...result,
-        values: keys.map((k) => {
-          const r = results[k as keyof typeof results];
-          return { key: k as PricingKey, value: r.value, override_id: r.overrideId, scope: r.overrideId ? scopes.get(r.overrideId) ?? null : null };
-        }),
+        values: [
+          ...keys.map((k) => {
+            const r = results[k as keyof typeof results];
+            return { key: k as PricingKey, value: r.value, override_id: r.overrideId, scope: r.overrideId ? scopes.get(r.overrideId) ?? null : null };
+          }),
+          ...extra.map((e) => ({ ...e, scope: e.override_id ? scopes.get(e.override_id) ?? null : null })),
+        ],
+        place: place ? placeView(place) : null,
       },
       200
     );

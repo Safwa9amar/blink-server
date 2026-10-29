@@ -15,6 +15,7 @@ import type { CourierDetails } from "../../lib/courier";
 import type { RideDetails } from "../../lib/ride";
 import { orderStatus, orderType } from "./enums";
 import { timestamps } from "./_shared";
+import { pricingZones } from "./pricing";
 import { users } from "./users";
 
 /** What one pack contains, snapshotted on a pack line when the order was placed. */
@@ -138,6 +139,10 @@ export const orders = pgTable(
     merchantCommissionRate: numeric("merchant_commission_rate", { precision: 6, scale: 4 }).$type<number>(),
     stampDutyRate: numeric("stamp_duty_rate", { precision: 6, scale: 4 }).$type<number>(),
     pricingApplied: jsonb("pricing_applied").$type<Record<string, string | null>>(),
+    // The pricing place of the order (20261029120000_zone_pricing.sql): the
+    // zone + tier it was priced in (store / courier-ride pickup).
+    pricingZoneId: uuid("pricing_zone_id").references(() => pricingZones.id, { onDelete: "set null" }),
+    pricingTier: text("pricing_tier"),
     ...timestamps,
   },
   (t) => [

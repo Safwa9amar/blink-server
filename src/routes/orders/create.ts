@@ -1,7 +1,7 @@
 import { priceCoupon } from "../../lib/coupons";
 import { scheduleError } from "../../lib/courier";
 import { COURIER_VEHICLES, courierFare, courierMaxKm, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
-import { courierFareConfig } from "../../lib/pricing/fare-config";
+import { courierFareConfig, placeColumns } from "../../lib/pricing/fare-config";
 import { checkoutAlreadyCharged, orderPricingContext, quoteServiceFee } from "../../lib/pricing/fees";
 import { getPrices } from "../../lib/pricing";
 import { priceCourierCoupon } from "../courier/shared";
@@ -99,6 +99,8 @@ app.openapi(route, async (c) => {
   const fee = await quoteServiceFee(pricingCtx, { type: body.type, checkoutAlreadyCharged: alreadyCharged });
   let serviceFee = fee.amount;
   const pricingApplied: Record<string, string | null> = {};
+  // Where the order is priced (the store, or a courier's pickup); stored on the order.
+  let orderPlace = pricingCtx.place;
   let merchantCommissionRate: number | null = null;
   let stampDutyRate: number | null = null;
   if (!isCourier) {
@@ -129,16 +131,23 @@ app.openapi(route, async (c) => {
     }
     const scheduleProblem = scheduleError(body.scheduled_at);
     if (scheduleProblem) return c.json({ error: scheduleProblem }, 400);
-    const km = routeKm({ lat: pickup_lat, lng: pickup_lng }, [{ lat: destination_lat, lng: destination_lng }]);
-    const cfg = await courierFareConfig({ lat: pickup_lat, lng: pickup_lng });
+    const cfg = await courierFareConfig(
+      { lat: pickup_lat, lng: pickup_lng },
+      { lat: destination_lat, lng: destination_lng }
+    );
+    if (!cfg.enabled) {
+      return c.json({ error: "Our courier service isn't available at this pickup yet", code: "out_of_service_area" }, 400);
+    }
+    const km = routeKm({ lat: pickup_lat, lng: pickup_lng }, [{ lat: destination_lat, lng: destination_lng }], cfg.formula);
     const maxKm = courierMaxKm(vehicle, cfg.rates);
     if (km > maxKm) {
       return c.json({ error: `Route too long: a ${vehicle} takes up to ${maxKm} km` }, 400);
     }
     subtotal = 0;
-    deliveryFee = courierFare(vehicle, km, 1, cfg.rates, cfg.multiplier);
+    deliveryFee = courierFare(vehicle, km, 1, cfg.rates, cfg.multiplier, { formula: cfg.formula, surcharge: cfg.surcharge });
     serviceFee = 0;
     Object.assign(pricingApplied, cfg.applied);
+    orderPlace = cfg.place;
   }
 
   // Store orders: every line is priced here from live data. Product lines
@@ -265,6 +274,7 @@ app.openapi(route, async (c) => {
       merchant_commission_rate: merchantCommissionRate,
       stamp_duty_rate: stampDutyRate,
       pricing_applied: pricingApplied,
+      ...(orderPlace ? placeColumns(orderPlace) : {}),
     })
     .select()
     .single();

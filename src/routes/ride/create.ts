@@ -2,7 +2,7 @@ import { claimCoupon, linkCoupon, releaseCoupon } from "../../lib/coupons";
 import { scheduleError } from "../../lib/courier";
 import { buildRideDetails, RIDE_STORE_NAME, rideItems } from "../../lib/ride";
 import { rideDuration, rideFare, rideKm, rideMaxKm, rideRouteError, type RideVehicle } from "../../lib/ride-pricing";
-import { rideFareConfig } from "../../lib/pricing/fare-config";
+import { placeColumns, rideFareConfig } from "../../lib/pricing/fare-config";
 import { withoutOffer } from "../../lib/rider-offer";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireRole } from "../../middleware/auth";
@@ -42,16 +42,17 @@ app.openapi(route, async (c) => {
   const scheduleProblem = scheduleError(body.scheduled_at);
   if (scheduleProblem) return c.json({ error: scheduleProblem }, 400);
 
-  const cfg = await rideFareConfig(body.pickup);
-  const routeProblem = rideRouteError(body.pickup, body.destination, cfg.rates, vehicle);
+  const cfg = await rideFareConfig(body.pickup, body.destination);
+  if (!cfg.enabled) return c.json({ error: "Rides aren't available at this pickup yet", code: "out_of_service_area" }, 400);
+  const routeProblem = rideRouteError(body.pickup, body.destination, cfg.rates, vehicle, cfg.formula);
   if (routeProblem === "too_close") {
     return c.json({ error: "Pickup and destination are too close for a ride" }, 400);
   }
-  const km = rideKm(body.pickup, body.destination);
+  const km = rideKm(body.pickup, body.destination, cfg.formula);
   if (routeProblem === "too_far") {
     return c.json({ error: `Ride too long: ${km} km, a ride goes up to ${rideMaxKm(vehicle, cfg.rates)} km` }, 400);
   }
-  const fare = rideFare(vehicle, km, cfg.rates, cfg.multiplier);
+  const fare = rideFare(vehicle, km, cfg.rates, cfg.multiplier, { formula: cfg.formula, surcharge: cfg.surcharge });
 
   let discount = 0;
   let couponId: string | null = null;
@@ -68,7 +69,7 @@ app.openapi(route, async (c) => {
     return c.json({ error: "This coupon was just used — remove it and try again" }, 409);
   }
 
-  const ride = buildRideDetails(body, { distanceKm: km, durationMinutes: rideDuration(vehicle, km) });
+  const ride = buildRideDetails(body, { distanceKm: km, durationMinutes: rideDuration(vehicle, km, cfg.formula) });
   const { data, error } = await supabaseAdmin
     .from("orders")
     .insert({
@@ -93,6 +94,7 @@ app.openapi(route, async (c) => {
       scheduled_at: body.scheduled_at ?? null,
       ride,
       pricing_applied: cfg.applied,
+      ...placeColumns(cfg.place),
     })
     .select()
     .single();

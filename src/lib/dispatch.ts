@@ -9,7 +9,7 @@ import { blinkFundedDiscount, CASH_FARE_TYPES, tripPayout, tripWalletDelta } fro
 import { courierCopy, courierHref, type CourierEvent } from "./courier-copy";
 import { courierOf, currentDropOffIndex } from "./courier";
 import { wilayaAt } from "./geo/wilaya";
-import { getPrice, getPrices } from "./pricing";
+import { getPrice, getPrices, placeContext, pricingPlace } from "./pricing";
 import { createNotification } from "./notifications";
 import { rideCopy, rideHref, type RideEvent } from "./ride-copy";
 import { rideOf, ridePassenger } from "./ride";
@@ -20,12 +20,17 @@ import { ledgerWallet } from "./wallet";
 
 /**
  * The rider-side rates of a job, from the pricing config: Blink's commission
- * (`rider_commission_rate`, by service + the pickup's wilaya) and the penalty
+ * (`rider_commission_rate`, by service + the pickup's wilaya / zone / tier) and the penalty
  * for dropping it after accepting (`rider_cancel_penalty`, by service).
  */
 export async function riderRates(o: Row, pickup: { lat: number | null; lng: number | null } = pickupOf(o)) {
-  const wilaya = pickup.lat != null && pickup.lng != null ? wilayaAt(Number(pickup.lat), Number(pickup.lng)) : null;
-  const p = await getPrices(["rider_commission_rate", "rider_cancel_penalty"] as const, { service: o.type, wilaya });
+  // The pickup's wilaya + zone/tier (null when the job has no pickup point).
+  const place =
+    pickup.lat != null && pickup.lng != null ? await pricingPlace({ lat: Number(pickup.lat), lng: Number(pickup.lng) }) : null;
+  const p = await getPrices(["rider_commission_rate", "rider_cancel_penalty"] as const, {
+    service: o.type,
+    ...(place ? placeContext(place) : { wilaya: null }),
+  });
   return { commissionRate: p.rider_commission_rate.value.rate, cancelPenalty: p.rider_cancel_penalty.value.amount };
 }
 

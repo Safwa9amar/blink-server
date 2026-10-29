@@ -354,8 +354,8 @@ export const getPricingConfig = defineTool({
 // ─── 6. simulate_price ──────────────────────────────────────────────
 export const SIM_KEYS = {
   store: ["service_fee", "merchant_commission_rate", "stamp_duty_rate", "rider_commission_rate"],
-  courier: ["courier_fare", "fare_multiplier", "rider_commission_rate"],
-  ride: ["ride_fare", "fare_multiplier", "rider_commission_rate"],
+  courier: ["courier_fare", "fare_multiplier", "fare_formula", "rider_commission_rate"],
+  ride: ["ride_fare", "fare_multiplier", "fare_formula", "rider_commission_rate"],
   deposit: ["blink_cash_fee_rate", "agent_platform_share", "agent_tax_rate"],
   withdrawal: ["blink_cash_fee_rate", "agent_platform_share", "agent_tax_rate"],
 } as const satisfies Record<string, readonly PricingKey[]>;
@@ -393,7 +393,8 @@ export const simulatePrice = defineTool({
     let delivery = a.delivery_fee;
     if (scenario === "store" && a.store_id) {
       const sc = await orderPricingContext({ type: "merchant", storeId: a.store_id });
-      ctx = { ...ctx, ...sc, wilaya: sc.wilaya ?? ctx.wilaya, at };
+      const { place: _place, ...scCtx } = sc;
+      ctx = { ...ctx, ...scCtx, wilaya: sc.wilaya ?? ctx.wilaya, at };
       if (delivery == null) {
         const { data } = await supabaseAdmin.from("stores").select("delivery_fee").eq("id", a.store_id).maybeSingle();
         if (data?.delivery_fee != null) delivery = Number(data.delivery_fee);

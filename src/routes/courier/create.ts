@@ -6,7 +6,7 @@ import {
   scheduleError,
 } from "../../lib/courier";
 import { courierFare, courierMaxKm, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
-import { courierFareConfig } from "../../lib/pricing/fare-config";
+import { courierFareConfig, placeColumns } from "../../lib/pricing/fare-config";
 import { claimCoupon, linkCoupon, releaseCoupon } from "../../lib/coupons";
 import { withoutOffer } from "../../lib/rider-offer";
 import { supabaseAdmin } from "../../lib/supabase";
@@ -49,17 +49,28 @@ app.openapi(route, async (c) => {
   // Rates + multiplier come from the pricing config for each route's pickup wilaya.
   const priced = await Promise.all(
     body.routes.map(async (r) => {
-      const km = routeKm(r.pickup, r.drop_offs);
-      const cfg = await courierFareConfig(r.pickup);
+      const cfg = await courierFareConfig(r.pickup, r.drop_offs[r.drop_offs.length - 1]);
+      const km = routeKm(r.pickup, r.drop_offs, cfg.formula);
       return {
         route: r,
         km,
+        cfg,
         maxKm: courierMaxKm(vehicle, cfg.rates),
-        fare: courierFare(vehicle, km, r.drop_offs.length, cfg.rates, cfg.multiplier),
+        fare: courierFare(vehicle, km, r.drop_offs.length, cfg.rates, cfg.multiplier, {
+          formula: cfg.formula,
+          surcharge: cfg.surcharge,
+        }),
         applied: cfg.applied,
       };
     })
   );
+  const outside = priced.findIndex((p) => !p.cfg.enabled);
+  if (outside !== -1) {
+    return c.json(
+      { error: `Courier ${outside + 1}'s pickup is outside our service area`, code: "out_of_service_area" },
+      400
+    );
+  }
   const tooLong = priced.findIndex((p) => p.km > p.maxKm);
   if (tooLong !== -1) {
     return c.json(
@@ -113,6 +124,7 @@ app.openapi(route, async (c) => {
       courier,
       courier_group_id: groupId,
       pricing_applied: p.applied,
+      ...placeColumns(p.cfg.place),
     };
   });
 

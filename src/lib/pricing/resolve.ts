@@ -1,11 +1,16 @@
 // Pure override resolution — no DB, no clock beyond `ctx.at` (see index.ts for
 // the cached loader). Spec rules: an override matches when each non-null scope
-// column equals the context's value; score = partner 4 / wilaya 2 / service 1;
-// highest wins; no match → the default.
+// column equals the context's value; score = partner 16 / zone 8 / tier 4 /
+// wilaya 2 / service 1; highest wins; no match → the default. (Phase 1 was
+// 4/2/1 for partner/wilaya/service — same relative order, so old overrides
+// keep their behaviour.)
 
 export type PricingContext = {
   service?: string;
   wilaya?: string | null;
+  /** The pricing zone / tier of the point (see place.ts). */
+  zoneId?: string | null;
+  tier?: string | null;
   merchantId?: string | null;
   agentId?: string | null;
   at?: Date;
@@ -18,6 +23,9 @@ export type OverrideLike = {
   wilaya_code: string | null;
   merchant_id: string | null;
   agent_id: string | null;
+  /** Absent on rows read before zone pricing = null. */
+  zone_id?: string | null;
+  tier?: string | null;
   value: unknown;
   starts_at: string | null;
   ends_at: string | null;
@@ -41,10 +49,18 @@ export function matchScore(o: OverrideLike, ctx: PricingContext): number | null 
   let score = 0;
   if (o.merchant_id != null) {
     if (o.merchant_id !== ctx.merchantId) return null;
-    score += 4;
+    score += 16;
   }
   if (o.agent_id != null) {
     if (o.agent_id !== ctx.agentId) return null;
+    score += 16;
+  }
+  if (o.zone_id != null) {
+    if (o.zone_id !== ctx.zoneId) return null;
+    score += 8;
+  }
+  if (o.tier != null) {
+    if (o.tier !== ctx.tier) return null;
     score += 4;
   }
   if (o.wilaya_code != null) {
@@ -86,7 +102,7 @@ export function resolveFrom<V = unknown>(
 
 type OverlapShape = Pick<
   OverrideLike,
-  "key" | "service" | "wilaya_code" | "merchant_id" | "agent_id" | "starts_at" | "ends_at" | "archived_at"
+  "key" | "service" | "wilaya_code" | "merchant_id" | "agent_id" | "zone_id" | "tier" | "starts_at" | "ends_at" | "archived_at"
 >;
 
 /** Save-time guard: same key + identical scope + overlapping date windows. */
@@ -97,7 +113,9 @@ export function overlaps(a: OverlapShape, b: OverlapShape): boolean {
     a.service !== b.service ||
     a.wilaya_code !== b.wilaya_code ||
     a.merchant_id !== b.merchant_id ||
-    a.agent_id !== b.agent_id
+    a.agent_id !== b.agent_id ||
+    (a.zone_id ?? null) !== (b.zone_id ?? null) ||
+    (a.tier ?? null) !== (b.tier ?? null)
   ) {
     return false;
   }

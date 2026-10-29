@@ -2,16 +2,19 @@
 // `{ value, overrideId }`. Settings + live overrides are read from the DB with
 // a 15 s cache (same pattern as lib/ai-settings.ts); a load error logs and serves
 // the last good snapshot (seeds only on a cold start), retrying after ~2 s.
+import { normalizeGeometry, toRuntimeZone, type RuntimeZone } from "../geo/zones";
 import { supabaseAdmin } from "../supabase";
-import { PRICING_KEYS, PRICING_SCHEMAS, PRICING_SEEDS, type PricingKey, type PricingValue } from "./catalog";
+import { PRICING_KEYS, PRICING_SCHEMAS, PRICING_SEEDS, TIER_SEEDS, type PricingKey, type PricingValue } from "./catalog";
+import { placeOf, type PricingPlace } from "./place";
 import { resolveFrom, type OverrideLike, type PricingContext } from "./resolve";
 
 export type { PricingContext } from "./resolve";
+export { placeContext, type PricingPlace } from "./place";
 export { PRICING_KEYS, PRICING_SEEDS, type PricingKey, type PricingValue } from "./catalog";
 
 export type PriceResult<K extends PricingKey> = { value: PricingValue<K>; overrideId: string | null };
 
-type Snapshot = { defaults: Record<string, unknown>; overrides: OverrideLike[] };
+type Snapshot = { defaults: Record<string, unknown>; overrides: OverrideLike[]; tiers: string[]; zones: RuntimeZone[] };
 
 const TTL_MS = 15_000;
 /** After a failed load, retry soon instead of holding the fallback for the full TTL. */
@@ -24,21 +27,30 @@ let lastGood: Snapshot | null = null;
 /** Bumped by invalidatePricingCache(): a load that started before can't write the newer state. */
 let generation = 0;
 
-const SEED_SNAPSHOT: Snapshot = { defaults: { ...PRICING_SEEDS }, overrides: [] };
+const SEED_SNAPSHOT: Snapshot = {
+  defaults: { ...PRICING_SEEDS },
+  overrides: [],
+  tiers: TIER_SEEDS.map((t) => t.code),
+  zones: [],
+};
 
 async function load(): Promise<Snapshot> {
   const nowIso = new Date().toISOString();
-  const [settings, overrides] = await Promise.all([
+  const [settings, overrides, tiers, zones] = await Promise.all([
     supabaseAdmin.from("pricing_settings").select("key, value"),
     supabaseAdmin
       .from("pricing_overrides")
-      .select("id, key, service, wilaya_code, merchant_id, agent_id, value, starts_at, ends_at, created_at")
+      .select("id, key, service, wilaya_code, merchant_id, agent_id, zone_id, tier, value, starts_at, ends_at, created_at")
       .is("archived_at", null)
       // Ended overrides never match again; scheduled ones stay (resolved by ctx.at).
       .or(`ends_at.is.null,ends_at.gt.${nowIso}`),
+    supabaseAdmin.from("pricing_tiers").select("code").is("archived_at", null),
+    supabaseAdmin.from("pricing_zones").select("id, name, tier, wilaya_code, priority, geometry").is("archived_at", null),
   ]);
   if (settings.error) throw new Error(settings.error.message);
   if (overrides.error) throw new Error(overrides.error.message);
+  if (tiers.error) throw new Error(tiers.error.message);
+  if (zones.error) throw new Error(zones.error.message);
 
   // Seeds fill any key the table doesn't have (e.g. before the migration).
   const defaults: Record<string, unknown> = { ...PRICING_SEEDS };
@@ -51,7 +63,24 @@ async function load(): Promise<Snapshot> {
     }
     defaults[key] = parsed.data;
   }
-  return { defaults, overrides: (overrides.data ?? []) as OverrideLike[] };
+  // One bad stored shape must not fail the whole load (that would serve the
+  // last snapshot / seeds for every price): skip it, its points are unzoned.
+  const live: RuntimeZone[] = [];
+  for (const z of zones.data ?? []) {
+    const g = normalizeGeometry(z.geometry);
+    if (!g.ok) {
+      console.error(`[pricing] invalid stored geometry for zone ${z.id} (${g.error}); skipping it`);
+      continue;
+    }
+    live.push(toRuntimeZone({ ...z, geometry: g.geometry }));
+  }
+  return {
+    defaults,
+    overrides: (overrides.data ?? []) as OverrideLike[],
+    tiers: (tiers.data ?? []).map((t) => t.code as string),
+    // bbox + area are precomputed once per load, not per lookup.
+    zones: live,
+  };
 }
 
 async function snapshot(): Promise<Snapshot> {
@@ -112,6 +141,19 @@ export async function getPrices<const Ks extends readonly PricingKey[]>(
   const out = {} as { [K in Ks[number]]: PriceResult<K> };
   for (const key of keys) (out as Record<string, unknown>)[key] = resolveKey(snap, key, ctx);
   return out;
+}
+
+/**
+ * Where a point sits for pricing: `{ wilaya, zoneId, zoneName, tier }`. Pass
+ * `wilaya` when the caller already knows it (a store's own wilaya) so it isn't
+ * re-derived from the coordinates.
+ */
+export async function pricingPlace(
+  point: { lat: number; lng: number },
+  opts: { wilaya?: string | null; at?: Date } = {}
+): Promise<PricingPlace> {
+  const snap = await snapshot();
+  return placeOf(point, snap, opts);
 }
 
 /** Every key's effective value for a context (staff preview, rate snapshots). */

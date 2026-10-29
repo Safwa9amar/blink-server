@@ -3,8 +3,8 @@ import { describe, it } from "node:test";
 import { isWilayaCode, PRICING_FIELDS, PRICING_KEYS, PRICING_SCHEMAS, PRICING_SCOPES, PRICING_SEEDS, scopeError } from "./pricing/catalog";
 
 describe("pricing catalog", () => {
-  it("has 12 keys and every seed passes its own schema", () => {
-    assert.equal(PRICING_KEYS.length, 12);
+  it("has 16 keys (12 + zone pricing) and every seed passes its own schema", () => {
+    assert.equal(PRICING_KEYS.length, 16);
     for (const k of PRICING_KEYS) {
       assert.ok(PRICING_SCHEMAS[k].safeParse(PRICING_SEEDS[k]).success, k);
       assert.ok(PRICING_SCOPES[k], k);
@@ -22,9 +22,9 @@ describe("pricing catalog", () => {
     assert.equal(PRICING_SEEDS.agent_tax_rate.rate, 0.01);
     assert.equal(PRICING_SEEDS.dues_payment_fee_rate.rate, 0.002);
     assert.equal(PRICING_SEEDS.courier_fare.extra_stop_fee, 60);
-    assert.deepEqual(PRICING_SEEDS.courier_fare.bicycle, { base: 140, included_km: 2, per_km: 35, max_km: 10 });
-    assert.deepEqual(PRICING_SEEDS.courier_fare.motorcycle, { base: 250, included_km: 3, per_km: 40, max_km: 40 });
-    assert.deepEqual(PRICING_SEEDS.ride_fare.motorcycle, { base: 200, included_km: 3, per_km: 40, max_km: 40 });
+    assert.deepEqual(PRICING_SEEDS.courier_fare.bicycle, { base: 140, included_km: 2, per_km: 35, max_km: 10, per_minute: 0 });
+    assert.deepEqual(PRICING_SEEDS.courier_fare.motorcycle, { base: 250, included_km: 3, per_km: 40, max_km: 40, per_minute: 0 });
+    assert.deepEqual(PRICING_SEEDS.ride_fare.motorcycle, { base: 200, included_km: 3, per_km: 40, max_km: 40, per_minute: 0 });
   });
 
   it("enforces the spec bounds", () => {
@@ -81,8 +81,8 @@ describe("pricing precision + field metadata", () => {
     const paths = (k: (typeof PRICING_KEYS)[number]) => PRICING_FIELDS[k].map((f) => f.path);
     assert.deepEqual(paths("service_fee"), ["amount"]);
     assert.deepEqual(paths("fare_multiplier"), ["multiplier"]);
-    assert.deepEqual(paths("ride_fare"), ["motorcycle.base", "motorcycle.included_km", "motorcycle.per_km", "motorcycle.max_km"]);
-    assert.equal(PRICING_FIELDS.courier_fare.length, 9);
+    assert.deepEqual(paths("ride_fare"), ["motorcycle.base", "motorcycle.included_km", "motorcycle.per_km", "motorcycle.max_km", "motorcycle.per_minute"]);
+    assert.equal(PRICING_FIELDS.courier_fare.length, 11);
     assert.ok(paths("courier_fare").includes("bicycle.base") && paths("courier_fare").includes("extra_stop_fee"));
     const m = PRICING_FIELDS.merchant_commission_rate[0];
     assert.deepEqual(m, { path: "rate", unit: "rate", min: 0, max: 0.5, step: 0.0001 });
@@ -93,6 +93,8 @@ describe("pricing precision + field metadata", () => {
     // every seed leaf is covered by exactly one field
     for (const k of PRICING_KEYS) {
       for (const f of PRICING_FIELDS[k]) {
+        // bool / choice / tier fields aren't numbers (checked in pricing-zones.test.ts).
+        if (f.unit === "bool" || f.unit === "choice" || f.unit === "tier") continue;
         const v = f.path.split(".").reduce<any>((o, p) => o?.[p], PRICING_SEEDS[k]);
         assert.equal(typeof v, "number", `${k}.${f.path}`);
         assert.ok(v >= f.min && v <= f.max, `${k}.${f.path} in bounds`);

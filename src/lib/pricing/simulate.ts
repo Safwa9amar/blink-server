@@ -5,7 +5,7 @@
 import { round2, splitFee } from "../agent-split";
 import { tripPayout } from "../cash-jobs";
 import type { PricingValue } from "./catalog";
-import { legFare } from "./fare";
+import { fareBreakdown, SEED_FORMULA, type FareStep } from "./fare";
 
 export type Scenario = "store" | "courier" | "ride" | "deposit" | "withdrawal";
 export type Party = "merchant" | "rider" | "agent" | "blink" | "tax";
@@ -21,6 +21,12 @@ export type SimInputs = {
   stops?: number;
   vehicle?: "bicycle" | "motorcycle";
   amount?: number;
+  /** Courier / ride: drop-off surcharge already resolved for the trip (DA). */
+  surcharge?: number;
+  /** Courier / ride: false = the pickup is outside the service area. */
+  in_service_area?: boolean;
+  /** Ride: straight-line km, for the `min_ride_km` check. */
+  straight_km?: number;
 };
 
 /** The effective values a scenario needs (only the ones it uses are read). */
@@ -29,6 +35,8 @@ export type SimPrices = {
   courier_fare?: PricingValue<"courier_fare">;
   ride_fare?: PricingValue<"ride_fare">;
   fare_multiplier?: PricingValue<"fare_multiplier">;
+  fare_formula?: PricingValue<"fare_formula">;
+  service_area?: PricingValue<"service_area">;
   rider_commission_rate?: PricingValue<"rider_commission_rate">;
   merchant_commission_rate?: PricingValue<"merchant_commission_rate">;
   stamp_duty_rate?: PricingValue<"stamp_duty_rate">;
@@ -37,7 +45,14 @@ export type SimPrices = {
   agent_tax_rate?: PricingValue<"agent_tax_rate">;
 };
 
-export type SimResult = { payer_total: number; lines: SimLine[]; unavailable: "too_far" | null };
+export type SimUnavailable = "too_far" | "too_close" | "out_of_service_area";
+export type SimResult = {
+  payer_total: number;
+  lines: SimLine[];
+  unavailable: SimUnavailable | null;
+  /** Courier / ride: the fare's steps (base … rounding); they sum to payer_total. */
+  breakdown?: { step: FareStep; amount: number }[];
+};
 
 export const SIM_DEFAULTS = { subtotal: 2_000, delivery_fee: 200, km: 5, stops: 1, vehicle: "motorcycle", amount: 1_000 } as const;
 
@@ -67,11 +82,18 @@ export function simulate(scenario: Scenario, inputs: SimInputs, p: SimPrices): S
     const vehicle = scenario === "ride" ? "motorcycle" : inputs.vehicle ?? SIM_DEFAULTS.vehicle;
     const multiplier = p.fare_multiplier!.multiplier;
     const rates = scenario === "ride" ? p.ride_fare!.motorcycle : p.courier_fare![vehicle];
-    if (km > rates.max_km) return { payer_total: 0, lines: [], unavailable: "too_far" };
-    const fare = legFare(rates, km, {
+    const formula = p.fare_formula ?? SEED_FORMULA;
+    const none = (unavailable: SimUnavailable): SimResult => ({ payer_total: 0, lines: [], unavailable, breakdown: [] });
+    if (inputs.in_service_area === false) return none("out_of_service_area");
+    if (scenario === "ride" && inputs.straight_km != null && inputs.straight_km < formula.min_ride_km) return none("too_close");
+    if (km > rates.max_km) return none("too_far");
+    const { fare, steps } = fareBreakdown(rates, km, {
       stops: scenario === "courier" ? inputs.stops ?? SIM_DEFAULTS.stops : 1,
       extraStopFee: scenario === "courier" ? p.courier_fare!.extra_stop_fee : 0,
       multiplier,
+      formula,
+      surcharge: inputs.surcharge,
+      speedKmh: formula.speed_kmh[vehicle],
     });
     const riderKeeps = tripPayout(fare, p.rider_commission_rate!.rate).net_payout;
     return {
@@ -81,6 +103,7 @@ export function simulate(scenario: Scenario, inputs: SimInputs, p: SimPrices): S
         { party: "blink", label: "rider_commission", amount: round2(fare - riderKeeps) },
       ],
       unavailable: null,
+      breakdown: steps,
     };
   }
 

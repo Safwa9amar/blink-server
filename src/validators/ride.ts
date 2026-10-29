@@ -95,7 +95,7 @@ export const RideQuoteOptionSchema = z
      * female rider is near the pickup — see unavailable_reason.
      */
     available: z.boolean(),
-    unavailable_reason: z.enum(["too_close", "too_far", "no_female_rider"]).nullable(),
+    unavailable_reason: z.enum(["too_close", "too_far", "no_female_rider", "out_of_service_area"]).nullable(),
     /** Nearest free rider who can take it → pickup; null when none is known. */
     pickup_eta_minutes: z.number().int().nullable(),
     /** Free riders near the pickup who can take it. */

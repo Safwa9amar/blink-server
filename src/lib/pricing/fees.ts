@@ -2,25 +2,28 @@
 // so a quote and the charge it predicts always come from the same code.
 import { supabaseAdmin } from "../supabase";
 import { normalizeWilaya, wilayaAt } from "../geo/wilaya";
-import { getPrice, type PricingContext } from "./index";
+import { getPrice, placeContext, pricingPlace, type PricingContext, type PricingPlace } from "./index";
 
 const isStoreOrder = (type: string) => type !== "courier" && type !== "ride";
 
 /**
- * Pricing context for a new order.
+ * Pricing context for a new order, plus its pricing `place` (zone + tier —
+ * store the ids on the order: `pricing_zone_id` / `pricing_tier`).
  *  - store orders (`merchant` / `shopper`): service = type, wilaya = the store's
  *    (normalized `stores.wilaya`, else the store's coords, else `lat`/`lng` =
- *    the destination), merchant = `stores.owner_id`;
- *  - `courier` / `ride`: wilaya = `wilayaAt(lat, lng)` — pass the PICKUP coords.
+ *    the destination), zone/tier = where the STORE is (its coordinates, else
+ *    `lat`/`lng`), merchant = `stores.owner_id`;
+ *  - `courier` / `ride`: place = the point at `lat`/`lng` — pass the PICKUP coords.
  */
 export async function orderPricingContext(input: {
   type: string;
   storeId?: string | null;
   lat?: number | null;
   lng?: number | null;
-}): Promise<PricingContext> {
+}): Promise<PricingContext & { place: PricingPlace | null }> {
   const ctx: PricingContext = { service: input.type };
   let wilaya: string | null = null;
+  let point: { lat: number; lng: number } | null = null;
 
   if (isStoreOrder(input.type) && input.storeId) {
     const { data: store } = await supabaseAdmin
@@ -31,14 +34,18 @@ export async function orderPricingContext(input: {
     if (store) {
       ctx.merchantId = store.owner_id ?? null;
       wilaya = normalizeWilaya(store.wilaya);
-      if (!wilaya && store.latitude != null && store.longitude != null) {
-        wilaya = wilayaAt(Number(store.latitude), Number(store.longitude));
+      if (store.latitude != null && store.longitude != null) {
+        point = { lat: Number(store.latitude), lng: Number(store.longitude) };
+        wilaya ??= wilayaAt(point.lat, point.lng);
       }
     }
   }
-  if (!wilaya && input.lat != null && input.lng != null) wilaya = wilayaAt(input.lat, input.lng);
+  if (!point && input.lat != null && input.lng != null) point = { lat: input.lat, lng: input.lng };
+  if (!wilaya && point) wilaya = wilayaAt(point.lat, point.lng);
+  const place = point ? await pricingPlace(point, { wilaya }) : null;
   ctx.wilaya = wilaya;
-  return ctx;
+  if (place) Object.assign(ctx, placeContext(place), { wilaya: wilaya ?? place.wilaya });
+  return { ...ctx, place };
 }
 
 /**

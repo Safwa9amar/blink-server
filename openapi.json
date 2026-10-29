@@ -3331,6 +3331,15 @@
               }
             ]
           },
+          "pricing_zone_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "pricing_tier": {
+            "type": "string",
+            "nullable": true
+          },
           "created_at": {
             "type": "string"
           },
@@ -3396,6 +3405,8 @@
           "merchant_commission_rate",
           "stamp_duty_rate",
           "pricing_applied",
+          "pricing_zone_id",
+          "pricing_tier",
           "created_at",
           "updated_at"
         ]
@@ -3829,6 +3840,15 @@
           "available": {
             "type": "boolean"
           },
+          "unavailable_reason": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "too_far",
+              "out_of_service_area",
+              null
+            ]
+          },
           "pickup_eta_minutes": {
             "type": "integer",
             "nullable": true
@@ -3844,6 +3864,7 @@
           "total",
           "duration_minutes",
           "available",
+          "unavailable_reason",
           "pickup_eta_minutes",
           "nearby_riders"
         ]
@@ -4221,6 +4242,7 @@
               "too_close",
               "too_far",
               "no_female_rider",
+              "out_of_service_area",
               null
             ]
           },
@@ -4448,7 +4470,11 @@
               "rider_cancel_penalty",
               "stamp_duty_rate",
               "agent_tax_rate",
-              "dues_payment_fee_rate"
+              "dues_payment_fee_rate",
+              "fare_formula",
+              "dropoff_surcharge",
+              "service_area",
+              "zone_defaults"
             ]
           },
           "group": {
@@ -4456,7 +4482,9 @@
             "enum": [
               "customer",
               "partner",
-              "tax"
+              "tax",
+              "formula",
+              "zones"
             ]
           },
           "unit": {
@@ -4465,7 +4493,11 @@
               "da",
               "percent",
               "multiplier",
-              "fare"
+              "fare",
+              "formula",
+              "surcharge",
+              "toggle",
+              "tier"
             ],
             "description": "How the dashboard renders/edits the value"
           },
@@ -4487,13 +4519,21 @@
               },
               "agent": {
                 "type": "boolean"
+              },
+              "zone": {
+                "type": "boolean"
+              },
+              "tier": {
+                "type": "boolean"
               }
             },
             "required": [
               "service",
               "wilaya",
               "merchant",
-              "agent"
+              "agent",
+              "zone",
+              "tier"
             ]
           },
           "fields": {
@@ -4511,7 +4551,12 @@
                     "da",
                     "rate",
                     "km",
-                    "multiplier"
+                    "multiplier",
+                    "kmh",
+                    "min",
+                    "bool",
+                    "choice",
+                    "tier"
                   ]
                 },
                 "min": {
@@ -4522,6 +4567,13 @@
                 },
                 "step": {
                   "type": "number"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "choice: the allowed values; tier: the live tier codes"
                 }
               },
               "required": [
@@ -4788,7 +4840,11 @@
               "rider_cancel_penalty",
               "stamp_duty_rate",
               "agent_tax_rate",
-              "dues_payment_fee_rate"
+              "dues_payment_fee_rate",
+              "fare_formula",
+              "dropoff_surcharge",
+              "service_area",
+              "zone_defaults"
             ]
           },
           "service": {
@@ -4808,6 +4864,19 @@
             "type": "string",
             "nullable": true,
             "format": "uuid"
+          },
+          "zone_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "tier": {
+            "type": "string",
+            "nullable": true
+          },
+          "zone_name": {
+            "type": "string",
+            "nullable": true
           },
           "value": {
             "nullable": true
@@ -4855,6 +4924,9 @@
           "wilaya_code",
           "merchant_id",
           "agent_id",
+          "zone_id",
+          "tier",
+          "zone_name",
           "starts_at",
           "ends_at",
           "note",
@@ -4918,6 +4990,15 @@
             "type": "string",
             "nullable": true,
             "format": "uuid"
+          },
+          "zone_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "tier": {
+            "type": "string",
+            "nullable": true
           },
           "value": {
             "nullable": true
@@ -4993,13 +5074,27 @@
             "type": "string",
             "nullable": true
           },
+          "zone_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "tier": {
+            "type": "string",
+            "nullable": true
+          },
           "action": {
             "type": "string",
             "enum": [
               "update_default",
               "create_override",
               "update_override",
-              "archive_override"
+              "archive_override",
+              "create_zone",
+              "update_zone",
+              "archive_zone",
+              "create_tier",
+              "update_tier",
+              "archive_tier"
             ]
           },
           "before": {
@@ -5024,6 +5119,8 @@
           "id",
           "key",
           "override_id",
+          "zone_id",
+          "tier",
           "action",
           "actor_id",
           "actor_name",
@@ -5052,7 +5149,11 @@
                     "rider_cancel_penalty",
                     "stamp_duty_rate",
                     "agent_tax_rate",
-                    "dues_payment_fee_rate"
+                    "dues_payment_fee_rate",
+                    "fare_formula",
+                    "dropoff_surcharge",
+                    "service_area",
+                    "zone_defaults"
                   ]
                 },
                 "value": {
@@ -5083,13 +5184,24 @@
                       "type": "string",
                       "nullable": true,
                       "format": "uuid"
+                    },
+                    "zone_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid"
+                    },
+                    "tier": {
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
                     "service",
                     "wilaya_code",
                     "merchant_id",
-                    "agent_id"
+                    "agent_id",
+                    "zone_id",
+                    "tier"
                   ]
                 }
               },
@@ -5225,7 +5337,11 @@
                   "rider_cancel_penalty",
                   "stamp_duty_rate",
                   "agent_tax_rate",
-                  "dues_payment_fee_rate"
+                  "dues_payment_fee_rate",
+                  "fare_formula",
+                  "dropoff_surcharge",
+                  "service_area",
+                  "zone_defaults"
                 ]
               },
               "before": {
@@ -5269,6 +5385,15 @@
                 "type": "string",
                 "nullable": true,
                 "format": "uuid"
+              },
+              "zone_id": {
+                "type": "string",
+                "nullable": true,
+                "format": "uuid"
+              },
+              "tier": {
+                "type": "string",
+                "nullable": true
               },
               "at": {
                 "type": "string",
@@ -5314,7 +5439,11 @@
                   "rider_cancel_penalty",
                   "stamp_duty_rate",
                   "agent_tax_rate",
-                  "dues_payment_fee_rate"
+                  "dues_payment_fee_rate",
+                  "fare_formula",
+                  "dropoff_surcharge",
+                  "service_area",
+                  "zone_defaults"
                 ]
               },
               "value": {
@@ -5406,7 +5535,11 @@
                     "rider_cancel_penalty",
                     "stamp_duty_rate",
                     "agent_tax_rate",
-                    "dues_payment_fee_rate"
+                    "dues_payment_fee_rate",
+                    "fare_formula",
+                    "dropoff_surcharge",
+                    "service_area",
+                    "zone_defaults"
                   ]
                 },
                 "value": {
@@ -5437,13 +5570,24 @@
                       "type": "string",
                       "nullable": true,
                       "format": "uuid"
+                    },
+                    "zone_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "uuid"
+                    },
+                    "tier": {
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
                     "service",
                     "wilaya_code",
                     "merchant_id",
-                    "agent_id"
+                    "agent_id",
+                    "zone_id",
+                    "tier"
                   ]
                 }
               },
@@ -5459,8 +5603,42 @@
             "nullable": true,
             "enum": [
               "too_far",
+              "too_close",
+              "out_of_service_area",
               null
             ]
+          },
+          "breakdown": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "step": {
+                  "type": "string",
+                  "enum": [
+                    "base",
+                    "distance",
+                    "time",
+                    "extra_stops",
+                    "dropoff_surcharge",
+                    "multiplier",
+                    "clamp",
+                    "rounding"
+                  ]
+                },
+                "amount": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "step",
+                "amount"
+              ]
+            },
+            "description": "Courier/ride only: each step's contribution to the fare; they sum to payer_total"
+          },
+          "place": {
+            "$ref": "#/components/schemas/PricingPlace"
           }
         },
         "required": [
@@ -5468,8 +5646,56 @@
           "payer_total",
           "lines",
           "values",
-          "unavailable"
+          "unavailable",
+          "place"
         ]
+      },
+      "PricingPlace": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "wilaya_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "zone": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              },
+              "tier": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "tier"
+            ]
+          },
+          "tier": {
+            "type": "string",
+            "nullable": true,
+            "description": "null when the unzoned tier is archived/missing"
+          },
+          "unzoned": {
+            "type": "boolean",
+            "description": "true when no zone contains the point (tier = the wilaya's unzoned tier)"
+          }
+        },
+        "required": [
+          "wilaya_code",
+          "zone",
+          "tier",
+          "unzoned"
+        ],
+        "description": "The pricing place used (null when none was determined)"
       },
       "PricingSimulateBody": {
         "type": "object",
@@ -5505,6 +5731,56 @@
                 "type": "string",
                 "nullable": true,
                 "format": "uuid"
+              },
+              "zone_id": {
+                "type": "string",
+                "nullable": true,
+                "format": "uuid",
+                "description": "Price as inside this zone (its tier and wilaya apply)"
+              },
+              "tier": {
+                "type": "string",
+                "nullable": true,
+                "description": "Price as in this tier (with wilaya_code when given)"
+              },
+              "pickup": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lng": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lng"
+                ],
+                "description": "Courier/ride: derives the pickup place; with `dropoff` also km, surcharge and service area"
+              },
+              "dropoff": {
+                "type": "object",
+                "properties": {
+                  "lat": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lng": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180
+                  }
+                },
+                "required": [
+                  "lat",
+                  "lng"
+                ]
               },
               "at": {
                 "type": "string",
@@ -5551,6 +5827,568 @@
         },
         "required": [
           "scenario"
+        ]
+      },
+      "PricingZonesResponse": {
+        "type": "object",
+        "properties": {
+          "zones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricingZone"
+            }
+          },
+          "tiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricingTier"
+            }
+          },
+          "unzoned_tier": {
+            "type": "string",
+            "nullable": true,
+            "description": "The default `zone_defaults.unzoned_tier`"
+          }
+        },
+        "required": [
+          "zones",
+          "tiers",
+          "unzoned_tier"
+        ]
+      },
+      "PricingZone": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tier": {
+            "type": "string"
+          },
+          "wilaya_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/ZoneGeometry"
+          },
+          "priority": {
+            "type": "integer"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "area_km2": {
+            "type": "number"
+          },
+          "override_count": {
+            "type": "integer",
+            "description": "Live (non-archived) overrides scoped to this zone"
+          },
+          "archived_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "tier",
+          "wilaya_code",
+          "geometry",
+          "priority",
+          "note",
+          "area_km2",
+          "override_count",
+          "archived_at",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "ZoneGeometry": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Polygon",
+              "MultiPolygon"
+            ]
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "nullable": true
+            }
+          }
+        },
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "description": "GeoJSON Polygon | MultiPolygon, [lng, lat]; open rings are closed by the server"
+      },
+      "PricingTier": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "names": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "fr": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "ar": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              }
+            },
+            "required": [
+              "en",
+              "fr",
+              "ar"
+            ]
+          },
+          "color": {
+            "type": "string"
+          },
+          "sort_order": {
+            "type": "integer"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "archived_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "zone_count": {
+            "type": "integer",
+            "description": "Live zones using this tier"
+          },
+          "override_count": {
+            "type": "integer",
+            "description": "Live overrides scoped to this tier"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "names",
+          "color",
+          "sort_order",
+          "note",
+          "archived_at",
+          "zone_count",
+          "override_count",
+          "updated_at"
+        ]
+      },
+      "PricingLookupResponse": {
+        "type": "object",
+        "properties": {
+          "place": {
+            "$ref": "#/components/schemas/PricingPlace"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "enum": [
+                    "service_fee",
+                    "courier_fare",
+                    "ride_fare",
+                    "fare_multiplier",
+                    "rider_commission_rate",
+                    "merchant_commission_rate",
+                    "blink_cash_fee_rate",
+                    "agent_platform_share",
+                    "rider_cancel_penalty",
+                    "stamp_duty_rate",
+                    "agent_tax_rate",
+                    "dues_payment_fee_rate",
+                    "fare_formula",
+                    "dropoff_surcharge",
+                    "service_area",
+                    "zone_defaults"
+                  ]
+                },
+                "service": {
+                  "type": "string",
+                  "nullable": true
+                },
+                "value": {
+                  "nullable": true
+                },
+                "override_id": {
+                  "type": "string",
+                  "nullable": true
+                }
+              },
+              "required": [
+                "key",
+                "service",
+                "override_id"
+              ]
+            }
+          },
+          "samples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "scenario": {
+                  "type": "string",
+                  "enum": [
+                    "ride",
+                    "courier"
+                  ]
+                },
+                "vehicle": {
+                  "type": "string",
+                  "enum": [
+                    "bicycle",
+                    "motorcycle"
+                  ]
+                },
+                "km": {
+                  "type": "number"
+                },
+                "fare": {
+                  "type": "number"
+                },
+                "available": {
+                  "type": "boolean"
+                },
+                "unavailable": {
+                  "type": "string",
+                  "nullable": true,
+                  "enum": [
+                    "too_far",
+                    "out_of_service_area",
+                    null
+                  ]
+                }
+              },
+              "required": [
+                "scenario",
+                "vehicle",
+                "km",
+                "fare",
+                "available",
+                "unavailable"
+              ]
+            }
+          }
+        },
+        "required": [
+          "place",
+          "values",
+          "samples"
+        ]
+      },
+      "PricingZoneResponse": {
+        "type": "object",
+        "properties": {
+          "zone": {
+            "$ref": "#/components/schemas/PricingZone"
+          }
+        },
+        "required": [
+          "zone"
+        ]
+      },
+      "CreatePricingZoneBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "tier": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,23}$"
+          },
+          "geometry": {
+            "nullable": true
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": -1000,
+            "maximum": 1000
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "wilaya_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "Derived from the geometry when omitted"
+          }
+        },
+        "required": [
+          "name",
+          "tier"
+        ]
+      },
+      "PricingZonesImportResponse": {
+        "type": "object",
+        "properties": {
+          "zones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PricingZone"
+            }
+          }
+        },
+        "required": [
+          "zones"
+        ]
+      },
+      "ImportPricingZonesBody": {
+        "type": "object",
+        "properties": {
+          "geojson": {
+            "nullable": true,
+            "description": "A GeoJSON FeatureCollection of Polygon/MultiPolygon features (≤ 200)"
+          },
+          "tier": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,23}$"
+          },
+          "name_property": {
+            "type": "string",
+            "default": "name"
+          }
+        },
+        "required": [
+          "tier"
+        ]
+      },
+      "UpdatePricingZoneBody": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "tier": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,23}$"
+          },
+          "geometry": {
+            "nullable": true
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": -1000,
+            "maximum": 1000
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "wilaya_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "expected_updated_at": {
+            "type": "string",
+            "description": "409 stale when the stored updated_at differs"
+          }
+        }
+      },
+      "PricingZoneInUseError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "zone_in_use"
+            ]
+          },
+          "override_count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "error",
+          "code",
+          "override_count"
+        ]
+      },
+      "PricingTierResponse": {
+        "type": "object",
+        "properties": {
+          "tier": {
+            "$ref": "#/components/schemas/PricingTier"
+          }
+        },
+        "required": [
+          "tier"
+        ]
+      },
+      "CreatePricingTierBody": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,23}$"
+          },
+          "names": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "fr": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "ar": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              }
+            },
+            "required": [
+              "en",
+              "fr",
+              "ar"
+            ]
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$"
+          },
+          "sort_order": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "code",
+          "names",
+          "color"
+        ]
+      },
+      "UpdatePricingTierBody": {
+        "type": "object",
+        "properties": {
+          "names": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "fr": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "ar": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              }
+            },
+            "required": [
+              "en",
+              "fr",
+              "ar"
+            ]
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$"
+          },
+          "sort_order": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          }
+        }
+      },
+      "PricingTierInUseError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "tier_in_use"
+            ]
+          },
+          "zone_count": {
+            "type": "integer"
+          },
+          "override_count": {
+            "type": "integer"
+          },
+          "default_in_use": {
+            "type": "boolean",
+            "description": "true when a zone_defaults value (default or override) names this tier"
+          }
+        },
+        "required": [
+          "error",
+          "code",
+          "zone_count",
+          "override_count",
+          "default_in_use"
         ]
       },
       "AdminPaymentListResponse": {
@@ -20302,6 +21140,23 @@
             "required": false,
             "name": "agent_id",
             "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "zone_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "tier",
+            "in": "query"
           }
         ],
         "responses": {
@@ -20604,6 +21459,23 @@
           },
           {
             "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "zone_id",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "tier",
+            "in": "query"
+          },
+          {
+            "schema": {
               "type": "integer",
               "minimum": 1,
               "maximum": 200,
@@ -20773,6 +21645,672 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/zones": {
+      "get": {
+        "operationId": "listPricingZonesAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Also return archived zones and tiers (default false)"
+            },
+            "required": false,
+            "description": "Also return archived zones and tiers (default false)",
+            "name": "include_archived",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingZonesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createPricingZoneAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePricingZoneBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingZoneResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/zones/lookup": {
+      "get": {
+        "operationId": "lookupPricingZoneAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true,
+              "minimum": -90,
+              "maximum": 90
+            },
+            "required": false,
+            "name": "lat",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true,
+              "minimum": -180,
+              "maximum": 180
+            },
+            "required": false,
+            "name": "lng",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingLookupResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/zones/import": {
+      "post": {
+        "operationId": "importPricingZonesAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportPricingZonesBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingZonesImportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/zones/{id}": {
+      "patch": {
+        "operationId": "updatePricingZoneAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePricingZoneBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingZoneResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Someone changed it since you loaded it (error stale)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingStaleError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "archivePricingZoneAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingZoneResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Live overrides still target this zone (code zone_in_use)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingZoneInUseError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/tiers": {
+      "post": {
+        "operationId": "createPricingTierAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePricingTierBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingTierResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/tiers/{code}": {
+      "patch": {
+        "operationId": "updatePricingTierAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "code",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePricingTierBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingTierResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "archivePricingTierAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "code",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingTierResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A live zone / override / zone_defaults value uses it (code tier_in_use)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingTierInUseError"
                 }
               }
             }

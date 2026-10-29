@@ -29,8 +29,12 @@ app.openapi(route, async (c) => {
   const user = c.get("user");
   const { pickup, destination, coupon_code, female_rider_only } = c.req.valid("json");
 
-  const cfg = await rideFareConfig(pickup);
-  const quote = quoteRide(pickup, destination, cfg.rates, cfg.multiplier);
+  const cfg = await rideFareConfig(pickup, destination);
+  const quote = quoteRide(pickup, destination, cfg.rates, cfg.multiplier, {
+    formula: cfg.formula,
+    surcharge: cfg.surcharge,
+    enabled: cfg.enabled,
+  });
   const riders = await nearbyRideRiders(pickup, female_rider_only);
   // A female-rider-only ride needs a female rider around ("subject to availability").
   const noFemaleRider = female_rider_only && riders.count === 0;
@@ -57,7 +61,7 @@ app.openapi(route, async (c) => {
         duration_minutes: o.duration_minutes,
         available: o.available && !noFemaleRider,
         unavailable_reason: o.unavailable_reason ?? (noFemaleRider ? ("no_female_rider" as const) : null),
-        pickup_eta_minutes: ridePickupEtaMinutes(o.vehicle_type, riders.nearestKm),
+        pickup_eta_minutes: ridePickupEtaMinutes(o.vehicle_type, riders.nearestKm, cfg.formula),
         nearby_riders: riders.count,
       };
     })

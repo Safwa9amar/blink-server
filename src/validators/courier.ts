@@ -131,8 +131,9 @@ export const CourierQuoteOptionSchema = z
     total: z.number(),
     /** Longest route: pickup → last drop-off, stops included. */
     duration_minutes: z.number().int(),
-    /** false when a route is longer than this vehicle takes. */
+    /** false when a route is longer than this vehicle takes, or a pickup is outside the service area. */
     available: z.boolean(),
+    unavailable_reason: z.enum(["too_far", "out_of_service_area"]).nullable(),
     /** Nearest free rider with this vehicle → first pickup; null when none is known. */
     pickup_eta_minutes: z.number().int().nullable(),
     /** Free riders with this vehicle near the first pickup. */
