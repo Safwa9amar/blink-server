@@ -3,7 +3,7 @@
 // dashboard's "Send now" (POST /notifications/admin/{id}/sms) and by scheduled
 // sends (lib/scheduled-notifications.ts).
 import { env } from "../config/env";
-import { isSmsGateConfigured, sendSmsTo } from "./sms-gate";
+import { isSmsAvailable, sendSmsTo } from "./sms-gate";
 import { smsPhone, smsText, type SmsLang, type SmsSource } from "./sms-text";
 import { supabaseAdmin } from "./supabase";
 
@@ -34,8 +34,8 @@ export interface SmsResult {
   failed: number;
 }
 
-export function smsStatus(): { configured: boolean; max: number } {
-  return { configured: isSmsGateConfigured(), max: env.SMS_BROADCAST_MAX };
+export async function smsStatus(): Promise<{ configured: boolean; max: number }> {
+  return { configured: await isSmsAvailable(), max: env.SMS_BROADCAST_MAX };
 }
 
 /** Distinct E.164 numbers for these users, and how many had none usable. */
@@ -64,7 +64,7 @@ export async function phonesFor(userIds: string[]): Promise<{ phones: string[]; 
  * is counted in `failed` and the rest still go out.
  */
 export async function smsUsers(userIds: string[], text: string): Promise<SmsResult> {
-  if (!isSmsGateConfigured()) throw new SmsError("sms_not_configured", "The SMS gateway is not configured on the server.");
+  if (!(await isSmsAvailable())) throw new SmsError("sms_not_configured", "The SMS gateway is not configured on the server.");
   const { phones, noPhone } = await phonesFor(userIds);
   if (phones.length > env.SMS_BROADCAST_MAX) {
     throw new SmsError(

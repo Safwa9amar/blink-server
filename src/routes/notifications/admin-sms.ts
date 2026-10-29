@@ -25,7 +25,7 @@ app.openapi(
     middleware: [staff] as const,
     responses: { 200: json(NotificationSmsStatusResponse), 401: errorResponses[401], 403: errorResponses[403] },
   }),
-  (c) => c.json(smsStatus(), 200)
+  async (c) => c.json(await smsStatus(), 200)
 );
 
 app.openapi(
