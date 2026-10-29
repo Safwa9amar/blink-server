@@ -145,11 +145,15 @@ export const branchSuggestionQuerySchema = z.object({
   items: z.string().min(1).max(3000).openapi({
     description: "The cart as `product_id:quantity` pairs, comma-separated (up to 60)",
   }),
+  lat: z.coerce.number().min(-90).max(90).optional().openapi({
+    description: "Delivery point: with `lng`, prices distance-mode stores the way checkout does (else their merchant fee)",
+  }),
+  lng: z.coerce.number().min(-180).max(180).optional(),
 });
 
 const BranchSuggestionSchema = z
   .object({
-    to_store: z.object({ id: z.string(), name: z.string(), delivery_fee_mode: z.enum(["merchant", "distance"]).optional() }),
+    to_store: z.object({ id: z.string(), name: z.string(), delivery_fee_mode: z.enum(["merchant", "distance"]).optional(), delivery_fee: z.number().optional() }),
     from_store_ids: z.array(z.string()),
     swaps: z.array(
       z.object({

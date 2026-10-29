@@ -1,10 +1,12 @@
-import { storeDeliveryModes } from "../../lib/pricing/store-quote";
+import { storeContextOf } from "../../lib/pricing/fees";
+import { quoteStoreDelivery, type StoreDeliveryResult } from "../../lib/pricing/store-quote";
 import {
   bestBranchMove,
   parseCartItems,
   type BranchProduct,
   type BranchStore,
   type CartLine,
+  withQuotedFees,
 } from "../../lib/branch-suggestion";
 import { storeOpenState } from "../../lib/store-categories";
 import { supabaseAdmin } from "../../lib/supabase";
@@ -32,7 +34,8 @@ const PRODUCT_COLUMNS = "id, store_id, title, price, image, library_product_id, 
 
 app.openapi(route, async (c) => {
   const none = () => c.json({ suggestion: null }, 200);
-  const wanted = parseCartItems(c.req.valid("query").items);
+  const query = c.req.valid("query");
+  const wanted = parseCartItems(query.items);
   if (wanted.length < 2) return none();
 
   const { data: cartProducts } = await supabaseAdmin
@@ -62,7 +65,7 @@ app.openapi(route, async (c) => {
     .from("stores")
     .select("id, name, owner_id, wilaya, latitude, longitude, delivery_fee, status, is_open, hours, manual_override")
     .in("id", storeIds);
-  const stores = new Map<string, BranchStore>(
+  const baseStores = new Map<string, BranchStore>(
     (storeRows ?? []).map((s) => [
       s.id,
       {
@@ -74,6 +77,20 @@ app.openapi(route, async (c) => {
       },
     ])
   );
+
+  // Each store's delivery fee as checkout would charge it at the customer point
+  // (same quoteStoreDelivery as POST /orders/quote and /orders), so the saving
+  // is real. No point → the merchant fee, as checkout would then.
+  const customer = query.lat != null && query.lng != null ? { lat: query.lat, lng: query.lng } : null;
+  const quotes = new Map<string, StoreDeliveryResult>();
+  await Promise.all(
+    (storeRows ?? []).map(async (s) => {
+      const ctx = await storeContextOf(s, "merchant", customer);
+      const store = s.latitude != null && s.longitude != null ? { lat: Number(s.latitude), lng: Number(s.longitude) } : null;
+      quotes.set(s.id, await quoteStoreDelivery({ ctx, merchantFee: Number(s.delivery_fee) || 0, store, customer }));
+    })
+  );
+  const stores = withQuotedFees(baseStores, new Map([...quotes].map(([id, q]) => [id, q.fee])));
 
   // Candidate targets: storefront-visible products in the cart's stores that
   // share a catalog id or barcode with a cart line.
@@ -107,10 +124,19 @@ app.openapi(route, async (c) => {
 
   const suggestion = bestBranchMove(lines, stores, [...candidates.values()]);
   if (!suggestion) return c.json({ suggestion }, 200);
-  // The saving counts each store's merchant fee; the mode tells the app when a fee is priced by distance instead.
-  const modes = await storeDeliveryModes((storeRows ?? []).filter((s) => s.id === suggestion.to_store.id));
+  // The mode tells the app when the target's fee is priced by distance instead.
+  const target = quotes.get(suggestion.to_store.id);
   return c.json(
-    { suggestion: { ...suggestion, to_store: { ...suggestion.to_store, delivery_fee_mode: modes.get(suggestion.to_store.id) ?? ("merchant" as const) } } },
+    {
+      suggestion: {
+        ...suggestion,
+        to_store: {
+          ...suggestion.to_store,
+          delivery_fee_mode: target?.configuredMode ?? ("merchant" as const),
+          delivery_fee: target?.fee,
+        },
+      },
+    },
     200
   );
 });

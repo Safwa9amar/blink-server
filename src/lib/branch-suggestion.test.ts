@@ -6,6 +6,7 @@ import {
   type BranchProduct,
   type BranchStore,
   type CartLine,
+  withQuotedFees,
 } from "./branch-suggestion";
 
 const store = (id: string, over: Partial<BranchStore> = {}): BranchStore => ({
@@ -130,5 +131,38 @@ describe("bestBranchMove", () => {
       product({ id: "bab-eggs", store_id: "bab", price: 50, library_product_id: "L3" }),
     ];
     assert.equal(bestBranchMove(l, twoStores, products)?.to_store.id, "hydra");
+  });
+});
+
+describe("branch suggestion with quoted (distance-mode) fees", () => {
+  // Bab (near, merchant fee 150) holds the milk; Hydra (far) holds the bread.
+  const lines = [
+    line({ product_id: "bab-milk", store_id: "bab", price: 100, library_product_id: "L1" }),
+    line({ product_id: "hydra-bread", store_id: "hydra", price: 30 }),
+  ];
+  const hydraMilk = [product({ id: "hydra-milk", store_id: "hydra", price: 100, library_product_id: "L1" })];
+
+  it("withQuotedFees swaps in the checkout fee, keeps the merchant fee for unquoted stores", () => {
+    const out = withQuotedFees(stores(store("bab"), store("hydra")), new Map([["bab", 220]]));
+    assert.equal(out.get("bab")?.delivery_fee, 220);
+    assert.equal(out.get("hydra")?.delivery_fee, 150);
+  });
+
+  it("the saving is the checkout fee of the dropped store, not its merchant fee", () => {
+    // Customer is 8 km from Hydra: checkout charges 400 for Hydra, 180 for Bab.
+    const quoted = withQuotedFees(stores(store("bab"), store("hydra")), new Map([["bab", 180], ["hydra", 400]]));
+    const s = bestBranchMove(lines, quoted, hydraMilk);
+    assert.equal(s?.to_store.id, "hydra");
+    assert.equal(s?.saving, 180); // drops Bab's 180 fee, items cost the same
+  });
+
+  it("is not suggested when the target's distance fee outweighs the dropped one", () => {
+    // Moving to Hydra (fee 400) saves only Bab's 180 → fine; moving the other way costs more, so only Hydra qualifies.
+    const quoted = withQuotedFees(stores(store("bab"), store("hydra")), new Map([["bab", 100], ["hydra", 500]]));
+    const dearItems = [product({ id: "hydra-milk", store_id: "hydra", price: 190, library_product_id: "L1" })];
+    // Items +90 at Hydra, fee saved 100 → saving 10 > 0 ... but a dearer milk (+150) loses.
+    assert.equal(bestBranchMove(lines, quoted, dearItems)?.saving, 10);
+    const dearer = [product({ id: "hydra-milk", store_id: "hydra", price: 260, library_product_id: "L1" })];
+    assert.equal(bestBranchMove(lines, quoted, dearer), null);
   });
 });

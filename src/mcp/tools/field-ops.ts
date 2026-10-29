@@ -142,7 +142,7 @@ export const listRiders = defineTool({
   name: "list_riders",
   title: "List riders",
   description:
-    "List riders (read-only), newest first: rider code, name, vehicle type/category, verification status, online flag, minutes since last location ping (no coordinates), wilaya. Filters: verification_status, vehicle_type, available, q (name or code).",
+    "List riders (read-only), newest first: rider code, name, vehicle type/class/category, verification status, online flag, minutes since last location ping (no coordinates), wilaya. Filters: verification_status, vehicle_type, available, q (name or code).",
   roles: [...PEOPLE],
   input: {
     verification_status: z.enum(["not_submitted", "pending", "approved", "rejected"]).optional(),
@@ -156,7 +156,7 @@ export const listRiders = defineTool({
     const { offset, from, to } = page(a);
     let q = supabaseAdmin
       .from("rider_profiles")
-      .select("user_id, rider_id, vehicle_type, verification_status, is_available, location_updated_at, created_at", { count: "exact" });
+      .select("user_id, rider_id, vehicle_type, vehicle_class, verification_status, is_available, location_updated_at, created_at", { count: "exact" });
     if (a.verification_status) q = q.eq("verification_status", a.verification_status);
     if (a.vehicle_type) q = q.eq("vehicle_type", a.vehicle_type);
     if (a.available !== undefined) q = q.eq("is_available", a.available);
@@ -174,7 +174,7 @@ export const listRiders = defineTool({
     }
     const { data, count } = must(await q.order("created_at", { ascending: false }).range(from, to));
     const rows = data as unknown as {
-      user_id: string; rider_id: string; vehicle_type: string | null; verification_status: string;
+      user_id: string; rider_id: string; vehicle_type: string | null; vehicle_class: string | null; verification_status: string;
       is_available: boolean; location_updated_at: string | null;
     }[];
     const userIds = rows.map((r) => r.user_id);
@@ -191,6 +191,7 @@ export const listRiders = defineTool({
       name: fullName(names.get(r.user_id)),
       wilaya: names.get(r.user_id)?.wilaya ?? null,
       vehicle_type: r.vehicle_type,
+      vehicle_class: r.vehicle_class,
       vehicle_category: cat.get(r.user_id) ?? null,
       verification_status: r.verification_status,
       available: r.is_available,
@@ -217,11 +218,11 @@ export const riderVerificationQueue = defineTool({
     const { offset, from, to } = page(a);
     let q = supabaseAdmin
       .from("rider_profiles")
-      .select("user_id, rider_id, vehicle_type, verification_status, documents, created_at, updated_at", { count: "exact" });
+      .select("user_id, rider_id, vehicle_type, vehicle_class, verification_status, documents, created_at, updated_at", { count: "exact" });
     q = a.status ? q.eq("verification_status", a.status) : q.in("verification_status", ["pending", "rejected"]);
     const { data, count } = must(await q.order("updated_at", { ascending: true }).range(from, to));
     const rows = data as unknown as {
-      user_id: string; rider_id: string; vehicle_type: string | null; verification_status: string;
+      user_id: string; rider_id: string; vehicle_type: string | null; vehicle_class: string | null; verification_status: string;
       documents: Record<string, { status: string; note: string | null; uploaded_at: string } | undefined> | null;
       updated_at: string;
     }[];
@@ -239,6 +240,7 @@ export const riderVerificationQueue = defineTool({
         rider_id: r.rider_id,
         name: fullName(names.get(r.user_id)),
         vehicle_type: r.vehicle_type,
+        vehicle_class: r.vehicle_class,
         verification_status: r.verification_status,
         documents: docs,
         oldest_upload_days_ago: uploads.length ? Math.floor(minutesSince(uploads[0])! / 1440) : null,

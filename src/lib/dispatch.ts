@@ -9,7 +9,8 @@ import { blinkFundedDiscount, CASH_FARE_TYPES, tripPayout, tripWalletDelta } fro
 import { courierCopy, courierHref, type CourierEvent } from "./courier-copy";
 import { courierOf, currentDropOffIndex } from "./courier";
 import { wilayaAt } from "./geo/wilaya";
-import { getPrice, getPrices, placeContext, pricingPlace } from "./pricing";
+import { jobDurationMinutes } from "./job-eta";
+import { getPrice, getPrices, getVehicleClasses, placeContext, pricingPlace } from "./pricing";
 import { createNotification } from "./notifications";
 import { rideCopy, rideHref, type RideEvent } from "./ride-copy";
 import { rideOf, ridePassenger } from "./ride";
@@ -34,6 +35,27 @@ export async function riderRates(o: Row, pickup: { lat: number | null; lng: numb
   return { commissionRate: p.rider_commission_rate.value.rate, cancelPenalty: p.rider_cancel_penalty.value.amount };
 }
 
+/**
+ * How long a job takes, from the `fare_formula` resolved at its pickup place
+ * (speed of the job's base vehicle, stop minutes, boarding for a ride).
+ * Falls back to the stored ride estimate, which was priced from the same formula.
+ */
+export async function jobMinutes(o: Row, pickup: { lat: number | null; lng: number | null }, km: number, opts: { stops?: number } = {}) {
+  const place =
+    pickup.lat != null && pickup.lng != null ? await pricingPlace({ lat: Number(pickup.lat), lng: Number(pickup.lng) }) : null;
+  const [formula, classes] = await Promise.all([
+    getPrice("fare_formula", { service: o.type, ...(place ? placeContext(place) : { wilaya: null }) }),
+    getVehicleClasses(),
+  ]);
+  return jobDurationMinutes(km, {
+    formula: formula.value,
+    vehicle: o.vehicle_type,
+    classes,
+    stops: opts.stops,
+    ride: o.type === "ride",
+  });
+}
+
 /** The penalty (DZD) for dropping a `type` job after accepting it. */
 export async function riderCancelPenalty(type: string) {
   return (await getPrice("rider_cancel_penalty", { service: type })).value.amount;
@@ -46,10 +68,6 @@ export const OFFER_RADIUS_KM = 15;
  * abandoned requests — are never pushed to riders.
  */
 export const OFFER_MAX_AGE_MS = 20 * 60 * 1000;
-/** Average urban speed used for ETA estimates. */
-const AVG_SPEED_KMH = 25;
-/** A courier rider's time at each drop-off (handover). */
-const COURIER_STOP_MINUTES = 3;
 /** A booked scheduled job this close to another one is a conflict. */
 const CONFLICT_WINDOW_MS = 60 * 60 * 1000;
 
@@ -254,10 +272,7 @@ export async function toJobs(orders: Row[], ctx: JobCtx) {
         distance_km: round1(distance),
         duration_minutes: ride
           ? ride.duration_minutes
-          : Math.max(
-              1,
-              Math.round((distance / AVG_SPEED_KMH) * 60) + (courier ? courier.drop_offs.length * COURIER_STOP_MINUTES : 0)
-            ),
+          : await jobMinutes(o, pickup, distance, { stops: courier ? courier.drop_offs.length : 0 }),
         pickup_distance_km: (() => {
           const km = kmBetween(ctx.rider, pickup);
           return km == null ? null : round1(km);
@@ -401,7 +416,7 @@ export async function toBundleJob(rows: Row[], ctx: JobCtx) {
     discount: sumOf(members, "discount"),
     order_total: sumOf(members, "total"),
     distance_km: round1(distance),
-    duration_minutes: Math.max(1, Math.round((distance / AVG_SPEED_KMH) * 60)),
+    duration_minutes: await jobMinutes(lead, stops[0]?.pickup ?? base.pickup, distance),
     pickup_distance_km: riderKms.length ? round1(Math.min(...riderKms)) : null,
     trip_id: (trips ?? [])[0]?.id ?? base.trip_id,
     checkout_id: lead.checkout_id as string,
@@ -455,14 +470,15 @@ export async function createTripForOrder(o: Row, riderId: string) {
   const destination = destinationOf(o);
   const courier = courierOf(o);
   const ride = rideOf(o);
+  const distance = courier ? courier.distance_km : ride ? ride.distance_km : (kmBetween(pickup, destination) ?? 0);
   return upsertTrip(o, riderId, {
     commissionRate: (await riderRates(o, pickup)).commissionRate,
     pickup,
     destination,
-    distance: courier ? courier.distance_km : ride ? ride.distance_km : (kmBetween(pickup, destination) ?? 0),
+    distance,
     fare: Number(o.delivery_fee ?? 0),
     // A ride's trip lasts what the offer said (priced estimate), not a re-estimate.
-    durationMinutes: ride ? ride.duration_minutes : undefined,
+    durationMinutes: ride ? ride.duration_minutes : await jobMinutes(o, pickup, distance, { stops: courier ? courier.drop_offs.length : 0 }),
   });
 }
 
@@ -496,6 +512,7 @@ export async function createTripForBundle(rows: Row[], riderId: string) {
     destination,
     distance,
     fare: sumOf(members, "delivery_fee"),
+    durationMinutes: await jobMinutes(lead, first, distance),
   });
 }
 
@@ -509,15 +526,12 @@ async function upsertTrip(
     fare: number;
     /** Blink's commission on the fare (rider_commission_rate). */
     commissionRate: number;
-    /** Default: the distance at the average urban speed. */
-    durationMinutes?: number;
+    /** From jobMinutes (the fare formula) unless the job carries its own estimate. */
+    durationMinutes: number;
   }
 ) {
   const { pickup, destination, distance, fare } = route;
-  const duration =
-    route.durationMinutes != null && Number.isFinite(route.durationMinutes)
-      ? Math.max(1, Math.round(route.durationMinutes))
-      : Math.max(1, Math.round((distance / AVG_SPEED_KMH) * 60));
+  const duration = Number.isFinite(route.durationMinutes) ? Math.max(1, Math.round(route.durationMinutes)) : 1;
   const { data, error } = await supabaseAdmin
     .from("trips")
     .upsert(

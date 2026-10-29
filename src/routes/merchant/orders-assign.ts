@@ -1,5 +1,7 @@
 import { canAssignOwnDriver } from "../../lib/bundle";
 import { createNotification } from "../../lib/notifications";
+import { riderFitsOrder, VEHICLE_CLASS_REFUSAL } from "../../lib/merchant-riders";
+import { getVehicleClasses } from "../../lib/pricing";
 import { CLEAR_OFFER, isHeld, isLiveOffer } from "../../lib/rider-offer";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, ErrorSchema, errorResponses, IdParam, json, router } from "../../openapi";
@@ -55,7 +57,7 @@ app.openapi(route, async (c) => {
   const { data: order } = await supabaseAdmin
     .from("orders")
     .select(
-      "id, store_id, store_name, status, merchant_status, rider_id, customer_id, checkout_id, offered_rider_id, offered_mode, offered_at, offer_declined_at"
+      "id, store_id, store_name, vehicle_type, status, merchant_status, rider_id, customer_id, checkout_id, offered_rider_id, offered_mode, offered_at, offer_declined_at"
     )
     .eq("id", id)
     .maybeSingle();
@@ -94,6 +96,14 @@ app.openapi(route, async (c) => {
     }
 
     const target = driver.rider_user_id as string;
+    // The vehicle class of every store's order must allow this driver (same rule as rider offers).
+    const [classes, { data: targetProfile }] = await Promise.all([
+      getVehicleClasses(),
+      supabaseAdmin.from("rider_profiles").select("vehicle_type, vehicle_class").eq("user_id", target).maybeSingle(),
+    ]);
+    if (!riderFitsOrder(checkout.members.map((m) => m.vehicle_type ?? null), targetProfile, classes)) {
+      return c.json({ ...VEHICLE_CLASS_REFUSAL }, 400);
+    }
     if (checkout.members.every((m) => m.offered_rider_id === target && isLiveOffer(m, now))) {
       return c.json({ error: "Already waiting for this rider to answer" }, 409);
     }
@@ -197,7 +207,7 @@ app.openapi(route, async (c) => {
     let riderId = body.rider_id;
     if (!riderId) {
       // Auto-match: nearest rider a request can reach (same rule as GET …/riders).
-      riderId = (await nearestAvailableRider(store, { orderId: id }))?.id;
+      riderId = (await nearestAvailableRider(store, { orderId: id, jobVehicles: [order.vehicle_type ?? null] }))?.id;
       if (!riderId) return c.json({ error: "No Blink rider available right now" }, 400);
     }
     target = riderId;
@@ -210,6 +220,16 @@ app.openapi(route, async (c) => {
     .eq("role", "rider")
     .maybeSingle();
   if (!rider) return c.json({ error: "Rider not found" }, 404);
+
+  // The order's vehicle class must allow this rider (same rule as rider offers; an
+  // external driver has no app and was assigned above).
+  const [classes, { data: targetProfile }] = await Promise.all([
+    getVehicleClasses(),
+    supabaseAdmin.from("rider_profiles").select("vehicle_type, vehicle_class").eq("user_id", target).maybeSingle(),
+  ]);
+  if (!riderFitsOrder([order.vehicle_type ?? null], targetProfile, classes)) {
+    return c.json({ ...VEHICLE_CLASS_REFUSAL }, 400);
+  }
 
   const mode = body.mode;
   const askedAlready = order.offered_rider_id === target;

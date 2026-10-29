@@ -83,7 +83,7 @@ export const getUser = defineTool({
       supabaseAdmin.from("customer_profiles").select("customer_id").eq("user_id", user_id).maybeSingle(),
       supabaseAdmin
         .from("rider_profiles")
-        .select("rider_id, vehicle_type, verification_status, is_available, location_updated_at")
+        .select("rider_id, vehicle_type, vehicle_class, verification_status, is_available, location_updated_at")
         .eq("user_id", user_id)
         .maybeSingle(),
       supabaseAdmin

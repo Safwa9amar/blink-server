@@ -1,3 +1,6 @@
+import { riderFitsOrder } from "../../lib/merchant-riders";
+import { getPrice, getVehicleClasses, pricingPlace, placeContext } from "../../lib/pricing";
+import { jobSpeedKmh } from "../../lib/job-eta";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
 import { OrderRidersResponse } from "../../validators/merchant";
@@ -38,8 +41,8 @@ const route = createRoute({
   },
 });
 
-// ~25 km/h average city speed for the ETA.
-const etaMin = (km: number | null) => (km === null ? null : Math.max(2, Math.round((km / 25) * 60)));
+// The ETA uses the fare formula's speed for the rider's base vehicle (pricing config).
+const etaMin = (km: number | null, speedKmh: number) => (km === null ? null : Math.max(2, Math.round((km / speedKmh) * 60)));
 const STALE_MS = 30 * 60 * 1000;
 
 app.openapi(route, async (c) => {
@@ -48,7 +51,7 @@ app.openapi(route, async (c) => {
 
   const { data: order } = await supabaseAdmin
     .from("orders")
-    .select("id, store_id, checkout_id")
+    .select("id, store_id, checkout_id, vehicle_type")
     .eq("id", id)
     .maybeSingle();
   const store = order?.store_id ? await ownedStore(user.id, order.store_id) : null;
@@ -60,6 +63,18 @@ app.openapi(route, async (c) => {
   const driverStoreIds = order.checkout_id
     ? await loadOwnCheckout(order.checkout_id, user.id).then((k) => (k.ownOnly ? k.storeIds : [store.id]))
     : [store.id];
+
+  // The class(es) the order is offered to: every member's, for a checkout.
+  const [classes, members, place] = await Promise.all([
+    getVehicleClasses(),
+    order.checkout_id
+      ? supabaseAdmin.from("orders").select("vehicle_type").eq("checkout_id", order.checkout_id).then((r) => r.data ?? [])
+      : Promise.resolve([{ vehicle_type: order.vehicle_type }]),
+    sLat != null && sLng != null ? pricingPlace({ lat: Number(sLat), lng: Number(sLng) }) : null,
+  ]);
+  const jobVehicles = members.map((m) => (m.vehicle_type as string | null) ?? null);
+  const formula = (await getPrice("fare_formula", { service: "merchant", ...(place ? placeContext(place) : { wilaya: null }) })).value;
+  const speedOf = (vehicleType?: string | null) => jobSpeedKmh(formula, vehicleType, classes);
 
   const [{ data: drivers }, { data: busyOrders }, { data: profiles }, { data: riderUsers }] = await Promise.all([
     supabaseAdmin
@@ -75,7 +90,7 @@ app.openapi(route, async (c) => {
       .not("store_driver_id", "is", null),
     supabaseAdmin
       .from("rider_profiles")
-      .select("user_id, vehicle_type, latitude, longitude, location_updated_at"),
+      .select("user_id, vehicle_type, vehicle_class, latitude, longitude, location_updated_at"),
     supabaseAdmin
       .from("users")
       .select("id, first_name, last_name, phone_number, profile_picture")
@@ -97,33 +112,37 @@ app.openapi(route, async (c) => {
     return Math.round(distanceKm(sLat, sLng, p.latitude, p.longitude) * 10) / 10;
   };
 
-  const own = (drivers ?? []).map((d) => {
-    const p = d.rider_user_id ? profileByUser.get(d.rider_user_id) : undefined;
-    const km = distanceTo(p);
-    const u = d.rider_user_id ? usersMap.get(d.rider_user_id) : undefined;
-    const e = d.rider_user_id ? eligibility.get(d.rider_user_id) : undefined;
-    return {
-      id: d.id,
-      kind: d.kind === "blink" ? ("own_blink" as const) : ("external" as const),
-      name: d.full_name,
-      phone: d.phone,
-      avatar: u?.profile_picture ?? null,
-      vehicle_type: d.vehicle_type ?? p?.vehicle_type ?? null,
-      plate: d.plate_number,
-      deliveries: d.rider_user_id ? deliveries.get(d.rider_user_id) ?? 0 : 0,
-      distance_km: km,
-      eta_min: etaMin(km),
-      // An app driver answers a request like any Blink rider; an external
-      // driver is assigned at once, so only their running job counts.
-      status: d.rider_user_id
-        ? e?.availability ?? ("offline" as const)
-        : busyDrivers.has(d.id)
-          ? ("busy" as const)
-          : ("available" as const),
-      requested: !!e?.requestedHere,
-      declined: !!e?.declined,
-    };
-  });
+  // Own drivers WITH the app answer a request like any rider, so the class rule applies to them;
+  // external drivers have no app (and no class) and keep the store's own judgement.
+  const own = (drivers ?? [])
+    .filter((d) => !d.rider_user_id || riderFitsOrder(jobVehicles, profileByUser.get(d.rider_user_id), classes))
+    .map((d) => {
+      const p = d.rider_user_id ? profileByUser.get(d.rider_user_id) : undefined;
+      const km = distanceTo(p);
+      const u = d.rider_user_id ? usersMap.get(d.rider_user_id) : undefined;
+      const e = d.rider_user_id ? eligibility.get(d.rider_user_id) : undefined;
+      return {
+        id: d.id,
+        kind: d.kind === "blink" ? ("own_blink" as const) : ("external" as const),
+        name: d.full_name,
+        phone: d.phone,
+        avatar: u?.profile_picture ?? null,
+        vehicle_type: d.vehicle_type ?? p?.vehicle_type ?? null,
+        plate: d.plate_number,
+        deliveries: d.rider_user_id ? deliveries.get(d.rider_user_id) ?? 0 : 0,
+        distance_km: km,
+        eta_min: etaMin(km, speedOf(d.vehicle_type ?? p?.vehicle_type)),
+        // An app driver answers a request like any Blink rider; an external
+        // driver is assigned at once, so only their running job counts.
+        status: d.rider_user_id
+          ? e?.availability ?? ("offline" as const)
+          : busyDrivers.has(d.id)
+            ? ("busy" as const)
+            : ("available" as const),
+        requested: !!e?.requestedHere,
+        declined: !!e?.declined,
+      };
+    });
 
   const ranked = (riderUsers ?? [])
     .map((r) => {
@@ -143,7 +162,7 @@ app.openapi(route, async (c) => {
         plate: null,
         deliveries: deliveries.get(r.id) ?? 0,
         distance_km: km,
-        eta_min: etaMin(km),
+        eta_min: etaMin(km, speedOf(p?.vehicle_type)),
         status: e?.availability ?? ("offline" as const),
         requested: !!e?.requestedHere,
         declined: !!e?.declined,
@@ -151,6 +170,8 @@ app.openapi(route, async (c) => {
       };
     })
     .filter((r) => r.status !== "offline")
+    // Riders the order's vehicle class excludes are left out (same rule as rider offers).
+    .filter((r) => riderFitsOrder(jobVehicles, profileByUser.get(r.id), classes))
     .sort((a, b) => {
       if (a.status !== b.status) return a.status === "available" ? -1 : 1;
       if (a.fresh !== b.fresh) return a.fresh ? -1 : 1;

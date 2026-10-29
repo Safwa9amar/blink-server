@@ -64,6 +64,15 @@ export function parseCartItems(raw: string): { product_id: string; quantity: num
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+/**
+ * Stores with `delivery_fee` replaced by what checkout charges for them (the
+ * quoteStoreDelivery fee at the customer point), so the saving matches the
+ * order: a store absent from `fees` keeps its merchant fee.
+ */
+export function withQuotedFees(stores: Map<string, BranchStore>, fees: Map<string, number>): Map<string, BranchStore> {
+  return new Map([...stores].map(([id, s]) => [id, fees.has(id) ? { ...s, delivery_fee: fees.get(id)! } : s]));
+}
+
 function findMatch(line: CartLine, products: BranchProduct[]): BranchProduct | undefined {
   if (line.library_product_id) {
     const byLibrary = products.find((p) => p.library_product_id === line.library_product_id);

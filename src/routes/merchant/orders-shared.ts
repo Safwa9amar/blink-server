@@ -2,6 +2,8 @@
 // involved (customer / Blink rider / store driver), pack detection and who a
 // store may send a rider request to.
 import { ownSiblings, ownsWholeCheckout, type SiblingRow } from "../../lib/checkout-siblings";
+import { riderFitsOrder } from "../../lib/merchant-riders";
+import { getVehicleClasses } from "../../lib/pricing";
 import { heldRequestTargets, offerExpiresAt, offerStatus, riderAvailability } from "../../lib/rider-offer";
 import { supabaseAdmin } from "../../lib/supabase";
 
@@ -196,11 +198,13 @@ export async function riderEligibility(
  */
 export async function nearestAvailableRider(
   store: Record<string, unknown>,
-  opts: { orderId?: string } = {}
+  // jobVehicles = orders.vehicle_type of the order: riders its class excludes are skipped.
+  opts: { orderId?: string; jobVehicles?: (string | null)[] } = {}
 ) {
-  const [{ data: riders }, { data: profiles }] = await Promise.all([
+  const [{ data: riders }, { data: profiles }, classes] = await Promise.all([
     supabaseAdmin.from("users").select("id").eq("role", "rider"),
-    supabaseAdmin.from("rider_profiles").select("user_id, latitude, longitude"),
+    supabaseAdmin.from("rider_profiles").select("user_id, latitude, longitude, vehicle_type, vehicle_class"),
+    getVehicleClasses(),
   ]);
   const ids = (riders ?? []).map((r) => r.id as string);
   const eligibility = await riderEligibility(ids, { orderId: opts.orderId });
@@ -210,7 +214,12 @@ export async function nearestAvailableRider(
   const ranked = ids
     .filter((id) => {
       const e = eligibility.get(id);
-      return e?.availability === "available" && !e.declined && !e.requestedHere;
+      return (
+        e?.availability === "available" &&
+        !e.declined &&
+        !e.requestedHere &&
+        riderFitsOrder(opts.jobVehicles ?? [], prof.get(id), classes)
+      );
     })
     .map((id) => {
       const p = prof.get(id);

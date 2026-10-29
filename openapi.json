@@ -8581,6 +8581,9 @@
                   "merchant",
                   "distance"
                 ]
+              },
+              "delivery_fee": {
+                "type": "number"
               }
             },
             "required": [
@@ -24811,6 +24814,30 @@
             "required": true,
             "description": "The cart as `product_id:quantity` pairs, comma-separated (up to 60)",
             "name": "items",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true,
+              "minimum": -90,
+              "maximum": 90,
+              "description": "Delivery point: with `lng`, prices distance-mode stores the way checkout does (else their merchant fee)"
+            },
+            "required": false,
+            "description": "Delivery point: with `lng`, prices distance-mode stores the way checkout does (else their merchant fee)",
+            "name": "lat",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true,
+              "minimum": -180,
+              "maximum": 180
+            },
+            "required": false,
+            "name": "lng",
             "in": "query"
           }
         ],
