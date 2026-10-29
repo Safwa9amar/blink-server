@@ -1,6 +1,5 @@
 import { sql } from "drizzle-orm";
 import { doublePrecision, index, pgEnum, pgPolicy, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { mfaPolicy } from "./_shared";
 import { alertRules, alertSeverity } from "./alert-rules";
 
 export const alertEventStatus = pgEnum("alert_event_status", ["active", "resolved"]);
@@ -31,7 +30,6 @@ export const alertEvents = pgTable(
     index("idx_alert_events_active")
       .on(t.ruleId)
       .where(sql`status = 'active'`),
-    mfaPolicy("alert_events_mfa"),
     pgPolicy("alert_events_staff_all", {
       for: "all",
       using: sql`EXISTS (SELECT 1 FROM users u WHERE u.id = auth.uid() AND u.staff_role IS NOT NULL)`,

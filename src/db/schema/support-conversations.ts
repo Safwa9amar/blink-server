@@ -60,8 +60,7 @@ export const supportConversations = pgTable(
     index("idx_support_conversations_last_msg").on(t.lastMessageAt),
     pgPolicy("support_conversations_select_own_or_staff", {
       for: "select",
-      // Staff access needs aal2 once they use two-factor; a member's own chats never do.
-      using: sql`auth.uid() = user_id OR (EXISTS (SELECT 1 FROM users u WHERE u.id = auth.uid() AND u.staff_role IS NOT NULL) AND (SELECT public.mfa_satisfied()))`,
+      using: sql`auth.uid() = user_id OR EXISTS (SELECT 1 FROM users u WHERE u.id = auth.uid() AND u.staff_role IS NOT NULL)`,
     }),
   ]
 );

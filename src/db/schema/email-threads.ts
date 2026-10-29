@@ -9,7 +9,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { timestamps, mfaPolicy } from "./_shared";
+import { timestamps } from "./_shared";
 import { users } from "./users";
 
 // Lives with the table (not in enums.ts) so it ships in the additive 00031
@@ -72,7 +72,6 @@ export const emailThreads = pgTable(
     // users, so there is no owner policy. Only non-null staff_role sees threads.
     // (The IMAP poller + reply route write through the service role, bypassing
     // RLS entirely.)
-    mfaPolicy("email_threads_mfa"),
     pgPolicy("email_threads_select_staff", {
       for: "select",
       using: sql`EXISTS (SELECT 1 FROM users u WHERE u.id = auth.uid() AND u.staff_role IS NOT NULL)`,

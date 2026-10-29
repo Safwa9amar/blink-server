@@ -11,7 +11,6 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { mfaPolicy } from "./_shared";
 import { users } from "./users";
 
 export const STAFF_NOTIFICATION_SEVERITIES = ["info", "warning", "critical"] as const;
@@ -52,7 +51,6 @@ export const staffNotifications = pgTable(
       .on(t.groupKey, t.createdAt.desc())
       .where(sql`group_key IS NOT NULL`),
     check("staff_notifications_severity_check", sql`severity IN ('info', 'warning', 'critical')`),
-    mfaPolicy("staff_notifications_mfa"),
     pgPolicy("staff_notifications_staff_select", {
       for: "select",
       using: sql`EXISTS (SELECT 1 FROM users u WHERE u.id = auth.uid() AND u.staff_role IS NOT NULL)`,

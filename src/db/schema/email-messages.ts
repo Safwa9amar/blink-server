@@ -9,7 +9,6 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import { mfaPolicy } from "./_shared";
 import { emailDirection, emailThreads } from "./email-threads";
 import { users } from "./users";
 
@@ -51,7 +50,6 @@ export const emailMessages = pgTable(
     uniqueIndex("uq_email_messages_message_id")
       .on(t.messageId)
       .where(sql`message_id IS NOT NULL`),
-    mfaPolicy("email_messages_mfa"),
     pgPolicy("email_messages_select_staff", {
       for: "select",
       using: sql`EXISTS (SELECT 1 FROM users u WHERE u.id = auth.uid() AND u.staff_role IS NOT NULL)`,

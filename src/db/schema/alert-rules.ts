@@ -9,7 +9,7 @@ import {
   text,
   uuid,
 } from "drizzle-orm/pg-core";
-import { timestamps, mfaPolicy } from "./_shared";
+import { timestamps } from "./_shared";
 import { users } from "./users";
 
 // Defined here (not enums.ts) so they ship in the additive `alerts` migration
@@ -52,7 +52,6 @@ export const alertRules = pgTable(
       .on(t.enabled)
       .where(sql`enabled`),
     // Staff-only backstop; service-role bypasses RLS for the actual CRUD/evaluator.
-    mfaPolicy("alert_rules_mfa"),
     pgPolicy("alert_rules_staff_all", {
       for: "all",
       using: sql`EXISTS (SELECT 1 FROM users u WHERE u.id = auth.uid() AND u.staff_role IS NOT NULL)`,

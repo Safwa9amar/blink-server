@@ -1,5 +1,4 @@
-import { sql } from "drizzle-orm";
-import { pgPolicy, timestamp } from "drizzle-orm/pg-core";
+import { timestamp } from "drizzle-orm/pg-core";
 
 // Timestamps shared by every table. `mode: "string"` makes the inferred type
 // an ISO string — matching what @supabase/supabase-js / PostgREST return at
@@ -14,16 +13,3 @@ export const timestamps = {
     .notNull()
     .defaultNow(),
 };
-
-// Two-factor at the database level for staff-only tables reachable with a staff JWT:
-// a RESTRICTIVE policy (ANDed with the permissive ones) that requires an aal2 session
-// whenever the caller has a verified MFA factor. Tables app users also read (support
-// chats) put `mfa_satisfied()` on their staff branch instead. `mfa_satisfied()` is defined in 20261030130000_staff_mfa_rls.sql.
-export const mfaPolicy = (name: string) =>
-  pgPolicy(name, {
-    as: "restrictive",
-    for: "all",
-    to: "authenticated",
-    using: sql`(select public.mfa_satisfied())`,
-    withCheck: sql`(select public.mfa_satisfied())`,
-  });

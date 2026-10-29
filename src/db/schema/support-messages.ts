@@ -45,8 +45,7 @@ export const supportMessages = pgTable(
         SELECT 1 FROM support_conversations sc
         WHERE sc.id = conversation_id
           AND (sc.user_id = auth.uid()
-               OR (EXISTS (SELECT 1 FROM users u WHERE u.id = auth.uid() AND u.staff_role IS NOT NULL)
-                   AND (SELECT public.mfa_satisfied())))
+               OR EXISTS (SELECT 1 FROM users u WHERE u.id = auth.uid() AND u.staff_role IS NOT NULL))
       )`,
     }),
   ]
