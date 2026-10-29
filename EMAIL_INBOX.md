@@ -80,7 +80,10 @@ code / magic link, signup, invite, email change, reauthentication) over the same
 SMTP mailbox, in en/fr/ar. Enable it once:
 
 1. Supabase Dashboard → Authentication → Hooks → **Send Email** → HTTPS →
-   `https://blink.greenpedal.net/hooks/send-email`; generate the secret.
+   `https://blink-server-q4ey.onrender.com/hooks/send-email` (Render primary; the
+   greenpedal host no longer serves the API); generate the secret. Supabase gives a hook
+   about 5 s, so the Render service must be warm (cold starts take ~20 s) — the SMS hook
+   runs as a Supabase Edge Function for that reason.
 2. Put the secret in `SEND_EMAIL_HOOK_SECRET` (server env) and redeploy.
 
 **Once enabled, Supabase sends ALL auth emails — the mobile app's included —

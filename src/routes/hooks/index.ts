@@ -88,7 +88,8 @@ interface SendEmailPayload {
 // POST /hooks/send-email — Supabase "Send Email" hook. Supabase generates the
 // codes/links; we render + deliver them over SMTP. Payload:
 // https://supabase.com/docs/guides/auth/auth-hooks/send-email-hook
-// Point it at https://blink.greenpedal.net/hooks/send-email and put the secret
+// Point it at https://blink-server-q4ey.onrender.com/hooks/send-email (greenpedal is
+// gone) and put the secret
 // in SEND_EMAIL_HOOK_SECRET. Once enabled, every auth email (mobile too) uses it.
 app.post("/send-email", async (c) => {
   if (!env.SEND_EMAIL_HOOK_SECRET) {
