@@ -146,12 +146,14 @@ export async function riderGender(riderId: string) {
 export async function riderPosition(riderId: string) {
   const { data } = await supabaseAdmin
     .from("rider_profiles")
-    .select("is_available, latitude, longitude, vehicle_type, verification_status")
+    .select("is_available, latitude, longitude, vehicle_type, vehicle_class, verification_status")
     .eq("user_id", riderId)
     .maybeSingle();
   return {
     isAvailable: data?.is_available ?? false,
     vehicleType: (data?.vehicle_type as string | null) ?? null,
+    /** The class staff assigned (null = the default of vehicleType). */
+    vehicleClass: (data?.vehicle_class as string | null) ?? null,
     // null (also on a failed read) counts as not verified: fail closed.
     verificationStatus: (data?.verification_status as string | null) ?? null,
     lat: (data?.latitude as number | null) ?? null,

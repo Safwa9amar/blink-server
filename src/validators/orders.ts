@@ -89,14 +89,17 @@ export const ProductChangedError = z
   .openapi("ProductChangedError");
 
 /**
- * 409 when the order's `expected_service_fee` no longer matches the server's
- * current service fee (a fee change landed since the app showed it). Show
- * `service_fee`, let the customer confirm, and retry with it.
+ * 409 when the order's `expected_service_fee` (or `expected_delivery_fee`) no
+ * longer matches the server's current fee (a fee change landed since the app
+ * showed it). Show `service_fee` / `delivery_fee`, let the customer confirm, and
+ * retry with them.
  */
 export const PriceChangedError = z
   .object({
     error: z.literal("price_changed"),
     service_fee: z.number(),
+    /** The store's current delivery fee (store orders), before any free-pack waiver. */
+    delivery_fee: z.number().optional(),
   })
   .openapi("PriceChangedError");
 
@@ -124,6 +127,12 @@ export const createOrderSchema = z
      * server's current fee, the order is not created: 409 `price_changed`.
      */
     expected_service_fee: z.number().nonnegative().optional(),
+    /**
+     * Store orders: the delivery fee the customer was shown for this store (from
+     * POST /orders/quote `delivery_fees`), before any free-pack waiver. When sent
+     * and different from the server's current fee: 409 `price_changed`.
+     */
+    expected_delivery_fee: z.number().nonnegative().optional(),
     /** Marketplace store the order is placed with. Required for `merchant` orders. */
     store_id: z.string().uuid().optional(),
     /**
@@ -139,7 +148,7 @@ export const createOrderSchema = z
     pickup_lng: z.number().optional(),
     destination_lat: z.number().optional(),
     destination_lng: z.number().optional(),
-    /** Courier: requested vehicle (e.g. "bike", "car"). */
+    /** Courier: the requested vehicle class (`bicycle`, `motorcycle`, …); ignored for store orders. */
     vehicle_type: z.string().optional(),
     /** Courier: scheduled pickup time; omit for "now". */
     scheduled_at: z.string().datetime({ offset: true }).optional(),

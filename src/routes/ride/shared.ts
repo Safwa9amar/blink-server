@@ -1,6 +1,7 @@
 // Shared by POST /ride/quote and POST /ride/requests: coupon pricing on a ride
 // fare, and the free riders around a pickup who can take the ride.
 import { type LatLng } from "../../lib/courier-pricing";
+import { getVehicleClasses } from "../../lib/pricing";
 import { riderCanTakeRide } from "../../lib/ride";
 import { supabaseAdmin } from "../../lib/supabase";
 import { freeRidersNear, priceCourierCoupon, riderCount, ridersMap } from "../courier/shared";
@@ -12,13 +13,15 @@ import { freeRidersNear, priceCourierCoupon, riderCount, ridersMap } from "../co
 export const priceRideCoupon = priceCourierCoupon;
 
 /**
- * Free riders within the offer radius of `pickup` who can take a ride:
- * motorcycle only, and women only when `femaleRiderOnly`
- * (src/lib/ride.ts riderCanTakeRide) — counted, and the same riders on the
- * map (nearby_riders_map), so the map only shows who could take it.
+ * Free riders within the offer radius of `pickup` who can take a ride of each
+ * offered class: a motorcycle (or, for an exclusive class like Comfort, a rider
+ * of that class), and women only when `femaleRiderOnly`
+ * (src/lib/ride.ts riderCanTakeRide). `count(code)` is per class; the map shows
+ * the riders able to take at least one of `codes`, so it only shows who could
+ * take something offered.
  */
-export async function nearbyRideRiders(pickup: LatLng, femaleRiderOnly: boolean) {
-  const free = await freeRidersNear(pickup);
+export async function nearbyRideRiders(pickup: LatLng, femaleRiderOnly: boolean, codes: string[] = ["motorcycle"]) {
+  const [free, classes] = await Promise.all([freeRidersNear(pickup), getVehicleClasses()]);
   const motos = free.filter((p) => p.vehicle === "motorcycle");
   // Gender is only read when it matters.
   const { data: users } =
@@ -26,9 +29,16 @@ export async function nearbyRideRiders(pickup: LatLng, femaleRiderOnly: boolean)
       ? await supabaseAdmin.from("users").select("id, gender").in("id", motos.map((p) => p.id))
       : { data: [] as { id: string; gender: string | null }[] };
   const genderOf = new Map((users ?? []).map((u) => [u.id as string, (u.gender as string | null) ?? null]));
-  const ride = { type: "ride", ride: { female_rider_only: femaleRiderOnly } };
-  const able = motos.filter((p) =>
-    riderCanTakeRide(ride, { vehicleType: p.vehicle, gender: genderOf.get(p.id) ?? null })
-  );
-  return { ...riderCount(able), map: ridersMap(able) };
+  const ableFor = (code: string) => {
+    const ride = { type: "ride", vehicle_type: code, ride: { female_rider_only: femaleRiderOnly } };
+    return motos.filter((p) =>
+      riderCanTakeRide(ride, { vehicleType: p.vehicle, vehicleClass: p.vehicleClass, gender: genderOf.get(p.id) ?? null }, classes)
+    );
+  };
+  const perClass = new Map(codes.map((code) => [code, ableFor(code)]));
+  const union = motos.filter((p) => [...perClass.values()].some((able) => able.includes(p)));
+  return {
+    count: (code: string) => riderCount(perClass.get(code) ?? ableFor(code)),
+    map: ridersMap(union),
+  };
 }

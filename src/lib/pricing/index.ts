@@ -4,17 +4,26 @@
 // the last good snapshot (seeds only on a cold start), retrying after ~2 s.
 import { normalizeGeometry, toRuntimeZone, type RuntimeZone } from "../geo/zones";
 import { supabaseAdmin } from "../supabase";
-import { PRICING_KEYS, PRICING_SCHEMAS, PRICING_SEEDS, TIER_SEEDS, type PricingKey, type PricingValue } from "./catalog";
+import { PRICING_KEYS, PRICING_SCHEMAS, PRICING_SEEDS, TIER_SEEDS, type LegKey, type PricingKey, type PricingValue } from "./catalog";
 import { placeOf, type PricingPlace } from "./place";
 import { resolveFrom, type OverrideLike, type PricingContext } from "./resolve";
+import { resolveClassLegs, VEHICLE_CLASS_SEEDS, type ClassLeg, type VehicleClass } from "./vehicle-classes";
 
 export type { PricingContext } from "./resolve";
 export { placeContext, type PricingPlace } from "./place";
 export { PRICING_KEYS, PRICING_SEEDS, type PricingKey, type PricingValue } from "./catalog";
+export type { ClassLeg, VehicleClass } from "./vehicle-classes";
 
 export type PriceResult<K extends PricingKey> = { value: PricingValue<K>; overrideId: string | null };
 
-type Snapshot = { defaults: Record<string, unknown>; overrides: OverrideLike[]; tiers: string[]; zones: RuntimeZone[] };
+type Snapshot = {
+  defaults: Record<string, unknown>;
+  overrides: OverrideLike[];
+  tiers: string[];
+  zones: RuntimeZone[];
+  /** Every vehicle class, archived ones flagged (matching still needs them for open jobs). */
+  classes: VehicleClass[];
+};
 
 const TTL_MS = 15_000;
 /** After a failed load, retry soon instead of holding the fallback for the full TTL. */
@@ -32,11 +41,12 @@ const SEED_SNAPSHOT: Snapshot = {
   overrides: [],
   tiers: TIER_SEEDS.map((t) => t.code),
   zones: [],
+  classes: VEHICLE_CLASS_SEEDS,
 };
 
 async function load(): Promise<Snapshot> {
   const nowIso = new Date().toISOString();
-  const [settings, overrides, tiers, zones] = await Promise.all([
+  const [settings, overrides, tiers, zones, classRows] = await Promise.all([
     supabaseAdmin.from("pricing_settings").select("key, value"),
     supabaseAdmin
       .from("pricing_overrides")
@@ -46,11 +56,32 @@ async function load(): Promise<Snapshot> {
       .or(`ends_at.is.null,ends_at.gt.${nowIso}`),
     supabaseAdmin.from("pricing_tiers").select("code").is("archived_at", null),
     supabaseAdmin.from("pricing_zones").select("id, name, tier, wilaya_code, priority, geometry").is("archived_at", null),
+    supabaseAdmin
+      .from("vehicle_classes")
+      .select("code, names, base_vehicle, services, exclusive, enabled, sort_order, archived_at"),
   ]);
   if (settings.error) throw new Error(settings.error.message);
   if (overrides.error) throw new Error(overrides.error.message);
   if (tiers.error) throw new Error(tiers.error.message);
   if (zones.error) throw new Error(zones.error.message);
+
+  // A missing vehicle_classes table (migration not applied yet) must not take
+  // every price down: serve the seed classes, which price exactly as before.
+  let classes = VEHICLE_CLASS_SEEDS;
+  if (classRows.error) {
+    console.error(`[pricing] vehicle classes read failed; using the seed classes: ${classRows.error.message}`);
+  } else if (classRows.data?.length) {
+    classes = classRows.data.map((r) => ({
+      code: r.code as string,
+      names: r.names as VehicleClass["names"],
+      base_vehicle: r.base_vehicle as VehicleClass["base_vehicle"],
+      services: (r.services ?? []) as VehicleClass["services"],
+      exclusive: !!r.exclusive,
+      enabled: !!r.enabled,
+      sort_order: (r.sort_order as number) ?? 0,
+      archived: !!r.archived_at,
+    }));
+  }
 
   // Seeds fill any key the table doesn't have (e.g. before the migration).
   const defaults: Record<string, unknown> = { ...PRICING_SEEDS };
@@ -80,6 +111,7 @@ async function load(): Promise<Snapshot> {
     tiers: (tiers.data ?? []).map((t) => t.code as string),
     // bbox + area are precomputed once per load, not per lookup.
     zones: live,
+    classes,
   };
 }
 
@@ -154,6 +186,21 @@ export async function pricingPlace(
 ): Promise<PricingPlace> {
   const snap = await snapshot();
   return placeOf(point, snap, opts);
+}
+
+/** Every vehicle class (archived ones flagged `archived`); filter with classesFor() for the quotable ones. */
+export async function getVehicleClasses(): Promise<VehicleClass[]> {
+  return (await snapshot()).classes;
+}
+
+/**
+ * The priced legs of the enabled classes serving a leg key's service, for a
+ * context (per-class resolution: see vehicle-classes.ts). `key`'s non-leg
+ * fields come from getPrice as before.
+ */
+export async function getClassLegs(key: LegKey, ctx: PricingContext = {}): Promise<ClassLeg[]> {
+  const snap = await snapshot();
+  return resolveClassLegs(snap.defaults, snap.overrides, key, snap.classes, ctx);
 }
 
 /** Every key's effective value for a context (staff preview, rate snapshots). */

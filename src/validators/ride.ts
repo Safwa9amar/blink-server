@@ -1,13 +1,13 @@
 import { z } from "@hono/zod-openapi";
 import { NO_RIDER_REASON } from "../lib/courier";
 import { PASSENGER_NO_SHOW_REASON, RIDE_CUSTOMER_CANCEL_REASONS } from "../lib/ride";
-import { RIDE_VEHICLES } from "../lib/ride-pricing";
-import { couponCode, lat, lng, nearbyRidersMap, phone } from "./courier";
+import { CLASS_CODE_RE } from "../lib/pricing/catalog";
+import { couponCode, lat, lng, nearbyRidersMap, phone, VehicleNameSchema } from "./courier";
 import { OrderSchema } from "./orders";
 
 // ─── Ride requests (/ride/*) ─────────────────────────────────────────
 // A ride = one order for one rider: a pickup, then a destination, motorcycle
-// only. Rules: src/lib/ride.ts, pricing: src/lib/ride-pricing.ts. Spec:
+// by default (more classes — e.g. Comfort — once staff enable them). Rules: src/lib/ride.ts, pricing: src/lib/ride-pricing.ts. Spec:
 // blink/docs/superpowers/specs/2026-10-09-ride-requests-design.md
 //
 // Cancel reasons (orders.cancel_reason, free-form text; the known keys):
@@ -21,7 +21,10 @@ export const RIDE_CANCEL_REASONS = [
   NO_RIDER_REASON,
 ] as const;
 
-const vehicle = z.enum(RIDE_VEHICLES as [string, ...string[]]);
+/** A ride vehicle class code: `motorcycle` or any other enabled ride class (the quote lists the live ones). */
+const vehicle = z.string().regex(CLASS_CODE_RE);
+/** bicycle | motorcycle: the class's base vehicle. */
+const baseVehicle = z.enum(["bicycle", "motorcycle"]);
 
 const RideLatLngSchema = z.object({ lat, lng }).openapi("RideLatLng");
 
@@ -82,7 +85,11 @@ export const createRideRequestSchema = z
 
 export const RideQuoteOptionSchema = z
   .object({
+    /** The vehicle class code (send it back as the request's vehicle_type). */
     vehicle_type: vehicle,
+    vehicle_name: VehicleNameSchema,
+    /** bicycle | motorcycle: pick the icon from it. */
+    base_vehicle: baseVehicle,
     /** Fare before the coupon. */
     fare: z.number(),
     discount: z.number(),

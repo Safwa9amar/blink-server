@@ -1,3 +1,4 @@
+import { storeDeliveryModes } from "../../lib/pricing/store-quote";
 import { withoutPriceAttribution } from "../../lib/price-history";
 import { toStorefront } from "../../lib/store-categories";
 import { supabaseAdmin } from "../../lib/supabase";
@@ -42,7 +43,11 @@ app.openapi(route, async (c) => {
   ]);
 
   // Dangling ids (deleted store/product) drop out here.
-  const storeRows = (stores.data ?? []).map((s: any) => toStorefront(s));
+  const modes = await storeDeliveryModes(stores.data ?? []);
+  const storeRows = (stores.data ?? []).map((s: any) => ({
+    ...toStorefront(s),
+    delivery_fee_mode: modes.get(s.id) ?? ("merchant" as const),
+  }));
   const productRows = (products.data ?? []).map(({ store, ...p }: any) => ({
     ...withoutPriceAttribution(p),
     store_name: store?.name ?? "",

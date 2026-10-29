@@ -59,6 +59,10 @@ export const StoreSchema = rowSchema(stores, "StoreRow")
   .omit({ document_review: true })
   .openapi("StoreRow")
   .extend({
+    delivery_fee_mode: z.enum(["merchant", "distance"]).optional().openapi({
+      description:
+        "merchant: the store's own `delivery_fee`. distance: priced per order by distance at checkout (see POST /orders/quote `delivery_fees`); `delivery_fee` then keeps the merchant value for old apps. Present on customer store payloads.",
+    }),
     menu_categories: z.array(menuCategorySchema),
     next_open_at: z.string().nullable().optional().openapi({
       description:
@@ -145,7 +149,7 @@ export const branchSuggestionQuerySchema = z.object({
 
 const BranchSuggestionSchema = z
   .object({
-    to_store: z.object({ id: z.string(), name: z.string() }),
+    to_store: z.object({ id: z.string(), name: z.string(), delivery_fee_mode: z.enum(["merchant", "distance"]).optional() }),
     from_store_ids: z.array(z.string()),
     swaps: z.array(
       z.object({

@@ -4,6 +4,9 @@
 // flat pickup_* / destination_* columns mirror the two points.
 // Spec: blink/docs/superpowers/specs/2026-10-09-ride-requests-design.md
 import { courierLiveAt } from "./courier";
+import { canTake, VEHICLE_CLASS_SEEDS, type VehicleClass } from "./pricing/vehicle-classes";
+
+type VehicleClassLike = Pick<VehicleClass, "code" | "base_vehicle" | "exclusive">;
 
 /** `store_name` of a ride order — there is no store behind a ride. */
 export const RIDE_STORE_NAME = "Ride";
@@ -216,9 +219,12 @@ export function startNoShowClock(r: RideDetails | null, nowIso: string): RideDet
  */
 export function rideRiderProblem(
   o: Row,
-  rider: { vehicleType: string | null | undefined; gender: string | null | undefined }
+  rider: { vehicleType: string | null | undefined; vehicleClass?: string | null; gender: string | null | undefined },
+  classes: readonly VehicleClassLike[] = VEHICLE_CLASS_SEEDS
 ): "vehicle" | "gender" | null {
-  if (rider.vehicleType !== RIDE_VEHICLE) return "vehicle";
+  // The ride's class is `orders.vehicle_type`; an exclusive class (Comfort) is
+  // only for riders of that class, every other needs a motorcycle.
+  if (!canTake(o?.vehicle_type ?? RIDE_VEHICLE, rider, classes, { strict: true })) return "vehicle";
   if (o?.ride?.female_rider_only === true && rider.gender !== "female") return "gender";
   return null;
 }
@@ -226,8 +232,9 @@ export function rideRiderProblem(
 /** Can this rider be offered / accept this ride? See rideRiderProblem. */
 export const riderCanTakeRide = (
   o: Row,
-  rider: { vehicleType: string | null | undefined; gender: string | null | undefined }
-) => rideRiderProblem(o, rider) == null;
+  rider: { vehicleType: string | null | undefined; vehicleClass?: string | null; gender: string | null | undefined },
+  classes: readonly VehicleClassLike[] = VEHICLE_CLASS_SEEDS
+) => rideRiderProblem(o, rider, classes) == null;
 
 /** Order items of a ride: one line, the destination (shown as "1 item"). */
 export const rideItems = (r: RideDetails) => [

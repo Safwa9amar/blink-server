@@ -589,6 +589,10 @@
               null
             ]
           },
+          "vehicle_class": {
+            "type": "string",
+            "nullable": true
+          },
           "documents": {
             "$ref": "#/components/schemas/RiderStoredDocuments"
           },
@@ -626,6 +630,7 @@
           "user_id",
           "rider_id",
           "vehicle_type",
+          "vehicle_class",
           "documents",
           "verification_status",
           "is_available",
@@ -3504,6 +3509,9 @@
           },
           "service_fee": {
             "type": "number"
+          },
+          "delivery_fee": {
+            "type": "number"
           }
         },
         "required": [
@@ -3554,6 +3562,10 @@
             "minimum": 0
           },
           "expected_service_fee": {
+            "type": "number",
+            "minimum": 0
+          },
+          "expected_delivery_fee": {
             "type": "number",
             "minimum": 0
           },
@@ -3640,10 +3652,43 @@
           "service_fee": {
             "type": "number",
             "description": "DZD; 0 when this checkout already paid it"
+          },
+          "delivery_fees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StoreDeliveryFee"
+            },
+            "description": "Present when `store_ids` was sent; unknown / inactive stores are left out"
           }
         },
         "required": [
           "service_fee"
+        ]
+      },
+      "StoreDeliveryFee": {
+        "type": "object",
+        "properties": {
+          "store_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "delivery_fee": {
+            "type": "number",
+            "description": "DZD, before any free-pack waiver; send it back as `expected_delivery_fee`"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "merchant",
+              "distance"
+            ],
+            "description": "How it was priced (distance falls back to merchant without a customer point)"
+          }
+        },
+        "required": [
+          "store_id",
+          "delivery_fee",
+          "mode"
         ]
       },
       "QuoteOrderBody": {
@@ -3669,6 +3714,15 @@
           "checkout_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "store_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "maxItems": 10,
+            "description": "Stores to quote the delivery fee for (one entry each in `delivery_fees`); `lat` / `lng` is the customer point"
           }
         },
         "required": [
@@ -3820,6 +3874,13 @@
         "properties": {
           "vehicle_type": {
             "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,23}$"
+          },
+          "vehicle_name": {
+            "$ref": "#/components/schemas/VehicleClassName"
+          },
+          "base_vehicle": {
+            "type": "string",
             "enum": [
               "bicycle",
               "motorcycle"
@@ -3859,6 +3920,8 @@
         },
         "required": [
           "vehicle_type",
+          "vehicle_name",
+          "base_vehicle",
           "fare",
           "discount",
           "total",
@@ -3867,6 +3930,25 @@
           "unavailable_reason",
           "pickup_eta_minutes",
           "nearby_riders"
+        ]
+      },
+      "VehicleClassName": {
+        "type": "object",
+        "properties": {
+          "en": {
+            "type": "string"
+          },
+          "fr": {
+            "type": "string"
+          },
+          "ar": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "en",
+          "fr",
+          "ar"
         ]
       },
       "NearbyRiderMarker": {
@@ -3990,10 +4072,7 @@
           },
           "vehicle_type": {
             "type": "string",
-            "enum": [
-              "bicycle",
-              "motorcycle"
-            ]
+            "pattern": "^[a-z][a-z0-9_]{1,23}$"
           },
           "scheduled_at": {
             "type": "string",
@@ -4216,7 +4295,15 @@
         "properties": {
           "vehicle_type": {
             "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,23}$"
+          },
+          "vehicle_name": {
+            "$ref": "#/components/schemas/VehicleClassName"
+          },
+          "base_vehicle": {
+            "type": "string",
             "enum": [
+              "bicycle",
               "motorcycle"
             ]
           },
@@ -4256,6 +4343,8 @@
         },
         "required": [
           "vehicle_type",
+          "vehicle_name",
+          "base_vehicle",
           "fare",
           "discount",
           "total",
@@ -4350,9 +4439,7 @@
           },
           "vehicle_type": {
             "type": "string",
-            "enum": [
-              "motorcycle"
-            ],
+            "pattern": "^[a-z][a-z0-9_]{1,23}$",
             "default": "motorcycle"
           },
           "scheduled_at": {
@@ -4447,10 +4534,18 @@
             "items": {
               "$ref": "#/components/schemas/PricingFee"
             }
+          },
+          "vehicle_classes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleClass"
+            },
+            "description": "Live (non-archived) vehicle classes, in display order; leg fields carry `class`"
           }
         },
         "required": [
-          "fees"
+          "fees",
+          "vehicle_classes"
         ]
       },
       "PricingFee": {
@@ -4474,7 +4569,8 @@
               "fare_formula",
               "dropoff_surcharge",
               "service_area",
-              "zone_defaults"
+              "zone_defaults",
+              "store_delivery"
             ]
           },
           "group": {
@@ -4497,7 +4593,8 @@
               "formula",
               "surcharge",
               "toggle",
-              "tier"
+              "tier",
+              "delivery"
             ],
             "description": "How the dashboard renders/edits the value"
           },
@@ -4544,6 +4641,10 @@
                 "path": {
                   "type": "string",
                   "description": "Dot path into the value, e.g. \"amount\", \"bicycle.base\""
+                },
+                "class": {
+                  "type": "string",
+                  "description": "Leg fields: the vehicle class code the field belongs to"
                 },
                 "unit": {
                   "type": "string",
@@ -4649,11 +4750,7 @@
                 ]
               },
               "vehicle": {
-                "type": "string",
-                "enum": [
-                  "motorcycle",
-                  "bicycle"
-                ]
+                "type": "string"
               },
               "km": {
                 "type": "number"
@@ -4763,6 +4860,88 @@
         ],
         "description": "Worked example from the default value"
       },
+      "VehicleClass": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "names": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string"
+              },
+              "fr": {
+                "type": "string"
+              },
+              "ar": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "en",
+              "fr",
+              "ar"
+            ]
+          },
+          "base_vehicle": {
+            "type": "string",
+            "enum": [
+              "bicycle",
+              "motorcycle"
+            ]
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ride",
+                "courier",
+                "store"
+              ]
+            }
+          },
+          "exclusive": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "sort_order": {
+            "type": "integer"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "archived_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "rider_count": {
+            "type": "integer",
+            "description": "Riders assigned to this class"
+          },
+          "updated_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "names",
+          "base_vehicle",
+          "services",
+          "exclusive",
+          "enabled",
+          "sort_order",
+          "note",
+          "archived_at",
+          "rider_count",
+          "updated_at"
+        ]
+      },
       "PricingFeeResponse": {
         "type": "object",
         "properties": {
@@ -4844,7 +5023,8 @@
               "fare_formula",
               "dropoff_surcharge",
               "service_area",
-              "zone_defaults"
+              "zone_defaults",
+              "store_delivery"
             ]
           },
           "service": {
@@ -5094,8 +5274,15 @@
               "archive_zone",
               "create_tier",
               "update_tier",
-              "archive_tier"
+              "archive_tier",
+              "create_vehicle_class",
+              "update_vehicle_class",
+              "archive_vehicle_class"
             ]
+          },
+          "vehicle_class": {
+            "type": "string",
+            "nullable": true
           },
           "before": {
             "nullable": true
@@ -5122,6 +5309,7 @@
           "zone_id",
           "tier",
           "action",
+          "vehicle_class",
           "actor_id",
           "actor_name",
           "created_at"
@@ -5153,7 +5341,8 @@
                     "fare_formula",
                     "dropoff_surcharge",
                     "service_area",
-                    "zone_defaults"
+                    "zone_defaults",
+                    "store_delivery"
                   ]
                 },
                 "value": {
@@ -5217,29 +5406,17 @@
             "properties": {
               "courier_fare": {
                 "type": "object",
-                "properties": {
-                  "bicycle": {
-                    "type": "number"
-                  },
-                  "motorcycle": {
-                    "type": "number"
-                  }
+                "additionalProperties": {
+                  "type": "number"
                 },
-                "required": [
-                  "bicycle",
-                  "motorcycle"
-                ]
+                "description": "5 km fare per enabled courier class code"
               },
               "ride_fare": {
                 "type": "object",
-                "properties": {
-                  "motorcycle": {
-                    "type": "number"
-                  }
+                "additionalProperties": {
+                  "type": "number"
                 },
-                "required": [
-                  "motorcycle"
-                ]
+                "description": "5 km fare per enabled ride class code"
               },
               "blink_cash_fee": {
                 "type": "object",
@@ -5271,29 +5448,17 @@
             "properties": {
               "courier_fare": {
                 "type": "object",
-                "properties": {
-                  "bicycle": {
-                    "type": "number"
-                  },
-                  "motorcycle": {
-                    "type": "number"
-                  }
+                "additionalProperties": {
+                  "type": "number"
                 },
-                "required": [
-                  "bicycle",
-                  "motorcycle"
-                ]
+                "description": "5 km fare per enabled courier class code"
               },
               "ride_fare": {
                 "type": "object",
-                "properties": {
-                  "motorcycle": {
-                    "type": "number"
-                  }
+                "additionalProperties": {
+                  "type": "number"
                 },
-                "required": [
-                  "motorcycle"
-                ]
+                "description": "5 km fare per enabled ride class code"
               },
               "blink_cash_fee": {
                 "type": "object",
@@ -5341,7 +5506,8 @@
                   "fare_formula",
                   "dropoff_surcharge",
                   "service_area",
-                  "zone_defaults"
+                  "zone_defaults",
+                  "store_delivery"
                 ]
               },
               "before": {
@@ -5443,7 +5609,8 @@
                   "fare_formula",
                   "dropoff_surcharge",
                   "service_area",
-                  "zone_defaults"
+                  "zone_defaults",
+                  "store_delivery"
                 ]
               },
               "value": {
@@ -5539,7 +5706,8 @@
                     "fare_formula",
                     "dropoff_surcharge",
                     "service_area",
-                    "zone_defaults"
+                    "zone_defaults",
+                    "store_delivery"
                   ]
                 },
                 "value": {
@@ -5639,6 +5807,19 @@
           },
           "place": {
             "$ref": "#/components/schemas/PricingPlace"
+          },
+          "delivery_mode": {
+            "type": "string",
+            "enum": [
+              "merchant",
+              "distance"
+            ],
+            "description": "Store scenario with a store/pickup + drop-off: how the delivery fee was priced"
+          },
+          "vehicle": {
+            "type": "string",
+            "nullable": true,
+            "description": "Store scenario, distance mode: the class that priced it"
           }
         },
         "required": [
@@ -5812,10 +5993,8 @@
               },
               "vehicle": {
                 "type": "string",
-                "enum": [
-                  "bicycle",
-                  "motorcycle"
-                ]
+                "pattern": "^[a-z][a-z0-9_]{1,23}$",
+                "description": "Any vehicle class code (default motorcycle)"
               },
               "amount": {
                 "type": "number",
@@ -6037,7 +6216,8 @@
                     "fare_formula",
                     "dropoff_surcharge",
                     "service_area",
-                    "zone_defaults"
+                    "zone_defaults",
+                    "store_delivery"
                   ]
                 },
                 "service": {
@@ -6068,21 +6248,21 @@
                   "type": "string",
                   "enum": [
                     "ride",
-                    "courier"
+                    "courier",
+                    "store"
                   ]
                 },
                 "vehicle": {
                   "type": "string",
-                  "enum": [
-                    "bicycle",
-                    "motorcycle"
-                  ]
+                  "description": "A vehicle class code"
                 },
                 "km": {
                   "type": "number"
                 },
                 "fare": {
-                  "type": "number"
+                  "type": "number",
+                  "nullable": true,
+                  "description": "null only for the store sample in merchant mode"
                 },
                 "available": {
                   "type": "boolean"
@@ -6095,6 +6275,14 @@
                     "out_of_service_area",
                     null
                   ]
+                },
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "merchant",
+                    "distance"
+                  ],
+                  "description": "Store sample only"
                 }
               },
               "required": [
@@ -6389,6 +6577,243 @@
           "zone_count",
           "override_count",
           "default_in_use"
+        ]
+      },
+      "VehicleClassesResponse": {
+        "type": "object",
+        "properties": {
+          "vehicle_classes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleClass"
+            }
+          }
+        },
+        "required": [
+          "vehicle_classes"
+        ]
+      },
+      "VehicleClassResponse": {
+        "type": "object",
+        "properties": {
+          "vehicle_class": {
+            "$ref": "#/components/schemas/VehicleClass"
+          }
+        },
+        "required": [
+          "vehicle_class"
+        ]
+      },
+      "CreateVehicleClassBody": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,23}$"
+          },
+          "names": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "fr": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "ar": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              }
+            },
+            "required": [
+              "en",
+              "fr",
+              "ar"
+            ]
+          },
+          "base_vehicle": {
+            "type": "string",
+            "enum": [
+              "bicycle",
+              "motorcycle"
+            ]
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ride",
+                "courier",
+                "store"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 3
+          },
+          "exclusive": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "sort_order": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "code",
+          "names",
+          "base_vehicle",
+          "services"
+        ]
+      },
+      "UpdateVehicleClassBody": {
+        "type": "object",
+        "properties": {
+          "names": {
+            "type": "object",
+            "properties": {
+              "en": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "fr": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              },
+              "ar": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 60
+              }
+            },
+            "required": [
+              "en",
+              "fr",
+              "ar"
+            ]
+          },
+          "base_vehicle": {
+            "type": "string",
+            "enum": [
+              "bicycle",
+              "motorcycle"
+            ]
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ride",
+                "courier",
+                "store"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 3
+          },
+          "exclusive": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "sort_order": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 500
+          },
+          "expected_updated_at": {
+            "type": "string",
+            "description": "409 stale when the stored updated_at differs"
+          }
+        }
+      },
+      "VehicleClassInUseError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "class_in_use"
+            ]
+          },
+          "rider_count": {
+            "type": "integer"
+          },
+          "override_count": {
+            "type": "integer",
+            "description": "Live overrides / defaults holding a leg for this class on a service it serves"
+          },
+          "open_orders": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "error",
+          "code",
+          "rider_count",
+          "override_count",
+          "open_orders"
+        ]
+      },
+      "RiderVehicleClass": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vehicle_type": {
+            "type": "string",
+            "nullable": true
+          },
+          "vehicle_class": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "user_id",
+          "vehicle_type",
+          "vehicle_class"
+        ]
+      },
+      "SetRiderVehicleClassBody": {
+        "type": "object",
+        "properties": {
+          "vehicle_class": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^[a-z][a-z0-9_]{1,23}$"
+          }
+        },
+        "required": [
+          "vehicle_class"
         ]
       },
       "AdminPaymentListResponse": {
@@ -7502,6 +7927,14 @@
                   "$ref": "#/components/schemas/StoreMenuCategory"
                 }
               },
+              "delivery_fee_mode": {
+                "type": "string",
+                "enum": [
+                  "merchant",
+                  "distance"
+                ],
+                "description": "merchant: the store's own `delivery_fee`. distance: priced per order by distance at checkout (see POST /orders/quote `delivery_fees`); `delivery_fee` then keeps the merchant value for old apps. Present on customer store payloads."
+              },
               "next_open_at": {
                 "type": "string",
                 "nullable": true,
@@ -8141,6 +8574,13 @@
               },
               "name": {
                 "type": "string"
+              },
+              "delivery_fee_mode": {
+                "type": "string",
+                "enum": [
+                  "merchant",
+                  "distance"
+                ]
               }
             },
             "required": [
@@ -9045,6 +9485,14 @@
           },
           "updated_at": {
             "type": "string"
+          },
+          "delivery_fee_mode": {
+            "type": "string",
+            "enum": [
+              "merchant",
+              "distance"
+            ],
+            "description": "merchant: the store's own `delivery_fee`. distance: priced per order by distance at checkout (see POST /orders/quote `delivery_fees`); `delivery_fee` then keeps the merchant value for old apps. Present on customer store payloads."
           },
           "next_open_at": {
             "type": "string",
@@ -20325,7 +20773,7 @@
             }
           },
           "409": {
-            "description": "Either a pack line's pack changed or is gone (code pack_changed: refetch the store's packs), a product line's product moved in price or is no longer sold (code product_changed: refresh the cart with POST /marketplace/products/lookup), or the service fee changed since `expected_service_fee` was shown (error price_changed, with the current `service_fee`)",
+            "description": "Either a pack line's pack changed or is gone (code pack_changed: refetch the store's packs), a product line's product moved in price or is no longer sold (code product_changed: refresh the cart with POST /marketplace/products/lookup), or the service fee / the store's delivery fee changed since `expected_service_fee` / `expected_delivery_fee` was shown (error price_changed, with the current `service_fee` and `delivery_fee`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -21476,6 +21924,14 @@
           },
           {
             "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "vehicle_class",
+            "in": "query"
+          },
+          {
+            "schema": {
               "type": "integer",
               "minimum": 1,
               "maximum": 200,
@@ -22311,6 +22767,461 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PricingTierInUseError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/vehicle-classes": {
+      "get": {
+        "operationId": "listVehicleClassesAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Also return archived classes (default false)"
+            },
+            "required": false,
+            "description": "Also return archived classes (default false)",
+            "name": "include_archived",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleClassesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createVehicleClassAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVehicleClassBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleClassResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/vehicle-classes/{code}": {
+      "patch": {
+        "operationId": "updateVehicleClassAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "code",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVehicleClassBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleClassResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Someone changed it since you loaded it (error stale)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingStaleError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "archiveVehicleClassAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "code",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleClassResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Riders, live overrides or open orders use it (code class_in_use)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleClassInUseError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pricing/admin/riders/{user_id}/vehicle-class": {
+      "get": {
+        "operationId": "getRiderVehicleClassAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "user_id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderVehicleClass"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "setRiderVehicleClassAdmin",
+        "tags": [
+          "admin-pricing"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "user_id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "description": "OK",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRiderVehicleClassBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderVehicleClass"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorBody"
                 }
               }
             }

@@ -21,6 +21,7 @@ import {
   ORDER_SELECT,
   pickupOf,
 } from "./dispatch";
+import { getVehicleClasses } from "./pricing";
 import { pickOfferRecipients, ridersNear, type OfferPushRider } from "./offer-recipients";
 import { sendPushToTokens } from "./push";
 import { isRideSearchExpired, rideOf } from "./ride";
@@ -85,7 +86,7 @@ export async function pushNewOffer(
 
     const { data: profiles } = await supabaseAdmin
       .from("rider_profiles")
-      .select("user_id, latitude, longitude, vehicle_type")
+      .select("user_id, latitude, longitude, vehicle_type, vehicle_class")
       .eq("is_available", true)
       .not("latitude", "is", null)
       .not("longitude", "is", null);
@@ -94,6 +95,7 @@ export async function pushNewOffer(
       lat: p.latitude as number | null,
       lng: p.longitude as number | null,
       vehicleType: (p.vehicle_type as string | null) ?? null,
+      vehicleClass: (p.vehicle_class as string | null) ?? null,
     }));
     const near = ridersNear(members.map(pickupOf), riders, OFFER_RADIUS_KM, NEAR_CANDIDATES);
     if (!near.length) return;
@@ -120,6 +122,7 @@ export async function pushNewOffer(
       skip,
       busy: new Set((busy ?? []).map((b) => b.rider_id as string)),
       genders: new Map((genders ?? []).map((g) => [g.id as string, (g.gender as string | null) ?? null])),
+      classes: await getVehicleClasses(),
     });
     if (!recipients.length) return;
 

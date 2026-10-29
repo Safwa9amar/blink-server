@@ -44,15 +44,18 @@ app.openapi(route, async (c) => {
 
   const cfg = await rideFareConfig(body.pickup, body.destination);
   if (!cfg.enabled) return c.json({ error: "Rides aren't available at this pickup yet", code: "out_of_service_area" }, 400);
-  const routeProblem = rideRouteError(body.pickup, body.destination, cfg.rates, vehicle, cfg.formula);
+  // Any enabled ride class with a price here; the quote lists them.
+  const chosen = cfg.legs.find((l) => l.cls.code === vehicle);
+  if (!chosen) return c.json({ error: `vehicle_type "${vehicle}" isn't an available ride option` }, 400);
+  const routeProblem = rideRouteError(body.pickup, body.destination, cfg.rates, vehicle, cfg.formula, cfg.legs);
   if (routeProblem === "too_close") {
     return c.json({ error: "Pickup and destination are too close for a ride" }, 400);
   }
   const km = rideKm(body.pickup, body.destination, cfg.formula);
   if (routeProblem === "too_far") {
-    return c.json({ error: `Ride too long: ${km} km, a ride goes up to ${rideMaxKm(vehicle, cfg.rates)} km` }, 400);
+    return c.json({ error: `Ride too long: ${km} km, a ride goes up to ${rideMaxKm(vehicle, cfg.rates, { classes: cfg.legs })} km` }, 400);
   }
-  const fare = rideFare(vehicle, km, cfg.rates, cfg.multiplier, { formula: cfg.formula, surcharge: cfg.surcharge });
+  const fare = rideFare(vehicle, km, cfg.rates, cfg.multiplier, { formula: cfg.formula, surcharge: cfg.surcharge, classes: cfg.legs });
 
   let discount = 0;
   let couponId: string | null = null;
@@ -69,7 +72,7 @@ app.openapi(route, async (c) => {
     return c.json({ error: "This coupon was just used — remove it and try again" }, 409);
   }
 
-  const ride = buildRideDetails(body, { distanceKm: km, durationMinutes: rideDuration(vehicle, km, cfg.formula) });
+  const ride = buildRideDetails(body, { distanceKm: km, durationMinutes: rideDuration(vehicle, km, cfg.formula, chosen.cls.base_vehicle) });
   const { data, error } = await supabaseAdmin
     .from("orders")
     .insert({
@@ -93,7 +96,7 @@ app.openapi(route, async (c) => {
       vehicle_type: vehicle,
       scheduled_at: body.scheduled_at ?? null,
       ride,
-      pricing_applied: cfg.applied,
+      pricing_applied: cfg.appliedFor(vehicle),
       ...placeColumns(cfg.place),
     })
     .select()

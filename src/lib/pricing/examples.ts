@@ -3,12 +3,13 @@
 // rounding matches (fares ceil to 10 DA, cash fee Math.round, dues round2, …).
 import { tripPayout } from "../cash-jobs";
 import { round2, splitFee } from "../agent-split";
-import { PRICING_SCHEMAS, PRICING_SEEDS, type PricingKey, type PricingValue } from "./catalog";
+import { legOf, PRICING_SCHEMAS, PRICING_SEEDS, type PricingKey, type PricingValue } from "./catalog";
 import { legFare } from "./fare";
+import { clampDeliveryFee } from "./store-delivery";
 
 export type FeeExample =
   | { kind: "per_checkout"; output: number }
-  | { kind: "trip_km"; vehicle: "motorcycle" | "bicycle"; km: number; output: number }
+  | { kind: "trip_km"; vehicle: string; km: number; output: number }
   | { kind: "multiplier"; km: number; input: number; output: number }
   | { kind: "rate_on_amount"; input: number; output: number }
   | { kind: "agent_split"; input: number; output: number }
@@ -38,7 +39,7 @@ export function feeExample(key: PricingKey, value: unknown, values: ExampleValue
         kind: "trip_km",
         vehicle: "motorcycle",
         km: EXAMPLE_KM,
-        output: legFare(v.motorcycle, EXAMPLE_KM, {
+        output: legFare(legOf(v, "motorcycle")!, EXAMPLE_KM, {
           extraStopFee: v.extra_stop_fee,
           multiplier: other("fare_multiplier").multiplier,
           formula: other("fare_formula"),
@@ -50,14 +51,14 @@ export function feeExample(key: PricingKey, value: unknown, values: ExampleValue
         kind: "trip_km",
         vehicle: "motorcycle",
         km: EXAMPLE_KM,
-        output: legFare(v.motorcycle, EXAMPLE_KM, {
+        output: legFare(legOf(v, "motorcycle")!, EXAMPLE_KM, {
           multiplier: other("fare_multiplier").multiplier,
           formula: other("fare_formula"),
           speedKmh: other("fare_formula").speed_kmh.motorcycle,
         }),
       };
     case "fare_multiplier": {
-      const leg = other("ride_fare").motorcycle;
+      const leg = legOf(other("ride_fare"), "motorcycle")!;
       return {
         kind: "multiplier",
         km: EXAMPLE_KM,
@@ -92,13 +93,21 @@ export function feeExample(key: PricingKey, value: unknown, values: ExampleValue
         kind: "trip_km",
         vehicle: "motorcycle",
         km: EXAMPLE_KM,
-        output: legFare(c.motorcycle, EXAMPLE_KM, {
+        output: legFare(legOf(c, "motorcycle")!, EXAMPLE_KM, {
           extraStopFee: c.extra_stop_fee,
           multiplier: other("fare_multiplier").multiplier,
           formula: v,
           speedKmh: v.speed_kmh.motorcycle,
         }),
       };
+    }
+    case "store_delivery": {
+      // Distance mode only: a 5 km store order on the motorcycle class, clamped like the real fee.
+      const leg = legOf(v, "motorcycle");
+      if (v.mode !== "distance" || !leg) return null;
+      const f = other("fare_formula");
+      const fare = legFare(leg, EXAMPLE_KM, { multiplier: other("fare_multiplier").multiplier, formula: f, speedKmh: f.speed_kmh.motorcycle });
+      return { kind: "trip_km", vehicle: "motorcycle", km: EXAMPLE_KM, output: clampDeliveryFee(fare, v) };
     }
     case "service_area":
     case "zone_defaults":

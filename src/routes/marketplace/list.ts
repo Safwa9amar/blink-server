@@ -1,3 +1,4 @@
+import { storeDeliveryModes } from "../../lib/pricing/store-quote";
 import { slugsMatching, toStorefront } from "../../lib/store-categories";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
@@ -40,7 +41,8 @@ app.openapi(route, async (c) => {
     return c.json({ error: error.message }, 400);
   }
 
-  return c.json({ stores: (data ?? []).map((s) => toStorefront(s)) }, 200);
+  const modes = await storeDeliveryModes(data ?? []);
+  return c.json({ stores: (data ?? []).map((s) => ({ ...toStorefront(s), delivery_fee_mode: modes.get(s.id) ?? ("merchant" as const) })) }, 200);
 });
 
 export default app;

@@ -177,7 +177,8 @@ describe("scope rules", () => {
     ] as const satisfies readonly PricingKey[]) {
       assert.ok(PRICING_SCOPES[k].zone && PRICING_SCOPES[k].tier, k);
     }
-    assert.deepEqual(PRICING_SCOPES.fare_formula.service, ["courier", "ride"]);
+    // merchant / shopper added by store_delivery (distance mode uses the formula).
+    assert.deepEqual(PRICING_SCOPES.fare_formula.service, ["courier", "ride", "merchant", "shopper"]);
     assert.equal(PRICING_SCOPES.zone_defaults.zone, false);
   });
 });

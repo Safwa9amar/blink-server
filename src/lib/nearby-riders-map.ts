@@ -45,6 +45,8 @@ export interface MapCandidate {
   lng: number;
   km: number;
   vehicle: string | null;
+  /** rider_profiles.vehicle_class: the class staff assigned (null = the default of `vehicle`). */
+  vehicleClass?: string | null;
   /** rider_profiles.location_updated_at */
   updatedAt: string | null;
 }

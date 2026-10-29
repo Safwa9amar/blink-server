@@ -4,6 +4,7 @@
  */
 import { riderCanTake } from "./courier";
 import { haversineKm } from "./courier-pricing";
+import { VEHICLE_CLASS_SEEDS, type VehicleClass } from "./pricing/vehicle-classes";
 import { riderCanTakeRide } from "./ride";
 
 type Row = Record<string, any>;
@@ -15,6 +16,8 @@ export const OFFER_PUSH_MAX_RIDERS = 20;
 export interface OfferPushRider extends Point {
   id: string;
   vehicleType: string | null;
+  /** rider_profiles.vehicle_class (null = the default of vehicleType). */
+  vehicleClass?: string | null;
 }
 
 /** Riders within `radiusKm` of the nearest pickup, nearest first, at most `limit`. */
@@ -51,8 +54,10 @@ export function pickOfferRecipients(input: {
   skip: Set<string>;
   busy: Set<string>;
   genders?: Map<string, string | null>;
+  /** The vehicle classes (pricing config); defaults to the seed classes. */
+  classes?: readonly VehicleClass[];
 }): string[] {
-  const { members, near, skip, busy, genders } = input;
+  const { members, near, skip, busy, genders, classes = VEHICLE_CLASS_SEEDS } = input;
   if (!members.length) return [];
   const customers = new Set(members.map((m) => m.customer_id));
   const single = members.length === 1 ? members[0] : null;
@@ -60,15 +65,21 @@ export function pickOfferRecipients(input: {
   return near
     .filter((r) => {
       if (customers.has(r.id) || skip.has(r.id) || busy.has(r.id)) return false;
-      // A motorcycle courier request never goes to a bicycle.
-      if (single?.type === "courier" && !riderCanTake(single.vehicle_type, r.vehicleType)) return false;
+      const rider = { vehicleType: r.vehicleType, vehicleClass: r.vehicleClass ?? null };
+      // A motorcycle courier request never goes to a bicycle; an exclusive class only to its riders.
+      if (single?.type === "courier" && !riderCanTake(single.vehicle_type, rider, classes)) return false;
       // A ride needs a motorcycle (and a woman, when the customer asked for one).
       if (
         single?.type === "ride" &&
-        !riderCanTakeRide(single, { vehicleType: r.vehicleType, gender: genders?.get(r.id) ?? null })
+        !riderCanTakeRide(single, { ...rider, gender: genders?.get(r.id) ?? null }, classes)
       ) {
         return false;
       }
+      // A store order carries a class only in distance mode; a checkout needs a rider every member allows.
+      if (single && single.type !== "courier" && single.type !== "ride" && !riderCanTake(single.vehicle_type, rider, classes)) {
+        return false;
+      }
+      if (!single && !members.every((m) => riderCanTake(m.vehicle_type, rider, classes))) return false;
       return true;
     })
     .slice(0, OFFER_PUSH_MAX_RIDERS)

@@ -21,26 +21,40 @@ export async function orderPricingContext(input: {
   lat?: number | null;
   lng?: number | null;
 }): Promise<PricingContext & { place: PricingPlace | null }> {
-  const ctx: PricingContext = { service: input.type };
-  let wilaya: string | null = null;
-  let point: { lat: number; lng: number } | null = null;
-
+  const fallback = input.lat != null && input.lng != null ? { lat: input.lat, lng: input.lng } : null;
   if (isStoreOrder(input.type) && input.storeId) {
     const { data: store } = await supabaseAdmin
       .from("stores")
       .select("owner_id, wilaya, latitude, longitude")
       .eq("id", input.storeId)
       .maybeSingle();
-    if (store) {
-      ctx.merchantId = store.owner_id ?? null;
-      wilaya = normalizeWilaya(store.wilaya);
-      if (store.latitude != null && store.longitude != null) {
-        point = { lat: Number(store.latitude), lng: Number(store.longitude) };
-        wilaya ??= wilayaAt(point.lat, point.lng);
-      }
+    if (store) return storeContextOf(store, input.type, fallback);
+  }
+  return storeContextOf(null, input.type, fallback);
+}
+
+/**
+ * The pricing context + place of a store row (or, with no row, of `fallback`
+ * alone). Pure but for the zone lookup: the list endpoints reuse it per store.
+ */
+export async function storeContextOf(
+  store: { owner_id?: string | null; wilaya?: string | null; latitude?: number | string | null; longitude?: number | string | null } | null,
+  type: string,
+  fallback: { lat: number; lng: number } | null
+): Promise<PricingContext & { place: PricingPlace | null }> {
+  const ctx: PricingContext = { service: type };
+  let wilaya: string | null = null;
+  let point: { lat: number; lng: number } | null = null;
+
+  if (store) {
+    ctx.merchantId = store.owner_id ?? null;
+    wilaya = normalizeWilaya(store.wilaya);
+    if (store.latitude != null && store.longitude != null) {
+      point = { lat: Number(store.latitude), lng: Number(store.longitude) };
+      wilaya ??= wilayaAt(point.lat, point.lng);
     }
   }
-  if (!point && input.lat != null && input.lng != null) point = { lat: input.lat, lng: input.lng };
+  if (!point && fallback) point = fallback;
   if (!wilaya && point) wilaya = wilayaAt(point.lat, point.lng);
   const place = point ? await pricingPlace(point, { wilaya }) : null;
   ctx.wilaya = wilaya;

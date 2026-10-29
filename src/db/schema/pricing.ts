@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { check, index, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, check, index, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { timestamps } from "./_shared";
 import { users } from "./users";
 import type { ZoneGeometry } from "../../lib/geo/zones";
@@ -63,6 +63,33 @@ export const pricingZones = pgTable(
   ]
 ).enableRLS();
 
+// Vehicle classes (20261029180000_vehicle_classes.sql): staff-defined products
+// (Bicycle / Moto / Moto Comfort …) that fares are priced and jobs matched by.
+// Spec: specs/2026-10-29-zone-pricing-design.md, Addendum 2.
+export const vehicleClasses = pgTable(
+  "vehicle_classes",
+  {
+    code: text("code").primaryKey(),
+    names: jsonb("names").$type<{ en: string; fr: string; ar: string }>().notNull(),
+    // = rider_profiles.vehicle_type of the riders who can take it.
+    baseVehicle: text("base_vehicle").$type<"bicycle" | "motorcycle">().notNull(),
+    services: text("services").array().$type<("ride" | "courier" | "store")[]>().notNull(),
+    exclusive: boolean("exclusive").notNull().default(false),
+    enabled: boolean("enabled").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    note: text("note"),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    updatedBy: uuid("updated_by").references(() => users.id, { onDelete: "set null" }),
+    archivedAt: timestamp("archived_at", { withTimezone: true, mode: "string" }),
+    ...timestamps,
+  },
+  () => [
+    check("vehicle_classes_code", sql`code ~ '^[a-z][a-z0-9_]{1,23}$'`),
+    check("vehicle_classes_base", sql`base_vehicle in ('bicycle', 'motorcycle')`),
+    check("vehicle_classes_services", sql`services <@ array['ride', 'courier', 'store']::text[]`),
+  ]
+).enableRLS();
+
 export const pricingOverrides = pgTable(
   "pricing_overrides",
   {
@@ -105,6 +132,8 @@ export const pricingChanges = pgTable(
     // Zone / tier writes: key = 'pricing_zone' | 'pricing_tier'.
     zoneId: uuid("zone_id"),
     tier: text("tier"),
+    // Vehicle class writes: key = 'vehicle_class'.
+    vehicleClass: text("vehicle_class"),
     action: text("action")
       .$type<
         | "update_default"
@@ -117,6 +146,9 @@ export const pricingChanges = pgTable(
         | "create_tier"
         | "update_tier"
         | "archive_tier"
+        | "create_vehicle_class"
+        | "update_vehicle_class"
+        | "archive_vehicle_class"
       >()
       .notNull(),
     before: jsonb("before").$type<unknown>(),

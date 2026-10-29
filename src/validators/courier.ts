@@ -1,6 +1,7 @@
 import { z } from "@hono/zod-openapi";
 import { COURIER_PAYERS, MAX_COURIER_ROUTES, PARCEL_SIZES, PARCEL_TYPES } from "../lib/courier";
 import { COURIER_VEHICLES, MAX_DROP_OFFS } from "../lib/courier-pricing";
+import { CLASS_CODE_RE } from "../lib/pricing/catalog";
 import { OrderSchema } from "./orders";
 
 // ─── Courier requests (/courier/*) ───────────────────────────────────
@@ -9,7 +10,14 @@ import { OrderSchema } from "./orders";
 // src/lib/courier-pricing.ts. Spec: blink/docs/superpowers/specs/
 // 2026-10-09-courier-requests-design.md
 
+/** bicycle | motorcycle: a rider's base vehicle (map markers, `base_vehicle`). */
 const vehicle = z.enum(COURIER_VEHICLES as [string, ...string[]]);
+/** A vehicle class code (`bicycle` / `motorcycle` or any enabled courier class); the quote lists the live ones. */
+const vehicleClass = z.string().regex(CLASS_CODE_RE);
+/** Display name of a vehicle class. */
+export const VehicleNameSchema = z
+  .object({ en: z.string(), fr: z.string(), ar: z.string() })
+  .openapi("VehicleClassName");
 // lat / lng / phone / couponCode are shared with rides (src/validators/ride.ts).
 export const lat = z.number().min(-90).max(90);
 export const lng = z.number().min(-180).max(180);
@@ -86,7 +94,8 @@ export const courierQuoteSchema = z
 export const createCourierRequestSchema = z
   .object({
     routes: z.array(RouteInputSchema).min(1).max(MAX_COURIER_ROUTES),
-    vehicle_type: vehicle,
+    /** An enabled courier class from the quote (`bicycle` / `motorcycle` from older apps). */
+    vehicle_type: vehicleClass,
     /** Pickup time for a scheduled request (10 min – 7 days ahead); omit for "now". */
     scheduled_at: z.string().datetime({ offset: true }).optional(),
     /** Applied to the first route's fare. */
@@ -123,7 +132,11 @@ export const nearbyRidersMap = z.array(NearbyRiderMarkerSchema);
 
 export const CourierQuoteOptionSchema = z
   .object({
-    vehicle_type: vehicle,
+    /** The vehicle class code (send it back as the request's vehicle_type). */
+    vehicle_type: vehicleClass,
+    vehicle_name: VehicleNameSchema,
+    /** bicycle | motorcycle: pick the icon from it. */
+    base_vehicle: vehicle,
     /** Delivery fees of every route, before the coupon. */
     fare: z.number(),
     discount: z.number(),

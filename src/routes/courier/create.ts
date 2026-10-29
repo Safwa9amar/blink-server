@@ -5,7 +5,7 @@ import {
   courierItems,
   scheduleError,
 } from "../../lib/courier";
-import { courierFare, courierMaxKm, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
+import { courierFare, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
 import { courierFareConfig, placeColumns } from "../../lib/pricing/fare-config";
 import { claimCoupon, linkCoupon, releaseCoupon } from "../../lib/coupons";
 import { withoutOffer } from "../../lib/rider-offer";
@@ -51,16 +51,21 @@ app.openapi(route, async (c) => {
     body.routes.map(async (r) => {
       const cfg = await courierFareConfig(r.pickup, r.drop_offs[r.drop_offs.length - 1]);
       const km = routeKm(r.pickup, r.drop_offs, cfg.formula);
+      const chosen = cfg.legs.find((l) => l.cls.code === vehicle);
       return {
         route: r,
         km,
         cfg,
-        maxKm: courierMaxKm(vehicle, cfg.rates),
-        fare: courierFare(vehicle, km, r.drop_offs.length, cfg.rates, cfg.multiplier, {
-          formula: cfg.formula,
-          surcharge: cfg.surcharge,
-        }),
-        applied: cfg.applied,
+        chosen,
+        maxKm: chosen?.leg.max_km ?? 0,
+        fare: chosen
+          ? courierFare(vehicle, km, r.drop_offs.length, cfg.rates, cfg.multiplier, {
+              formula: cfg.formula,
+              surcharge: cfg.surcharge,
+              classes: cfg.legs,
+            })
+          : 0,
+        applied: cfg.appliedFor(vehicle),
       };
     })
   );
@@ -71,6 +76,9 @@ app.openapi(route, async (c) => {
       400
     );
   }
+  // Any enabled courier class priced on every route; the quote lists them.
+  const unpriced = priced.findIndex((p) => !p.chosen);
+  if (unpriced !== -1) return c.json({ error: `vehicle_type "${vehicle}" isn't an available courier option` }, 400);
   const tooLong = priced.findIndex((p) => p.km > p.maxKm);
   if (tooLong !== -1) {
     return c.json(

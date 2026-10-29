@@ -1,4 +1,4 @@
-import { COURIER_VEHICLES, pickupEtaMinutes, quoteRoute } from "../../lib/courier-pricing";
+import { pickupEtaMinutes, quoteRoute } from "../../lib/courier-pricing";
 import { courierFareConfig } from "../../lib/pricing/fare-config";
 import { requireRole } from "../../middleware/auth";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
@@ -36,14 +36,17 @@ app.openapi(route, async (c) => {
       formula: cfgs[i].formula,
       surcharge: cfgs[i].surcharge,
       enabled: cfgs[i].enabled,
+      classes: cfgs[i].legs,
     })
   );
   const nearby = await nearbyCourierRiders(routes[0].pickup);
 
   let couponReason: string | null = null;
   let couponValid = false;
+  // One option per enabled courier class priced on EVERY route (each route may have its own zone's prices).
+  const vehicles = quotes[0].options.map((o) => o.vehicle_type).filter((v) => quotes.every((q) => q.options.some((o) => o.vehicle_type === v)));
   const options = await Promise.all(
-    COURIER_VEHICLES.map(async (vehicle) => {
+    vehicles.map(async (vehicle) => {
       const per = quotes.map((q) => q.options.find((o) => o.vehicle_type === vehicle)!);
       const fare = per.reduce((n, o) => n + o.fare, 0);
       // A coupon is used once: on the first route's fare.
@@ -60,6 +63,8 @@ app.openapi(route, async (c) => {
       const riders = nearby.count(vehicle);
       return {
         vehicle_type: vehicle,
+        vehicle_name: per[0].vehicle_name,
+        base_vehicle: per[0].base_vehicle,
         fare,
         discount,
         total: Math.max(0, fare - discount),
@@ -70,7 +75,7 @@ app.openapi(route, async (c) => {
           per.find((o) => o.unavailable_reason === "out_of_service_area")?.unavailable_reason ??
           per.find((o) => o.unavailable_reason)?.unavailable_reason ??
           null,
-        pickup_eta_minutes: pickupEtaMinutes(vehicle, riders.nearestKm, cfgs[0].formula),
+        pickup_eta_minutes: pickupEtaMinutes(vehicle, riders.nearestKm, cfgs[0].formula, per[0].base_vehicle),
         nearby_riders: riders.count,
       };
     })

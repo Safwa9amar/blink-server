@@ -1,3 +1,4 @@
+import { storeDeliveryModes } from "../../lib/pricing/store-quote";
 import {
   bestBranchMove,
   parseCartItems,
@@ -59,7 +60,7 @@ app.openapi(route, async (c) => {
 
   const { data: storeRows } = await supabaseAdmin
     .from("stores")
-    .select("id, name, owner_id, delivery_fee, status, is_open, hours, manual_override")
+    .select("id, name, owner_id, wilaya, latitude, longitude, delivery_fee, status, is_open, hours, manual_override")
     .in("id", storeIds);
   const stores = new Map<string, BranchStore>(
     (storeRows ?? []).map((s) => [
@@ -104,7 +105,14 @@ app.openapi(route, async (c) => {
     });
   }
 
-  return c.json({ suggestion: bestBranchMove(lines, stores, [...candidates.values()]) }, 200);
+  const suggestion = bestBranchMove(lines, stores, [...candidates.values()]);
+  if (!suggestion) return c.json({ suggestion }, 200);
+  // The saving counts each store's merchant fee; the mode tells the app when a fee is priced by distance instead.
+  const modes = await storeDeliveryModes((storeRows ?? []).filter((s) => s.id === suggestion.to_store.id));
+  return c.json(
+    { suggestion: { ...suggestion, to_store: { ...suggestion.to_store, delivery_fee_mode: modes.get(suggestion.to_store.id) ?? ("merchant" as const) } } },
+    200
+  );
 });
 
 export default app;

@@ -1,3 +1,4 @@
+import { storeDeliveryModes } from "../../lib/pricing/store-quote";
 import { normalizeStoreMenu, toStorefront } from "../../lib/store-categories";
 import { supabaseAdmin } from "../../lib/supabase";
 import { bearer, createRoute, errorResponses, IdParam, json, router } from "../../openapi";
@@ -49,6 +50,7 @@ app.openapi(route, async (c) => {
     {
       store: {
         ...toStorefront(row),
+        delivery_fee_mode: (await storeDeliveryModes([row])).get(row.id) ?? ("merchant" as const),
         menu_categories: menu,
         ...(withProducts ? { products } : {}),
       },

@@ -6,7 +6,8 @@
 import { geometryAreaKm2, geometryWilaya, normalizeGeometry, type ZoneGeometry } from "../../lib/geo/zones";
 import { isWilayaCode, PRICING_KEYS, PRICING_SCOPES, type PricingKey } from "../../lib/pricing/catalog";
 import { fareBreakdown } from "../../lib/pricing/fare";
-import { getPrice, getPrices, invalidatePricingCache, placeContext, pricingPlace } from "../../lib/pricing";
+import { priceStoreDelivery } from "../../lib/pricing/store-delivery";
+import { getClassLegs, getPrice, getPrices, invalidatePricingCache, placeContext, pricingPlace } from "../../lib/pricing";
 import { supabaseAdmin } from "../../lib/supabase";
 import { requireStaffRole } from "../../middleware/staff-roles";
 import { bearer, createRoute, errorResponses, json, router } from "../../openapi";
@@ -176,6 +177,7 @@ app.openapi(
 const lookupServices = (key: PricingKey): (string | null)[] => {
   if (key === "courier_fare") return ["courier"];
   if (key === "ride_fare") return ["ride"];
+  if (key === "store_delivery") return ["merchant"];
   return PRICING_SCOPES[key].service ?? [null];
 };
 
@@ -207,22 +209,57 @@ app.openapi(
       })
     );
 
+    // One sample per enabled class per service (a 5 road-km same-place trip), + the store sample.
     const KM = 5;
-    const sample = async (scenario: "ride" | "courier", vehicle: "bicycle" | "motorcycle") => {
+    const sample = async (scenario: "ride" | "courier") => {
       const key = scenario === "ride" ? "ride_fare" : "courier_fare";
-      const p = await getPrices([key, "fare_multiplier", "fare_formula", "service_area"] as const, { service: scenario, ...pc });
-      const rates = scenario === "ride" ? (p.ride_fare as any).value.motorcycle : (p.courier_fare as any).value[vehicle];
+      const [p, legs] = await Promise.all([
+        getPrices([key, "fare_multiplier", "fare_formula", "service_area"] as const, { service: scenario, ...pc }),
+        getClassLegs(key, { service: scenario, ...pc }),
+      ]);
       const formula = p.fare_formula.value;
-      const fare = fareBreakdown(rates, KM, {
-        multiplier: p.fare_multiplier.value.multiplier,
-        extraStopFee: scenario === "courier" ? (p.courier_fare as any).value.extra_stop_fee : 0,
-        formula,
-        speedKmh: formula.speed_kmh[vehicle],
-      }).fare;
-      const unavailable = !p.service_area.value.enabled ? ("out_of_service_area" as const) : KM > rates.max_km ? ("too_far" as const) : null;
-      return { scenario, vehicle, km: KM, fare, available: unavailable == null, unavailable };
+      return legs.map(({ cls, leg }) => {
+        const fare = fareBreakdown(leg, KM, {
+          multiplier: p.fare_multiplier.value.multiplier,
+          extraStopFee: scenario === "courier" ? (p.courier_fare as any).value.extra_stop_fee : 0,
+          formula,
+          speedKmh: formula.speed_kmh[cls.base_vehicle],
+        }).fare;
+        const unavailable = !p.service_area.value.enabled ? ("out_of_service_area" as const) : KM > leg.max_km ? ("too_far" as const) : null;
+        return { scenario, vehicle: cls.code, km: KM, fare, available: unavailable == null, unavailable };
+      });
     };
-    const samples = await Promise.all([sample("ride", "motorcycle"), sample("courier", "bicycle"), sample("courier", "motorcycle")]);
+    // Store: the distance-mode fee (null in merchant mode), at the point itself as store and customer.
+    const storeSample = async () => {
+      const sctx = { service: "merchant", ...pc };
+      const [rule, p, legs] = await Promise.all([
+        getPrice("store_delivery", sctx),
+        getPrices(["fare_multiplier", "fare_formula"] as const, sctx),
+        getClassLegs("store_delivery", sctx),
+      ]);
+      const q = priceStoreDelivery({
+        rule: rule.value,
+        merchantFee: 0,
+        km: KM,
+        legs,
+        multiplier: p.fare_multiplier.value.multiplier,
+        formula: p.fare_formula.value,
+      });
+      const distance = rule.value.mode === "distance" && q.mode === "distance";
+      const vehicle = q.vehicle ?? legs[0]?.cls.code ?? "motorcycle";
+      const leg = legs.find((l) => l.cls.code === vehicle)?.leg;
+      return {
+        scenario: "store" as const,
+        vehicle,
+        km: KM,
+        fare: distance ? q.fee : null,
+        available: true,
+        unavailable: leg && KM > leg.max_km ? ("too_far" as const) : null,
+        mode: rule.value.mode,
+      };
+    };
+    const [rideSamples, courierSamples, store] = await Promise.all([sample("ride"), sample("courier"), storeSample()]);
+    const samples = [...rideSamples, ...courierSamples, store];
 
     return c.json(
       {

@@ -6,6 +6,7 @@ import { round2, splitFee } from "../agent-split";
 import { tripPayout } from "../cash-jobs";
 import type { PricingValue } from "./catalog";
 import { fareBreakdown, SEED_FORMULA, type FareStep } from "./fare";
+import { legsFromValue, VEHICLE_CLASS_SEEDS, type ClassLeg, type VehicleClass } from "./vehicle-classes";
 
 export type Scenario = "store" | "courier" | "ride" | "deposit" | "withdrawal";
 export type Party = "merchant" | "rider" | "agent" | "blink" | "tax";
@@ -19,7 +20,8 @@ export type SimInputs = {
   delivery_fee?: number;
   km?: number;
   stops?: number;
-  vehicle?: "bicycle" | "motorcycle";
+  /** Any vehicle class code (default motorcycle). */
+  vehicle?: string;
   amount?: number;
   /** Courier / ride: drop-off surcharge already resolved for the trip (DA). */
   surcharge?: number;
@@ -31,6 +33,10 @@ export type SimInputs = {
 
 /** The effective values a scenario needs (only the ones it uses are read). */
 export type SimPrices = {
+  /** Per-class legs already resolved for the context (getClassLegs); else read from the courier_fare / ride_fare value. */
+  legs?: ClassLeg[];
+  /** Classes used to read legs from the value when `legs` is absent (default: the seed classes). */
+  vehicle_classes?: VehicleClass[];
   service_fee?: PricingValue<"service_fee">;
   courier_fare?: PricingValue<"courier_fare">;
   ride_fare?: PricingValue<"ride_fare">;
@@ -43,6 +49,7 @@ export type SimPrices = {
   blink_cash_fee_rate?: PricingValue<"blink_cash_fee_rate">;
   agent_platform_share?: PricingValue<"agent_platform_share">;
   agent_tax_rate?: PricingValue<"agent_tax_rate">;
+  store_delivery?: PricingValue<"store_delivery">;
 };
 
 export type SimUnavailable = "too_far" | "too_close" | "out_of_service_area";
@@ -79,11 +86,17 @@ export function simulate(scenario: Scenario, inputs: SimInputs, p: SimPrices): S
   }
 
   if (scenario === "courier" || scenario === "ride") {
-    const vehicle = scenario === "ride" ? "motorcycle" : inputs.vehicle ?? SIM_DEFAULTS.vehicle;
+    const vehicle = inputs.vehicle ?? SIM_DEFAULTS.vehicle;
     const multiplier = p.fare_multiplier!.multiplier;
-    const rates = scenario === "ride" ? p.ride_fare!.motorcycle : p.courier_fare![vehicle];
+    const key = scenario === "ride" ? "ride_fare" : "courier_fare";
+    const legs = p.legs ?? legsFromValue(key, p[key], p.vehicle_classes ?? VEHICLE_CLASS_SEEDS, { enabledOnly: false });
+    const entry = legs.find((l) => l.cls.code === vehicle);
     const formula = p.fare_formula ?? SEED_FORMULA;
     const none = (unavailable: SimUnavailable): SimResult => ({ payer_total: 0, lines: [], unavailable, breakdown: [] });
+    // A class with no price here can't take the trip.
+    if (!entry) return none("too_far");
+    const rates = entry.leg;
+    const base = entry.cls.base_vehicle;
     if (inputs.in_service_area === false) return none("out_of_service_area");
     if (scenario === "ride" && inputs.straight_km != null && inputs.straight_km < formula.min_ride_km) return none("too_close");
     if (km > rates.max_km) return none("too_far");
@@ -93,7 +106,7 @@ export function simulate(scenario: Scenario, inputs: SimInputs, p: SimPrices): S
       multiplier,
       formula,
       surcharge: inputs.surcharge,
-      speedKmh: formula.speed_kmh[vehicle],
+      speedKmh: formula.speed_kmh[base],
     });
     const riderKeeps = tripPayout(fare, p.rider_commission_rate!.rate).net_payout;
     return {

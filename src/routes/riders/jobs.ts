@@ -68,6 +68,7 @@ import {
 import { pickedUpPatch } from "../../lib/order-steps";
 import { tripPayout } from "../../lib/cash-jobs";
 import { fundedDiscountForOrder, postTripPenalty, postTripToLedger } from "../../lib/wallet";
+import { getVehicleClasses } from "../../lib/pricing";
 import { courierOf, deliverCurrentDropOff, isCourierSearchExpired, remainingDropOffs, riderCanTake } from "../../lib/courier";
 import {
   isPassengerNoShow,
@@ -236,7 +237,7 @@ app.openapi(
   async (c) => {
     const user = c.get("user");
     const now = Date.now();
-    const rider = await riderPosition(user.id);
+    const [rider, classes] = await Promise.all([riderPosition(user.id), getVehicleClasses()]);
     // Offline or not verified yet (src/lib/rider-access.ts): no offer at all.
     if (
       !rider.isAvailable ||
@@ -308,12 +309,15 @@ app.openapi(
         !isHeld(o, now) &&
         !skip.has(o.id) &&
         o.customer_id !== user.id &&
-        // A motorcycle courier request never goes to a bicycle.
-        (o.type !== "courier" || riderCanTake(o.vehicle_type, rider.vehicleType)) &&
+        // A motorcycle courier request never goes to a bicycle; an exclusive class
+        // (Comfort) only to its riders. A store order carries a class only in
+        // distance mode (vehicle_type is null otherwise: any rider).
+        (o.type === "ride" || riderCanTake(o.vehicle_type, rider, classes)) &&
         // A ride needs a motorcycle (and a woman, when the customer asked for
         // one), and is never offered past its 10-minute search window.
         (o.type !== "ride" ||
-          (riderCanTakeRide(o, { vehicleType: rider.vehicleType, gender }) && !isRideSearchExpired(o, now)))
+          (riderCanTakeRide(o, { vehicleType: rider.vehicleType, vehicleClass: rider.vehicleClass, gender }, classes) &&
+            !isRideSearchExpired(o, now)))
     );
 
     // Every checkout with an open member is loaded whole, including members
@@ -342,7 +346,9 @@ app.openapi(
       // A held member is defensive only: stores can't request a rider for a checkout.
       const offerable =
         isBundleOfferable(rows) &&
-        !members.some((m) => skip.has(m.id) || m.customer_id === user.id || isHeld(m, now));
+        !members.some((m) => skip.has(m.id) || m.customer_id === user.id || isHeld(m, now)) &&
+        // Every store's delivery class must be one this rider can take.
+        members.every((m) => riderCanTake(m.vehicle_type, rider, classes));
       return offerable ? [members] : [];
     });
 
@@ -556,6 +562,10 @@ app.openapi(
         return c.json({ error: "This job is no longer available" }, 409);
       }
       if (!isBundleOfferable(rows)) return c.json({ error: "This job is no longer available" }, 409);
+      const [me, classes] = await Promise.all([riderPosition(user.id), getVehicleClasses()]);
+      if (!members.every((m) => riderCanTake(m.vehicle_type, me, classes))) {
+        return c.json({ error: "This delivery needs a different vehicle" }, 409);
+      }
       if (await currentJobRow(user.id)) return c.json({ error: "Finish your current trip first" }, 400);
 
       // A single conditional update is the atomic claim. Rejected and canceled
@@ -639,17 +649,28 @@ app.openapi(
       if (order.type === "courier") {
         // Past its search window the request is being canceled (no_rider).
         if (isCourierSearchExpired(order, now)) return c.json({ error: "This job is no longer available" }, 409);
-        if (!riderCanTake(order.vehicle_type, (await riderPosition(user.id)).vehicleType)) {
+        if (!riderCanTake(order.vehicle_type, await riderPosition(user.id), await getVehicleClasses())) {
           return c.json({ error: "This delivery needs a motorcycle" }, 409);
+        }
+      } else if (order.type !== "ride" && order.vehicle_type) {
+        // A distance-mode store order is for one vehicle class (orders.vehicle_type).
+        if (!riderCanTake(order.vehicle_type, await riderPosition(user.id), await getVehicleClasses())) {
+          return c.json({ error: "This delivery needs a different vehicle" }, 409);
         }
       }
       if (order.type === "ride") {
         // Past its search window the ride is being canceled (no_rider).
         if (isRideSearchExpired(order, now)) return c.json({ error: "This job is no longer available" }, 409);
-        const problem = rideRiderProblem(order, {
-          vehicleType: (await riderPosition(user.id)).vehicleType,
-          gender: rideOf(order)?.female_rider_only ? await riderGender(user.id) : null,
-        });
+        const me = await riderPosition(user.id);
+        const problem = rideRiderProblem(
+          order,
+          {
+            vehicleType: me.vehicleType,
+            vehicleClass: me.vehicleClass,
+            gender: rideOf(order)?.female_rider_only ? await riderGender(user.id) : null,
+          },
+          await getVehicleClasses()
+        );
         if (problem === "vehicle") return c.json({ error: "This ride needs a motorcycle" }, 409);
         if (problem === "gender") return c.json({ error: "This passenger asked for a female rider" }, 409);
       }

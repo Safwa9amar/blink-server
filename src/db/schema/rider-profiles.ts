@@ -41,6 +41,9 @@ export const riderProfiles = pgTable(
       .default(sql`'BK-RR-' || nextval('rider_id_seq')`),
     // wilaya / bank_rib are common fields and live on users (see users.ts).
     vehicleType: vehicleType("vehicle_type"),
+    // Vehicle classes (20261029180000_vehicle_classes.sql): the class staff assigned
+    // (null = the default class of vehicle_type). Riders can't change it themselves.
+    vehicleClass: text("vehicle_class"),
     // Verification (20261010232027_rider_verification.sql): licence + national
     // ID scans in the private `rider-documents` bucket, each reviewed by staff,
     // and the overall status the server gates rider work on. Service role only.

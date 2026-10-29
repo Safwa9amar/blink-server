@@ -5,6 +5,7 @@ import { env } from "../../config/env";
 import { priceCoupon } from "../../lib/coupons";
 import { riderCanTake } from "../../lib/courier";
 import { haversineKm, type CourierVehicle, type LatLng } from "../../lib/courier-pricing";
+import { getVehicleClasses } from "../../lib/pricing";
 import { OFFER_RADIUS_KM } from "../../lib/dispatch";
 import { nearbyRidersMap, type MapCandidate } from "../../lib/nearby-riders-map";
 import { supabaseAdmin } from "../../lib/supabase";
@@ -31,7 +32,7 @@ export async function priceCourierCoupon(userId: string, code: string, fare: num
 export async function freeRidersNear(point: LatLng): Promise<MapCandidate[]> {
   const { data: profiles } = await supabaseAdmin
     .from("rider_profiles")
-    .select("user_id, latitude, longitude, vehicle_type, location_updated_at")
+    .select("user_id, latitude, longitude, vehicle_type, vehicle_class, location_updated_at")
     .eq("is_available", true)
     .eq("verification_status", "approved")
     .not("latitude", "is", null)
@@ -42,6 +43,7 @@ export async function freeRidersNear(point: LatLng): Promise<MapCandidate[]> {
       return {
         id: p.user_id as string,
         vehicle: (p.vehicle_type as string | null) ?? null,
+        vehicleClass: (p.vehicle_class as string | null) ?? null,
         km: haversineKm(point, at),
         ...at,
         updatedAt: (p.location_updated_at as string | null) ?? null,
@@ -70,13 +72,15 @@ export const ridersMap = (able: readonly MapCandidate[]) =>
   nearbyRidersMap(able, { now: Date.now(), secret: env.RIDER_MAP_SALT, radiusKm: OFFER_RADIUS_KM });
 
 /**
- * Free riders within the offer radius of `point`: counted per vehicle, and
- * all of them on the map (every free rider can take some vehicle's job).
+ * Free riders within the offer radius of `point`: counted per vehicle class
+ * (riderCanTake with the rider's class), and all of them on the map (every
+ * free rider can take some class's job).
  */
 export async function nearbyCourierRiders(point: LatLng) {
-  const free = await freeRidersNear(point);
+  const [free, classes] = await Promise.all([freeRidersNear(point), getVehicleClasses()]);
   return {
-    count: (vehicle: CourierVehicle) => riderCount(free.filter((p) => riderCanTake(vehicle, p.vehicle))),
+    count: (vehicle: CourierVehicle) =>
+      riderCount(free.filter((p) => riderCanTake(vehicle, { vehicleType: p.vehicle, vehicleClass: p.vehicleClass }, classes))),
     map: ridersMap(free),
   };
 }

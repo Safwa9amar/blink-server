@@ -3,8 +3,8 @@ import { describe, it } from "node:test";
 import { isWilayaCode, PRICING_FIELDS, PRICING_KEYS, PRICING_SCHEMAS, PRICING_SCOPES, PRICING_SEEDS, scopeError } from "./pricing/catalog";
 
 describe("pricing catalog", () => {
-  it("has 16 keys (12 + zone pricing) and every seed passes its own schema", () => {
-    assert.equal(PRICING_KEYS.length, 16);
+  it("has 17 keys (12 + zone pricing + store_delivery) and every seed passes its own schema", () => {
+    assert.equal(PRICING_KEYS.length, 17);
     for (const k of PRICING_KEYS) {
       assert.ok(PRICING_SCHEMAS[k].safeParse(PRICING_SEEDS[k]).success, k);
       assert.ok(PRICING_SCOPES[k], k);

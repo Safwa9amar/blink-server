@@ -30,14 +30,14 @@ app.openapi(route, async (c) => {
   const { pickup, destination, coupon_code, female_rider_only } = c.req.valid("json");
 
   const cfg = await rideFareConfig(pickup, destination);
+  // One option per enabled ride class that has a price here (the live app only knows `motorcycle` until staff enable more).
   const quote = quoteRide(pickup, destination, cfg.rates, cfg.multiplier, {
     formula: cfg.formula,
     surcharge: cfg.surcharge,
     enabled: cfg.enabled,
+    classes: cfg.legs,
   });
-  const riders = await nearbyRideRiders(pickup, female_rider_only);
-  // A female-rider-only ride needs a female rider around ("subject to availability").
-  const noFemaleRider = female_rider_only && riders.count === 0;
+  const riders = await nearbyRideRiders(pickup, female_rider_only, quote.options.map((o) => o.vehicle_type));
 
   let couponReason: string | null = null;
   let couponValid = false;
@@ -53,16 +53,21 @@ app.openapi(route, async (c) => {
           couponReason ??= priced.reason;
         }
       }
+      const near = riders.count(o.vehicle_type);
+      // A female-rider-only ride needs a female rider around ("subject to availability").
+      const noFemaleRider = female_rider_only && near.count === 0;
       return {
         vehicle_type: o.vehicle_type,
+        vehicle_name: o.vehicle_name,
+        base_vehicle: o.base_vehicle,
         fare: o.fare,
         discount,
         total: Math.max(0, o.fare - discount),
         duration_minutes: o.duration_minutes,
         available: o.available && !noFemaleRider,
         unavailable_reason: o.unavailable_reason ?? (noFemaleRider ? ("no_female_rider" as const) : null),
-        pickup_eta_minutes: ridePickupEtaMinutes(o.vehicle_type, riders.nearestKm, cfg.formula),
-        nearby_riders: riders.count,
+        pickup_eta_minutes: ridePickupEtaMinutes(o.vehicle_type, near.nearestKm, cfg.formula, o.base_vehicle),
+        nearby_riders: near.count,
       };
     })
   );

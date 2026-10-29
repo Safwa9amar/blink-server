@@ -1,6 +1,7 @@
 import { auth } from "../../middleware/auth";
 import { router } from "../../openapi";
 import admin from "./admin";
+import vehicleClasses from "./vehicle-classes";
 import zones from "./zones";
 
 // Pricing config console (spec: blink/docs/superpowers/specs/
@@ -11,5 +12,6 @@ const app = router();
 app.use("/*", auth);
 app.route("/", admin);
 app.route("/", zones);
+app.route("/", vehicleClasses);
 
 export default app;

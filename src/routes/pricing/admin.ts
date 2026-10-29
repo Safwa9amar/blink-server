@@ -5,7 +5,11 @@
 // triggers (same transaction as the write), keyed on updated_by / created_by.
 import { isPartnerDealKey, pricingDealCopy, PARTNER_DEAL_KEYS } from "../../lib/pricing/copy";
 import {
+  fieldsFor,
+  isLegKey,
   isPricingKey,
+  legClassError,
+  legOf,
   PRICING_FIELDS,
   PRICING_GROUPS,
   PRICING_SCHEMAS,
@@ -19,12 +23,17 @@ import { fareBreakdown, SEED_FORMULA, surchargeFor } from "../../lib/pricing/far
 import { haversineKm, routeKm } from "../../lib/courier-pricing";
 import { rideKm } from "../../lib/ride-pricing";
 import { feeExample, type ExampleValues } from "../../lib/pricing/examples";
+import { legsFromValue, type ClassLeg, type VehicleClass } from "../../lib/pricing/vehicle-classes";
+import { priceStoreDelivery } from "../../lib/pricing/store-delivery";
+import { liveClassViews } from "./vehicle-classes";
 import { simulate, SIM_DEFAULTS, type SimInputs, type SimPrices } from "../../lib/pricing/simulate";
 import { orderPricingContext } from "../../lib/pricing/fees";
 import {
   getAllPrices,
   getPrice,
   getPrices,
+  getClassLegs,
+  getVehicleClasses,
   invalidatePricingCache,
   placeContext,
   pricingPlace,
@@ -243,6 +252,12 @@ async function tierValueError(key: PricingKey, value: unknown): Promise<{ error:
   return details.length ? { error: "Unknown or archived tier", code: "tier", details } : null;
 }
 
+/** Live (non-archived) classes read from the table, not the 15 s cache: a save right after creating a class must see it. */
+async function liveClassesFresh(): Promise<VehicleClass[]> {
+  invalidatePricingCache();
+  return (await getVehicleClasses()).filter((c) => !c.archived);
+}
+
 /** The first live override with the same key + scope + overlapping window, if any. */
 async function findConflict(candidate: OverrideLike, exceptId?: string) {
   const { data, error } = await supabaseAdmin
@@ -304,7 +319,8 @@ function feeView(
   row: { value: unknown; updated_at: string | null; updated_by: string | null } | undefined,
   active: number,
   defaults: ExampleValues = PRICING_SEEDS,
-  tiers: string[] = []
+  tiers: string[] = [],
+  classes: readonly VehicleClass[] = []
 ) {
   return {
     key,
@@ -312,7 +328,8 @@ function feeView(
     unit: PRICING_UNITS[key],
     scopes: PRICING_SCOPES[key],
     // `tier` fields list the live tiers as their options.
-    fields: PRICING_FIELDS[key].map((f) => (f.unit === "tier" ? { ...f, options: tiers } : f)),
+    // Leg fields are generated per live class serving the key's service (each carries `class`).
+    fields: fieldsFor(key, classes.filter((c) => !c.archived)).map((f) => (f.unit === "tier" ? { ...f, options: tiers } : f)),
     value: row?.value ?? PRICING_SEEDS[key],
     seed: PRICING_SEEDS[key],
     updated_at: row?.updated_at ?? null,
@@ -347,16 +364,20 @@ app.openapi(
     responses: { 200: json(PricingCatalogResponse), 401: errorResponses[401], 403: errorResponses[403] },
   }),
   async (c) => {
-    const [{ data, error }, counts, tiers] = await Promise.all([
+    const [{ data, error }, counts, tiers, classViews] = await Promise.all([
       supabaseAdmin.from("pricing_settings").select("key, value, updated_at, updated_by"),
       activeCounts(),
       liveTierCodes(),
+      liveClassViews(),
     ]);
     if (error) throw new Error(`[pricing] settings read failed: ${error.message}`);
     const rows = new Map((data ?? []).map((r) => [r.key as string, r]));
     const keys = Object.keys(PRICING_SEEDS) as PricingKey[];
     const defaults = Object.fromEntries(keys.map((k) => [k, rows.get(k)?.value ?? PRICING_SEEDS[k]])) as ExampleValues;
-    return c.json({ fees: keys.map((k) => feeView(k, rows.get(k), counts.get(k) ?? 0, defaults, tiers)) }, 200);
+    return c.json(
+      { fees: keys.map((k) => feeView(k, rows.get(k), counts.get(k) ?? 0, defaults, tiers, classViews)), vehicle_classes: classViews },
+      200
+    );
   }
 );
 
@@ -398,6 +419,8 @@ app.openapi(
 
     const tierProblem = await tierValueError(key, parsed.data);
     if (tierProblem) return c.json(tierProblem, 400);
+    const classProblem = legClassError(key, parsed.data, await liveClassesFresh());
+    if (classProblem) return c.json({ error: classProblem, code: "class" }, 400);
 
     const { data: current } = await supabaseAdmin
       .from("pricing_settings")
@@ -420,7 +443,7 @@ app.openapi(
 
     invalidatePricingCache();
     const counts = await activeCounts();
-    return c.json({ fee: feeView(key, saved, counts.get(key) ?? 0, PRICING_SEEDS, await liveTierCodes()) }, 200);
+    return c.json({ fee: feeView(key, saved, counts.get(key) ?? 0, PRICING_SEEDS, await liveTierCodes(), await liveClassesFresh()) }, 200);
   }
 );
 
@@ -505,6 +528,8 @@ app.openapi(
     }
     const tierProblem = await tierValueError(key, parsed.data);
     if (tierProblem) return c.json(tierProblem, 400);
+    const classProblem = legClassError(key, parsed.data, await liveClassesFresh());
+    if (classProblem) return c.json({ error: classProblem, code: "class" }, 400);
     const starts_at = body.starts_at ?? null;
     const ends_at = body.ends_at ?? null;
     if (starts_at && ends_at && Date.parse(ends_at) <= Date.parse(starts_at)) {
@@ -592,6 +617,8 @@ app.openapi(
       }
       const tierProblem = await tierValueError(before.key, parsed.data);
       if (tierProblem) return c.json(tierProblem, 400);
+      const classProblem = legClassError(before.key, parsed.data, await liveClassesFresh());
+      if (classProblem) return c.json({ error: classProblem, code: "class" }, 400);
       value = parsed.data;
       patch.value = value;
     }
@@ -696,11 +723,12 @@ app.openapi(
     const q = c.req.valid("query");
     let query = supabaseAdmin
       .from("pricing_changes")
-      .select("id, key, override_id, zone_id, tier, action, before, after, actor_id, created_at");
+      .select("id, key, override_id, zone_id, tier, vehicle_class, action, before, after, actor_id, created_at");
     if (q.key) query = query.eq("key", q.key);
     if (q.override_id) query = query.eq("override_id", q.override_id);
     if (q.zone_id) query = query.eq("zone_id", q.zone_id);
     if (q.tier) query = query.eq("tier", q.tier);
+    if (q.vehicle_class) query = query.eq("vehicle_class", q.vehicle_class);
     const { data, error } = await query.order("created_at", { ascending: false }).limit(q.limit);
     if (error) throw new Error(`[pricing] history read failed: ${error.message}`);
     const rows = data ?? [];
@@ -769,6 +797,11 @@ app.openapi(
     const amount = sample?.amount ?? 10_000;
     const cashType = context.service === "withdrawal" ? "withdrawal" : "deposit";
     const live = Object.fromEntries(prices.map((p) => [p.key, p.value])) as Record<string, any>;
+    const [classes, courierLegs, rideLegs] = await Promise.all([
+      getVehicleClasses(),
+      getClassLegs("courier_fare", ctx),
+      getClassLegs("ride_fare", ctx),
+    ]);
     const [courierMult, rideMult, cashRate, courierFormula, rideFormula] = await Promise.all([
       getPrice("fare_multiplier", { ...ctx, service: "courier" }),
       getPrice("fare_multiplier", { ...ctx, service: "ride" }),
@@ -790,19 +823,25 @@ app.openapi(
       const cash = pick("blink_cash_fee_rate", cashRate.value);
       const cf = pick("fare_formula", courierFormula.value);
       const rf = pick("fare_formula", rideFormula.value);
-      const courierOf = (v: "bicycle" | "motorcycle") =>
-        fareBreakdown(courier[v], km, {
-          stops,
-          extraStopFee: courier.extra_stop_fee,
-          multiplier: cm,
-          formula: cf,
-          speedKmh: cf.speed_kmh[v],
-        }).fare;
+      // 5 km fare per enabled class serving each service (a candidate leg value replaces the resolved legs).
+      const fares = (key: "courier_fare" | "ride_fare", resolved: ClassLeg[], value: any, mult: number, formula: any) => {
+        const legs = cand?.key === key ? legsFromValue(key, cand.value, classes) : resolved;
+        return Object.fromEntries(
+          legs.map((l) => [
+            l.cls.code,
+            fareBreakdown(l.leg, km, {
+              stops: key === "courier_fare" ? stops : 1,
+              extraStopFee: key === "courier_fare" ? value.extra_stop_fee : 0,
+              multiplier: mult,
+              formula,
+              speedKmh: formula.speed_kmh[l.cls.base_vehicle],
+            }).fare,
+          ])
+        );
+      };
       return {
-        courier_fare: { bicycle: courierOf("bicycle"), motorcycle: courierOf("motorcycle") },
-        ride_fare: {
-          motorcycle: fareBreakdown(ride.motorcycle, km, { multiplier: rm, formula: rf, speedKmh: rf.speed_kmh.motorcycle }).fare,
-        },
+        courier_fare: fares("courier_fare", courierLegs, courier, cm, cf),
+        ride_fare: fares("ride_fare", rideLegs, ride, rm, rf),
         blink_cash_fee: { type: cashType as "deposit" | "withdrawal", amount, fees: Math.round(amount * cash.rate) },
       };
     };
@@ -834,7 +873,7 @@ app.openapi(
 
 // ─── POST /pricing/admin/simulate ────────────────────────────────────
 const SIM_KEYS = {
-  store: ["service_fee", "merchant_commission_rate", "stamp_duty_rate", "rider_commission_rate"],
+  store: ["service_fee", "merchant_commission_rate", "stamp_duty_rate", "rider_commission_rate", "store_delivery", "fare_multiplier", "fare_formula"],
   courier: ["courier_fare", "fare_multiplier", "fare_formula", "service_area", "rider_commission_rate"],
   ride: ["ride_fare", "fare_multiplier", "fare_formula", "service_area", "rider_commission_rate"],
   deposit: ["blink_cash_fee_rate", "agent_platform_share", "agent_tax_rate"],
@@ -872,6 +911,7 @@ app.openapi(
     };
     let delivery = inputs.delivery_fee;
     let place: PricingPlace | null = null;
+    let storePoint: { lat: number; lng: number } | null = null;
     if (scenario === "store" && context.store_id) {
       const sc = await orderPricingContext({ type: "merchant", storeId: context.store_id });
       // A store without a known wilaya keeps the wilaya the caller picked.
@@ -882,6 +922,8 @@ app.openapi(
         const { data } = await supabaseAdmin.from("stores").select("delivery_fee").eq("id", context.store_id).maybeSingle();
         if (data?.delivery_fee != null) delivery = Number(data.delivery_fee);
       }
+      const { data: pt } = await supabaseAdmin.from("stores").select("latitude, longitude").eq("id", context.store_id).maybeSingle();
+      if (pt?.latitude != null && pt?.longitude != null) storePoint = { lat: Number(pt.latitude), lng: Number(pt.longitude) };
     }
 
     // Where the trip is priced: a picked pickup point, else a zone, else a tier.
@@ -906,6 +948,14 @@ app.openapi(
     const results = await getPrices(keys, ctx);
     const prices: SimPrices = {};
     for (const k of keys) (prices as Record<string, unknown>)[k] = results[k as keyof typeof results].value;
+    // Fares are per vehicle class: resolve each class's leg for this context.
+    if (isFare) {
+      prices.legs = await getClassLegs(scenario === "ride" ? "ride_fare" : "courier_fare", ctx);
+      const wanted = inputs.vehicle ?? SIM_DEFAULTS.vehicle;
+      if (!prices.legs.some((l) => l.cls.code === wanted)) {
+        return c.json({ error: `"${wanted}" isn't an enabled ${scenario} class with a price here`, code: "class" }, 400);
+      }
+    }
 
     // Pickup + drop-off: the server derives km, the drop-off surcharge and the service area.
     const simInputs: SimInputs = { ...inputs, delivery_fee: delivery ?? SIM_DEFAULTS.delivery_fee };
@@ -920,6 +970,33 @@ app.openapi(
       extra.push({ key: "dropoff_surcharge", value: rule.value, override_id: rule.overrideId });
     }
     if (isFare) simInputs.in_service_area = (prices.service_area ?? { enabled: true }).enabled;
+
+    // Store delivery: through store_delivery when a store (or a picked pickup) and a drop-off are given.
+    let deliveryExtra: { delivery_mode: "merchant" | "distance"; vehicle: string | null; breakdown?: { step: any; amount: number }[] } | null = null;
+    if (scenario === "store" && prices.store_delivery && (context.store_id || context.pickup)) {
+      const origin = context.pickup ?? storePoint;
+      const formula = prices.fare_formula ?? SEED_FORMULA;
+      let km: number | null = null;
+      let surcharge = 0;
+      if (origin && context.dropoff) {
+        km = routeKm(origin, [context.dropoff], formula);
+        const dropPlace = await pricingPlace(context.dropoff, { at });
+        const rule = await getPrice("dropoff_surcharge", { service, ...placeContext(dropPlace), at });
+        surcharge = surchargeFor(rule.value, place?.tier ?? null, dropPlace.tier);
+        extra.push({ key: "dropoff_surcharge", value: rule.value, override_id: rule.overrideId });
+      }
+      const q = priceStoreDelivery({
+        rule: prices.store_delivery,
+        merchantFee: delivery ?? SIM_DEFAULTS.delivery_fee,
+        km,
+        legs: await getClassLegs("store_delivery", ctx),
+        multiplier: prices.fare_multiplier?.multiplier ?? 1,
+        formula,
+        surcharge,
+      });
+      simInputs.delivery_fee = q.fee;
+      deliveryExtra = { delivery_mode: q.mode, vehicle: q.vehicle, breakdown: q.breakdown };
+    }
 
     const result = simulate(scenario, simInputs, prices);
 
@@ -937,6 +1014,9 @@ app.openapi(
           ...extra.map((e) => ({ ...e, scope: e.override_id ? scopes.get(e.override_id) ?? null : null })),
         ],
         place: place ? placeView(place) : null,
+        ...(deliveryExtra
+          ? { delivery_mode: deliveryExtra.delivery_mode, vehicle: deliveryExtra.vehicle, ...(deliveryExtra.breakdown ? { breakdown: deliveryExtra.breakdown } : {}) }
+          : {}),
       },
       200
     );

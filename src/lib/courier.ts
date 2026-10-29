@@ -3,6 +3,7 @@
 // is ONE order for ONE rider: a pickup, then drop-offs delivered in order.
 // The order's `courier` jsonb holds the details below; the flat pickup_* /
 // destination_* columns mirror the pickup and the LAST drop-off.
+import { canTake, VEHICLE_CLASS_SEEDS, type VehicleClass } from "./pricing/vehicle-classes";
 
 export const PARCEL_TYPES = ["documents", "food", "clothes", "electronics", "fragile", "other"] as const;
 export const PARCEL_SIZES = ["small", "medium", "large"] as const;
@@ -175,10 +176,19 @@ export function dropOffSummary(c: CourierDetails) {
 }
 
 /**
- * Can a rider with `riderVehicle` take a courier requested for `jobVehicle`?
- * A motorcycle request (longer, priced for it) never goes to a bicycle; a
- * bicycle request may go to anyone. An unknown vehicle on either side is allowed.
+ * Can this rider take a courier request (or a distance-mode store delivery)
+ * for class `jobVehicle`? Delegates to canTake (vehicle-classes.ts): an
+ * exclusive class needs a rider of that class, a motorcycle-based class never
+ * goes to a bicycle, a bicycle-based one goes to anyone, and an unknown
+ * vehicle on either side is allowed. `bicycle` / `motorcycle` / null behave as
+ * they always did. `rider` is the legacy bare vehicle string, or the rider's
+ * vehicle + assigned class; `classes` defaults to the seed classes.
  */
-export function riderCanTake(jobVehicle: string | null | undefined, riderVehicle: string | null | undefined) {
-  return !(jobVehicle === "motorcycle" && riderVehicle === "bicycle");
+export function riderCanTake(
+  jobVehicle: string | null | undefined,
+  rider: string | null | undefined | { vehicleType?: string | null; vehicleClass?: string | null },
+  classes: readonly Pick<VehicleClass, "code" | "base_vehicle" | "exclusive">[] = VEHICLE_CLASS_SEEDS
+) {
+  const r = rider && typeof rider === "object" ? rider : { vehicleType: rider };
+  return canTake(jobVehicle, r, classes);
 }

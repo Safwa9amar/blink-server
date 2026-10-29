@@ -1,9 +1,11 @@
 import { priceCoupon } from "../../lib/coupons";
 import { scheduleError } from "../../lib/courier";
-import { COURIER_VEHICLES, courierFare, courierMaxKm, routeKm, type CourierVehicle } from "../../lib/courier-pricing";
+import { courierFare, routeKm } from "../../lib/courier-pricing";
 import { courierFareConfig, placeColumns } from "../../lib/pricing/fare-config";
 import { checkoutAlreadyCharged, orderPricingContext, quoteServiceFee } from "../../lib/pricing/fees";
 import { getPrices } from "../../lib/pricing";
+import { deliveryFeeChanged } from "../../lib/pricing/store-delivery";
+import { quoteStoreDelivery, type StoreDeliveryResult } from "../../lib/pricing/store-quote";
 import { priceCourierCoupon } from "../courier/shared";
 import { createNotification } from "../../lib/notifications";
 import { withoutOffer } from "../../lib/rider-offer";
@@ -37,7 +39,7 @@ const route = createRoute({
     403: errorResponses[403],
     409: json(
       z.union([PackChangedError, ProductChangedError, PriceChangedError]),
-      "Either a pack line's pack changed or is gone (code pack_changed: refetch the store's packs), a product line's product moved in price or is no longer sold (code product_changed: refresh the cart with POST /marketplace/products/lookup), or the service fee changed since `expected_service_fee` was shown (error price_changed, with the current `service_fee`)"
+      "Either a pack line's pack changed or is gone (code pack_changed: refetch the store's packs), a product line's product moved in price or is no longer sold (code product_changed: refresh the cart with POST /marketplace/products/lookup), or the service fee / the store's delivery fee changed since `expected_service_fee` / `expected_delivery_fee` was shown (error price_changed, with the current `service_fee` and `delivery_fee`)"
     ),
   },
 });
@@ -64,10 +66,11 @@ app.openapi(route, async (c) => {
   // "Store closed" / "Store unavailable" prefixes.
   let storeOwnerId: string | null = null;
   let storeDeliveryFee: number | null = null;
+  let storePoint: { lat: number; lng: number } | null = null;
   if (body.store_id) {
     const { data: store } = await supabaseAdmin
       .from("stores")
-      .select("name, owner_id, status, is_open, hours, manual_override, delivery_fee")
+      .select("name, owner_id, status, is_open, hours, manual_override, delivery_fee, latitude, longitude")
       .eq("id", body.store_id)
       .maybeSingle();
     if (!store || store.status !== "active") {
@@ -78,6 +81,7 @@ app.openapi(route, async (c) => {
     }
     storeOwnerId = store.owner_id;
     storeDeliveryFee = Number(store.delivery_fee ?? 0);
+    if (store.latitude != null && store.longitude != null) storePoint = { lat: Number(store.latitude), lng: Number(store.longitude) };
   }
 
   // Courier requests from older apps (new ones use POST /courier/requests):
@@ -98,6 +102,16 @@ app.openapi(route, async (c) => {
   });
   const fee = await quoteServiceFee(pricingCtx, { type: body.type, checkoutAlreadyCharged: alreadyCharged });
   let serviceFee = fee.amount;
+  // The delivery fee of a store order (store_delivery: the merchant's own fee, or by distance
+  // to the customer); the same function as POST /orders/quote, so shown = charged.
+  let delivery: StoreDeliveryResult | null = null;
+  if (body.type === "merchant" && body.store_id && storeDeliveryFee != null) {
+    const customer =
+      body.destination_lat != null && body.destination_lng != null
+        ? { lat: body.destination_lat, lng: body.destination_lng }
+        : null;
+    delivery = await quoteStoreDelivery({ ctx: pricingCtx, merchantFee: storeDeliveryFee, store: storePoint, customer });
+  }
   const pricingApplied: Record<string, string | null> = {};
   // Where the order is priced (the store, or a courier's pickup); stored on the order.
   let orderPlace = pricingCtx.place;
@@ -114,17 +128,27 @@ app.openapi(route, async (c) => {
     }
     // Tolerant compare (float noise), and no 409 when the server fee is 0 only
     // because this checkout already paid it (a retry of a multi-store checkout).
-    if (
+    const serviceChanged =
       body.expected_service_fee != null &&
       !(serviceFee === 0 && alreadyCharged) &&
-      Math.abs(body.expected_service_fee - serviceFee) >= 0.005
-    ) {
-      return c.json({ error: "price_changed" as const, service_fee: serviceFee }, 409);
+      Math.abs(body.expected_service_fee - serviceFee) >= 0.005;
+    // Absent from old apps: no 409 then. Compared before any free-pack waiver.
+    const deliveryChanged = delivery != null && deliveryFeeChanged(body.expected_delivery_fee, delivery.fee);
+    if (serviceChanged || deliveryChanged) {
+      return c.json(
+        {
+          error: "price_changed" as const,
+          service_fee: serviceFee,
+          ...(delivery ? { delivery_fee: delivery.fee } : {}),
+        },
+        409
+      );
     }
+    if (delivery) Object.assign(pricingApplied, delivery.applied);
   }
   if (isCourier) {
-    const vehicle = COURIER_VEHICLES.find((v) => v === body.vehicle_type) as CourierVehicle | undefined;
-    if (!vehicle) return c.json({ error: "vehicle_type must be bicycle or motorcycle" }, 400);
+    const vehicle = body.vehicle_type;
+    if (!vehicle) return c.json({ error: "vehicle_type is required for a courier request" }, 400);
     const { pickup_lat, pickup_lng, destination_lat, destination_lng } = body;
     if (pickup_lat == null || pickup_lng == null || destination_lat == null || destination_lng == null) {
       return c.json({ error: "A courier request needs pickup and destination coordinates" }, 400);
@@ -138,15 +162,21 @@ app.openapi(route, async (c) => {
     if (!cfg.enabled) {
       return c.json({ error: "Our courier service isn't available at this pickup yet", code: "out_of_service_area" }, 400);
     }
+    const chosen = cfg.legs.find((l) => l.cls.code === vehicle);
+    if (!chosen) return c.json({ error: `vehicle_type "${vehicle}" isn't an available courier option` }, 400);
     const km = routeKm({ lat: pickup_lat, lng: pickup_lng }, [{ lat: destination_lat, lng: destination_lng }], cfg.formula);
-    const maxKm = courierMaxKm(vehicle, cfg.rates);
+    const maxKm = chosen.leg.max_km;
     if (km > maxKm) {
       return c.json({ error: `Route too long: a ${vehicle} takes up to ${maxKm} km` }, 400);
     }
     subtotal = 0;
-    deliveryFee = courierFare(vehicle, km, 1, cfg.rates, cfg.multiplier, { formula: cfg.formula, surcharge: cfg.surcharge });
+    deliveryFee = courierFare(vehicle, km, 1, cfg.rates, cfg.multiplier, {
+      formula: cfg.formula,
+      surcharge: cfg.surcharge,
+      classes: cfg.legs,
+    });
     serviceFee = 0;
-    Object.assign(pricingApplied, cfg.applied);
+    Object.assign(pricingApplied, cfg.appliedFor(vehicle));
     orderPlace = cfg.place;
   }
 
@@ -155,7 +185,7 @@ app.openapi(route, async (c) => {
   // product is gone; older apps' lines without a product_id are matched by
   // title and charged the live price); pack lines 409 pack_changed when the
   // pack is gone or its price moved. The subtotal is
-  // summed from the lines and the delivery fee is the store's. When every line
+  // summed from the lines and the delivery fee is the store's `store_delivery` fee. When every line
   // is a free-delivery pack the customer doesn't pay it: `deliveryWaived` is
   // taken off as a discount the merchant funds (earnings subtract discounts),
   // while `delivery_fee` stays the rider's fare (src/lib/pack-pricing.ts).
@@ -196,7 +226,7 @@ app.openapi(route, async (c) => {
     } catch (e) {
       return c.json({ error: (e as Error).message }, 400);
     }
-    const priced = priceStoreOrder(lines, packs, storeDeliveryFee);
+    const priced = priceStoreOrder(lines, packs, delivery?.fee ?? storeDeliveryFee);
     if (!priced.ok) {
       return c.json(
         {
@@ -268,7 +298,10 @@ app.openapi(route, async (c) => {
       pickup_lng: body.pickup_lng ?? null,
       destination_lat: body.destination_lat ?? null,
       destination_lng: body.destination_lng ?? null,
-      vehicle_type: body.vehicle_type ?? null,
+      // Courier: the class the customer picked. Store order: the class the delivery fee was
+      // priced for (distance mode) so dispatch only offers it to riders who can take it; null
+      // (any rider) in merchant mode. Never the client's value for a store order.
+      vehicle_type: isCourier ? body.vehicle_type ?? null : delivery?.vehicle ?? null,
       scheduled_at: body.scheduled_at ?? null,
       // Rates in force at order time (snapshot): dues and payouts use these.
       merchant_commission_rate: merchantCommissionRate,
