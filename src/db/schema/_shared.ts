@@ -15,10 +15,10 @@ export const timestamps = {
     .defaultNow(),
 };
 
-// Two-factor at the database level for tables staff can reach with their own JWT:
+// Two-factor at the database level for staff-only tables reachable with a staff JWT:
 // a RESTRICTIVE policy (ANDed with the permissive ones) that requires an aal2 session
-// whenever the caller has a verified MFA factor. App users have no factors, so nothing
-// changes for them. `mfa_satisfied()` is defined in 20261030130000_staff_mfa_rls.sql.
+// whenever the caller has a verified MFA factor. Tables app users also read (support
+// chats) put `mfa_satisfied()` on their staff branch instead. `mfa_satisfied()` is defined in 20261030130000_staff_mfa_rls.sql.
 export const mfaPolicy = (name: string) =>
   pgPolicy(name, {
     as: "restrictive",

@@ -22,7 +22,8 @@ function verifySignature(secret: string, headers: Headers, body: string): boolea
   if (!id || !timestamp || !signatures) return false;
 
   // Reject replays older/newer than 5 minutes.
-  if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
+  const ts = Number(timestamp);
+  if (!Number.isFinite(ts) || Math.abs(Date.now() / 1000 - ts) > 300) return false;
 
   const key = Buffer.from(secret.replace(/^v1,/, "").replace(/^whsec_/, ""), "base64");
   const expected = createHmac("sha256", key).update(`${id}.${timestamp}.${body}`).digest();
