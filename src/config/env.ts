@@ -82,6 +82,9 @@ const envSchema = z.object({
   // Secret Supabase generates when the Send SMS hook is created
   // ("v1,whsec_…"). Empty = POST /hooks/send-sms rejects every call.
   SEND_SMS_HOOK_SECRET: z.string().default(""),
+  // Same for the Send Email hook ("v1,whsec_…"). Empty = POST /hooks/send-email
+  // rejects every call. Once enabled, ALL Supabase auth emails go through it.
+  SEND_EMAIL_HOOK_SECRET: z.string().default(""),
   // SMS Gate API base. Default is the public cloud relay; in the app's Local
   // server mode use http://<phone-lan-ip>:8080 instead.
   SMS_GATE_URL: z

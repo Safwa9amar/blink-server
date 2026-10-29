@@ -22,7 +22,7 @@ export const staffAccessEvents = pgTable(
   (t) => [
     check(
       "staff_access_events_action_check",
-      sql`${t.action} in ('created', 'granted', 'role_changed', 'revoked', 'suspended', 'reinstated', 'password_reset', 'password_changed')`
+      sql`${t.action} in ('created', 'granted', 'role_changed', 'revoked', 'suspended', 'reinstated', 'password_reset', 'password_changed', 'password_recovered', 'mfa_enrolled', 'mfa_removed', 'passkey_added', 'passkey_removed', 'mfa_reset', 'passkeys_reset', 'reset_email_sent')`
     ),
     index("idx_staff_access_events_created").on(t.createdAt.desc()),
     index("idx_staff_access_events_target").on(t.targetId, t.createdAt.desc()),

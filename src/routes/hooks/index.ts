@@ -2,6 +2,9 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { Hono } from "hono";
 import { env } from "../../config/env";
 import { isSmsGateConfigured, sendSms } from "../../lib/sms-gate";
+import { emailConfigured, sendMail } from "../../lib/email/smtp";
+import { buildAuthLink, pickLang } from "../../lib/email/auth-links";
+import { renderAuthEmail } from "../../lib/email/auth-templates";
 
 // Supabase Auth hooks. NOT behind `auth` (Supabase has no user JWT) — each
 // request is signed with the hook secret (Standard Webhooks) and verified here.
@@ -64,6 +67,82 @@ app.post("/send-sms", async (c) => {
   } catch (err) {
     console.error("[send-sms] delivery failed:", err);
     return c.json(hookError("Could not send the verification SMS", 500), 500);
+  }
+
+  return c.json({}, 200);
+});
+
+interface SendEmailPayload {
+  user: { id: string; email: string; new_email?: string; user_metadata?: unknown };
+  email_data: {
+    token?: string;
+    token_hash?: string;
+    redirect_to?: string;
+    email_action_type: string;
+    token_new?: string;
+    token_hash_new?: string;
+  };
+}
+
+// POST /hooks/send-email — Supabase "Send Email" hook. Supabase generates the
+// codes/links; we render + deliver them over SMTP. Payload:
+// https://supabase.com/docs/guides/auth/auth-hooks/send-email-hook
+// Point it at https://blink.greenpedal.net/hooks/send-email and put the secret
+// in SEND_EMAIL_HOOK_SECRET. Once enabled, every auth email (mobile too) uses it.
+app.post("/send-email", async (c) => {
+  if (!env.SEND_EMAIL_HOOK_SECRET) {
+    return c.json(hookError("Send Email hook is not configured", 500), 500);
+  }
+
+  const body = await c.req.text();
+  if (!verifySignature(env.SEND_EMAIL_HOOK_SECRET, c.req.raw.headers, body)) {
+    return c.json(hookError("Invalid webhook signature", 401), 401);
+  }
+
+  let payload: SendEmailPayload;
+  try {
+    payload = JSON.parse(body) as SendEmailPayload;
+  } catch {
+    return c.json(hookError("Invalid payload", 400), 400);
+  }
+  const { user, email_data: d } = payload;
+  if (!user?.email || !d?.email_action_type) return c.json(hookError("Invalid payload", 400), 400);
+
+  if (!emailConfigured()) {
+    if (env.NODE_ENV !== "production") {
+      console.log(`[send-email] SMTP not configured — ${d.email_action_type} for ${user.email}: code ${d.token}`);
+      return c.json({}, 200);
+    }
+    return c.json(hookError("Email delivery is not configured", 500), 500);
+  }
+
+  const type = d.email_action_type;
+  const lang = pickLang(d.redirect_to, user.user_metadata);
+
+  // Each entry is one email. Secure email change sends to BOTH addresses and
+  // Supabase's fields are swapped: current address → token + token_hash_new,
+  // new address → token_new + token_hash. Without a new_email (secure change
+  // off) the single OTP goes to user.email as token/token_hash.
+  const jobs: { to: string; code?: string; hash?: string }[] = [];
+  if (type === "email_change" && user.new_email) {
+    if (d.token_hash_new) jobs.push({ to: user.email, code: d.token, hash: d.token_hash_new });
+    if (d.token_hash) jobs.push({ to: user.new_email, code: d.token_new || undefined, hash: d.token_hash });
+  } else {
+    jobs.push({ to: user.email, code: d.token, hash: d.token_hash });
+  }
+
+  try {
+    for (const job of jobs) {
+      const link =
+        job.hash && type !== "reauthentication"
+          ? buildAuthLink({ redirectTo: d.redirect_to, tokenHash: job.hash, type, supabaseUrl: env.SUPABASE_URL })
+          : undefined;
+      const mail = renderAuthEmail({ type, lang, code: job.code, link });
+      await sendMail({ to: job.to, ...mail });
+    }
+  } catch (err) {
+    console.error("[send-email] delivery failed:", err);
+    return c.json(hookError("Could not send the email", 500), 500);
   }
 
   return c.json({}, 200);

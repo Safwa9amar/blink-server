@@ -72,3 +72,19 @@ Nodemailer can't run in the browser); the dashboard proxies to the staff-gated
   credentials + the migration applied. Smoke test after deploy: send an email to
   the mailbox, wait for the next poll, confirm the thread appears at `/email`, then
   reply and confirm the customer receives it.
+
+## Auth emails (Supabase Send Email hook)
+
+`POST /hooks/send-email` delivers Supabase Auth emails (password recovery, email
+code / magic link, signup, invite, email change, reauthentication) over the same
+SMTP mailbox, in en/fr/ar. Enable it once:
+
+1. Supabase Dashboard → Authentication → Hooks → **Send Email** → HTTPS →
+   `https://blink.greenpedal.net/hooks/send-email`; generate the secret.
+2. Put the secret in `SEND_EMAIL_HOOK_SECRET` (server env) and redeploy.
+
+**Once enabled, Supabase sends ALL auth emails — the mobile app's included —
+through this hook** (and SMTP must be configured, or auth emails fail).
+Link rule: a `redirect_to` ending in `/auth/confirm` gets `token_hash` + `type`
+appended; otherwise the standard `/auth/v1/verify` URL is used. Language comes
+from the `lang` param of `redirect_to`, then user metadata, default `fr`.

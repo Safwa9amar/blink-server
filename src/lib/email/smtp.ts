@@ -25,6 +25,11 @@ function getTransporter() {
   return transporter;
 }
 
+// Plain one-shot send (auth emails etc.). From = SMTP_FROM. Throws on failure.
+export async function sendMail(msg: { to: string; subject: string; html: string; text: string }): Promise<void> {
+  await getTransporter().sendMail({ from: env.SMTP_FROM || env.SMTP_USER || "", ...msg });
+}
+
 export interface ReplyResult {
   message: EmailMessageRow | null;
   error: string | null;
